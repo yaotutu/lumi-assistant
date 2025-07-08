@@ -5,7 +5,11 @@
       "Bash(mv:*)",
       "Bash(rmdir:*)",
       "Bash(flutter create:*)",
-      "Bash(flutter pub:*)"
+      "Bash(flutter pub:*)",
+      "Bash(flutter analyze:*)",
+      "Bash(flutter build:*)",
+      "Bash(flutter test:*)",
+      "Bash(flutter:*)"
     ],
     "deny": []
   }
