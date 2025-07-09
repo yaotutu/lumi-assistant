@@ -104,6 +104,7 @@ class ConnectionStatusCard extends HookConsumerWidget {
         padding: const EdgeInsets.all(16),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
+          mainAxisSize: MainAxisSize.min,
           children: [
             // 标题
             Row(
@@ -123,115 +124,62 @@ class ConnectionStatusCard extends HookConsumerWidget {
             ),
             const SizedBox(height: 16),
             
-            // 网络状态
-            _buildStatusRow(
-              context,
-              '网络连接',
-              connectionState.networkState.isConnected ? '正常' : '断开',
-              connectionState.networkState.isConnected ? Colors.green : Colors.red,
-              connectionState.networkState.lastCheckedAt,
-            ),
-            
-            const SizedBox(height: 8),
-            
             // WebSocket状态
-            _buildStatusRow(
+            _buildSimpleStatusRow(
               context,
               'WebSocket',
               _getWebSocketStatusText(connectionState.webSocketState.connectionState),
               _getStatusColor(connectionState.webSocketState.connectionState),
-              connectionState.webSocketState.lastConnectedAt,
             ),
-            
-            if (connectionState.webSocketState.errorMessage != null) ...[
-              const SizedBox(height: 12),
-              Container(
-                padding: const EdgeInsets.all(12),
-                decoration: BoxDecoration(
-                  color: Colors.red.withOpacity(0.1),
-                  borderRadius: BorderRadius.circular(8),
-                  border: Border.all(color: Colors.red.withOpacity(0.3)),
-                ),
-                child: Row(
-                  children: [
-                    Icon(Icons.error_outline, color: Colors.red, size: 16),
-                    const SizedBox(width: 8),
-                    Expanded(
-                      child: Text(
-                        connectionState.webSocketState.errorMessage!,
-                        style: const TextStyle(
-                          color: Colors.red,
-                          fontSize: 12,
-                        ),
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-            ],
             
             const SizedBox(height: 16),
             
-            // 操作按钮
-            Row(
-              children: [
-                Expanded(
-                  child: ElevatedButton.icon(
-                    onPressed: connectionState.webSocketState.isConnecting 
-                        ? null 
-                        : () => connectionManager.reconnect(),
-                    icon: connectionState.webSocketState.isConnecting
-                        ? SizedBox(
-                            width: 16,
-                            height: 16,
-                            child: CircularProgressIndicator(strokeWidth: 2),
-                          )
-                        : const Icon(Icons.refresh),
-                    label: Text(connectionState.webSocketState.isConnecting ? '连接中...' : '重新连接'),
-                  ),
+            // 简化的操作按钮
+            if (!connectionState.webSocketState.isConnected)
+              SizedBox(
+                width: double.infinity,
+                child: ElevatedButton.icon(
+                  onPressed: connectionState.webSocketState.isConnecting 
+                      ? null 
+                      : () => connectionManager.reconnect(),
+                  icon: connectionState.webSocketState.isConnecting
+                      ? SizedBox(
+                          width: 16,
+                          height: 16,
+                          child: CircularProgressIndicator(strokeWidth: 2),
+                        )
+                      : const Icon(Icons.refresh),
+                  label: Text(connectionState.webSocketState.isConnecting ? '连接中...' : '重新连接'),
                 ),
-                const SizedBox(width: 8),
-                if (connectionState.webSocketState.isConnected)
-                  Expanded(
-                    child: OutlinedButton.icon(
-                      onPressed: () => connectionManager.disconnectWebSocket(),
-                      icon: const Icon(Icons.link_off),
-                      label: const Text('断开连接'),
-                    ),
-                  ),
-              ],
-            ),
+              ),
           ],
         ),
       ),
     );
   }
 
-  /// 构建状态行
-  Widget _buildStatusRow(
+  /// 构建简化状态行
+  Widget _buildSimpleStatusRow(
     BuildContext context,
     String label,
     String status,
     Color statusColor,
-    DateTime? lastUpdate,
   ) {
     return Row(
       children: [
-        SizedBox(
-          width: 80,
-          child: Text(
-            label,
-            style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-              fontWeight: FontWeight.w500,
-            ),
-          ),
-        ),
         Container(
-          width: 8,
-          height: 8,
+          width: 12,
+          height: 12,
           decoration: BoxDecoration(
             color: statusColor,
             shape: BoxShape.circle,
+          ),
+        ),
+        const SizedBox(width: 12),
+        Text(
+          label,
+          style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+            fontWeight: FontWeight.w500,
           ),
         ),
         const SizedBox(width: 8),
@@ -242,15 +190,6 @@ class ConnectionStatusCard extends HookConsumerWidget {
             fontWeight: FontWeight.w500,
           ),
         ),
-        if (lastUpdate != null) ...[
-          const Spacer(),
-          Text(
-            '${lastUpdate.hour.toString().padLeft(2, '0')}:${lastUpdate.minute.toString().padLeft(2, '0')}',
-            style: Theme.of(context).textTheme.bodySmall?.copyWith(
-              color: Colors.grey,
-            ),
-          ),
-        ],
       ],
     );
   }

@@ -21,7 +21,7 @@
 
 **POST /api/ota/ 示例**
 ```bash
-curl -X POST "http://localhost:8000/api/ota/" \
+curl -X POST "http://192.168.110.199:8000/api/ota/" \
   -H "device-id: ESP32-001" \
   -H "Content-Type: application/json" \
   -d '{"application":{"version":"1.0.0"}}'
@@ -37,7 +37,7 @@ curl -X POST "http://localhost:8000/api/ota/" \
 
 **POST /api/vision 示例**
 ```bash
-curl -X POST "http://localhost:8000/api/vision" \
+curl -X POST "http://192.168.110.199:8000/api/vision" \
   -H "Device-Id: your-device-id" \
   -H "Authorization: Bearer your-token" \
   -H "Client-Id: your-client-id" \
@@ -58,9 +58,11 @@ curl -X POST "http://localhost:8000/api/vision" \
 ## 🔌 WebSocket API
 
 ### 连接信息
-- **URL**: `ws://localhost:8000/`
+- **URL**: `ws://192.168.110.199:8000/`
 - **协议**: WebSocket
 - **消息格式**: JSON (文本) + 二进制 (音频)
+
+**注意**：`192.168.110.199:8000` 是开发环境的IP地址，生产环境部署时需要调整为实际的服务器地址。
 
 ### 客户端消息类型
 
@@ -89,7 +91,7 @@ curl -X POST "http://localhost:8000/api/vision" \
 
 **建立连接**
 ```javascript
-const ws = new WebSocket('ws://localhost:8000/');
+const ws = new WebSocket('ws://192.168.110.199:8000/');
 
 // 连接成功后发送Hello
 ws.onopen = () => {
@@ -308,7 +310,7 @@ server:
 web:
   enabled: true
   port: 8000
-  websocket: "ws://localhost:8000/"
+  websocket: "ws://192.168.110.199:8000/"
 
 log:
   log_level: "info"
@@ -319,8 +321,8 @@ log:
 
 ```javascript
 const config = {
-    websocketUrl: 'ws://localhost:8000/',
-    httpApiUrl: 'http://localhost:8000/api',
+    websocketUrl: 'ws://192.168.110.199:8000/',
+    httpApiUrl: 'http://192.168.110.199:8000/api',
     reconnectAttempts: 5,
     reconnectDelay: 2000,
     audioConfig: {
@@ -339,16 +341,16 @@ const config = {
 ### 1. 测试连接
 ```bash
 # 测试HTTP API
-curl "http://localhost:8000/api/ota/"
+curl "http://192.168.110.199:8000/api/ota/"
 
 # 测试WebSocket (使用wscat)
 npm install -g wscat
-wscat -c ws://localhost:8000/
+wscat -c ws://192.168.110.199:8000/
 ```
 
 ### 2. 基础WebSocket客户端
 ```javascript
-const ws = new WebSocket('ws://localhost:8000/');
+const ws = new WebSocket('ws://192.168.110.199:8000/');
 
 ws.onopen = () => {
     // 发送Hello消息

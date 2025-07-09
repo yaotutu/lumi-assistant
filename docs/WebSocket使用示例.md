@@ -15,7 +15,8 @@
 
 ```javascript
 class XiaoZhiWebSocketClient {
-    constructor(url = 'ws://localhost:8000/') {
+    constructor(url = 'ws://192.168.110.199:8000/') {
+        // 注意：这是开发环境的IP地址，生产环境需要调整为实际的服务器地址
         this.url = url;
         this.ws = null;
         this.sessionId = null;
@@ -199,7 +200,8 @@ import json
 import logging
 
 class XiaoZhiWebSocketClient:
-    def __init__(self, url="ws://localhost:8000/"):
+    def __init__(self, url="ws://192.168.110.199:8000/"):
+        # 注意：这是开发环境的IP地址，生产环境需要调整为实际的服务器地址
         self.url = url
         self.websocket = None
         self.session_id = None

@@ -5,6 +5,7 @@ import 'package:hooks_riverpod/hooks_riverpod.dart';
 import '../../core/constants/app_constants.dart';
 import '../providers/connection_provider.dart';
 import '../widgets/connection_status_widget.dart';
+import '../widgets/handshake_status_widget.dart';
 
 /// 应用主页
 class HomePage extends HookConsumerWidget {
@@ -60,9 +61,19 @@ class HomePage extends HookConsumerWidget {
                         ),
                         const Spacer(),
                         // 连接状态指示器
-                        ConnectionStatusWidget(
-                          showDetails: true,
-                          onTap: () => _showConnectionDetails(context),
+                        Row(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            ConnectionStatusWidget(
+                              showDetails: true,
+                              onTap: () => _showConnectionDetails(context),
+                            ),
+                            const SizedBox(width: 8),
+                            HandshakeStatusWidget(
+                              showDetails: true,
+                              onTap: () => _showHandshakeDetails(context),
+                            ),
+                          ],
                         ),
                       ],
                     ),
@@ -72,44 +83,135 @@ class HomePage extends HookConsumerWidget {
               
               // 中央内容区域
               Expanded(
-                child: Center(
+                child: SingleChildScrollView(
+                  padding: const EdgeInsets.symmetric(horizontal: 24.0),
                   child: Column(
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
-                      // 欢迎信息
+                      // 添加一些顶部间距
+                      const SizedBox(height: 20),
+                      
+                      // 主要信息卡片
                       Card(
-                        margin: const EdgeInsets.all(24),
-                        child: Padding(
-                          padding: const EdgeInsets.all(32),
+                        elevation: 8,
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(16),
+                        ),
+                        child: Container(
+                          width: double.infinity,
+                          padding: const EdgeInsets.all(20),
                           child: Column(
+                            mainAxisSize: MainAxisSize.min,
                             children: [
+                              // 成功图标
                               Icon(
                                 Icons.check_circle,
                                 color: Theme.of(context).colorScheme.primary,
-                                size: 64,
+                                size: 40,
                               ),
-                              const SizedBox(height: 16),
+                              const SizedBox(height: 12),
+                              
+                              // 标题
                               Text(
                                 '项目初始化成功！',
-                                style: Theme.of(context).textTheme.headlineSmall,
+                                style: Theme.of(context).textTheme.titleLarge?.copyWith(
+                                  fontWeight: FontWeight.bold,
+                                ),
                                 textAlign: TextAlign.center,
                               ),
-                              const SizedBox(height: 8),
-                              Text(
-                                '当前时间: ${_formatTime(currentTime.value)}',
-                                style: Theme.of(context).textTheme.bodyLarge,
-                                textAlign: TextAlign.center,
+                              const SizedBox(height: 10),
+                              
+                              // 时间显示
+                              Container(
+                                padding: const EdgeInsets.symmetric(
+                                  horizontal: 12, 
+                                  vertical: 6,
+                                ),
+                                decoration: BoxDecoration(
+                                  color: Theme.of(context).colorScheme.primary.withValues(alpha: 0.1),
+                                  borderRadius: BorderRadius.circular(8),
+                                ),
+                                child: Text(
+                                  _formatTime(currentTime.value),
+                                  style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                                    color: Theme.of(context).colorScheme.primary,
+                                    fontWeight: FontWeight.w500,
+                                  ),
+                                ),
                               ),
                               const SizedBox(height: 16),
-                              Text(
-                                '里程碑2验证内容：\n✅ WebSocket服务实现\n✅ 网络状态检查\n✅ 连接状态管理\n✅ 状态显示组件\n🔄 等待服务器验证',
-                                style: Theme.of(context).textTheme.bodyMedium,
-                                textAlign: TextAlign.center,
+                              
+                              // 里程碑状态
+                              Container(
+                                padding: const EdgeInsets.all(12),
+                                decoration: BoxDecoration(
+                                  color: Colors.green.withValues(alpha: 0.1),
+                                  borderRadius: BorderRadius.circular(12),
+                                  border: Border.all(
+                                    color: Colors.green.withValues(alpha: 0.3),
+                                    width: 1,
+                                  ),
+                                ),
+                                child: Column(
+                                  children: [
+                                    Text(
+                                      '里程碑3已完成',
+                                      style: Theme.of(context).textTheme.titleSmall?.copyWith(
+                                        color: Colors.green[700],
+                                        fontWeight: FontWeight.bold,
+                                      ),
+                                    ),
+                                    const SizedBox(height: 6),
+                                    Text(
+                                      'Hello握手流程验证成功\nWebSocket连接正常工作',
+                                      style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                                        color: Colors.green[600],
+                                      ),
+                                      textAlign: TextAlign.center,
+                                    ),
+                                  ],
+                                ),
                               ),
                             ],
                           ),
                         ),
                       ),
+                      
+                      const SizedBox(height: 16),
+                      
+                      // 准备下一步提示
+                      Card(
+                        elevation: 4,
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(12),
+                        ),
+                        child: Container(
+                          width: double.infinity,
+                          padding: const EdgeInsets.all(12),
+                          child: Row(
+                            children: [
+                              Icon(
+                                Icons.arrow_forward,
+                                color: Theme.of(context).colorScheme.secondary,
+                                size: 18,
+                              ),
+                              const SizedBox(width: 8),
+                              Expanded(
+                                child: Text(
+                                  '准备开始里程碑4：基础UI框架',
+                                  style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                                    color: Theme.of(context).colorScheme.secondary,
+                                    fontWeight: FontWeight.w500,
+                                  ),
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                      ),
+                      
+                      // 添加一些底部间距
+                      const SizedBox(height: 20),
                     ],
                   ),
                 ),
@@ -129,7 +231,7 @@ class HomePage extends HookConsumerWidget {
                       ),
                     ),
                     Text(
-                      '里程碑 2/10',
+                      '里程碑 4/10',
                       style: const TextStyle(
                         color: Colors.white70,
                         fontSize: 12,
@@ -153,6 +255,19 @@ class HomePage extends HookConsumerWidget {
         child: SizedBox(
           width: 400,
           child: const ConnectionStatusCard(),
+        ),
+      ),
+    );
+  }
+
+  /// 显示握手详情对话框
+  void _showHandshakeDetails(BuildContext context) {
+    showDialog(
+      context: context,
+      builder: (context) => Dialog(
+        child: SizedBox(
+          width: 400,
+          child: const HandshakeStatusCard(),
         ),
       ),
     );

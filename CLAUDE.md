@@ -6,7 +6,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 Lumi Assistant is a Flutter-based intelligent voice assistant client using a milestone-driven development approach. The project is currently in **Phase 1** (text chat functionality) with 10 planned milestones, each requiring user verification before proceeding.
 
-**Current Status**: Milestone 1 (Project Setup) - Documentation phase completed, ready for Flutter project initialization.
+**Current Status**: Milestone 3 (Hello handshake flow) - Successfully completed. Ready for Milestone 4 (Basic UI framework).
 
 ## Architecture
 
@@ -42,8 +42,34 @@ flutter doctor
 # Install dependencies
 flutter pub get
 
-# Run the app
-flutter run
+# Run the app (preferred device: YT3002)
+flutter run -d 1W11833968
+
+# Alternative: List all devices first
+flutter devices
+```
+
+### Device Configuration
+**Preferred Testing Device**: YT3002 (Device ID: 1W11833968)
+- Platform: Android 7.0 (API 24)
+- Architecture: android-arm64
+- Usage: Primary development and testing device
+
+When multiple devices are connected, always use the `-d 1W11833968` flag to target the YT3002 device specifically.
+
+### Quick Commands for YT3002 Device
+```bash
+# Quick run on YT3002 (preferred device)
+flutter run -d 1W11833968
+
+# Hot reload on YT3002
+flutter run -d 1W11833968 --hot
+
+# Build and run debug APK on YT3002
+flutter run -d 1W11833968 --debug
+
+# Clean build on YT3002
+flutter clean && flutter pub get && flutter run -d 1W11833968
 ```
 
 ### Testing
@@ -72,11 +98,16 @@ flutter analyze
 
 ## Backend Integration
 
-**WebSocket**: `ws://localhost:8000/`
-**HTTP API**: `http://localhost:8000/api`
+**WebSocket**: `ws://[SERVER_IP]:8000/` (开发阶段：`ws://192.168.110.199:8000/`)
+**HTTP API**: `http://[SERVER_IP]:8000/api` (开发阶段：`http://192.168.110.199:8000/api`)
 **Authentication**: Bearer Token + Device-ID headers
 
 Message types: `hello` (handshake), `chat` (text), `listen` (voice), `image` (vision)
+
+**服务器IP配置说明**：
+- 开发环境：使用局域网IP `192.168.110.199`
+- 生产环境：需要根据实际部署的服务器IP地址调整
+- 配置位置：`lib/core/constants/api_constants.dart`
 
 ## Milestone-Driven Development
 
@@ -86,11 +117,17 @@ Message types: `hello` (handshake), `chat` (text), `listen` (voice), `image` (vi
 3. No feature should be started without completing current milestone
 4. All progress tracked in `docs/planning/MILESTONE_TRACKING.md`
 
-**Current Milestone 1 Tasks**:
-- Create Flutter project structure
-- Configure dependencies (hooks_riverpod, dio, web_socket_channel)
-- Setup basic theming
-- Verify compilation and hot reload
+**里程碑完成状态**:
+- ✅ 里程碑1：项目基础搭建 - 已完成
+- ✅ 里程碑2：网络连接基础 - 已完成  
+- ✅ 里程碑3：Hello握手流程 - 已完成
+- 🔄 里程碑4：基础UI框架 - 准备开始
+
+**当前里程碑4任务**:
+- 主界面布局设计
+- 背景图片显示
+- 基础信息面板（时间显示）
+- 右下角按钮组件
 
 ## Code Patterns
 

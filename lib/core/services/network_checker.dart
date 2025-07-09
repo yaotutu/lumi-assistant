@@ -58,7 +58,10 @@ class NetworkChecker extends StateNotifier<NetworkState> {
 
   /// 检查网络连接状态
   Future<void> checkConnection() async {
+    print('[NetworkChecker] 开始检查网络连接');
+    
     try {
+      print('[NetworkChecker] 检查多个域名连接状态');
       // 尝试解析多个知名域名以确保网络连接正常
       final results = await Future.wait([
         _checkHost('google.com'),
@@ -66,8 +69,12 @@ class NetworkChecker extends StateNotifier<NetworkState> {
         _checkHost('github.com'),
       ]);
 
+      print('[NetworkChecker] 域名检查结果: $results');
+      
       // 只要有一个成功就认为网络正常
       final hasConnection = results.any((result) => result);
+      
+      print('[NetworkChecker] 网络连接状态: ${hasConnection ? "已连接" : "未连接"}');
       
       state = state.copyWith(
         connectionState: hasConnection 
@@ -77,6 +84,7 @@ class NetworkChecker extends StateNotifier<NetworkState> {
         errorMessage: hasConnection ? null : '网络连接不可用',
       );
     } catch (error) {
+      print('[NetworkChecker] 网络检查异常: $error');
       state = state.copyWith(
         connectionState: NetworkConnectionState.disconnected,
         errorMessage: '网络检查失败: $error',

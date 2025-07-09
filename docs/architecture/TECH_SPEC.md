@@ -378,11 +378,11 @@ enum ConnectionStatus {
 ```dart
 class ApiConstants {
   // WebSocket
-  static const String wsBaseUrl = 'ws://localhost:8000/';
+  static const String wsBaseUrl = 'ws://192.168.110.199:8000/';
   static const String wsProtocol = 'websocket';
   
   // HTTP API
-  static const String httpBaseUrl = 'http://localhost:8000/api';
+  static const String httpBaseUrl = 'http://192.168.110.199:8000/api';
   
   // 超时配置
   static const Duration connectTimeout = Duration(seconds: 30);

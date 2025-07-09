@@ -10,7 +10,9 @@
       "Bash(flutter build:*)",
       "Bash(flutter test:*)",
       "Bash(flutter:*)",
-      "Bash(grep:*)"
+      "Bash(grep:*)",
+      "Bash(killall:*)",
+      "Bash(true)"
     ],
     "deny": []
   }

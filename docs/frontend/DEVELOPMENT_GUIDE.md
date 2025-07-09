@@ -6,7 +6,7 @@
 - Flutter SDK 3.16+
 - Android Studio / VS Code
 - Android设备或模拟器
-- 后端服务运行在 `localhost:8000`
+- 后端服务运行在 `192.168.110.199:8000`（开发环境IP，生产环境需要调整）
 
 ### 开发环境配置
 ```bash
