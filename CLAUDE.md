@@ -30,7 +30,33 @@ lib/
 ├── data/                   # Data layer (models, repositories, datasources)
 ├── domain/                 # Business layer (entities, repository interfaces, use cases)
 └── presentation/           # UI layer (providers, pages, widgets)
+    ├── pages/               # Page-oriented organization
+    │   └── home/            # Home page and its components
+    │       ├── home_page.dart
+    │       └── widgets/     # Home page specific widgets
+    │           ├── background_layer.dart
+    │           ├── app_status_bar.dart
+    │           ├── time_panel.dart
+    │           ├── interaction_layer.dart
+    │           └── floating_actions.dart
+    ├── widgets/             # Shared widgets across pages
+    └── themes/              # App themes and styling
 ```
+
+### File Organization Rules
+
+**Page-Oriented Structure**: Each page should have its own directory containing:
+- Main page file (e.g., `home_page.dart`)
+- `widgets/` subdirectory for page-specific components
+- Any page-specific services, models, or utilities
+
+**Shared Components**: Common widgets used across multiple pages go in `presentation/widgets/`
+
+**Benefits**:
+- Clear separation of concerns per page
+- Easy to locate and maintain page-specific code
+- Better scalability for large applications
+- Intuitive file organization
 
 ## Development Commands
 
