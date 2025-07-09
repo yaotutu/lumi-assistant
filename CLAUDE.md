@@ -72,8 +72,8 @@ flutter analyze
 
 ## Backend Integration
 
-**WebSocket**: `ws://localhost:8080/ws`
-**HTTP API**: `http://localhost:8080/api`
+**WebSocket**: `ws://localhost:8000/`
+**HTTP API**: `http://localhost:8000/api`
 **Authentication**: Bearer Token + Device-ID headers
 
 Message types: `hello` (handshake), `chat` (text), `listen` (voice), `image` (vision)

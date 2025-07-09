@@ -57,7 +57,7 @@ lib/
 - Flutter SDK 3.16+
 - Android Studio 或 VS Code
 - Android设备或模拟器
-- 后端服务运行在 `localhost:8080`
+- 后端服务运行在 `localhost:8000`
 
 ### 安装运行
 
@@ -129,12 +129,12 @@ flutter run
 ## 🌐 后端接口
 
 ### WebSocket连接
-- **地址**: `ws://localhost:8080/ws`
+- **地址**: `ws://localhost:8000/`
 - **协议**: WebSocket
 - **消息格式**: JSON
 
 ### HTTP API
-- **基础地址**: `http://localhost:8080/api`
+- **基础地址**: `http://localhost:8000/api`
 - **认证方式**: Bearer Token + Device-ID
 
 ### 主要消息类型

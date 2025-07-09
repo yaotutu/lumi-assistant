@@ -42,12 +42,12 @@
 ## 2. 基础信息
 
 ### 2.1 服务地址
-- **HTTP API Base URL**: `http://localhost:8080/api`
-- **WebSocket URL**: `ws://localhost:8080/ws`
-- **Swagger文档**: `http://localhost:8080/swagger/index.html`
+- **HTTP API Base URL**: `http://localhost:8000/api`
+- **WebSocket URL**: `ws://localhost:8000/`
+- **Swagger文档**: `http://localhost:8000/swagger/index.html`
 
 ### 2.2 默认端口
-- **HTTP服务端口**: 8080
+- **HTTP服务端口**: 8000
 - **WebSocket服务端口**: 与HTTP共用
 
 ### 2.3 支持的协议
@@ -77,7 +77,7 @@ GET /api/ota/
 
 **响应示例**:
 ```
-OTA interface is running, websocket address: ws://localhost:8080/ws
+OTA interface is running, websocket address: ws://localhost:8000/
 ```
 
 **使用场景**: 
@@ -373,7 +373,7 @@ WebSocket API提供实时双向通信，支持语音交互、智能对话和多�
 
 #### 4.1.1 连接URL
 ```
-ws://localhost:8080/ws
+ws://localhost:8000/
 ```
 
 #### 4.1.2 连接流程
@@ -1048,7 +1048,7 @@ Token由服务端生成，包含以下信息：
 #### 8.1.2 示例代码 (JavaScript)
 ```javascript
 // 1. 建立WebSocket连接
-const ws = new WebSocket('ws://localhost:8080/ws');
+const ws = new WebSocket('ws://localhost:8000/');
 
 // 2. 连接成功后发送Hello消息
 ws.onopen = function() {

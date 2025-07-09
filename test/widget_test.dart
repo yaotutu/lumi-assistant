@@ -20,5 +20,8 @@ void main() {
     
     // Verify that the check icon is displayed
     expect(find.byIcon(Icons.check_circle), findsOneWidget);
+    
+    // Clean up any pending timers or streams
+    await tester.binding.delayed(const Duration(milliseconds: 100));
   });
 }

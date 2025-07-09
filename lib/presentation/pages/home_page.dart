@@ -3,6 +3,8 @@ import 'package:flutter_hooks/flutter_hooks.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 
 import '../../core/constants/app_constants.dart';
+import '../providers/connection_provider.dart';
+import '../widgets/connection_status_widget.dart';
 
 /// 应用主页
 class HomePage extends HookConsumerWidget {
@@ -36,23 +38,33 @@ class HomePage extends HookConsumerWidget {
         child: SafeArea(
           child: Column(
             children: [
-              // 顶部应用标题
+              // 顶部应用标题和连接状态
               Padding(
                 padding: const EdgeInsets.all(24.0),
-                child: Row(
+                child: Column(
                   children: [
-                    Icon(
-                      Icons.assistant,
-                      color: Colors.white,
-                      size: 32,
-                    ),
-                    const SizedBox(width: 12),
-                    Text(
-                      AppConstants.appName,
-                      style: Theme.of(context).textTheme.headlineSmall?.copyWith(
-                        color: Colors.white,
-                        fontWeight: FontWeight.bold,
-                      ),
+                    Row(
+                      children: [
+                        Icon(
+                          Icons.assistant,
+                          color: Colors.white,
+                          size: 32,
+                        ),
+                        const SizedBox(width: 12),
+                        Text(
+                          AppConstants.appName,
+                          style: Theme.of(context).textTheme.headlineSmall?.copyWith(
+                            color: Colors.white,
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
+                        const Spacer(),
+                        // 连接状态指示器
+                        ConnectionStatusWidget(
+                          showDetails: true,
+                          onTap: () => _showConnectionDetails(context),
+                        ),
+                      ],
                     ),
                   ],
                 ),
@@ -90,7 +102,7 @@ class HomePage extends HookConsumerWidget {
                               ),
                               const SizedBox(height: 16),
                               Text(
-                                '里程碑1验证内容：\n✅ Flutter项目创建完成\n✅ 依赖配置完成\n✅ 基础架构搭建\n✅ 主题配置完成\n✅ 热重载功能正常',
+                                '里程碑2验证内容：\n✅ WebSocket服务实现\n✅ 网络状态检查\n✅ 连接状态管理\n✅ 状态显示组件\n🔄 等待服务器验证',
                                 style: Theme.of(context).textTheme.bodyMedium,
                                 textAlign: TextAlign.center,
                               ),
@@ -117,7 +129,7 @@ class HomePage extends HookConsumerWidget {
                       ),
                     ),
                     Text(
-                      '里程碑 1/10',
+                      '里程碑 2/10',
                       style: const TextStyle(
                         color: Colors.white70,
                         fontSize: 12,
@@ -133,6 +145,19 @@ class HomePage extends HookConsumerWidget {
     );
   }
   
+  /// 显示连接详情对话框
+  void _showConnectionDetails(BuildContext context) {
+    showDialog(
+      context: context,
+      builder: (context) => Dialog(
+        child: SizedBox(
+          width: 400,
+          child: const ConnectionStatusCard(),
+        ),
+      ),
+    );
+  }
+
   /// 格式化时间显示
   String _formatTime(DateTime time) {
     return '${time.year}-${time.month.toString().padLeft(2, '0')}-${time.day.toString().padLeft(2, '0')} '

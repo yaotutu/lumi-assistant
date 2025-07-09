@@ -15,7 +15,7 @@
 
 ```javascript
 class XiaoZhiWebSocketClient {
-    constructor(url = 'ws://localhost:8080/ws') {
+    constructor(url = 'ws://localhost:8000/') {
         this.url = url;
         this.ws = null;
         this.sessionId = null;
@@ -199,7 +199,7 @@ import json
 import logging
 
 class XiaoZhiWebSocketClient:
-    def __init__(self, url="ws://localhost:8080/ws"):
+    def __init__(self, url="ws://localhost:8000/"):
         self.url = url
         self.websocket = None
         self.session_id = None

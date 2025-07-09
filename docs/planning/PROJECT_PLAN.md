@@ -10,8 +10,8 @@
 - **架构模式**: 分层架构 + 声明式状态管理 + 组合式组件设计
 
 ### 后端服务
-- **WebSocket**: ws://localhost:8080/ws
-- **HTTP API**: http://localhost:8080/api
+- **WebSocket**: ws://localhost:8000/
+- **HTTP API**: http://localhost:8000/api
 - **认证方式**: Bearer Token + Device-ID
 
 ## 开发原则
