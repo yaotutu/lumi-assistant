@@ -4,72 +4,17 @@ import 'package:uuid/uuid.dart';
 
 import '../../data/models/chat_ui_model.dart';
 import '../../data/models/message_model.dart';
+import '../../data/models/chat_state.dart';
+import '../../data/models/connection_state.dart';
 import 'connection_provider.dart';
 
-/// 聊天状态
-@immutable
-class ChatState {
-  /// 聊天消息列表
-  final List<ChatUIMessage> messages;
-  
-  /// 是否正在发送消息
-  final bool isSending;
-  
-  /// 是否正在接收响应
-  final bool isReceiving;
-  
-  /// 当前错误信息
-  final String? error;
-  
-  /// 会话ID
-  final String? sessionId;
-
-  const ChatState({
-    this.messages = const [],
-    this.isSending = false,
-    this.isReceiving = false,
-    this.error,
-    this.sessionId,
-  });
-
-  ChatState copyWith({
-    List<ChatUIMessage>? messages,
-    bool? isSending,
-    bool? isReceiving,
-    String? error,
-    String? sessionId,
-  }) {
-    return ChatState(
-      messages: messages ?? this.messages,
-      isSending: isSending ?? this.isSending,
-      isReceiving: isReceiving ?? this.isReceiving,
-      error: error ?? this.error,
-      sessionId: sessionId ?? this.sessionId,
-    );
-  }
-
-  /// 是否有消息
-  bool get hasMessages => messages.isNotEmpty;
-  
-  /// 是否忙碌中
-  bool get isBusy => isSending || isReceiving;
-  
-  /// 最后一条消息
-  ChatUIMessage? get lastMessage => messages.isNotEmpty ? messages.last : null;
-  
-  /// 用户消息数量
-  int get userMessageCount => messages.where((m) => m.isUser).length;
-  
-  /// 助手消息数量
-  int get assistantMessageCount => messages.where((m) => m.isAssistant).length;
-}
 
 /// 聊天状态管理
 class ChatNotifier extends StateNotifier<ChatState> {
   final Ref _ref;
   static const _uuid = Uuid();
 
-  ChatNotifier(this._ref) : super(const ChatState()) {
+  ChatNotifier(this._ref) : super(ChatStateFactory.initial()) {
     _initializeChat();
   }
 

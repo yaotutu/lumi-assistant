@@ -152,7 +152,10 @@ class HandshakeService extends StateNotifier<HandshakeResult> {
       
     } catch (error) {
       print('[Handshake] 发送Hello消息失败: $error');
-      throw WebSocketException('发送Hello消息失败: $error');
+      throw AppExceptionFactory.createWebSocketException(
+        '发送Hello消息失败: $error',
+        code: 'HANDSHAKE_SEND_FAILED',
+      );
     }
   }
 

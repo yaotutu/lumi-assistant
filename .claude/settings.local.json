@@ -15,7 +15,8 @@
       "Bash(true)",
       "Bash(rm:*)",
       "Bash(find:*)",
-      "Bash(ls:*)"
+      "Bash(ls:*)",
+      "Bash(pkill:*)"
     ],
     "deny": []
   }

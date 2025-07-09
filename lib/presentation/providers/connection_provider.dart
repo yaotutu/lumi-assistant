@@ -3,76 +3,15 @@ import 'package:hooks_riverpod/hooks_riverpod.dart';
 import '../../core/services/websocket_service.dart';
 import '../../core/services/network_checker.dart';
 import '../../core/services/handshake_service.dart';
+import '../../data/models/connection_state.dart';
+import '../../data/models/websocket_state.dart';
 
-/// 连接管理状态
-class ConnectionManagerState {
-  final WebSocketState webSocketState;
-  final NetworkState networkState;
-  final HandshakeResult handshakeResult;
-  final bool isInitialized;
-
-  const ConnectionManagerState({
-    required this.webSocketState,
-    required this.networkState,
-    required this.handshakeResult,
-    this.isInitialized = false,
-  });
-
-  ConnectionManagerState copyWith({
-    WebSocketState? webSocketState,
-    NetworkState? networkState,
-    HandshakeResult? handshakeResult,
-    bool? isInitialized,
-  }) {
-    return ConnectionManagerState(
-      webSocketState: webSocketState ?? this.webSocketState,
-      networkState: networkState ?? this.networkState,
-      handshakeResult: handshakeResult ?? this.handshakeResult,
-      isInitialized: isInitialized ?? this.isInitialized,
-    );
-  }
-
-  /// 整体连接状态
-  bool get isFullyConnected => networkState.isConnected && webSocketState.isConnected && handshakeResult.isCompleted;
-  
-  /// WebSocket是否连接
-  bool get isWebSocketConnected => networkState.isConnected && webSocketState.isConnected;
-  
-  /// 是否可以尝试连接
-  bool get canAttemptConnection => networkState.isConnected && !webSocketState.isConnected;
-  
-  /// 是否可以开始握手
-  bool get canStartHandshake => isWebSocketConnected && !handshakeResult.isHandshaking && !handshakeResult.isCompleted;
-  
-  /// 连接状态描述
-  String get statusDescription {
-    if (!networkState.isConnected) {
-      return '网络未连接';
-    } else if (webSocketState.isConnecting) {
-      return '正在连接服务器...';
-    } else if (!webSocketState.isConnected) {
-      return webSocketState.errorMessage ?? '未连接';
-    } else if (handshakeResult.isHandshaking) {
-      return '正在握手...';
-    } else if (handshakeResult.isCompleted) {
-      return '已就绪';
-    } else if (handshakeResult.isFailed) {
-      return handshakeResult.errorMessage ?? '握手失败';
-    } else {
-      return '已连接';
-    }
-  }
-}
 
 /// 连接管理器
 class ConnectionManager extends StateNotifier<ConnectionManagerState> {
   final Ref _ref;
 
-  ConnectionManager(this._ref) : super(ConnectionManagerState(
-    webSocketState: const WebSocketState(connectionState: WebSocketConnectionState.disconnected),
-    networkState: const NetworkState(connectionState: NetworkConnectionState.unknown),
-    handshakeResult: const HandshakeResult(state: HandshakeState.idle),
-  )) {
+  ConnectionManager(this._ref) : super(ConnectionManagerStateFactory.initial()) {
     _initialize();
   }
 

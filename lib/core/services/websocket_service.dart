@@ -8,61 +8,8 @@ import 'package:web_socket_channel/web_socket_channel.dart';
 
 import '../constants/api_constants.dart';
 import '../errors/exceptions.dart';
+import '../../data/models/websocket_state.dart';
 
-/// WebSocket连接状态枚举
-enum WebSocketConnectionState {
-  /// 断开连接
-  disconnected,
-  /// 连接中
-  connecting,
-  /// 已连接
-  connected,
-  /// 连接失败
-  failed,
-  /// 重连中
-  reconnecting,
-}
-
-/// WebSocket连接状态数据类
-class WebSocketState {
-  final WebSocketConnectionState connectionState;
-  final String? errorMessage;
-  final DateTime? lastConnectedAt;
-  final int reconnectAttempts;
-
-  const WebSocketState({
-    required this.connectionState,
-    this.errorMessage,
-    this.lastConnectedAt,
-    this.reconnectAttempts = 0,
-  });
-
-  WebSocketState copyWith({
-    WebSocketConnectionState? connectionState,
-    String? errorMessage,
-    DateTime? lastConnectedAt,
-    int? reconnectAttempts,
-  }) {
-    return WebSocketState(
-      connectionState: connectionState ?? this.connectionState,
-      errorMessage: errorMessage ?? this.errorMessage,
-      lastConnectedAt: lastConnectedAt ?? this.lastConnectedAt,
-      reconnectAttempts: reconnectAttempts ?? this.reconnectAttempts,
-    );
-  }
-
-  /// 是否已连接
-  bool get isConnected => connectionState == WebSocketConnectionState.connected;
-  
-  /// 是否正在连接
-  bool get isConnecting => connectionState == WebSocketConnectionState.connecting;
-  
-  /// 是否断开连接
-  bool get isDisconnected => connectionState == WebSocketConnectionState.disconnected;
-  
-  /// 是否连接失败
-  bool get isFailed => connectionState == WebSocketConnectionState.failed;
-}
 
 /// WebSocket服务类
 class WebSocketService extends StateNotifier<WebSocketState> {
@@ -72,7 +19,7 @@ class WebSocketService extends StateNotifier<WebSocketState> {
   Timer? _heartbeatTimer;
   final StreamController<Map<String, dynamic>> _messageController = StreamController.broadcast();
 
-  WebSocketService() : super(const WebSocketState(connectionState: WebSocketConnectionState.disconnected));
+  WebSocketService() : super(WebSocketStateFactory.disconnected());
 
   /// 消息流
   Stream<Map<String, dynamic>> get messageStream => _messageController.stream;
@@ -87,10 +34,7 @@ class WebSocketService extends StateNotifier<WebSocketState> {
     }
 
     print('[WebSocket] 设置连接状态为连接中');
-    state = state.copyWith(
-      connectionState: WebSocketConnectionState.connecting,
-      errorMessage: null,
-    );
+    state = state.startConnecting();
 
     try {
       print('[WebSocket] 开始检查网络连接');
@@ -153,12 +97,7 @@ class WebSocketService extends StateNotifier<WebSocketState> {
       final authMessage = 'Authorization: Bearer ${ApiConstants.defaultToken}';
       _channel!.sink.add(authMessage);
       
-      state = state.copyWith(
-        connectionState: WebSocketConnectionState.connected,
-        lastConnectedAt: DateTime.now(),
-        reconnectAttempts: 0,
-        errorMessage: null,
-      );
+      state = state.connectSuccess();
 
       print('[WebSocket] 连接成功，开始监听消息');
       // 开始监听消息
@@ -174,10 +113,7 @@ class WebSocketService extends StateNotifier<WebSocketState> {
       final errorMsg = _handleConnectionError(error);
       print('[WebSocket] 处理后的错误消息: $errorMsg');
       
-      state = state.copyWith(
-        connectionState: WebSocketConnectionState.failed,
-        errorMessage: errorMsg,
-      );
+      state = state.connectFailure(errorMessage: errorMsg);
       
       print('[WebSocket] 启动自动重连机制');
       // 启动自动重连
@@ -197,7 +133,11 @@ class WebSocketService extends StateNotifier<WebSocketState> {
       print('[WebSocket] TCP连接测试成功');
     } catch (error) {
       print('[WebSocket] TCP连接测试失败: $error');
-      throw NetworkException('无法连接到服务器 $host:$port - $error');
+      throw AppExceptionFactory.createNetworkException(
+        '无法连接到服务器 $host:$port - $error',
+        code: 'TCP_CONNECTION_FAILED',
+        details: {'host': host, 'port': port, 'error': error.toString()},
+      );
     }
   }
 
@@ -213,10 +153,7 @@ class WebSocketService extends StateNotifier<WebSocketState> {
     _channel = null;
     _messageSubscription = null;
     
-    state = state.copyWith(
-      connectionState: WebSocketConnectionState.disconnected,
-      errorMessage: null,
-    );
+    state = state.disconnect();
     print('[WebSocket] 连接已断开');
   }
 
@@ -226,7 +163,11 @@ class WebSocketService extends StateNotifier<WebSocketState> {
     
     if (!state.isConnected) {
       print('[WebSocket] 发送失败: WebSocket未连接');
-      throw WebSocketException('WebSocket未连接');
+      throw AppExceptionFactory.createWebSocketException(
+        'WebSocket未连接',
+        code: 'WEBSOCKET_NOT_CONNECTED',
+        connectionState: state.connectionState.name,
+      );
     }
 
     try {
@@ -236,7 +177,12 @@ class WebSocketService extends StateNotifier<WebSocketState> {
       print('[WebSocket] 消息发送成功');
     } catch (error) {
       print('[WebSocket] 发送消息失败: $error');
-      throw WebSocketException('发送消息失败: $error');
+      throw AppExceptionFactory.createWebSocketException(
+        '发送消息失败: $error',
+        code: 'MESSAGE_SEND_FAILED',
+        connectionState: state.connectionState.name,
+        details: {'error': error.toString()},
+      );
     }
   }
 
@@ -249,12 +195,19 @@ class WebSocketService extends StateNotifier<WebSocketState> {
       
       if (result.isEmpty || result[0].rawAddress.isEmpty) {
         print('[WebSocket] 网络连接检查失败: 无网络连接');
-        throw NetworkException('无网络连接');
+        throw AppExceptionFactory.createNetworkException(
+          '无网络连接',
+          code: 'NO_NETWORK_CONNECTION',
+        );
       }
       print('[WebSocket] 网络连接检查成功');
     } catch (error) {
       print('[WebSocket] 网络连接检查异常: $error');
-      throw NetworkException('网络连接检查失败: $error');
+      throw AppExceptionFactory.createNetworkException(
+        '网络连接检查失败: $error',
+        code: 'NETWORK_CHECK_FAILED',
+        details: {'error': error.toString()},
+      );
     }
   }
 
@@ -275,20 +228,14 @@ class WebSocketService extends StateNotifier<WebSocketState> {
       onError: (error) {
         print('[WebSocket] 消息流错误: $error');
         final errorMsg = _handleConnectionError(error);
-        state = state.copyWith(
-          connectionState: WebSocketConnectionState.failed,
-          errorMessage: errorMsg,
-        );
+        state = state.connectFailure(errorMessage: errorMsg);
         print('[WebSocket] 由于消息流错误，启动重连');
         _scheduleReconnect();
       },
       onDone: () {
         print('[WebSocket] 消息流已关闭');
         if (state.isConnected) {
-          state = state.copyWith(
-            connectionState: WebSocketConnectionState.disconnected,
-            errorMessage: '连接已断开',
-          );
+          state = state.disconnect();
           print('[WebSocket] 由于连接断开，启动重连');
           _scheduleReconnect();
         }
@@ -322,12 +269,9 @@ class WebSocketService extends StateNotifier<WebSocketState> {
   void _scheduleReconnect() {
     print('[WebSocket] 准备安排重连，当前重连次数: ${state.reconnectAttempts}');
     
-    if (state.reconnectAttempts >= ApiConstants.maxReconnectAttempts) {
+    if (state.shouldStopReconnecting) {
       print('[WebSocket] 重连次数已达上限 ${ApiConstants.maxReconnectAttempts}，停止重连');
-      state = state.copyWith(
-        connectionState: WebSocketConnectionState.failed,
-        errorMessage: '重连次数超限，请手动重试',
-      );
+      state = state.connectFailure(errorMessage: '重连次数超限，请手动重试');
       return;
     }
 
@@ -337,10 +281,7 @@ class WebSocketService extends StateNotifier<WebSocketState> {
     print('[WebSocket] 将在 ${ApiConstants.reconnectDelay}ms 后重连');
     _reconnectTimer = Timer(delay, () {
       print('[WebSocket] 开始第 ${state.reconnectAttempts + 1} 次重连');
-      state = state.copyWith(
-        connectionState: WebSocketConnectionState.reconnecting,
-        reconnectAttempts: state.reconnectAttempts + 1,
-      );
+      state = state.startReconnecting();
       connect();
     });
   }
@@ -357,8 +298,8 @@ class WebSocketService extends StateNotifier<WebSocketState> {
       return '网络连接失败，请检查网络设置';
     } else if (error is TimeoutException) {
       return '连接超时，请稍后重试';
-    } else if (error is WebSocketException) {
-      return 'WebSocket连接错误: ${error.message}';
+    } else if (error is AppException) {
+      return error.userFriendlyMessage;
     } else {
       return '连接失败: $error';
     }

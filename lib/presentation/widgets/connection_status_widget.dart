@@ -5,6 +5,7 @@ import 'package:hooks_riverpod/hooks_riverpod.dart';
 import '../providers/connection_provider.dart';
 import '../../core/services/websocket_service.dart';
 import '../../core/services/network_checker.dart';
+import '../../data/models/websocket_state.dart';
 
 /// 连接状态显示组件
 class ConnectionStatusWidget extends HookConsumerWidget {
