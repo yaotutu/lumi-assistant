@@ -67,7 +67,7 @@ class InteractionLayer extends StatelessWidget {
             
             // 完成提示
             Text(
-              '里程碑4：基础UI框架',
+              '里程碑5：聊天界面基础',
               style: Theme.of(context).textTheme.titleMedium?.copyWith(
                 color: Colors.white.withValues(alpha: 0.9),
                 fontWeight: FontWeight.w600,
@@ -87,7 +87,7 @@ class InteractionLayer extends StatelessWidget {
             
             // 说明文字
             Text(
-              '界面布局已优化为分层结构\n准备就绪，等待下一个里程碑',
+              '聊天界面已就绪\n点击右下角开始对话',
               style: Theme.of(context).textTheme.bodySmall?.copyWith(
                 color: Colors.white.withValues(alpha: 0.7),
                 height: 1.4,

@@ -72,7 +72,7 @@ class TimePanel extends HookWidget {
               ),
               const SizedBox(height: 2),
               Text(
-                '里程碑 4/10',
+                '里程碑 5/10',
                 style: Theme.of(context).textTheme.bodySmall?.copyWith(
                   color: Colors.white.withValues(alpha: 0.6),
                   fontSize: 11,

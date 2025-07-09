@@ -12,7 +12,10 @@
       "Bash(flutter:*)",
       "Bash(grep:*)",
       "Bash(killall:*)",
-      "Bash(true)"
+      "Bash(true)",
+      "Bash(rm:*)",
+      "Bash(find:*)",
+      "Bash(ls:*)"
     ],
     "deny": []
   }

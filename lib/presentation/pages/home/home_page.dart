@@ -3,6 +3,7 @@ import 'package:hooks_riverpod/hooks_riverpod.dart';
 
 import '../../widgets/connection_status_widget.dart';
 import '../../widgets/handshake_status_widget.dart';
+import '../chat/chat_page.dart';
 import 'widgets/background_layer.dart';
 import 'widgets/app_status_bar.dart';
 import 'widgets/time_panel.dart';
@@ -98,13 +99,9 @@ class HomePage extends HookConsumerWidget {
 
   /// 开始聊天
   void _startChat(BuildContext context) {
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(
-        content: const Text('聊天功能将在里程碑5中实现'),
-        action: SnackBarAction(
-          label: '确定',
-          onPressed: () {},
-        ),
+    Navigator.of(context).push(
+      MaterialPageRoute(
+        builder: (context) => const ChatPage(),
       ),
     );
   }
