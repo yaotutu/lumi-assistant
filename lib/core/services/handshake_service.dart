@@ -75,7 +75,6 @@ class HandshakeService extends StateNotifier<HandshakeResult> {
   
   Timer? _timeoutTimer;
   StreamSubscription? _messageSubscription;
-  String? _pendingHandshakeId;
 
   HandshakeService(this._webSocketService, this._deviceInfoService) 
       : super(const HandshakeResult(state: HandshakeState.idle));
@@ -121,9 +120,6 @@ class HandshakeService extends StateNotifier<HandshakeResult> {
     try {
       // 获取设备信息
       final deviceInfo = await _deviceInfoService.getDeviceInfo();
-      
-      // 生成握手ID
-      _pendingHandshakeId = _uuid.v4();
       
       // 生成设备MAC地址样式的ID
       final deviceMac = _generateDeviceMac();
@@ -230,16 +226,6 @@ class HandshakeService extends StateNotifier<HandshakeResult> {
   /// 处理Hello响应
   void _handleHelloResponse(Map<String, dynamic> data) {
     try {
-      // 验证响应ID
-      final responseId = data['id'] as String?;
-      if (responseId != _pendingHandshakeId) {
-        state = const HandshakeResult(
-          state: HandshakeState.failed,
-          errorMessage: '握手响应ID不匹配',
-        );
-        return;
-      }
-
       // 提取会话ID
       final sessionId = data['session_id'] as String?;
       if (sessionId == null || sessionId.isEmpty) {
@@ -327,7 +313,6 @@ class HandshakeService extends StateNotifier<HandshakeResult> {
     _timeoutTimer = null;
     _messageSubscription?.cancel();
     _messageSubscription = null;
-    _pendingHandshakeId = null;
   }
 
   @override

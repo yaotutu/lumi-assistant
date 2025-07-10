@@ -21,6 +21,12 @@ enum MessageType {
   error,
   @JsonValue('response')
   response,
+  @JsonValue('stt')
+  stt,
+  @JsonValue('tts')
+  tts,
+  @JsonValue('llm')
+  llm,
 }
 
 /// 消息状态枚举
@@ -269,4 +275,91 @@ class PongMessage with _$PongMessage {
 
   factory PongMessage.fromJson(Map<String, dynamic> json) =>
       _$PongMessageFromJson(json);
+}
+
+/// Listen消息模型（文字输入）
+@freezed
+class ListenMessage with _$ListenMessage {
+  const factory ListenMessage({
+    /// 消息类型（固定为listen）
+    @Default(MessageType.listen) MessageType type,
+    
+    /// 模式（manual手动输入）
+    @Default('manual') String mode,
+    
+    /// 状态（detect检测）
+    @Default('detect') String state,
+    
+    /// 文字内容
+    required String text,
+  }) = _ListenMessage;
+
+  factory ListenMessage.fromJson(Map<String, dynamic> json) =>
+      _$ListenMessageFromJson(json);
+}
+
+/// STT消息模型（语音转文字结果）
+@freezed
+class SttMessage with _$SttMessage {
+  const factory SttMessage({
+    /// 消息类型（固定为stt）
+    @Default(MessageType.stt) MessageType type,
+    
+    /// 会话ID
+    @JsonKey(name: 'session_id') required String sessionId,
+    
+    /// 识别到的文字
+    required String text,
+  }) = _SttMessage;
+
+  factory SttMessage.fromJson(Map<String, dynamic> json) =>
+      _$SttMessageFromJson(json);
+}
+
+/// TTS消息模型（文字转语音）
+@freezed
+class TtsMessage with _$TtsMessage {
+  const factory TtsMessage({
+    /// 消息类型（固定为tts）
+    @Default(MessageType.tts) MessageType type,
+    
+    /// 会话ID
+    @JsonKey(name: 'session_id') required String sessionId,
+    
+    /// 音频编码格式
+    @JsonKey(name: 'audio_codec') String? audioCodec,
+    
+    /// 音频片段索引
+    int? index,
+    
+    /// 状态（start开始，sentence_start句子开始等）
+    String? state,
+    
+    /// 文字内容
+    required String text,
+  }) = _TtsMessage;
+
+  factory TtsMessage.fromJson(Map<String, dynamic> json) =>
+      _$TtsMessageFromJson(json);
+}
+
+/// LLM消息模型（AI思考和回复）
+@freezed
+class LlmMessage with _$LlmMessage {
+  const factory LlmMessage({
+    /// 消息类型（固定为llm）
+    @Default(MessageType.llm) MessageType type,
+    
+    /// 会话ID
+    @JsonKey(name: 'session_id') required String sessionId,
+    
+    /// 情感状态
+    String? emotion,
+    
+    /// 文字内容
+    required String text,
+  }) = _LlmMessage;
+
+  factory LlmMessage.fromJson(Map<String, dynamic> json) =>
+      _$LlmMessageFromJson(json);
 }

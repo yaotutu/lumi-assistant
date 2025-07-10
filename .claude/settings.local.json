@@ -16,7 +16,8 @@
       "Bash(rm:*)",
       "Bash(find:*)",
       "Bash(ls:*)",
-      "Bash(pkill:*)"
+      "Bash(pkill:*)",
+      "Bash(dart run:*)"
     ],
     "deny": []
   }

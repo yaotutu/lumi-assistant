@@ -35,15 +35,18 @@ class ConnectionManager extends StateNotifier<ConnectionManagerState> {
     });
 
     state = state.copyWith(isInitialized: true);
+    
+    // 初始化完成后，检查是否需要自动连接
+    _checkAutoConnection();
   }
 
   /// 处理网络状态变化
   void _handleNetworkStateChange(NetworkState? previous, NetworkState current) {
     print('[ConnectionManager] 网络状态变化: ${previous?.connectionState} -> ${current.connectionState}');
     
-    // 网络从断开到连接时，尝试连接WebSocket
-    if (previous?.isDisconnected == true && current.isConnected) {
-      print('[ConnectionManager] 网络恢复，检查WebSocket状态');
+    // 网络连接可用时，检查WebSocket状态
+    if (current.isConnected) {
+      print('[ConnectionManager] 网络可用，检查WebSocket状态');
       if (state.webSocketState.isDisconnected || state.webSocketState.isFailed) {
         print('[ConnectionManager] WebSocket未连接，启动连接');
         connectWebSocket();
@@ -78,6 +81,20 @@ class ConnectionManager extends StateNotifier<ConnectionManagerState> {
       final handshakeService = _ref.read(handshakeServiceProvider.notifier);
       handshakeService.reset();
     }
+  }
+
+  /// 检查是否需要自动连接
+  void _checkAutoConnection() {
+    print('[ConnectionManager] 检查自动连接条件');
+    
+    // 延迟一点时间，确保所有Provider都初始化完成
+    Future.delayed(const Duration(milliseconds: 500), () {
+      if (state.networkState.isConnected && 
+          (state.webSocketState.isDisconnected || state.webSocketState.isFailed)) {
+        print('[ConnectionManager] 条件满足，启动自动连接');
+        connectWebSocket();
+      }
+    });
   }
 
   /// 连接WebSocket

@@ -6,6 +6,7 @@ import '../../data/models/chat_ui_model.dart';
 import '../../data/models/message_model.dart';
 import '../../data/models/chat_state.dart';
 import '../../data/models/connection_state.dart';
+import '../../core/services/handshake_service.dart';
 import 'connection_provider.dart';
 
 
@@ -31,14 +32,46 @@ class ChatNotifier extends StateNotifier<ChatState> {
       }
     });
 
+    // 直接监听握手状态变化
+    _ref.listen(handshakeServiceProvider, (previous, next) {
+      print('[ChatNotifier] 握手状态变化: ${next.state}, sessionId: ${next.sessionId}');
+      if (next.sessionId != null) {
+        print('[ChatNotifier] 从握手服务设置会话ID: ${next.sessionId}');
+        state = state.copyWith(sessionId: next.sessionId);
+      }
+    });
+
+    // 监听WebSocket消息
+    _startWebSocketMessageListener();
+
     // 添加欢迎消息
     _addWelcomeMessage();
+  }
+
+  /// 开始监听WebSocket消息
+  void _startWebSocketMessageListener() {
+    print('[ChatNotifier] 开始监听WebSocket消息');
+    
+    // 获取连接管理器的消息流
+    final connectionManager = _ref.read(connectionManagerProvider.notifier);
+    
+    // 监听消息流
+    connectionManager.messageStream.listen(
+      (message) {
+        print('[ChatNotifier] 收到WebSocket消息: $message');
+        _handleWebSocketMessage(message);
+      },
+      onError: (error) {
+        print('[ChatNotifier] WebSocket消息流错误: $error');
+        _handleWebSocketError(error);
+      },
+    );
   }
 
   /// 添加欢迎消息
   void _addWelcomeMessage() {
     final welcomeMessage = ChatUIMessageConverter.createSystemMessage(
-      '欢迎使用 Lumi Assistant！\n\n这是里程碑5的聊天界面基础演示。消息发送功能将在里程碑6中实现。',
+      '欢迎使用 Lumi Assistant！\n\n这是里程碑6的文字消息发送功能演示。\n\n如果显示"未连接到服务器"，请检查WebSocket服务器是否运行在 ws://192.168.110.199:8000/',
     );
     
     state = state.copyWith(
@@ -70,21 +103,22 @@ class ChatNotifier extends StateNotifier<ChatState> {
       }
 
       final sessionId = state.sessionId;
+      print('[ChatNotifier] 当前会话ID: $sessionId');
       if (sessionId == null) {
         throw Exception('会话未建立');
       }
 
-      // 创建聊天消息
-      final chatMessage = ChatMessage(
-        id: userMessage.id,
-        content: content,
-        sessionId: sessionId,
-        deviceId: 'device_id_placeholder', // 在里程碑6中从连接状态获取
-        timestamp: DateTime.now().millisecondsSinceEpoch,
-      );
+      // 创建listen消息（参考xiaozhi项目格式）
+      final listenMessage = {
+        "type": "listen",
+        "state": "detect", 
+        "text": content,
+        "source": "text",
+      };
 
-      // 发送消息 (在里程碑6中实现)
-      await _ref.read(connectionManagerProvider.notifier).sendMessage(chatMessage.toJson());
+      // 发送listen消息
+      print('[ChatNotifier] 准备发送listen消息: $listenMessage');
+      await _ref.read(connectionManagerProvider.notifier).sendMessage(listenMessage);
       
       // 更新用户消息状态为已发送
       _updateMessageStatus(userMessage.id, ChatMessageStatus.sent);
@@ -120,20 +154,36 @@ class ChatNotifier extends StateNotifier<ChatState> {
     }
   }
 
-  /// 处理WebSocket消息 (在里程碑6中实现)
+  /// 处理WebSocket消息
   void _handleWebSocketMessage(Map<String, dynamic> message) {
     print('[ChatNotifier] 收到WebSocket消息: $message');
     
     try {
-      switch (message['type']) {
+      final messageType = message['type'] as String?;
+      
+      switch (messageType) {
         case 'response':
           _handleResponseMessage(message);
           break;
         case 'error':
           _handleErrorMessage(message);
           break;
+        case 'hello':
+          // Hello消息由HandshakeService处理，这里忽略
+          print('[ChatNotifier] 忽略Hello消息，由HandshakeService处理');
+          break;
+        case 'stt':
+          _handleSttMessage(message);
+          break;
+        case 'tts':
+          _handleTtsMessage(message);
+          break;
+        case 'llm':
+          _handleLlmMessage(message);
+          break;
         default:
-          print('[ChatNotifier] 未知消息类型: ${message['type']}');
+          print('[ChatNotifier] 收到未知消息类型: $messageType');
+          print('[ChatNotifier] 消息内容: $message');
       }
     } catch (e) {
       print('[ChatNotifier] 处理消息失败: $e');
@@ -143,27 +193,176 @@ class ChatNotifier extends StateNotifier<ChatState> {
 
   /// 处理响应消息
   void _handleResponseMessage(Map<String, dynamic> messageData) {
-    final responseMessage = ResponseMessage.fromJson(messageData);
-    final chatMessage = ChatUIMessageConverter.fromResponseMessage(responseMessage);
+    print('[ChatNotifier] 处理响应消息: $messageData');
     
-    // 添加助手消息
-    state = state.copyWith(
-      messages: [...state.messages, chatMessage],
-      isReceiving: false,
-    );
+    try {
+      final responseMessage = ResponseMessage.fromJson(messageData);
+      final chatMessage = ChatUIMessageConverter.fromResponseMessage(responseMessage);
+      
+      // 添加助手消息
+      state = state.copyWith(
+        messages: [...state.messages, chatMessage],
+        isReceiving: false,
+        error: null,
+      );
+      
+      print('[ChatNotifier] 响应消息添加成功: ${chatMessage.content}');
+    } catch (e) {
+      print('[ChatNotifier] 解析响应消息失败: $e');
+      
+      // 创建一个错误消息显示
+      final errorMessage = ChatUIMessageConverter.createSystemMessage(
+        '解析AI响应失败: $e',
+      );
+      
+      state = state.copyWith(
+        messages: [...state.messages, errorMessage],
+        isReceiving: false,
+        error: '解析响应失败',
+      );
+    }
   }
 
   /// 处理错误消息
   void _handleErrorMessage(Map<String, dynamic> messageData) {
-    final errorMessage = ErrorMessage.fromJson(messageData);
-    final chatMessage = ChatUIMessageConverter.fromErrorMessage(errorMessage);
+    print('[ChatNotifier] 处理错误消息: $messageData');
     
-    // 添加错误消息
-    state = state.copyWith(
-      messages: [...state.messages, chatMessage],
-      isReceiving: false,
-      error: errorMessage.errorMessage,
-    );
+    try {
+      final errorMessage = ErrorMessage.fromJson(messageData);
+      final chatMessage = ChatUIMessageConverter.fromErrorMessage(errorMessage);
+      
+      // 添加错误消息
+      state = state.copyWith(
+        messages: [...state.messages, chatMessage],
+        isReceiving: false,
+        error: errorMessage.errorMessage,
+      );
+      
+      print('[ChatNotifier] 错误消息添加成功: ${errorMessage.errorMessage}');
+    } catch (e) {
+      print('[ChatNotifier] 解析错误消息失败: $e');
+      
+      // 创建一个通用错误消息
+      final fallbackErrorMessage = ChatUIMessageConverter.createSystemMessage(
+        '收到服务器错误响应，但解析失败。',
+      );
+      
+      state = state.copyWith(
+        messages: [...state.messages, fallbackErrorMessage],
+        isReceiving: false,
+        error: '服务器错误',
+      );
+    }
+  }
+
+  /// 处理STT消息（语音转文字结果）
+  void _handleSttMessage(Map<String, dynamic> messageData) {
+    print('[ChatNotifier] 处理STT消息: $messageData');
+    
+    try {
+      final sttMessage = SttMessage.fromJson(messageData);
+      
+      // STT消息只是显示用户的语音被识别的结果，通常不需要在聊天界面显示
+      // 因为用户输入的消息已经显示了
+      print('[ChatNotifier] STT识别结果: ${sttMessage.text}');
+      
+    } catch (e) {
+      print('[ChatNotifier] 解析STT消息失败: $e');
+    }
+  }
+
+  /// 处理TTS消息（文字转语音）
+  void _handleTtsMessage(Map<String, dynamic> messageData) {
+    print('[ChatNotifier] 处理TTS消息: $messageData');
+    
+    try {
+      final ttsMessage = TtsMessage.fromJson(messageData);
+      
+      // 只处理包含文字内容的TTS消息
+      if (ttsMessage.text.isNotEmpty) {
+        // 根据TTS状态决定如何处理
+        switch (ttsMessage.state) {
+          case 'start':
+            print('[ChatNotifier] AI开始回复');
+            state = state.copyWith(
+              isReceiving: true,
+              isSending: false,
+            );
+            break;
+          case 'sentence_start':
+            // 这是AI的实际回复内容
+            final aiMessage = ChatUIMessageConverter.createAssistantMessage(
+              ttsMessage.text,
+            );
+            
+            // 添加AI回复消息
+            state = state.copyWith(
+              messages: [...state.messages, aiMessage],
+              isReceiving: false,
+              error: null,
+            );
+            
+            print('[ChatNotifier] AI回复: ${ttsMessage.text}');
+            break;
+          default:
+            print('[ChatNotifier] TTS状态: ${ttsMessage.state}');
+        }
+      }
+      
+    } catch (e) {
+      print('[ChatNotifier] 解析TTS消息失败: $e');
+    }
+  }
+
+  /// 处理LLM消息（AI思考和回复）
+  void _handleLlmMessage(Map<String, dynamic> messageData) {
+    print('[ChatNotifier] 处理LLM消息: $messageData');
+    
+    try {
+      final llmMessage = LlmMessage.fromJson(messageData);
+      
+      // 处理AI的思考状态
+      if (llmMessage.emotion != null) {
+        print('[ChatNotifier] AI情感状态: ${llmMessage.emotion}');
+        
+        // 如果是thinking状态，可以显示AI正在思考
+        if (llmMessage.emotion == 'thinking') {
+          // 创建一个思考状态的消息
+          final thinkingMessage = ChatUIMessageConverter.createSystemMessage(
+            '🤔 AI正在思考...',
+          );
+          
+          // 临时添加思考消息（之后会被实际回复替换）
+          state = state.copyWith(
+            messages: [...state.messages, thinkingMessage],
+            isReceiving: true,
+          );
+        }
+      }
+      
+      // 处理包含文字内容的LLM消息
+      if (llmMessage.text.isNotEmpty && llmMessage.text != '🤔') {
+        final aiMessage = ChatUIMessageConverter.createAssistantMessage(
+          llmMessage.text,
+        );
+        
+        // 移除可能的思考消息，添加实际回复
+        final messagesWithoutThinking = state.messages
+            .where((msg) => msg.content != '🤔 AI正在思考...')
+            .toList();
+        
+        state = state.copyWith(
+          messages: [...messagesWithoutThinking, aiMessage],
+          isReceiving: false,
+          error: null,
+        );
+        
+        print('[ChatNotifier] LLM回复: ${llmMessage.text}');
+      }
+      
+    } catch (e) {
+      print('[ChatNotifier] 解析LLM消息失败: $e');
+    }
   }
 
   /// 处理WebSocket错误
@@ -200,6 +399,17 @@ class ChatNotifier extends StateNotifier<ChatState> {
     _addWelcomeMessage();
   }
 
+  /// 手动重连
+  Future<void> reconnect() async {
+    print('[ChatNotifier] 手动重连');
+    
+    // 清除错误状态
+    state = state.copyWith(error: null);
+    
+    // 触发重连
+    await _ref.read(connectionManagerProvider.notifier).reconnect();
+  }
+
   /// 获取错误消息
   String _getErrorMessage(dynamic error) {
     if (error is Exception) {
@@ -230,5 +440,11 @@ final sendMessageProvider = Provider.autoDispose.family<Future<void>, String>((r
 final resendMessageProvider = Provider.autoDispose.family<Future<void>, String>((ref, messageId) async {
   final chatNotifier = ref.watch(chatProvider.notifier);
   await chatNotifier.resendMessage(messageId);
+});
+
+/// 重连Action Provider
+final reconnectProvider = Provider.autoDispose<Future<void>>((ref) async {
+  final chatNotifier = ref.watch(chatProvider.notifier);
+  await chatNotifier.reconnect();
 });
 

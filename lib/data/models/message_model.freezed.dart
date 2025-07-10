@@ -2854,3 +2854,1052 @@ abstract class _PongMessage implements PongMessage {
   _$$PongMessageImplCopyWith<_$PongMessageImpl> get copyWith =>
       throw _privateConstructorUsedError;
 }
+
+ListenMessage _$ListenMessageFromJson(Map<String, dynamic> json) {
+  return _ListenMessage.fromJson(json);
+}
+
+/// @nodoc
+mixin _$ListenMessage {
+  /// 消息类型（固定为listen）
+  MessageType get type => throw _privateConstructorUsedError;
+
+  /// 模式（manual手动输入）
+  String get mode => throw _privateConstructorUsedError;
+
+  /// 状态（detect检测）
+  String get state => throw _privateConstructorUsedError;
+
+  /// 文字内容
+  String get text => throw _privateConstructorUsedError;
+
+  /// Serializes this ListenMessage to a JSON map.
+  Map<String, dynamic> toJson() => throw _privateConstructorUsedError;
+
+  /// Create a copy of ListenMessage
+  /// with the given fields replaced by the non-null parameter values.
+  @JsonKey(includeFromJson: false, includeToJson: false)
+  $ListenMessageCopyWith<ListenMessage> get copyWith =>
+      throw _privateConstructorUsedError;
+}
+
+/// @nodoc
+abstract class $ListenMessageCopyWith<$Res> {
+  factory $ListenMessageCopyWith(
+    ListenMessage value,
+    $Res Function(ListenMessage) then,
+  ) = _$ListenMessageCopyWithImpl<$Res, ListenMessage>;
+  @useResult
+  $Res call({MessageType type, String mode, String state, String text});
+}
+
+/// @nodoc
+class _$ListenMessageCopyWithImpl<$Res, $Val extends ListenMessage>
+    implements $ListenMessageCopyWith<$Res> {
+  _$ListenMessageCopyWithImpl(this._value, this._then);
+
+  // ignore: unused_field
+  final $Val _value;
+  // ignore: unused_field
+  final $Res Function($Val) _then;
+
+  /// Create a copy of ListenMessage
+  /// with the given fields replaced by the non-null parameter values.
+  @pragma('vm:prefer-inline')
+  @override
+  $Res call({
+    Object? type = null,
+    Object? mode = null,
+    Object? state = null,
+    Object? text = null,
+  }) {
+    return _then(
+      _value.copyWith(
+            type:
+                null == type
+                    ? _value.type
+                    : type // ignore: cast_nullable_to_non_nullable
+                        as MessageType,
+            mode:
+                null == mode
+                    ? _value.mode
+                    : mode // ignore: cast_nullable_to_non_nullable
+                        as String,
+            state:
+                null == state
+                    ? _value.state
+                    : state // ignore: cast_nullable_to_non_nullable
+                        as String,
+            text:
+                null == text
+                    ? _value.text
+                    : text // ignore: cast_nullable_to_non_nullable
+                        as String,
+          )
+          as $Val,
+    );
+  }
+}
+
+/// @nodoc
+abstract class _$$ListenMessageImplCopyWith<$Res>
+    implements $ListenMessageCopyWith<$Res> {
+  factory _$$ListenMessageImplCopyWith(
+    _$ListenMessageImpl value,
+    $Res Function(_$ListenMessageImpl) then,
+  ) = __$$ListenMessageImplCopyWithImpl<$Res>;
+  @override
+  @useResult
+  $Res call({MessageType type, String mode, String state, String text});
+}
+
+/// @nodoc
+class __$$ListenMessageImplCopyWithImpl<$Res>
+    extends _$ListenMessageCopyWithImpl<$Res, _$ListenMessageImpl>
+    implements _$$ListenMessageImplCopyWith<$Res> {
+  __$$ListenMessageImplCopyWithImpl(
+    _$ListenMessageImpl _value,
+    $Res Function(_$ListenMessageImpl) _then,
+  ) : super(_value, _then);
+
+  /// Create a copy of ListenMessage
+  /// with the given fields replaced by the non-null parameter values.
+  @pragma('vm:prefer-inline')
+  @override
+  $Res call({
+    Object? type = null,
+    Object? mode = null,
+    Object? state = null,
+    Object? text = null,
+  }) {
+    return _then(
+      _$ListenMessageImpl(
+        type:
+            null == type
+                ? _value.type
+                : type // ignore: cast_nullable_to_non_nullable
+                    as MessageType,
+        mode:
+            null == mode
+                ? _value.mode
+                : mode // ignore: cast_nullable_to_non_nullable
+                    as String,
+        state:
+            null == state
+                ? _value.state
+                : state // ignore: cast_nullable_to_non_nullable
+                    as String,
+        text:
+            null == text
+                ? _value.text
+                : text // ignore: cast_nullable_to_non_nullable
+                    as String,
+      ),
+    );
+  }
+}
+
+/// @nodoc
+@JsonSerializable()
+class _$ListenMessageImpl implements _ListenMessage {
+  const _$ListenMessageImpl({
+    this.type = MessageType.listen,
+    this.mode = 'manual',
+    this.state = 'detect',
+    required this.text,
+  });
+
+  factory _$ListenMessageImpl.fromJson(Map<String, dynamic> json) =>
+      _$$ListenMessageImplFromJson(json);
+
+  /// 消息类型（固定为listen）
+  @override
+  @JsonKey()
+  final MessageType type;
+
+  /// 模式（manual手动输入）
+  @override
+  @JsonKey()
+  final String mode;
+
+  /// 状态（detect检测）
+  @override
+  @JsonKey()
+  final String state;
+
+  /// 文字内容
+  @override
+  final String text;
+
+  @override
+  String toString() {
+    return 'ListenMessage(type: $type, mode: $mode, state: $state, text: $text)';
+  }
+
+  @override
+  bool operator ==(Object other) {
+    return identical(this, other) ||
+        (other.runtimeType == runtimeType &&
+            other is _$ListenMessageImpl &&
+            (identical(other.type, type) || other.type == type) &&
+            (identical(other.mode, mode) || other.mode == mode) &&
+            (identical(other.state, state) || other.state == state) &&
+            (identical(other.text, text) || other.text == text));
+  }
+
+  @JsonKey(includeFromJson: false, includeToJson: false)
+  @override
+  int get hashCode => Object.hash(runtimeType, type, mode, state, text);
+
+  /// Create a copy of ListenMessage
+  /// with the given fields replaced by the non-null parameter values.
+  @JsonKey(includeFromJson: false, includeToJson: false)
+  @override
+  @pragma('vm:prefer-inline')
+  _$$ListenMessageImplCopyWith<_$ListenMessageImpl> get copyWith =>
+      __$$ListenMessageImplCopyWithImpl<_$ListenMessageImpl>(this, _$identity);
+
+  @override
+  Map<String, dynamic> toJson() {
+    return _$$ListenMessageImplToJson(this);
+  }
+}
+
+abstract class _ListenMessage implements ListenMessage {
+  const factory _ListenMessage({
+    final MessageType type,
+    final String mode,
+    final String state,
+    required final String text,
+  }) = _$ListenMessageImpl;
+
+  factory _ListenMessage.fromJson(Map<String, dynamic> json) =
+      _$ListenMessageImpl.fromJson;
+
+  /// 消息类型（固定为listen）
+  @override
+  MessageType get type;
+
+  /// 模式（manual手动输入）
+  @override
+  String get mode;
+
+  /// 状态（detect检测）
+  @override
+  String get state;
+
+  /// 文字内容
+  @override
+  String get text;
+
+  /// Create a copy of ListenMessage
+  /// with the given fields replaced by the non-null parameter values.
+  @override
+  @JsonKey(includeFromJson: false, includeToJson: false)
+  _$$ListenMessageImplCopyWith<_$ListenMessageImpl> get copyWith =>
+      throw _privateConstructorUsedError;
+}
+
+SttMessage _$SttMessageFromJson(Map<String, dynamic> json) {
+  return _SttMessage.fromJson(json);
+}
+
+/// @nodoc
+mixin _$SttMessage {
+  /// 消息类型（固定为stt）
+  MessageType get type => throw _privateConstructorUsedError;
+
+  /// 会话ID
+  @JsonKey(name: 'session_id')
+  String get sessionId => throw _privateConstructorUsedError;
+
+  /// 识别到的文字
+  String get text => throw _privateConstructorUsedError;
+
+  /// Serializes this SttMessage to a JSON map.
+  Map<String, dynamic> toJson() => throw _privateConstructorUsedError;
+
+  /// Create a copy of SttMessage
+  /// with the given fields replaced by the non-null parameter values.
+  @JsonKey(includeFromJson: false, includeToJson: false)
+  $SttMessageCopyWith<SttMessage> get copyWith =>
+      throw _privateConstructorUsedError;
+}
+
+/// @nodoc
+abstract class $SttMessageCopyWith<$Res> {
+  factory $SttMessageCopyWith(
+    SttMessage value,
+    $Res Function(SttMessage) then,
+  ) = _$SttMessageCopyWithImpl<$Res, SttMessage>;
+  @useResult
+  $Res call({
+    MessageType type,
+    @JsonKey(name: 'session_id') String sessionId,
+    String text,
+  });
+}
+
+/// @nodoc
+class _$SttMessageCopyWithImpl<$Res, $Val extends SttMessage>
+    implements $SttMessageCopyWith<$Res> {
+  _$SttMessageCopyWithImpl(this._value, this._then);
+
+  // ignore: unused_field
+  final $Val _value;
+  // ignore: unused_field
+  final $Res Function($Val) _then;
+
+  /// Create a copy of SttMessage
+  /// with the given fields replaced by the non-null parameter values.
+  @pragma('vm:prefer-inline')
+  @override
+  $Res call({
+    Object? type = null,
+    Object? sessionId = null,
+    Object? text = null,
+  }) {
+    return _then(
+      _value.copyWith(
+            type:
+                null == type
+                    ? _value.type
+                    : type // ignore: cast_nullable_to_non_nullable
+                        as MessageType,
+            sessionId:
+                null == sessionId
+                    ? _value.sessionId
+                    : sessionId // ignore: cast_nullable_to_non_nullable
+                        as String,
+            text:
+                null == text
+                    ? _value.text
+                    : text // ignore: cast_nullable_to_non_nullable
+                        as String,
+          )
+          as $Val,
+    );
+  }
+}
+
+/// @nodoc
+abstract class _$$SttMessageImplCopyWith<$Res>
+    implements $SttMessageCopyWith<$Res> {
+  factory _$$SttMessageImplCopyWith(
+    _$SttMessageImpl value,
+    $Res Function(_$SttMessageImpl) then,
+  ) = __$$SttMessageImplCopyWithImpl<$Res>;
+  @override
+  @useResult
+  $Res call({
+    MessageType type,
+    @JsonKey(name: 'session_id') String sessionId,
+    String text,
+  });
+}
+
+/// @nodoc
+class __$$SttMessageImplCopyWithImpl<$Res>
+    extends _$SttMessageCopyWithImpl<$Res, _$SttMessageImpl>
+    implements _$$SttMessageImplCopyWith<$Res> {
+  __$$SttMessageImplCopyWithImpl(
+    _$SttMessageImpl _value,
+    $Res Function(_$SttMessageImpl) _then,
+  ) : super(_value, _then);
+
+  /// Create a copy of SttMessage
+  /// with the given fields replaced by the non-null parameter values.
+  @pragma('vm:prefer-inline')
+  @override
+  $Res call({
+    Object? type = null,
+    Object? sessionId = null,
+    Object? text = null,
+  }) {
+    return _then(
+      _$SttMessageImpl(
+        type:
+            null == type
+                ? _value.type
+                : type // ignore: cast_nullable_to_non_nullable
+                    as MessageType,
+        sessionId:
+            null == sessionId
+                ? _value.sessionId
+                : sessionId // ignore: cast_nullable_to_non_nullable
+                    as String,
+        text:
+            null == text
+                ? _value.text
+                : text // ignore: cast_nullable_to_non_nullable
+                    as String,
+      ),
+    );
+  }
+}
+
+/// @nodoc
+@JsonSerializable()
+class _$SttMessageImpl implements _SttMessage {
+  const _$SttMessageImpl({
+    this.type = MessageType.stt,
+    @JsonKey(name: 'session_id') required this.sessionId,
+    required this.text,
+  });
+
+  factory _$SttMessageImpl.fromJson(Map<String, dynamic> json) =>
+      _$$SttMessageImplFromJson(json);
+
+  /// 消息类型（固定为stt）
+  @override
+  @JsonKey()
+  final MessageType type;
+
+  /// 会话ID
+  @override
+  @JsonKey(name: 'session_id')
+  final String sessionId;
+
+  /// 识别到的文字
+  @override
+  final String text;
+
+  @override
+  String toString() {
+    return 'SttMessage(type: $type, sessionId: $sessionId, text: $text)';
+  }
+
+  @override
+  bool operator ==(Object other) {
+    return identical(this, other) ||
+        (other.runtimeType == runtimeType &&
+            other is _$SttMessageImpl &&
+            (identical(other.type, type) || other.type == type) &&
+            (identical(other.sessionId, sessionId) ||
+                other.sessionId == sessionId) &&
+            (identical(other.text, text) || other.text == text));
+  }
+
+  @JsonKey(includeFromJson: false, includeToJson: false)
+  @override
+  int get hashCode => Object.hash(runtimeType, type, sessionId, text);
+
+  /// Create a copy of SttMessage
+  /// with the given fields replaced by the non-null parameter values.
+  @JsonKey(includeFromJson: false, includeToJson: false)
+  @override
+  @pragma('vm:prefer-inline')
+  _$$SttMessageImplCopyWith<_$SttMessageImpl> get copyWith =>
+      __$$SttMessageImplCopyWithImpl<_$SttMessageImpl>(this, _$identity);
+
+  @override
+  Map<String, dynamic> toJson() {
+    return _$$SttMessageImplToJson(this);
+  }
+}
+
+abstract class _SttMessage implements SttMessage {
+  const factory _SttMessage({
+    final MessageType type,
+    @JsonKey(name: 'session_id') required final String sessionId,
+    required final String text,
+  }) = _$SttMessageImpl;
+
+  factory _SttMessage.fromJson(Map<String, dynamic> json) =
+      _$SttMessageImpl.fromJson;
+
+  /// 消息类型（固定为stt）
+  @override
+  MessageType get type;
+
+  /// 会话ID
+  @override
+  @JsonKey(name: 'session_id')
+  String get sessionId;
+
+  /// 识别到的文字
+  @override
+  String get text;
+
+  /// Create a copy of SttMessage
+  /// with the given fields replaced by the non-null parameter values.
+  @override
+  @JsonKey(includeFromJson: false, includeToJson: false)
+  _$$SttMessageImplCopyWith<_$SttMessageImpl> get copyWith =>
+      throw _privateConstructorUsedError;
+}
+
+TtsMessage _$TtsMessageFromJson(Map<String, dynamic> json) {
+  return _TtsMessage.fromJson(json);
+}
+
+/// @nodoc
+mixin _$TtsMessage {
+  /// 消息类型（固定为tts）
+  MessageType get type => throw _privateConstructorUsedError;
+
+  /// 会话ID
+  @JsonKey(name: 'session_id')
+  String get sessionId => throw _privateConstructorUsedError;
+
+  /// 音频编码格式
+  @JsonKey(name: 'audio_codec')
+  String? get audioCodec => throw _privateConstructorUsedError;
+
+  /// 音频片段索引
+  int? get index => throw _privateConstructorUsedError;
+
+  /// 状态（start开始，sentence_start句子开始等）
+  String? get state => throw _privateConstructorUsedError;
+
+  /// 文字内容
+  String get text => throw _privateConstructorUsedError;
+
+  /// Serializes this TtsMessage to a JSON map.
+  Map<String, dynamic> toJson() => throw _privateConstructorUsedError;
+
+  /// Create a copy of TtsMessage
+  /// with the given fields replaced by the non-null parameter values.
+  @JsonKey(includeFromJson: false, includeToJson: false)
+  $TtsMessageCopyWith<TtsMessage> get copyWith =>
+      throw _privateConstructorUsedError;
+}
+
+/// @nodoc
+abstract class $TtsMessageCopyWith<$Res> {
+  factory $TtsMessageCopyWith(
+    TtsMessage value,
+    $Res Function(TtsMessage) then,
+  ) = _$TtsMessageCopyWithImpl<$Res, TtsMessage>;
+  @useResult
+  $Res call({
+    MessageType type,
+    @JsonKey(name: 'session_id') String sessionId,
+    @JsonKey(name: 'audio_codec') String? audioCodec,
+    int? index,
+    String? state,
+    String text,
+  });
+}
+
+/// @nodoc
+class _$TtsMessageCopyWithImpl<$Res, $Val extends TtsMessage>
+    implements $TtsMessageCopyWith<$Res> {
+  _$TtsMessageCopyWithImpl(this._value, this._then);
+
+  // ignore: unused_field
+  final $Val _value;
+  // ignore: unused_field
+  final $Res Function($Val) _then;
+
+  /// Create a copy of TtsMessage
+  /// with the given fields replaced by the non-null parameter values.
+  @pragma('vm:prefer-inline')
+  @override
+  $Res call({
+    Object? type = null,
+    Object? sessionId = null,
+    Object? audioCodec = freezed,
+    Object? index = freezed,
+    Object? state = freezed,
+    Object? text = null,
+  }) {
+    return _then(
+      _value.copyWith(
+            type:
+                null == type
+                    ? _value.type
+                    : type // ignore: cast_nullable_to_non_nullable
+                        as MessageType,
+            sessionId:
+                null == sessionId
+                    ? _value.sessionId
+                    : sessionId // ignore: cast_nullable_to_non_nullable
+                        as String,
+            audioCodec:
+                freezed == audioCodec
+                    ? _value.audioCodec
+                    : audioCodec // ignore: cast_nullable_to_non_nullable
+                        as String?,
+            index:
+                freezed == index
+                    ? _value.index
+                    : index // ignore: cast_nullable_to_non_nullable
+                        as int?,
+            state:
+                freezed == state
+                    ? _value.state
+                    : state // ignore: cast_nullable_to_non_nullable
+                        as String?,
+            text:
+                null == text
+                    ? _value.text
+                    : text // ignore: cast_nullable_to_non_nullable
+                        as String,
+          )
+          as $Val,
+    );
+  }
+}
+
+/// @nodoc
+abstract class _$$TtsMessageImplCopyWith<$Res>
+    implements $TtsMessageCopyWith<$Res> {
+  factory _$$TtsMessageImplCopyWith(
+    _$TtsMessageImpl value,
+    $Res Function(_$TtsMessageImpl) then,
+  ) = __$$TtsMessageImplCopyWithImpl<$Res>;
+  @override
+  @useResult
+  $Res call({
+    MessageType type,
+    @JsonKey(name: 'session_id') String sessionId,
+    @JsonKey(name: 'audio_codec') String? audioCodec,
+    int? index,
+    String? state,
+    String text,
+  });
+}
+
+/// @nodoc
+class __$$TtsMessageImplCopyWithImpl<$Res>
+    extends _$TtsMessageCopyWithImpl<$Res, _$TtsMessageImpl>
+    implements _$$TtsMessageImplCopyWith<$Res> {
+  __$$TtsMessageImplCopyWithImpl(
+    _$TtsMessageImpl _value,
+    $Res Function(_$TtsMessageImpl) _then,
+  ) : super(_value, _then);
+
+  /// Create a copy of TtsMessage
+  /// with the given fields replaced by the non-null parameter values.
+  @pragma('vm:prefer-inline')
+  @override
+  $Res call({
+    Object? type = null,
+    Object? sessionId = null,
+    Object? audioCodec = freezed,
+    Object? index = freezed,
+    Object? state = freezed,
+    Object? text = null,
+  }) {
+    return _then(
+      _$TtsMessageImpl(
+        type:
+            null == type
+                ? _value.type
+                : type // ignore: cast_nullable_to_non_nullable
+                    as MessageType,
+        sessionId:
+            null == sessionId
+                ? _value.sessionId
+                : sessionId // ignore: cast_nullable_to_non_nullable
+                    as String,
+        audioCodec:
+            freezed == audioCodec
+                ? _value.audioCodec
+                : audioCodec // ignore: cast_nullable_to_non_nullable
+                    as String?,
+        index:
+            freezed == index
+                ? _value.index
+                : index // ignore: cast_nullable_to_non_nullable
+                    as int?,
+        state:
+            freezed == state
+                ? _value.state
+                : state // ignore: cast_nullable_to_non_nullable
+                    as String?,
+        text:
+            null == text
+                ? _value.text
+                : text // ignore: cast_nullable_to_non_nullable
+                    as String,
+      ),
+    );
+  }
+}
+
+/// @nodoc
+@JsonSerializable()
+class _$TtsMessageImpl implements _TtsMessage {
+  const _$TtsMessageImpl({
+    this.type = MessageType.tts,
+    @JsonKey(name: 'session_id') required this.sessionId,
+    @JsonKey(name: 'audio_codec') this.audioCodec,
+    this.index,
+    this.state,
+    required this.text,
+  });
+
+  factory _$TtsMessageImpl.fromJson(Map<String, dynamic> json) =>
+      _$$TtsMessageImplFromJson(json);
+
+  /// 消息类型（固定为tts）
+  @override
+  @JsonKey()
+  final MessageType type;
+
+  /// 会话ID
+  @override
+  @JsonKey(name: 'session_id')
+  final String sessionId;
+
+  /// 音频编码格式
+  @override
+  @JsonKey(name: 'audio_codec')
+  final String? audioCodec;
+
+  /// 音频片段索引
+  @override
+  final int? index;
+
+  /// 状态（start开始，sentence_start句子开始等）
+  @override
+  final String? state;
+
+  /// 文字内容
+  @override
+  final String text;
+
+  @override
+  String toString() {
+    return 'TtsMessage(type: $type, sessionId: $sessionId, audioCodec: $audioCodec, index: $index, state: $state, text: $text)';
+  }
+
+  @override
+  bool operator ==(Object other) {
+    return identical(this, other) ||
+        (other.runtimeType == runtimeType &&
+            other is _$TtsMessageImpl &&
+            (identical(other.type, type) || other.type == type) &&
+            (identical(other.sessionId, sessionId) ||
+                other.sessionId == sessionId) &&
+            (identical(other.audioCodec, audioCodec) ||
+                other.audioCodec == audioCodec) &&
+            (identical(other.index, index) || other.index == index) &&
+            (identical(other.state, state) || other.state == state) &&
+            (identical(other.text, text) || other.text == text));
+  }
+
+  @JsonKey(includeFromJson: false, includeToJson: false)
+  @override
+  int get hashCode =>
+      Object.hash(runtimeType, type, sessionId, audioCodec, index, state, text);
+
+  /// Create a copy of TtsMessage
+  /// with the given fields replaced by the non-null parameter values.
+  @JsonKey(includeFromJson: false, includeToJson: false)
+  @override
+  @pragma('vm:prefer-inline')
+  _$$TtsMessageImplCopyWith<_$TtsMessageImpl> get copyWith =>
+      __$$TtsMessageImplCopyWithImpl<_$TtsMessageImpl>(this, _$identity);
+
+  @override
+  Map<String, dynamic> toJson() {
+    return _$$TtsMessageImplToJson(this);
+  }
+}
+
+abstract class _TtsMessage implements TtsMessage {
+  const factory _TtsMessage({
+    final MessageType type,
+    @JsonKey(name: 'session_id') required final String sessionId,
+    @JsonKey(name: 'audio_codec') final String? audioCodec,
+    final int? index,
+    final String? state,
+    required final String text,
+  }) = _$TtsMessageImpl;
+
+  factory _TtsMessage.fromJson(Map<String, dynamic> json) =
+      _$TtsMessageImpl.fromJson;
+
+  /// 消息类型（固定为tts）
+  @override
+  MessageType get type;
+
+  /// 会话ID
+  @override
+  @JsonKey(name: 'session_id')
+  String get sessionId;
+
+  /// 音频编码格式
+  @override
+  @JsonKey(name: 'audio_codec')
+  String? get audioCodec;
+
+  /// 音频片段索引
+  @override
+  int? get index;
+
+  /// 状态（start开始，sentence_start句子开始等）
+  @override
+  String? get state;
+
+  /// 文字内容
+  @override
+  String get text;
+
+  /// Create a copy of TtsMessage
+  /// with the given fields replaced by the non-null parameter values.
+  @override
+  @JsonKey(includeFromJson: false, includeToJson: false)
+  _$$TtsMessageImplCopyWith<_$TtsMessageImpl> get copyWith =>
+      throw _privateConstructorUsedError;
+}
+
+LlmMessage _$LlmMessageFromJson(Map<String, dynamic> json) {
+  return _LlmMessage.fromJson(json);
+}
+
+/// @nodoc
+mixin _$LlmMessage {
+  /// 消息类型（固定为llm）
+  MessageType get type => throw _privateConstructorUsedError;
+
+  /// 会话ID
+  @JsonKey(name: 'session_id')
+  String get sessionId => throw _privateConstructorUsedError;
+
+  /// 情感状态
+  String? get emotion => throw _privateConstructorUsedError;
+
+  /// 文字内容
+  String get text => throw _privateConstructorUsedError;
+
+  /// Serializes this LlmMessage to a JSON map.
+  Map<String, dynamic> toJson() => throw _privateConstructorUsedError;
+
+  /// Create a copy of LlmMessage
+  /// with the given fields replaced by the non-null parameter values.
+  @JsonKey(includeFromJson: false, includeToJson: false)
+  $LlmMessageCopyWith<LlmMessage> get copyWith =>
+      throw _privateConstructorUsedError;
+}
+
+/// @nodoc
+abstract class $LlmMessageCopyWith<$Res> {
+  factory $LlmMessageCopyWith(
+    LlmMessage value,
+    $Res Function(LlmMessage) then,
+  ) = _$LlmMessageCopyWithImpl<$Res, LlmMessage>;
+  @useResult
+  $Res call({
+    MessageType type,
+    @JsonKey(name: 'session_id') String sessionId,
+    String? emotion,
+    String text,
+  });
+}
+
+/// @nodoc
+class _$LlmMessageCopyWithImpl<$Res, $Val extends LlmMessage>
+    implements $LlmMessageCopyWith<$Res> {
+  _$LlmMessageCopyWithImpl(this._value, this._then);
+
+  // ignore: unused_field
+  final $Val _value;
+  // ignore: unused_field
+  final $Res Function($Val) _then;
+
+  /// Create a copy of LlmMessage
+  /// with the given fields replaced by the non-null parameter values.
+  @pragma('vm:prefer-inline')
+  @override
+  $Res call({
+    Object? type = null,
+    Object? sessionId = null,
+    Object? emotion = freezed,
+    Object? text = null,
+  }) {
+    return _then(
+      _value.copyWith(
+            type:
+                null == type
+                    ? _value.type
+                    : type // ignore: cast_nullable_to_non_nullable
+                        as MessageType,
+            sessionId:
+                null == sessionId
+                    ? _value.sessionId
+                    : sessionId // ignore: cast_nullable_to_non_nullable
+                        as String,
+            emotion:
+                freezed == emotion
+                    ? _value.emotion
+                    : emotion // ignore: cast_nullable_to_non_nullable
+                        as String?,
+            text:
+                null == text
+                    ? _value.text
+                    : text // ignore: cast_nullable_to_non_nullable
+                        as String,
+          )
+          as $Val,
+    );
+  }
+}
+
+/// @nodoc
+abstract class _$$LlmMessageImplCopyWith<$Res>
+    implements $LlmMessageCopyWith<$Res> {
+  factory _$$LlmMessageImplCopyWith(
+    _$LlmMessageImpl value,
+    $Res Function(_$LlmMessageImpl) then,
+  ) = __$$LlmMessageImplCopyWithImpl<$Res>;
+  @override
+  @useResult
+  $Res call({
+    MessageType type,
+    @JsonKey(name: 'session_id') String sessionId,
+    String? emotion,
+    String text,
+  });
+}
+
+/// @nodoc
+class __$$LlmMessageImplCopyWithImpl<$Res>
+    extends _$LlmMessageCopyWithImpl<$Res, _$LlmMessageImpl>
+    implements _$$LlmMessageImplCopyWith<$Res> {
+  __$$LlmMessageImplCopyWithImpl(
+    _$LlmMessageImpl _value,
+    $Res Function(_$LlmMessageImpl) _then,
+  ) : super(_value, _then);
+
+  /// Create a copy of LlmMessage
+  /// with the given fields replaced by the non-null parameter values.
+  @pragma('vm:prefer-inline')
+  @override
+  $Res call({
+    Object? type = null,
+    Object? sessionId = null,
+    Object? emotion = freezed,
+    Object? text = null,
+  }) {
+    return _then(
+      _$LlmMessageImpl(
+        type:
+            null == type
+                ? _value.type
+                : type // ignore: cast_nullable_to_non_nullable
+                    as MessageType,
+        sessionId:
+            null == sessionId
+                ? _value.sessionId
+                : sessionId // ignore: cast_nullable_to_non_nullable
+                    as String,
+        emotion:
+            freezed == emotion
+                ? _value.emotion
+                : emotion // ignore: cast_nullable_to_non_nullable
+                    as String?,
+        text:
+            null == text
+                ? _value.text
+                : text // ignore: cast_nullable_to_non_nullable
+                    as String,
+      ),
+    );
+  }
+}
+
+/// @nodoc
+@JsonSerializable()
+class _$LlmMessageImpl implements _LlmMessage {
+  const _$LlmMessageImpl({
+    this.type = MessageType.llm,
+    @JsonKey(name: 'session_id') required this.sessionId,
+    this.emotion,
+    required this.text,
+  });
+
+  factory _$LlmMessageImpl.fromJson(Map<String, dynamic> json) =>
+      _$$LlmMessageImplFromJson(json);
+
+  /// 消息类型（固定为llm）
+  @override
+  @JsonKey()
+  final MessageType type;
+
+  /// 会话ID
+  @override
+  @JsonKey(name: 'session_id')
+  final String sessionId;
+
+  /// 情感状态
+  @override
+  final String? emotion;
+
+  /// 文字内容
+  @override
+  final String text;
+
+  @override
+  String toString() {
+    return 'LlmMessage(type: $type, sessionId: $sessionId, emotion: $emotion, text: $text)';
+  }
+
+  @override
+  bool operator ==(Object other) {
+    return identical(this, other) ||
+        (other.runtimeType == runtimeType &&
+            other is _$LlmMessageImpl &&
+            (identical(other.type, type) || other.type == type) &&
+            (identical(other.sessionId, sessionId) ||
+                other.sessionId == sessionId) &&
+            (identical(other.emotion, emotion) || other.emotion == emotion) &&
+            (identical(other.text, text) || other.text == text));
+  }
+
+  @JsonKey(includeFromJson: false, includeToJson: false)
+  @override
+  int get hashCode => Object.hash(runtimeType, type, sessionId, emotion, text);
+
+  /// Create a copy of LlmMessage
+  /// with the given fields replaced by the non-null parameter values.
+  @JsonKey(includeFromJson: false, includeToJson: false)
+  @override
+  @pragma('vm:prefer-inline')
+  _$$LlmMessageImplCopyWith<_$LlmMessageImpl> get copyWith =>
+      __$$LlmMessageImplCopyWithImpl<_$LlmMessageImpl>(this, _$identity);
+
+  @override
+  Map<String, dynamic> toJson() {
+    return _$$LlmMessageImplToJson(this);
+  }
+}
+
+abstract class _LlmMessage implements LlmMessage {
+  const factory _LlmMessage({
+    final MessageType type,
+    @JsonKey(name: 'session_id') required final String sessionId,
+    final String? emotion,
+    required final String text,
+  }) = _$LlmMessageImpl;
+
+  factory _LlmMessage.fromJson(Map<String, dynamic> json) =
+      _$LlmMessageImpl.fromJson;
+
+  /// 消息类型（固定为llm）
+  @override
+  MessageType get type;
+
+  /// 会话ID
+  @override
+  @JsonKey(name: 'session_id')
+  String get sessionId;
+
+  /// 情感状态
+  @override
+  String? get emotion;
+
+  /// 文字内容
+  @override
+  String get text;
+
+  /// Create a copy of LlmMessage
+  /// with the given fields replaced by the non-null parameter values.
+  @override
+  @JsonKey(includeFromJson: false, includeToJson: false)
+  _$$LlmMessageImplCopyWith<_$LlmMessageImpl> get copyWith =>
+      throw _privateConstructorUsedError;
+}

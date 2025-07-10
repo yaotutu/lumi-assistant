@@ -169,6 +169,17 @@ class ChatUIMessageConverter {
     );
   }
   
+  /// 创建助手消息
+  static ChatUIMessage createAssistantMessage(String content) {
+    return ChatUIMessage(
+      id: DateTime.now().millisecondsSinceEpoch.toString(),
+      content: content,
+      sender: ChatSender.assistant,
+      timestamp: DateTime.now(),
+      status: ChatMessageStatus.received,
+    );
+  }
+  
   /// 创建临时消息（如正在输入提示）
   static ChatUIMessage createTemporaryMessage(String content) {
     return ChatUIMessage(
