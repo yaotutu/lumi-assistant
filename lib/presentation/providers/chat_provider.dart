@@ -1,4 +1,3 @@
-import 'package:flutter/material.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:uuid/uuid.dart';
 
@@ -23,6 +22,9 @@ class ChatNotifier extends StateNotifier<ChatState> {
   void _initializeChat() {
     print('[ChatNotifier] 初始化聊天');
     
+    // 首先检查当前握手状态
+    _checkCurrentHandshakeState();
+    
     // 监听连接状态变化
     _ref.listen(connectionManagerProvider, (previous, next) {
       print('[ChatNotifier] 连接状态变化: ${next.statusDescription}');
@@ -46,6 +48,32 @@ class ChatNotifier extends StateNotifier<ChatState> {
 
     // 添加欢迎消息
     _addWelcomeMessage();
+  }
+
+  /// 检查当前握手状态
+  void _checkCurrentHandshakeState() {
+    // 延迟检查，确保Provider初始化完成
+    Future.microtask(() {
+      try {
+        final handshakeState = _ref.read(handshakeServiceProvider);
+        print('[ChatNotifier] 检查当前握手状态: ${handshakeState.state}, sessionId: ${handshakeState.sessionId}');
+        
+        if (handshakeState.sessionId != null) {
+          print('[ChatNotifier] 发现现有会话ID: ${handshakeState.sessionId}');
+          state = state.copyWith(sessionId: handshakeState.sessionId);
+        }
+        
+        final connectionState = _ref.read(connectionManagerProvider);
+        print('[ChatNotifier] 检查连接状态: ${connectionState.statusDescription}');
+        
+        if (connectionState.handshakeResult.sessionId != null) {
+          print('[ChatNotifier] 发现连接管理器中的会话ID: ${connectionState.handshakeResult.sessionId}');
+          state = state.copyWith(sessionId: connectionState.handshakeResult.sessionId);
+        }
+      } catch (e) {
+        print('[ChatNotifier] 检查当前状态失败: $e');
+      }
+    });
   }
 
   /// 开始监听WebSocket消息
@@ -102,8 +130,27 @@ class ChatNotifier extends StateNotifier<ChatState> {
         throw Exception('未连接到服务器');
       }
 
-      final sessionId = state.sessionId;
+      // 首先尝试获取当前会话ID
+      var sessionId = state.sessionId;
       print('[ChatNotifier] 当前会话ID: $sessionId');
+      
+      // 如果会话ID为空，尝试重新获取
+      if (sessionId == null) {
+        try {
+          final handshakeState = _ref.read(handshakeServiceProvider);
+          final connectionState = _ref.read(connectionManagerProvider);
+          
+          sessionId = handshakeState.sessionId ?? connectionState.handshakeResult.sessionId;
+          
+          if (sessionId != null) {
+            print('[ChatNotifier] 重新获取到会话ID: $sessionId');
+            state = state.copyWith(sessionId: sessionId);
+          }
+        } catch (e) {
+          print('[ChatNotifier] 重新获取会话ID失败: $e');
+        }
+      }
+      
       if (sessionId == null) {
         throw Exception('会话未建立');
       }

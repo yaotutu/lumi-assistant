@@ -1,14 +1,11 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_hooks/flutter_hooks.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 
 import '../providers/connection_provider.dart';
-import '../../core/services/websocket_service.dart';
-import '../../core/services/network_checker.dart';
 import '../../data/models/websocket_state.dart';
 
 /// 连接状态显示组件
-class ConnectionStatusWidget extends HookConsumerWidget {
+class ConnectionStatusWidget extends ConsumerWidget {
   final bool showDetails;
   final VoidCallback? onTap;
 
@@ -22,14 +19,13 @@ class ConnectionStatusWidget extends HookConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final connectionState = ref.watch(connectionManagerProvider);
     final connectionStatus = ref.watch(connectionStatusProvider);
-    final isConnected = ref.watch(isConnectedProvider);
 
     return GestureDetector(
       onTap: onTap,
       child: Container(
         padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
         decoration: BoxDecoration(
-          color: _getStatusColor(connectionState.webSocketState.connectionState).withOpacity(0.1),
+          color: _getStatusColor(connectionState.webSocketState.connectionState).withValues(alpha: 0.1),
           borderRadius: BorderRadius.circular(20),
           border: Border.all(
             color: _getStatusColor(connectionState.webSocketState.connectionState),

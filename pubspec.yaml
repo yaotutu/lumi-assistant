@@ -46,8 +46,17 @@ dependencies:
   # 实用工具
   uuid: ^4.2.1
   
+  # 音频处理
+  opus_dart: ^3.0.1
+  just_audio: ^0.9.36
+  audio_session: ^0.1.18
+  permission_handler: ^11.4.0
+  path_provider: ^2.1.5
+  
   # 图标
   cupertino_icons: ^1.0.8
+  flutter_pcm_player: ^0.0.1
+  opus_flutter: ^3.0.3
 
 dev_dependencies:
   flutter_test:
@@ -78,6 +87,7 @@ flutter:
   # To add assets to your application, add an assets section, like this:
   assets:
     - assets/images/
+    - assets/audio/
 
   # An image asset can refer to one or more resolution-specific "variants", see
   # https://flutter.dev/to/resolution-aware-images

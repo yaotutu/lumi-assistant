@@ -1,6 +1,5 @@
 import 'package:freezed_annotation/freezed_annotation.dart';
 
-import '../../core/services/websocket_service.dart';
 import '../../core/services/network_checker.dart';
 import '../../core/services/handshake_service.dart';
 import 'websocket_state.dart';

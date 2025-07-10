@@ -17,7 +17,10 @@
       "Bash(find:*)",
       "Bash(ls:*)",
       "Bash(pkill:*)",
-      "Bash(dart run:*)"
+      "Bash(dart run:*)",
+      "Bash(ffmpeg:*)",
+      "WebFetch(domain:pub.dev)",
+      "WebFetch(domain:github.com)"
     ],
     "deny": []
   }

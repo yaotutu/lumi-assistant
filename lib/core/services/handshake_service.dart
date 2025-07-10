@@ -1,13 +1,10 @@
 import 'dart:async';
-import 'dart:convert';
 
 import 'package:hooks_riverpod/hooks_riverpod.dart';
-import 'package:uuid/uuid.dart';
 
 import '../../data/models/message_model.dart';
 import 'device_info_service.dart';
 import 'websocket_service.dart';
-import '../constants/app_constants.dart';
 import '../errors/exceptions.dart';
 import '../errors/error_handler.dart';
 
@@ -71,7 +68,6 @@ class HandshakeResult {
 class HandshakeService extends StateNotifier<HandshakeResult> {
   final WebSocketService _webSocketService;
   final DeviceInfoService _deviceInfoService;
-  final Uuid _uuid = const Uuid();
   
   Timer? _timeoutTimer;
   StreamSubscription? _messageSubscription;

@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 class FloatingActions extends StatelessWidget {
   final VoidCallback? onSettingsTap;
   final VoidCallback? onMainActionTap;
+  final VoidCallback? onAudioTestTap;
   final String mainActionLabel;
   final IconData mainActionIcon;
 
@@ -11,6 +12,7 @@ class FloatingActions extends StatelessWidget {
     super.key,
     this.onSettingsTap,
     this.onMainActionTap,
+    this.onAudioTestTap,
     this.mainActionLabel = '开始对话',
     this.mainActionIcon = Icons.chat_bubble_outline,
   });
@@ -23,6 +25,18 @@ class FloatingActions extends StatelessWidget {
       child: Column(
         mainAxisSize: MainAxisSize.min,
         children: [
+          // 音频测试按钮
+          if (onAudioTestTap != null) ...[
+            FloatingActionButton.small(
+              heroTag: "audio_test",
+              onPressed: onAudioTestTap,
+              backgroundColor: Colors.orange.withValues(alpha: 0.8),
+              foregroundColor: Colors.white,
+              child: const Icon(Icons.volume_up, size: 20),
+            ),
+            const SizedBox(height: 12),
+          ],
+          
           // 设置按钮（更小更精致）
           FloatingActionButton.small(
             heroTag: "settings",

@@ -9,6 +9,7 @@ import 'widgets/app_status_bar.dart';
 import 'widgets/time_panel.dart';
 import 'widgets/interaction_layer.dart';
 import 'widgets/floating_actions.dart';
+import '../../../core/services/audio_test_service.dart';
 
 /// 应用主页 - 里程碑4：基础UI框架（重构后）
 class HomePage extends HookConsumerWidget {
@@ -32,6 +33,7 @@ class HomePage extends HookConsumerWidget {
           FloatingActions(
             onSettingsTap: () => _showSettings(context),
             onMainActionTap: () => _startChat(context),
+            onAudioTestTap: () => _showAudioTest(context, ref),
           ),
         ],
       ),
@@ -104,5 +106,223 @@ class HomePage extends HookConsumerWidget {
         builder: (context) => const ChatPage(),
       ),
     );
+  }
+
+  /// 显示音频测试对话框
+  void _showAudioTest(BuildContext context, WidgetRef ref) {
+    showDialog(
+      context: context,
+      builder: (context) => Dialog(
+        child: SizedBox(
+          width: 400,
+          child: AudioTestDialog(ref: ref),
+        ),
+      ),
+    );
+  }
+}
+
+/// 音频测试对话框
+class AudioTestDialog extends StatelessWidget {
+  final WidgetRef ref;
+
+  const AudioTestDialog({super.key, required this.ref});
+
+  @override
+  Widget build(BuildContext context) {
+    return Padding(
+      padding: const EdgeInsets.all(24),
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          // 标题
+          Row(
+            children: [
+              Icon(
+                Icons.volume_up,
+                color: Theme.of(context).colorScheme.primary,
+                size: 28,
+              ),
+              const SizedBox(width: 12),
+              Text(
+                '音频播放测试',
+                style: Theme.of(context).textTheme.headlineSmall?.copyWith(
+                  fontWeight: FontWeight.w600,
+                ),
+              ),
+            ],
+          ),
+          
+          const SizedBox(height: 24),
+          
+          // 说明文字
+          Text(
+            '测试本地音频文件播放功能，确保音频系统正常工作。',
+            style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+              color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.7),
+            ),
+          ),
+          
+          const SizedBox(height: 24),
+          
+          // 播放按钮
+          Column(
+            children: [
+              // MP3播放按钮
+              SizedBox(
+                width: double.infinity,
+                child: ElevatedButton.icon(
+                  onPressed: () => _playMp3(context),
+                  icon: const Icon(Icons.play_arrow),
+                  label: const Text('播放 MP3 文件 (01.mp3)'),
+                  style: ElevatedButton.styleFrom(
+                    padding: const EdgeInsets.symmetric(vertical: 16),
+                  ),
+                ),
+              ),
+              
+              const SizedBox(height: 12),
+              
+              // WAV播放按钮
+              SizedBox(
+                width: double.infinity,
+                child: ElevatedButton.icon(
+                  onPressed: () => _playWav(context),
+                  icon: const Icon(Icons.play_arrow),
+                  label: const Text('播放 WAV 文件 (02.wav)'),
+                  style: ElevatedButton.styleFrom(
+                    padding: const EdgeInsets.symmetric(vertical: 16),
+                  ),
+                ),
+              ),
+              
+              const SizedBox(height: 12),
+              
+              // Opus播放按钮
+              SizedBox(
+                width: double.infinity,
+                child: ElevatedButton.icon(
+                  onPressed: () => _playOpus(context),
+                  icon: const Icon(Icons.play_arrow),
+                  label: const Text('播放 Opus 文件 (03.opus)'),
+                  style: ElevatedButton.styleFrom(
+                    padding: const EdgeInsets.symmetric(vertical: 16),
+                    backgroundColor: Colors.orange,
+                    foregroundColor: Colors.white,
+                  ),
+                ),
+              ),
+              
+              const SizedBox(height: 12),
+              
+              // 停止按钮
+              SizedBox(
+                width: double.infinity,
+                child: OutlinedButton.icon(
+                  onPressed: () => _stopAudio(context),
+                  icon: const Icon(Icons.stop),
+                  label: const Text('停止播放'),
+                  style: OutlinedButton.styleFrom(
+                    padding: const EdgeInsets.symmetric(vertical: 16),
+                  ),
+                ),
+              ),
+            ],
+          ),
+          
+          const SizedBox(height: 24),
+          
+          // 关闭按钮
+          SizedBox(
+            width: double.infinity,
+            child: TextButton(
+              onPressed: () => Navigator.of(context).pop(),
+              child: const Text('关闭'),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  /// 播放MP3文件
+  void _playMp3(BuildContext context) async {
+    try {
+      final audioTestService = ref.read(audioTestServiceProvider);
+      await audioTestService.playMp3();
+      
+      if (context.mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('开始播放 MP3 文件')),
+        );
+      }
+    } catch (e) {
+      if (context.mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('播放 MP3 失败: $e')),
+        );
+      }
+    }
+  }
+
+  /// 播放WAV文件
+  void _playWav(BuildContext context) async {
+    try {
+      final audioTestService = ref.read(audioTestServiceProvider);
+      await audioTestService.playWav();
+      
+      if (context.mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('开始播放 WAV 文件')),
+        );
+      }
+    } catch (e) {
+      if (context.mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('播放 WAV 失败: $e')),
+        );
+      }
+    }
+  }
+
+  /// 播放Opus文件
+  void _playOpus(BuildContext context) async {
+    try {
+      final audioTestService = ref.read(audioTestServiceProvider);
+      await audioTestService.playOpus();
+      
+      if (context.mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('开始播放 Opus 文件')),
+        );
+      }
+    } catch (e) {
+      if (context.mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('播放 Opus 失败: $e')),
+        );
+      }
+    }
+  }
+
+  /// 停止播放
+  void _stopAudio(BuildContext context) async {
+    try {
+      final audioTestService = ref.read(audioTestServiceProvider);
+      await audioTestService.stop();
+      
+      if (context.mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('音频播放已停止')),
+        );
+      }
+    } catch (e) {
+      if (context.mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('停止播放失败: $e')),
+        );
+      }
+    }
   }
 }

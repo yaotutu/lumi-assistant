@@ -1,14 +1,14 @@
 /// API相关常量
 class ApiConstants {
   /// WebSocket服务器基础地址
-  /// 开发阶段使用：ws://192.168.110.199:8000/
+  /// 开发阶段使用：ws://192.168.110.203:8000/
   /// 生产环境需要根据实际服务器IP调整
-  static const String webSocketBaseUrl = 'ws://192.168.110.199:8000/';
+  static const String webSocketBaseUrl = 'ws://192.168.110.203:8000/';
 
   /// HTTP API基础地址
-  /// 开发阶段使用：http://192.168.110.199:8000/api
+  /// 开发阶段使用：http://192.168.110.203:8000/api
   /// 生产环境需要根据实际服务器IP调整
-  static const String httpBaseUrl = 'http://192.168.110.199:8000/api';
+  static const String httpBaseUrl = 'http://192.168.110.203:8000/api';
 
   /// 默认认证Token
   static const String defaultToken = 'your-token1';

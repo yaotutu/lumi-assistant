@@ -1,12 +1,11 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_hooks/flutter_hooks.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 
 import '../../core/services/handshake_service.dart';
 import '../providers/connection_provider.dart';
 
 /// 握手状态组件
-class HandshakeStatusWidget extends HookConsumerWidget {
+class HandshakeStatusWidget extends ConsumerWidget {
   final bool showDetails;
   final VoidCallback? onTap;
 
@@ -136,13 +135,12 @@ class HandshakeStatusWidget extends HookConsumerWidget {
 }
 
 /// 握手状态详情卡片
-class HandshakeStatusCard extends HookConsumerWidget {
+class HandshakeStatusCard extends ConsumerWidget {
   const HandshakeStatusCard({super.key});
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final handshakeResult = ref.watch(handshakeServiceProvider);
-    final isConnected = ref.watch(isConnectedProvider);
 
     return Card(
       margin: const EdgeInsets.all(16),
@@ -183,7 +181,7 @@ class HandshakeStatusCard extends HookConsumerWidget {
               _buildSimpleInfoRow(
                 context,
                 '会话ID',
-                handshakeResult.sessionId!.substring(0, 8) + '...',
+                '${handshakeResult.sessionId!.substring(0, 8)}...',
               ),
             ],
           ],

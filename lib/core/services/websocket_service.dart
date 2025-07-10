@@ -1,6 +1,7 @@
 import 'dart:async';
 import 'dart:convert';
 import 'dart:io';
+import 'dart:typed_data';
 
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:web_socket_channel/io.dart';
@@ -9,6 +10,7 @@ import 'package:web_socket_channel/web_socket_channel.dart';
 import '../constants/api_constants.dart';
 import '../errors/exceptions.dart';
 import '../../data/models/websocket_state.dart';
+import 'audio_service.dart';
 
 
 /// WebSocket服务类
@@ -18,11 +20,18 @@ class WebSocketService extends StateNotifier<WebSocketState> {
   Timer? _reconnectTimer;
   Timer? _heartbeatTimer;
   final StreamController<Map<String, dynamic>> _messageController = StreamController.broadcast();
+  AudioService? _audioService;
 
   WebSocketService() : super(WebSocketStateFactory.disconnected());
 
   /// 消息流
   Stream<Map<String, dynamic>> get messageStream => _messageController.stream;
+
+  /// 设置音频服务
+  void setAudioService(AudioService audioService) {
+    _audioService = audioService;
+    print('[WebSocket] 音频服务已设置');
+  }
 
   /// 连接到WebSocket服务器
   Future<void> connect() async {
@@ -217,12 +226,18 @@ class WebSocketService extends StateNotifier<WebSocketState> {
     _messageSubscription = _channel!.stream.listen(
       (data) {
         try {
-          print('[WebSocket] 收到原始消息: $data');
-          final Map<String, dynamic> message = jsonDecode(data);
-          print('[WebSocket] 解析消息成功: ${message['type']}');
-          _messageController.add(message);
+          print('[WebSocket] 收到原始消息，类型: ${data.runtimeType}');
+          
+          // 检查是否为二进制数据
+          if (data is List<int>) {
+            _handleBinaryMessage(Uint8List.fromList(data));
+          } else if (data is String) {
+            _handleTextMessage(data);
+          } else {
+            print('[WebSocket] 未知消息类型: ${data.runtimeType}');
+          }
         } catch (error) {
-          print('[WebSocket] 解析消息失败: $error');
+          print('[WebSocket] 处理消息失败: $error');
         }
       },
       onError: (error) {
@@ -241,6 +256,82 @@ class WebSocketService extends StateNotifier<WebSocketState> {
         }
       },
     );
+  }
+
+  /// 处理文本消息
+  void _handleTextMessage(String data) {
+    try {
+      print('[WebSocket] 收到文本消息: $data');
+      final Map<String, dynamic> message = jsonDecode(data);
+      print('[WebSocket] 解析消息成功: ${message['type']}');
+      _messageController.add(message);
+    } catch (error) {
+      print('[WebSocket] 解析文本消息失败: $error');
+    }
+  }
+
+  /// 处理二进制消息（音频数据）
+  void _handleBinaryMessage(Uint8List data) async {
+    try {
+      print('[WebSocket] 收到二进制消息，数据大小: ${data.length} bytes');
+      
+      // 分析二进制数据的头部，判断格式
+      _analyzeBinaryData(data);
+      
+      // 检查是否为音频数据（通常大于几百字节）
+      if (data.length > 100) {
+        print('[WebSocket] 判断为音频数据，开始播放');
+        
+        // 如果音频服务可用，播放音频
+        if (_audioService != null) {
+          await _audioService!.playOpusAudio(data);
+          print('[WebSocket] 音频播放请求已发送');
+        } else {
+          print('[WebSocket] 音频服务不可用，跳过播放');
+        }
+      } else {
+        print('[WebSocket] 二进制数据过小，可能不是音频数据');
+      }
+    } catch (error) {
+      print('[WebSocket] 处理二进制消息失败: $error');
+    }
+  }
+
+  /// 分析二进制数据格式
+  void _analyzeBinaryData(Uint8List data) {
+    if (data.isEmpty) return;
+    
+    // 打印前16个字节的十六进制表示
+    final headerLength = data.length < 16 ? data.length : 16;
+    final headerHex = data.take(headerLength)
+        .map((b) => b.toRadixString(16).padLeft(2, '0'))
+        .join(' ');
+    
+    print('[WebSocket] 二进制数据头部(hex): $headerHex');
+    
+    // 尝试识别常见的音频格式
+    if (data.length >= 4) {
+      // 检查Opus魔数（OggS）
+      if (data[0] == 0x4F && data[1] == 0x67 && data[2] == 0x67 && data[3] == 0x53) {
+        print('[WebSocket] 检测到OGG容器格式（可能包含Opus）');
+      }
+      // 检查原始Opus帧
+      else if (data[0] == 0x4F && data[1] == 0x70 && data[2] == 0x75 && data[3] == 0x73) {
+        print('[WebSocket] 检测到Opus魔数');
+      }
+      // 检查WAV格式
+      else if (data[0] == 0x52 && data[1] == 0x49 && data[2] == 0x46 && data[3] == 0x46) {
+        print('[WebSocket] 检测到WAV文件格式');
+      }
+      // 检查MP3格式
+      else if ((data[0] == 0xFF && (data[1] & 0xE0) == 0xE0) || 
+               (data[0] == 0x49 && data[1] == 0x44 && data[2] == 0x33)) {
+        print('[WebSocket] 检测到MP3文件格式');
+      }
+      else {
+        print('[WebSocket] 未识别的音频格式，可能是原始Opus帧或其他格式');
+      }
+    }
   }
 
   /// 启动心跳
@@ -335,5 +426,17 @@ class WebSocketService extends StateNotifier<WebSocketState> {
 
 /// WebSocket服务提供者
 final webSocketServiceProvider = StateNotifierProvider<WebSocketService, WebSocketState>((ref) {
-  return WebSocketService();
+  final service = WebSocketService();
+  
+  // 延迟注入音频服务，避免循环依赖
+  Future.microtask(() {
+    try {
+      final audioService = ref.read(audioServiceProvider);
+      service.setAudioService(audioService);
+    } catch (e) {
+      print('[WebSocket] 音频服务注入失败: $e');
+    }
+  });
+  
+  return service;
 });
