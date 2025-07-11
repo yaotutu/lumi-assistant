@@ -4,12 +4,6 @@ import 'package:flutter/material.dart';
 class FloatingActions extends StatelessWidget {
   final VoidCallback? onSettingsTap;
   final VoidCallback? onMainActionTap;
-  final VoidCallback? onAudioTestTap;
-  final VoidCallback? onAudioStreamTap;
-  final VoidCallback? onVoiceInteractionTap;
-  final VoidCallback? onTtsPlaybackTap;
-  final VoidCallback? onRealTimeAudioTap;
-  final VoidCallback? onServerSwitchTap;
   final String mainActionLabel;
   final IconData mainActionIcon;
 
@@ -17,12 +11,6 @@ class FloatingActions extends StatelessWidget {
     super.key,
     this.onSettingsTap,
     this.onMainActionTap,
-    this.onAudioTestTap,
-    this.onAudioStreamTap,
-    this.onVoiceInteractionTap,
-    this.onTtsPlaybackTap,
-    this.onRealTimeAudioTap,
-    this.onServerSwitchTap,
     this.mainActionLabel = '开始对话',
     this.mainActionIcon = Icons.chat_bubble_outline,
   });
@@ -35,77 +23,6 @@ class FloatingActions extends StatelessWidget {
       child: Column(
         mainAxisSize: MainAxisSize.min,
         children: [
-          
-          // 音频播放测试按钮
-          if (onAudioTestTap != null) ...[
-            FloatingActionButton.small(
-              heroTag: "audio_test",
-              onPressed: onAudioTestTap,
-              backgroundColor: Colors.orange.withValues(alpha: 0.8),
-              foregroundColor: Colors.white,
-              child: const Icon(Icons.volume_up, size: 20),
-            ),
-            const SizedBox(height: 12),
-          ],
-          
-          // 录制测试按钮
-          FloatingActionButton.small(
-            heroTag: "audio_recording_test",
-            onPressed: onAudioTestTap,
-            backgroundColor: Colors.orange.withValues(alpha: 0.8),
-            foregroundColor: Colors.white,
-            child: const Icon(Icons.mic, size: 20),
-          ),
-          const SizedBox(height: 12),
-          
-          // 音频流测试按钮
-          if (onAudioStreamTap != null) ...[ 
-            FloatingActionButton.small(
-              heroTag: "audio_stream_test",
-              onPressed: onAudioStreamTap,
-              backgroundColor: Colors.blue.withValues(alpha: 0.8),
-              foregroundColor: Colors.white,
-              child: const Icon(Icons.stream, size: 20),
-            ),
-            const SizedBox(height: 12),
-          ],
-          
-          // 语音交互测试按钮
-          if (onVoiceInteractionTap != null) ...[ 
-            FloatingActionButton.small(
-              heroTag: "voice_interaction_test",
-              onPressed: onVoiceInteractionTap,
-              backgroundColor: Colors.purple.withValues(alpha: 0.8),
-              foregroundColor: Colors.white,
-              child: const Icon(Icons.record_voice_over, size: 20),
-            ),
-            const SizedBox(height: 12),
-          ],
-          
-          // TTS播放测试按钮
-          if (onTtsPlaybackTap != null) ...[ 
-            FloatingActionButton.small(
-              heroTag: "tts_playback_test",
-              onPressed: onTtsPlaybackTap,
-              backgroundColor: Colors.green.withValues(alpha: 0.8),
-              foregroundColor: Colors.white,
-              child: const Icon(Icons.play_arrow, size: 20),
-            ),
-            const SizedBox(height: 12),
-          ],
-          
-          // 实时音频流处理测试按钮
-          if (onRealTimeAudioTap != null) ...[ 
-            FloatingActionButton.small(
-              heroTag: "real_time_audio_test",
-              onPressed: onRealTimeAudioTap,
-              backgroundColor: Colors.teal.withValues(alpha: 0.8),
-              foregroundColor: Colors.white,
-              child: const Icon(Icons.waves, size: 20),
-            ),
-            const SizedBox(height: 12),
-          ],
-          
           // 设置按钮（更小更精致）
           FloatingActionButton.small(
             heroTag: "settings",
