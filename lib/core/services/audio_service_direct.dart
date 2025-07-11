@@ -1,19 +1,19 @@
 import 'dart:typed_data';
 import 'package:opus_dart/opus_dart.dart';
-import 'package:audio_session/audio_session.dart';
 import 'package:flutter_pcm_player/flutter_pcm_player.dart';
+import 'package:audio_session/audio_session.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'dart:async';
 import '../constants/audio_constants.dart';
 import '../../data/models/exceptions.dart';
 import 'permission_service.dart';
 
-/// 音频播放服务
+/// 直接PCM播放音频服务
 /// 
-/// 负责处理从服务器接收的音频数据（Opus格式）并播放
-/// 参考xiaozhi-android-client项目的音频处理实现
-class AudioService {
-  static const String tag = 'AudioService';
+/// 严格按照约定：服务端给Opus -> 转换成PCM -> 直接播放PCM
+/// 完全按照Android客户端AudioUtil的实现
+class AudioServiceDirect {
+  static const String tag = 'AudioServiceDirect';
   
   // 权限服务
   final PermissionService _permissionService = PermissionService();
@@ -21,11 +21,11 @@ class AudioService {
   // 音频状态
   String _currentState = AudioConstants.stateIdle;
   
-  // FlutterPcmPlayer实例 - 参考xiaozhi-android-client
+  // FlutterPcmPlayer实例 - 完全按照Android客户端方式
   FlutterPcmPlayer? _pcmPlayer;
   bool _isPlayerInitialized = false;
   
-  // Opus解码器 - 使用静态初始化，参考xiaozhi-android-client
+  // Opus解码器 - 使用静态初始化
   static final SimpleOpusDecoder _decoder = SimpleOpusDecoder(
     sampleRate: AudioConstants.sampleRate,
     channels: AudioConstants.channels,
@@ -45,13 +45,13 @@ class AudioService {
     }
 
     try {
-      print('[$tag] 开始初始化音频服务');
+      print('[$tag] 开始初始化直接PCM播放音频服务');
       _currentState = AudioConstants.stateProcessing;
       
       // 1. 检查麦克风权限
       await _checkAudioPermissions();
       
-      // 2. 初始化音频会话（参考xiaozhi-android-client）
+      // 2. 初始化音频会话（参考Android客户端）
       await _initializeAudioSession();
       
       // 3. 初始化PCM播放器
@@ -62,15 +62,15 @@ class AudioService {
       
       _isInitialized = true;
       _currentState = AudioConstants.stateIdle;
-      print('[$tag] 音频服务初始化完成');
+      print('[$tag] 直接PCM播放音频服务初始化完成');
       
     } catch (e) {
       _currentState = AudioConstants.stateError;
-      print('[$tag] 音频服务初始化失败: $e');
+      print('[$tag] 直接PCM播放音频服务初始化失败: $e');
       throw AppException.system(
         message: '音频服务初始化失败',
         code: AudioConstants.errorCodeAudioSessionFailed.toString(),
-        component: 'AudioService',
+        component: 'AudioServiceDirect',
         details: {'error': e.toString()},
       );
     }
@@ -85,7 +85,7 @@ class AudioService {
         throw AppException.system(
           message: '麦克风权限未授予',
           code: AudioConstants.errorCodePermissionDenied.toString(),
-          component: 'AudioService',
+          component: 'AudioServiceDirect',
           details: {'permission': 'microphone'},
         );
       }
@@ -98,12 +98,12 @@ class AudioService {
   }
 
   /// 初始化音频会话
-  /// 完全参考xiaozhi-android-client的配置
+  /// 完全参考Android客户端的配置
   Future<void> _initializeAudioSession() async {
     try {
       _audioSession = await AudioSession.instance;
       
-      // 配置音频会话（参考xiaozhi-android-client）
+      // 配置音频会话（参考Android客户端）
       await _audioSession!.configure(const AudioSessionConfiguration(
         // iOS配置 - 语音通话模式
         avAudioSessionCategory: AVAudioSessionCategory.playAndRecord,
@@ -122,25 +122,25 @@ class AudioService {
         androidWillPauseWhenDucked: false,
       ));
       
-      print('[$tag] 音频会话配置完成（参考xiaozhi-android-client）');
+      print('[$tag] 音频会话配置完成（参考Android客户端）');
     } catch (e) {
       print('[$tag] 音频会话配置失败: $e');
       throw Exception('音频会话配置失败: $e');
     }
   }
 
-  /// 初始化音频播放器 - 完全参考xiaozhi-android-client
+  /// 初始化PCM播放器 - 完全按照Android客户端方式
   Future<void> _initializePCMPlayer() async {
     try {
       // 停止任何现有的播放器
       await _stopPCMPlayer();
       
-      print('[$tag] 初始化PCM播放器，参考xiaozhi-android-client');
+      print('[$tag] 使用Android客户端方式初始化PCM播放器');
       
       // 创建新的播放器实例
       _pcmPlayer = FlutterPcmPlayer();
       
-      // 按照xiaozhi-android-client的方式：初始化后立即开始播放循环
+      // 按照Android客户端的方式：初始化后立即开始播放循环
       await _pcmPlayer!.initialize();
       await _pcmPlayer!.play();  // 开始播放循环
       
@@ -153,13 +153,11 @@ class AudioService {
     }
   }
 
-
   /// 播放Opus音频数据
-  /// 
-  /// [opusData] - Opus编码的音频数据（原始Opus帧）
-  /// 参考xiaozhi-android-client的实现
+  /// 严格按照约定：Opus -> PCM -> 直接播放PCM
+  /// 完全按照Android客户端AudioUtil.playOpusData的实现
   Future<void> playOpusAudio(Uint8List opusData) async {
-    print('[$tag] ===== 开始播放Opus音频 =====');
+    print('[$tag] ===== 开始播放Opus音频（严格按照约定）=====');
     print('[$tag] 音频数据大小: ${opusData.length} bytes');
     
     if (!_isInitialized) {
@@ -174,31 +172,36 @@ class AudioService {
         return;
       }
       
-      // 打印音频数据的前16个字节用于调试
-      final headerLength = opusData.length < 16 ? opusData.length : 16;
-      final headerHex = opusData.take(headerLength)
-          .map((b) => b.toRadixString(16).padLeft(2, '0'))
-          .join(' ');
-      print('[$tag] 音频数据头部(hex): $headerHex');
-      
-      // 2. Opus解码为PCM数据
+      // 2. 解码Opus数据为PCM（完全按照Android客户端方式）
       print('[$tag] 开始Opus解码');
-      final pcmData = _decodeOpusToPcm(opusData);
+      final Int16List pcmData = _decoder.decode(input: opusData);
+      print('[$tag] Opus解码完成，PCM样本数: ${pcmData.length}');
+      
       if (pcmData.isEmpty) {
-        print('[$tag] Opus解码失败，跳过播放');
+        print('[$tag] Opus解码结果为空，跳过播放');
         return;
       }
-      print('[$tag] Opus解码成功，PCM数据大小: ${pcmData.length} bytes');
       
-      // 3. 直接播放PCM数据
-      print('[$tag] 开始播放PCM数据');
-      await _playPCMData(pcmData);
+      // 3. 准备PCM数据（完全按照Android客户端示例直接方式）
+      final Uint8List pcmBytes = Uint8List(pcmData.length * 2);
+      final ByteData bytes = ByteData.view(pcmBytes.buffer);
+      
+      // 使用小端字节序（完全按照Android客户端）
+      for (int i = 0; i < pcmData.length; i++) {
+        bytes.setInt16(i * 2, pcmData[i], Endian.little);
+      }
+      
+      print('[$tag] PCM数据准备完成，大小: ${pcmBytes.length} bytes');
+      
+      // 4. 直接播放PCM数据（严格按照约定和Android客户端方式）
+      await _playPCMDataDirect(pcmBytes);
+      
       print('[$tag] ===== 播放Opus音频结束 =====');
       
     } catch (e) {
       print('[$tag] 播放音频失败: $e');
-      print('[$tag] 错误类型: ${e.runtimeType}');
-      // 播放失败时尝试重新初始化播放器
+      
+      // 简单重置并重新初始化（按照Android客户端方式）
       try {
         print('[$tag] 尝试重新初始化播放器');
         await _initializePCMPlayer();
@@ -208,59 +211,10 @@ class AudioService {
     }
   }
 
-  /// Opus解码为PCM数据
-  /// 完全参考xiaozhi-android-client的实现
-  Uint8List _decodeOpusToPcm(Uint8List opusData) {
+  /// 直接播放PCM数据 - 完全按照Android客户端方式
+  Future<void> _playPCMDataDirect(Uint8List pcmBytes) async {
     try {
-      print('[$tag] 开始Opus解码，输入数据大小: ${opusData.length} bytes');
-      
-      // 检查Opus数据是否有效（最小长度检查）
-      if (opusData.length < 2) {
-        print('[$tag] Opus数据太短，无法解码');
-        return Uint8List(0);
-      }
-      
-      // 解码Opus数据为Int16数组
-      final Int16List pcmInt16 = _decoder.decode(input: opusData);
-      print('[$tag] Opus解码完成，PCM样本数: ${pcmInt16.length}');
-      
-      if (pcmInt16.isEmpty) {
-        print('[$tag] Opus解码结果为空');
-        return Uint8List(0);
-      }
-      
-      // 完全按照xiaozhi-android-client的方式转换PCM数据
-      final Uint8List pcmBytes = Uint8List(pcmInt16.length * 2);
-      final ByteData bytes = ByteData.view(pcmBytes.buffer);
-      
-      // 使用小端字节序转换Int16到字节（严格按照Android客户端）
-      for (int i = 0; i < pcmInt16.length; i++) {
-        bytes.setInt16(i * 2, pcmInt16[i], Endian.little);
-      }
-      
-      print('[$tag] PCM数据准备完成，输出大小: ${pcmBytes.length} bytes');
-      
-      // 调试信息：检查PCM数据质量
-      int nonZeroCount = 0;
-      int maxValue = 0;
-      for (int i = 0; i < pcmInt16.length; i++) {
-        if (pcmInt16[i] != 0) nonZeroCount++;
-        maxValue = pcmInt16[i].abs() > maxValue ? pcmInt16[i].abs() : maxValue;
-      }
-      print('[$tag] PCM数据质量: 非零样本数=$nonZeroCount, 最大值=$maxValue');
-      
-      return pcmBytes;
-    } catch (e) {
-      print('[$tag] Opus解码失败: $e');
-      print('[$tag] 错误类型: ${e.runtimeType}');
-      return Uint8List(0);
-    }
-  }
-
-  /// 播放PCM数据 - 完全参考xiaozhi-android-client
-  Future<void> _playPCMData(Uint8List pcmData) async {
-    try {
-      print('[$tag] 开始播放PCM数据，大小: ${pcmData.length} bytes');
+      print('[$tag] 开始直接播放PCM数据，大小: ${pcmBytes.length} bytes');
       
       // 如果播放器未初始化，先初始化
       if (!_isPlayerInitialized || _pcmPlayer == null) {
@@ -268,17 +222,17 @@ class AudioService {
         await _initializePCMPlayer();
       }
       
-      // 直接发送音频数据到播放器（参考xiaozhi-android-client）
+      // 直接发送PCM数据到播放器（完全按照Android客户端方式）
       if (_pcmPlayer != null) {
-        await _pcmPlayer!.feed(pcmData);
-        print('[$tag] PCM数据已发送到播放器');
+        await _pcmPlayer!.feed(pcmBytes);
+        print('[$tag] PCM数据已直接发送到播放器');
       }
       
     } catch (e) {
-      print('[$tag] 播放失败: $e');
+      print('[$tag] 直接播放PCM失败: $e');
       print('[$tag] 错误类型: ${e.runtimeType}');
       
-      // 简单重置并重新初始化（参考xiaozhi-android-client）
+      // 简单重置并重新初始化（按照Android客户端方式）
       try {
         print('[$tag] 尝试重置播放器');
         await _stopPCMPlayer();
@@ -286,16 +240,16 @@ class AudioService {
         
         // 重新尝试播放
         if (_pcmPlayer != null) {
-          await _pcmPlayer!.feed(pcmData);
-          print('[$tag] 重试播放成功');
+          await _pcmPlayer!.feed(pcmBytes);
+          print('[$tag] 重试直接播放PCM成功');
         }
       } catch (retryError) {
-        print('[$tag] 重试播放失败: $retryError');
+        print('[$tag] 重试直接播放PCM失败: $retryError');
       }
     }
   }
 
-  /// 停止播放 - 参考xiaozhi-android-client
+  /// 停止播放 - 按照Android客户端方式
   Future<void> _stopPCMPlayer() async {
     if (_pcmPlayer != null) {
       try {
@@ -325,19 +279,14 @@ class AudioService {
       // 停止并释放PCM播放器
       await _stopPCMPlayer();
       
-      // 停止并释放播放器
-      await _stopPCMPlayer();
-      
-      // Opus解码器是静态的，不需要手动释放
-      
       // 释放其他资源
       _audioSession = null;
       _isInitialized = false;
       _currentState = AudioConstants.stateIdle;
       
-      print('[$tag] 音频服务资源释放完成');
+      print('[$tag] 直接PCM播放音频服务资源释放完成');
     } catch (e) {
-      print('[$tag] 音频服务资源释放失败: $e');
+      print('[$tag] 直接PCM播放音频服务资源释放失败: $e');
     }
   }
   
@@ -357,12 +306,11 @@ class AudioService {
       return false;
     }
   }
-
 }
 
-/// 音频服务Provider
-final audioServiceProvider = Provider<AudioService>((ref) {
-  final service = AudioService();
+/// 直接PCM播放音频服务 Provider
+final audioServiceDirectProvider = Provider<AudioServiceDirect>((ref) {
+  final service = AudioServiceDirect();
   
   // 在Provider被销毁时清理资源
   ref.onDispose(() {

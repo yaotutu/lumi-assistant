@@ -12,6 +12,10 @@ import 'widgets/floating_actions.dart';
 import '../../../core/services/audio_test_service.dart';
 import '../../widgets/audio_recording_test.dart';
 import '../../widgets/audio_stream_test.dart';
+import '../../widgets/voice_interaction_test.dart';
+import '../../widgets/tts_playback_test.dart';
+import '../../widgets/real_time_audio_test.dart';
+import '../../widgets/audio_test_widget.dart';
 
 /// 应用主页 - 里程碑4：基础UI框架（重构后）
 class HomePage extends HookConsumerWidget {
@@ -35,8 +39,11 @@ class HomePage extends HookConsumerWidget {
           FloatingActions(
             onSettingsTap: () => _showSettings(context),
             onMainActionTap: () => _startChat(context),
-            onAudioTestTap: () => _showRecordingTest(context),
+            onAudioTestTap: () => _showAudioPlaybackTest(context),
             onAudioStreamTap: () => _showStreamTest(context),
+            onVoiceInteractionTap: () => _showVoiceInteractionTest(context),
+            onTtsPlaybackTap: () => _showTtsPlaybackTest(context),
+            onRealTimeAudioTap: () => _showRealTimeAudioTest(context),
             onServerSwitchTap: null,
           ),
         ],
@@ -125,6 +132,23 @@ class HomePage extends HookConsumerWidget {
     );
   }
 
+  /// 显示音频播放测试对话框
+  void _showAudioPlaybackTest(BuildContext context) {
+    showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: const Text('音频播放测试'),
+        content: const AudioTestWidget(),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.of(context).pop(),
+            child: const Text('关闭'),
+          ),
+        ],
+      ),
+    );
+  }
+
   /// 显示录制测试页面
   void _showRecordingTest(BuildContext context) {
     Navigator.of(context).push(
@@ -139,6 +163,33 @@ class HomePage extends HookConsumerWidget {
     Navigator.of(context).push(
       MaterialPageRoute(
         builder: (context) => const AudioStreamTestPage(),
+      ),
+    );
+  }
+
+  /// 显示语音交互测试页面
+  void _showVoiceInteractionTest(BuildContext context) {
+    Navigator.of(context).push(
+      MaterialPageRoute(
+        builder: (context) => const VoiceInteractionTestPage(),
+      ),
+    );
+  }
+
+  /// 显示TTS播放测试页面
+  void _showTtsPlaybackTest(BuildContext context) {
+    Navigator.of(context).push(
+      MaterialPageRoute(
+        builder: (context) => const TtsPlaybackTestPage(),
+      ),
+    );
+  }
+
+  /// 显示实时音频流处理测试页面
+  void _showRealTimeAudioTest(BuildContext context) {
+    Navigator.of(context).push(
+      MaterialPageRoute(
+        builder: (context) => const RealTimeAudioTestPage(),
       ),
     );
   }

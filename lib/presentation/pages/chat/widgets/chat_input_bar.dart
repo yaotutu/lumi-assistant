@@ -1,16 +1,21 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
+import 'package:hooks_riverpod/hooks_riverpod.dart';
 
 import '../../../../core/constants/device_constants.dart';
+import '../../../widgets/voice_input_widget.dart';
+import '../../../providers/audio_stream_provider.dart';
 
-/// 聊天输入栏组件 - 全新设计，白色背景黑色文字，支持键盘自动抬起
-class ChatInputBar extends HookWidget {
+/// 聊天输入栏组件 - 全新设计，白色背景黑色文字，支持键盘自动抬起，集成语音功能
+class ChatInputBar extends HookConsumerWidget {
   final TextEditingController controller;
   final FocusNode focusNode;
   final ScrollController scrollController;
   final Function(String) onSendMessage;
   final bool isCompact;
   final DeviceType deviceType;
+  final VoidCallback? onVoiceStart;
+  final VoidCallback? onVoiceEnd;
 
   const ChatInputBar({
     super.key,
@@ -20,12 +25,17 @@ class ChatInputBar extends HookWidget {
     required this.onSendMessage,
     this.isCompact = false,
     this.deviceType = DeviceType.standard,
+    this.onVoiceStart,
+    this.onVoiceEnd,
   });
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
     // 监听输入变化
     final hasText = useState(false);
+    
+    // 语音状态
+    final audioStreamState = ref.watch(audioStreamProvider);
     
     useEffect(() {
       void listener() {
@@ -148,38 +158,53 @@ class ChatInputBar extends HookWidget {
             
             const SizedBox(width: 8),
             
-            // 发送按钮
-            GestureDetector(
-              onTap: hasText.value ? _sendMessage : null,
-              child: AnimatedContainer(
-                duration: const Duration(milliseconds: 200),
-                width: _getButtonSizeForDevice(deviceType),
-                height: _getButtonSizeForDevice(deviceType),
-                decoration: BoxDecoration(
-                  color: hasText.value
-                      ? Colors.blue // 蓝色发送按钮
-                      : Colors.grey[400], // 灰色语音按钮
-                  shape: BoxShape.circle,
-                  boxShadow: [
-                    BoxShadow(
-                      color: hasText.value 
-                          ? Colors.blue.withValues(alpha: 0.3)
-                          : Colors.grey.withValues(alpha: 0.2),
-                      blurRadius: 4,
-                      offset: const Offset(0, 2),
-                    ),
-                  ],
-                ),
-                child: Icon(
-                  hasText.value ? Icons.send_rounded : Icons.mic,
-                  color: Colors.white,
-                  size: _getIconSizeForDevice(deviceType),
-                ),
-              ),
-            ),
+            // 发送按钮或语音按钮
+            hasText.value 
+                ? _buildSendButton(context)
+                : _buildVoiceButton(context),
           ],
         ),
       ),
+    );
+  }
+
+  /// 构建发送按钮
+  Widget _buildSendButton(BuildContext context) {
+    return GestureDetector(
+      onTap: _sendMessage,
+      child: AnimatedContainer(
+        duration: const Duration(milliseconds: 200),
+        width: _getButtonSizeForDevice(deviceType),
+        height: _getButtonSizeForDevice(deviceType),
+        decoration: BoxDecoration(
+          color: Colors.blue,
+          shape: BoxShape.circle,
+          boxShadow: [
+            BoxShadow(
+              color: Colors.blue.withValues(alpha: 0.3),
+              blurRadius: 4,
+              offset: const Offset(0, 2),
+            ),
+          ],
+        ),
+        child: Icon(
+          Icons.send_rounded,
+          color: Colors.white,
+          size: _getIconSizeForDevice(deviceType),
+        ),
+      ),
+    );
+  }
+
+  /// 构建语音按钮
+  Widget _buildVoiceButton(BuildContext context) {
+    return VoiceInputWidget(
+      size: _getButtonSizeForDevice(deviceType),
+      onVoiceStart: onVoiceStart,
+      onVoiceEnd: onVoiceEnd,
+      onVoiceCancel: () {
+        print('[ChatInputBar] 语音录制取消');
+      },
     );
   }
 

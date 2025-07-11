@@ -84,15 +84,23 @@ class AudioStreamService {
   /// 检查音频权限
   Future<void> _checkPermissions() async {
     try {
+      // 先检查当前权限状态
       final permissions = await _permissionService.checkAudioPermissions();
+      
+      // 如果麦克风权限未授权，则请求权限
       if (!(permissions['microphone'] ?? false)) {
-        throw AppException.system(
-          message: '需要麦克风权限才能进行音频流传输',
-          code: AudioConstants.errorCodePermissionDenied.toString(),
-          component: 'AudioStreamService',
-          details: {'permission': 'microphone'},
-        );
+        print('[$tag] 麦克风权限未授权，尝试请求权限');
+        final granted = await _permissionService.requestMicrophonePermission();
+        if (!granted) {
+          throw AppException.system(
+            message: '需要麦克风权限才能进行音频流传输',
+            code: AudioConstants.errorCodePermissionDenied.toString(),
+            component: 'AudioStreamService',
+            details: {'permission': 'microphone'},
+          );
+        }
       }
+      
       print('[$tag] 音频权限检查通过');
     } catch (e) {
       print('[$tag] 音频权限检查失败: $e');

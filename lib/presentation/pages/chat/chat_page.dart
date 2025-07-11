@@ -89,6 +89,14 @@ class ChatPage extends HookConsumerWidget {
                       onSendMessage: (message) => _sendMessage(context, ref, message),
                       isCompact: isCompact,
                       deviceType: deviceType,
+                      onVoiceStart: () {
+                        print('[ChatPage] 语音录制开始');
+                        // 可以在这里添加语音开始的UI反馈
+                      },
+                      onVoiceEnd: () {
+                        print('[ChatPage] 语音录制结束');
+                        // 可以在这里添加语音结束的UI反馈
+                      },
                     ),
                   ],
                 ),

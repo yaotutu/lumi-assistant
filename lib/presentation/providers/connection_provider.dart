@@ -3,6 +3,11 @@ import 'package:hooks_riverpod/hooks_riverpod.dart';
 import '../../core/services/websocket_service.dart';
 import '../../core/services/network_checker.dart';
 import '../../core/services/handshake_service.dart';
+import '../../core/services/audio_service.dart';
+import '../../core/services/audio_service_v2.dart';
+import '../../core/services/audio_service_v3.dart';
+import '../../core/services/audio_service_simple.dart';
+import '../../core/services/audio_service_direct.dart';
 import '../../data/models/connection_state.dart';
 import '../../data/models/websocket_state.dart';
 
@@ -110,6 +115,27 @@ class ConnectionManager extends StateNotifier<ConnectionManagerState> {
 
     print('[ConnectionManager] 调用WebSocket服务进行连接');
     final webSocketService = _ref.read(webSocketServiceProvider.notifier);
+    
+    // 设置音频服务 - 修复TTS音频播放问题
+    final audioService = _ref.read(audioServiceProvider);
+    webSocketService.setAudioService(audioService);
+    
+    // 设置音频服务V2 - 使用just_audio替代方案
+    final audioServiceV2 = _ref.read(audioServiceV2Provider);
+    webSocketService.setAudioServiceV2(audioServiceV2);
+    
+    // 设置音频服务V3 - 使用Android客户端方式
+    final audioServiceV3 = _ref.read(audioServiceV3Provider);
+    webSocketService.setAudioServiceV3(audioServiceV3);
+    
+    // 设置简化音频服务 - 最简单的Android客户端方式
+    final audioServiceSimple = _ref.read(audioServiceSimpleProvider);
+    webSocketService.setAudioServiceSimple(audioServiceSimple);
+    
+    // 设置直接PCM播放音频服务 - 严格按照约定
+    final audioServiceDirect = _ref.read(audioServiceDirectProvider);
+    webSocketService.setAudioServiceDirect(audioServiceDirect);
+    
     await webSocketService.connect(serverUrl);
   }
   

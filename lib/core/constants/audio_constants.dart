@@ -76,6 +76,10 @@ class AudioConstants {
   static const int errorCodeDeviceNotAvailable = 1009;       // 设备不可用
   static const int errorCodeInterrupted = 1010;              // 音频中断
   static const int errorCodeProcessingFailed = 1011;         // 处理失败
+  static const int errorCodeOpusInit = 1012;                 // Opus初始化失败
+  static const int errorCodeOpusDecode = 1013;               // Opus解码失败
+  static const int errorCodePlayerInit = 1014;               // 播放器初始化失败
+  static const int errorCodeNotInitialized = 1015;           // 未初始化
   
   // 音频状态
   static const String stateIdle = 'idle';                    // 空闲状态
