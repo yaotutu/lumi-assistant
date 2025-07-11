@@ -71,10 +71,11 @@ class ChatInputBar extends HookConsumerWidget {
       ),
       child: SafeArea(
         child: Row(
-          crossAxisAlignment: CrossAxisAlignment.end,
+          crossAxisAlignment: CrossAxisAlignment.center, // 改为居中对齐
           children: [
-            // 输入框
+            // 输入框 - 缩小占用空间
             Expanded(
+              flex: 1, // 进一步减少Flex权重，让输入框占用更少空间
               child: Container(
                 constraints: BoxConstraints(
                   minHeight: inputHeight,
@@ -113,7 +114,7 @@ class ChatInputBar extends HookConsumerWidget {
                           ),
                           border: InputBorder.none,
                           contentPadding: EdgeInsets.symmetric(
-                            horizontal: 16,
+                            horizontal: 12, // 从16减少到12
                             vertical: _getVerticalPaddingForDevice(deviceType),
                           ),
                         ),
@@ -156,9 +157,9 @@ class ChatInputBar extends HookConsumerWidget {
               ),
             ),
             
-            const SizedBox(width: 8),
+            const SizedBox(width: 12),
             
-            // 发送按钮或语音按钮
+            // 发送按钮或语音按钮 - 放大麦克风按钮
             hasText.value 
                 ? _buildSendButton(context)
                 : _buildVoiceButton(context),
@@ -199,7 +200,7 @@ class ChatInputBar extends HookConsumerWidget {
   /// 构建语音按钮
   Widget _buildVoiceButton(BuildContext context) {
     return VoiceInputWidget(
-      size: _getButtonSizeForDevice(deviceType),
+      size: _getVoiceButtonSizeForDevice(deviceType), // 使用专门的语音按钮尺寸
       onVoiceStart: onVoiceStart,
       onVoiceEnd: onVoiceEnd,
       onVoiceCancel: () {
@@ -222,31 +223,31 @@ class ChatInputBar extends HookConsumerWidget {
     }
   }
 
-  /// 根据设备类型获取输入框高度
+  /// 根据设备类型获取输入框高度（缩小）
   double _getInputHeightForDevice(DeviceType deviceType) {
     switch (deviceType) {
       case DeviceType.micro:
-        return 36;
+        return 32; // 从36减少到32
       case DeviceType.tiny:
-        return 40;
+        return 36; // 从40减少到36
       case DeviceType.small:
-        return 44;
+        return 40; // 从44减少到40
       case DeviceType.standard:
-        return 48;
+        return 42; // 从48减少到42
     }
   }
 
-  /// 根据设备类型获取垂直内边距
+  /// 根据设备类型获取垂直内边距（缩小）
   double _getVerticalPaddingForDevice(DeviceType deviceType) {
     switch (deviceType) {
       case DeviceType.micro:
-        return 8;
+        return 6; // 从8减少到6
       case DeviceType.tiny:
-        return 10;
+        return 8; // 从10减少到8
       case DeviceType.small:
-        return 12;
+        return 10; // 从12减少到10
       case DeviceType.standard:
-        return 14;
+        return 12; // 从14减少到12
     }
   }
 
@@ -303,6 +304,20 @@ class ChatInputBar extends HookConsumerWidget {
         return 20;
       case DeviceType.standard:
         return 22;
+    }
+  }
+
+  /// 根据设备类型获取语音按钮大小（比普通按钮大三倍）
+  double _getVoiceButtonSizeForDevice(DeviceType deviceType) {
+    switch (deviceType) {
+      case DeviceType.micro:
+        return 108; // 36 * 3
+      case DeviceType.tiny:
+        return 120; // 40 * 3
+      case DeviceType.small:
+        return 132; // 44 * 3
+      case DeviceType.standard:
+        return 144; // 48 * 3
     }
   }
 
