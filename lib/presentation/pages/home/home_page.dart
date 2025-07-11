@@ -11,6 +11,7 @@ import 'widgets/interaction_layer.dart';
 import 'widgets/floating_actions.dart';
 import '../../../core/services/audio_test_service.dart';
 import '../../widgets/audio_recording_test.dart';
+import '../../widgets/audio_stream_test.dart';
 
 /// 应用主页 - 里程碑4：基础UI框架（重构后）
 class HomePage extends HookConsumerWidget {
@@ -35,6 +36,7 @@ class HomePage extends HookConsumerWidget {
             onSettingsTap: () => _showSettings(context),
             onMainActionTap: () => _startChat(context),
             onAudioTestTap: () => _showRecordingTest(context),
+            onAudioStreamTap: () => _showStreamTest(context),
             onServerSwitchTap: null,
           ),
         ],
@@ -128,6 +130,15 @@ class HomePage extends HookConsumerWidget {
     Navigator.of(context).push(
       MaterialPageRoute(
         builder: (context) => const AudioRecordingTestPage(),
+      ),
+    );
+  }
+
+  /// 显示音频流测试页面
+  void _showStreamTest(BuildContext context) {
+    Navigator.of(context).push(
+      MaterialPageRoute(
+        builder: (context) => const AudioStreamTestPage(),
       ),
     );
   }

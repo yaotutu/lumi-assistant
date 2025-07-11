@@ -199,6 +199,32 @@ class WebSocketService extends StateNotifier<WebSocketState> {
     }
   }
 
+  /// 发送二进制数据
+  Future<void> sendBinaryData(Uint8List data) async {
+    if (!state.isConnected) {
+      print('[WebSocket] 发送二进制数据失败: WebSocket未连接');
+      throw AppExceptionFactory.createWebSocketException(
+        'WebSocket未连接',
+        code: 'WEBSOCKET_NOT_CONNECTED',
+        connectionState: state.connectionState.name,
+      );
+    }
+
+    try {
+      _channel!.sink.add(data);
+      // 不打印详细日志以避免过多输出
+      // print('[WebSocket] 二进制数据发送成功: ${data.length} bytes');
+    } catch (error) {
+      print('[WebSocket] 发送二进制数据失败: $error');
+      throw AppExceptionFactory.createWebSocketException(
+        '发送二进制数据失败: $error',
+        code: 'BINARY_SEND_FAILED',
+        connectionState: state.connectionState.name,
+        details: {'error': error.toString(), 'dataSize': data.length},
+      );
+    }
+  }
+
   /// 检查网络连接
   Future<void> _checkNetworkConnection() async {
     try {

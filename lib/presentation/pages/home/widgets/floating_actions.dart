@@ -5,6 +5,7 @@ class FloatingActions extends StatelessWidget {
   final VoidCallback? onSettingsTap;
   final VoidCallback? onMainActionTap;
   final VoidCallback? onAudioTestTap;
+  final VoidCallback? onAudioStreamTap;
   final VoidCallback? onServerSwitchTap;
   final String mainActionLabel;
   final IconData mainActionIcon;
@@ -14,6 +15,7 @@ class FloatingActions extends StatelessWidget {
     this.onSettingsTap,
     this.onMainActionTap,
     this.onAudioTestTap,
+    this.onAudioStreamTap,
     this.onServerSwitchTap,
     this.mainActionLabel = '开始对话',
     this.mainActionIcon = Icons.chat_bubble_outline,
@@ -42,13 +44,25 @@ class FloatingActions extends StatelessWidget {
           
           // 录制测试按钮
           FloatingActionButton.small(
-            heroTag: "audio_test",
+            heroTag: "audio_recording_test",
             onPressed: onAudioTestTap,
             backgroundColor: Colors.orange.withValues(alpha: 0.8),
             foregroundColor: Colors.white,
             child: const Icon(Icons.mic, size: 20),
           ),
           const SizedBox(height: 12),
+          
+          // 音频流测试按钮
+          if (onAudioStreamTap != null) ...[ 
+            FloatingActionButton.small(
+              heroTag: "audio_stream_test",
+              onPressed: onAudioStreamTap,
+              backgroundColor: Colors.blue.withValues(alpha: 0.8),
+              foregroundColor: Colors.white,
+              child: const Icon(Icons.stream, size: 20),
+            ),
+            const SizedBox(height: 12),
+          ],
           
           // 设置按钮（更小更精致）
           FloatingActionButton.small(

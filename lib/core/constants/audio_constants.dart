@@ -7,6 +7,7 @@ class AudioConstants {
   static const int sampleRate = 16000;  // 采样率：16kHz
   static const int channels = 1;        // 声道数：单声道
   static const int frameDurationMs = 60; // 帧时长：60毫秒
+  static const int frameDuration = 60;    // 帧时长：60毫秒 (用于WebSocket协议)
   static const int bitrate = 32000;     // 码率：32kbps
   
   // Opus编码配置
