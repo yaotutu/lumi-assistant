@@ -261,7 +261,7 @@ _$TtsMessageImpl _$$TtsMessageImplFromJson(Map<String, dynamic> json) =>
       audioCodec: json['audio_codec'] as String?,
       index: (json['index'] as num?)?.toInt(),
       state: json['state'] as String?,
-      text: json['text'] as String,
+      text: json['text'] as String?,
     );
 
 Map<String, dynamic> _$$TtsMessageImplToJson(_$TtsMessageImpl instance) =>

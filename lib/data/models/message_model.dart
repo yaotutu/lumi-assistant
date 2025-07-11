@@ -335,8 +335,8 @@ class TtsMessage with _$TtsMessage {
     /// 状态（start开始，sentence_start句子开始等）
     String? state,
     
-    /// 文字内容
-    required String text,
+    /// 文字内容（可选，某些状态下可能没有文字内容）
+    String? text,
   }) = _TtsMessage;
 
   factory TtsMessage.fromJson(Map<String, dynamic> json) =>

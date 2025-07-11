@@ -326,7 +326,7 @@ class ChatNotifier extends StateNotifier<ChatState> {
       final ttsMessage = TtsMessage.fromJson(messageData);
       
       // 只处理包含文字内容的TTS消息
-      if (ttsMessage.text.isNotEmpty) {
+      if (ttsMessage.text != null && ttsMessage.text!.isNotEmpty) {
         // 根据TTS状态决定如何处理
         switch (ttsMessage.state) {
           case 'start':
@@ -339,7 +339,7 @@ class ChatNotifier extends StateNotifier<ChatState> {
           case 'sentence_start':
             // 这是AI的实际回复内容
             final aiMessage = ChatUIMessageConverter.createAssistantMessage(
-              ttsMessage.text,
+              ttsMessage.text!,
             );
             
             // 添加AI回复消息

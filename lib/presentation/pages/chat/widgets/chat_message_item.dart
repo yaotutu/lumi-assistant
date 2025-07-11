@@ -45,17 +45,17 @@ class ChatMessageItem extends StatelessWidget {
           vertical: isCompact ? 8 : 12,
         ),
         decoration: BoxDecoration(
-          color: Colors.white.withValues(alpha: 0.1),
+          color: const Color(0xFF455A64).withValues(alpha: 0.7),
           borderRadius: BorderRadius.circular(isCompact ? 16 : 20),
           border: Border.all(
-            color: Colors.white.withValues(alpha: 0.2),
+            color: Colors.white.withValues(alpha: 0.3),
             width: 0.5,
           ),
         ),
         child: Text(
           message.content,
           style: Theme.of(context).textTheme.bodySmall?.copyWith(
-            color: Colors.white.withValues(alpha: 0.8),
+            color: Colors.white.withValues(alpha: 0.9),
             height: 1.4,
             fontSize: isCompact ? 11 : null,
           ),
@@ -110,16 +110,16 @@ class ChatMessageItem extends StatelessWidget {
       width: 32,
       height: 32,
       decoration: BoxDecoration(
-        color: Colors.white.withValues(alpha: 0.1),
+        color: const Color(0xFF37474F).withValues(alpha: 0.8),
         shape: BoxShape.circle,
         border: Border.all(
-          color: Colors.white.withValues(alpha: 0.2),
+          color: Colors.white.withValues(alpha: 0.3),
           width: 1,
         ),
       ),
       child: Icon(
         Icons.assistant,
-        color: Colors.white.withValues(alpha: 0.8),
+        color: Colors.white.withValues(alpha: 0.9),
         size: 16,
       ),
     );
@@ -131,16 +131,16 @@ class ChatMessageItem extends StatelessWidget {
       width: 32,
       height: 32,
       decoration: BoxDecoration(
-        color: Colors.blue.withValues(alpha: 0.2),
+        color: const Color(0xFF1976D2).withValues(alpha: 0.8),
         shape: BoxShape.circle,
         border: Border.all(
-          color: Colors.blue.withValues(alpha: 0.3),
+          color: Colors.white.withValues(alpha: 0.3),
           width: 1,
         ),
       ),
       child: Icon(
         Icons.person,
-        color: Colors.white.withValues(alpha: 0.8),
+        color: Colors.white,
         size: 16,
       ),
     );
@@ -252,22 +252,24 @@ class ChatMessageItem extends StatelessWidget {
   /// 获取气泡颜色
   Color _getBubbleColor() {
     if (message.isError) {
-      return Colors.red.withValues(alpha: 0.1);
+      return Colors.red.withValues(alpha: 0.2);
     } else if (message.isUser) {
-      return Colors.blue.withValues(alpha: 0.2);
+      // 用户消息 - 更深的蓝色背景
+      return const Color(0xFF1976D2).withValues(alpha: 0.8);
     } else {
-      return Colors.white.withValues(alpha: 0.1);
+      // 助手消息 - 更深的灰色背景
+      return const Color(0xFF37474F).withValues(alpha: 0.9);
     }
   }
 
   /// 获取边框颜色
   Color _getBorderColor() {
     if (message.isError) {
-      return Colors.red.withValues(alpha: 0.3);
+      return Colors.red.withValues(alpha: 0.5);
     } else if (message.isUser) {
-      return Colors.blue.withValues(alpha: 0.3);
+      return const Color(0xFF1976D2).withValues(alpha: 0.4);
     } else {
-      return Colors.white.withValues(alpha: 0.2);
+      return const Color(0xFF37474F).withValues(alpha: 0.3);
     }
   }
 
@@ -275,8 +277,12 @@ class ChatMessageItem extends StatelessWidget {
   Color _getTextColor() {
     if (message.isError) {
       return Colors.red[200] ?? Colors.red;
+    } else if (message.isUser) {
+      // 用户消息 - 白色文字
+      return Colors.white;
     } else {
-      return Colors.white.withValues(alpha: 0.9);
+      // 助手消息 - 白色文字
+      return Colors.white.withValues(alpha: 0.95);
     }
   }
 

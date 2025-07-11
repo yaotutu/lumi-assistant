@@ -3352,8 +3352,8 @@ mixin _$TtsMessage {
   /// 状态（start开始，sentence_start句子开始等）
   String? get state => throw _privateConstructorUsedError;
 
-  /// 文字内容
-  String get text => throw _privateConstructorUsedError;
+  /// 文字内容（可选，某些状态下可能没有文字内容）
+  String? get text => throw _privateConstructorUsedError;
 
   /// Serializes this TtsMessage to a JSON map.
   Map<String, dynamic> toJson() => throw _privateConstructorUsedError;
@@ -3378,7 +3378,7 @@ abstract class $TtsMessageCopyWith<$Res> {
     @JsonKey(name: 'audio_codec') String? audioCodec,
     int? index,
     String? state,
-    String text,
+    String? text,
   });
 }
 
@@ -3402,7 +3402,7 @@ class _$TtsMessageCopyWithImpl<$Res, $Val extends TtsMessage>
     Object? audioCodec = freezed,
     Object? index = freezed,
     Object? state = freezed,
-    Object? text = null,
+    Object? text = freezed,
   }) {
     return _then(
       _value.copyWith(
@@ -3432,10 +3432,10 @@ class _$TtsMessageCopyWithImpl<$Res, $Val extends TtsMessage>
                     : state // ignore: cast_nullable_to_non_nullable
                         as String?,
             text:
-                null == text
+                freezed == text
                     ? _value.text
                     : text // ignore: cast_nullable_to_non_nullable
-                        as String,
+                        as String?,
           )
           as $Val,
     );
@@ -3457,7 +3457,7 @@ abstract class _$$TtsMessageImplCopyWith<$Res>
     @JsonKey(name: 'audio_codec') String? audioCodec,
     int? index,
     String? state,
-    String text,
+    String? text,
   });
 }
 
@@ -3480,7 +3480,7 @@ class __$$TtsMessageImplCopyWithImpl<$Res>
     Object? audioCodec = freezed,
     Object? index = freezed,
     Object? state = freezed,
-    Object? text = null,
+    Object? text = freezed,
   }) {
     return _then(
       _$TtsMessageImpl(
@@ -3510,10 +3510,10 @@ class __$$TtsMessageImplCopyWithImpl<$Res>
                 : state // ignore: cast_nullable_to_non_nullable
                     as String?,
         text:
-            null == text
+            freezed == text
                 ? _value.text
                 : text // ignore: cast_nullable_to_non_nullable
-                    as String,
+                    as String?,
       ),
     );
   }
@@ -3528,7 +3528,7 @@ class _$TtsMessageImpl implements _TtsMessage {
     @JsonKey(name: 'audio_codec') this.audioCodec,
     this.index,
     this.state,
-    required this.text,
+    this.text,
   });
 
   factory _$TtsMessageImpl.fromJson(Map<String, dynamic> json) =>
@@ -3557,9 +3557,9 @@ class _$TtsMessageImpl implements _TtsMessage {
   @override
   final String? state;
 
-  /// 文字内容
+  /// 文字内容（可选，某些状态下可能没有文字内容）
   @override
-  final String text;
+  final String? text;
 
   @override
   String toString() {
@@ -3607,7 +3607,7 @@ abstract class _TtsMessage implements TtsMessage {
     @JsonKey(name: 'audio_codec') final String? audioCodec,
     final int? index,
     final String? state,
-    required final String text,
+    final String? text,
   }) = _$TtsMessageImpl;
 
   factory _TtsMessage.fromJson(Map<String, dynamic> json) =
@@ -3635,9 +3635,9 @@ abstract class _TtsMessage implements TtsMessage {
   @override
   String? get state;
 
-  /// 文字内容
+  /// 文字内容（可选，某些状态下可能没有文字内容）
   @override
-  String get text;
+  String? get text;
 
   /// Create a copy of TtsMessage
   /// with the given fields replaced by the non-null parameter values.
