@@ -4,8 +4,10 @@ import 'package:hooks_riverpod/hooks_riverpod.dart';
 
 import '../../widgets/connection_status_widget.dart';
 import '../../widgets/handshake_status_widget.dart';
+import '../../widgets/error_banner.dart';
 import '../../providers/chat_provider.dart';
 import '../../../core/constants/device_constants.dart';
+import '../../../data/models/chat_state.dart';
 import 'widgets/chat_message_list.dart';
 import 'widgets/chat_input_bar.dart';
 import 'widgets/chat_background.dart';
@@ -19,6 +21,18 @@ class ChatPage extends HookConsumerWidget {
     final inputController = useTextEditingController();
     final scrollController = useScrollController();
     final focusNode = useFocusNode();
+
+    // 监听聊天状态错误
+    ref.listen<ChatState>(chatProvider, (previous, next) {
+      if (next.error != null && next.error != previous?.error) {
+        // 显示错误横幅
+        ErrorBannerExtension.showErrorBanner(
+          context,
+          errorMessage: next.error!,
+          onRetry: () => ref.read(chatProvider.notifier).clearError(),
+        );
+      }
+    });
 
     return Scaffold(
       resizeToAvoidBottomInset: true,
@@ -138,7 +152,6 @@ class ChatPage extends HookConsumerWidget {
 
   /// 构建响应式应用栏
   Widget _buildResponsiveAppBar(BuildContext context, DeviceType deviceType) {
-    final screenWidth = MediaQuery.of(context).size.width;
     
     return Container(
       height: _calculateAppBarHeight(deviceType),
@@ -303,6 +316,8 @@ class ChatPage extends HookConsumerWidget {
   /// 发送消息
   void _sendMessage(BuildContext context, WidgetRef ref, String message) {
     if (message.trim().isEmpty) return;
+    
+    // 直接调用发送消息，错误会通过ref.listen处理
     ref.read(chatProvider.notifier).sendMessage(message);
   }
 

@@ -6,6 +6,7 @@ import '../../data/models/message_model.dart';
 import '../../data/models/chat_state.dart';
 import '../../data/models/connection_state.dart';
 import '../../core/services/handshake_service.dart';
+import '../../core/errors/error_handler.dart';
 import 'connection_provider.dart';
 
 
@@ -13,6 +14,9 @@ import 'connection_provider.dart';
 class ChatNotifier extends StateNotifier<ChatState> {
   final Ref _ref;
   static const _uuid = Uuid();
+  
+  // 跟踪当前正在构建的AI回复消息
+  String? _currentAiMessageId;
 
   ChatNotifier(this._ref) : super(ChatStateFactory.initial()) {
     _initializeChat();
@@ -99,7 +103,7 @@ class ChatNotifier extends StateNotifier<ChatState> {
   /// 添加欢迎消息
   void _addWelcomeMessage() {
     final welcomeMessage = ChatUIMessageConverter.createSystemMessage(
-      '欢迎使用 Lumi Assistant！\n\n这是里程碑6的文字消息发送功能演示。\n\n如果显示"未连接到服务器"，请检查WebSocket服务器是否运行在 ws://192.168.110.199:8000/',
+      '欢迎使用 Lumi Assistant！\n\n✅ 里程碑8: 错误处理完善\n\n🔄 完善的错误处理和重试机制\n🔄 用户友好的错误提示\n🔄 超时处理和状态恢复\n🔄 智能错误分类和建议\n\n现在具备完善的错误处理能力！',
     );
     
     state = state.copyWith(
@@ -124,48 +128,19 @@ class ChatNotifier extends StateNotifier<ChatState> {
     );
 
     try {
-      // 检查连接状态
-      final connectionState = _ref.read(connectionManagerProvider);
-      if (!connectionState.isFullyConnected) {
-        throw Exception('未连接到服务器');
-      }
-
-      // 首先尝试获取当前会话ID
-      var sessionId = state.sessionId;
-      print('[ChatNotifier] 当前会话ID: $sessionId');
-      
-      // 如果会话ID为空，尝试重新获取
-      if (sessionId == null) {
-        try {
-          final handshakeState = _ref.read(handshakeServiceProvider);
-          final connectionState = _ref.read(connectionManagerProvider);
-          
-          sessionId = handshakeState.sessionId ?? connectionState.handshakeResult.sessionId;
-          
-          if (sessionId != null) {
-            print('[ChatNotifier] 重新获取到会话ID: $sessionId');
-            state = state.copyWith(sessionId: sessionId);
+      // 使用错误处理器的重试机制发送消息
+      await ErrorHandler.withRetry(
+        () => _performSendMessage(content, userMessage.id),
+        maxAttempts: 3,
+        retryIf: (error) {
+          // 判断是否应该重试
+          if (error is Exception) {
+            final appException = ErrorHandler.handleMessageSendError(error, messageId: userMessage.id);
+            return appException.canRetry;
           }
-        } catch (e) {
-          print('[ChatNotifier] 重新获取会话ID失败: $e');
-        }
-      }
-      
-      if (sessionId == null) {
-        throw Exception('会话未建立');
-      }
-
-      // 创建listen消息（参考xiaozhi项目格式）
-      final listenMessage = {
-        "type": "listen",
-        "state": "detect", 
-        "text": content,
-        "source": "text",
-      };
-
-      // 发送listen消息
-      print('[ChatNotifier] 准备发送listen消息: $listenMessage');
-      await _ref.read(connectionManagerProvider.notifier).sendMessage(listenMessage);
+          return false;
+        },
+      );
       
       // 更新用户消息状态为已发送
       _updateMessageStatus(userMessage.id, ChatMessageStatus.sent);
@@ -179,25 +154,115 @@ class ChatNotifier extends StateNotifier<ChatState> {
     } catch (e) {
       print('[ChatNotifier] 发送消息失败: $e');
       
+      // 使用错误处理器处理错误
+      final appException = ErrorHandler.handleMessageSendError(e, messageId: userMessage.id);
+      
       // 更新用户消息状态为失败
       _updateMessageStatus(userMessage.id, ChatMessageStatus.failed);
       
       state = state.copyWith(
         isSending: false,
-        error: _getErrorMessage(e),
+        error: appException.userFriendlyMessage,
       );
     }
   }
 
+  /// 执行实际的消息发送
+  Future<void> _performSendMessage(String content, String messageId) async {
+    // 检查连接状态
+    final connectionState = _ref.read(connectionManagerProvider);
+    if (!connectionState.isFullyConnected) {
+      throw Exception('未连接到服务器');
+    }
+
+    // 首先尝试获取当前会话ID
+    var sessionId = state.sessionId;
+    print('[ChatNotifier] 当前会话ID: $sessionId');
+    
+    // 如果会话ID为空，尝试重新获取
+    if (sessionId == null) {
+      try {
+        final handshakeState = _ref.read(handshakeServiceProvider);
+        final connectionState = _ref.read(connectionManagerProvider);
+        
+        sessionId = handshakeState.sessionId ?? connectionState.handshakeResult.sessionId;
+        
+        if (sessionId != null) {
+          print('[ChatNotifier] 重新获取到会话ID: $sessionId');
+          state = state.copyWith(sessionId: sessionId);
+        }
+      } catch (e) {
+        print('[ChatNotifier] 重新获取会话ID失败: $e');
+      }
+    }
+    
+    if (sessionId == null) {
+      throw Exception('会话未建立');
+    }
+
+    // 创建listen消息（参考xiaozhi项目格式）
+    final listenMessage = {
+      "type": "listen",
+      "state": "detect", 
+      "text": content,
+      "source": "text",
+    };
+
+    // 发送listen消息
+    print('[ChatNotifier] 准备发送listen消息: $listenMessage');
+    
+    // 使用超时机制发送消息
+    await ErrorHandler.withTimeout(
+      () => _ref.read(connectionManagerProvider.notifier).sendMessage(listenMessage),
+      timeout: const Duration(seconds: 10),
+      timeoutMessage: '消息发送超时',
+    );
+  }
+
   /// 重新发送消息
   Future<void> resendMessage(String messageId) async {
-    final message = state.messages.firstWhere((m) => m.id == messageId);
-    if (message.isUser) {
-      // 更新消息状态为发送中
-      _updateMessageStatus(messageId, ChatMessageStatus.sending);
+    try {
+      final message = state.messages.firstWhere((m) => m.id == messageId);
+      if (message.isUser) {
+        // 更新消息状态为发送中
+        _updateMessageStatus(messageId, ChatMessageStatus.sending);
+        
+        // 使用错误处理器的重试机制重新发送
+        await ErrorHandler.withRetry(
+          () => _performSendMessage(message.content, messageId),
+          maxAttempts: 3,
+          retryIf: (error) {
+            if (error is Exception) {
+              final appException = ErrorHandler.handleMessageSendError(error, messageId: messageId);
+              return appException.canRetry;
+            }
+            return false;
+          },
+        );
+        
+        // 更新消息状态为已发送
+        _updateMessageStatus(messageId, ChatMessageStatus.sent);
+        
+        // 开始接收响应
+        state = state.copyWith(
+          isSending: false,
+          isReceiving: true,
+          error: null,
+        );
+      }
+    } catch (e) {
+      print('[ChatNotifier] 重新发送消息失败: $e');
       
-      // 重新发送
-      await sendMessage(message.content);
+      // 使用错误处理器处理错误
+      final appException = ErrorHandler.handleMessageSendError(e, messageId: messageId);
+      
+      // 更新消息状态为失败
+      _updateMessageStatus(messageId, ChatMessageStatus.failed);
+      
+      state = state.copyWith(
+        isSending: false,
+        error: appException.userFriendlyMessage,
+      );
     }
   }
 
@@ -234,7 +299,15 @@ class ChatNotifier extends StateNotifier<ChatState> {
       }
     } catch (e) {
       print('[ChatNotifier] 处理消息失败: $e');
-      _handleWebSocketError(e);
+      
+      // 使用错误处理器处理消息解析错误
+      final appException = ErrorHandler.handleMessageParseError(e, rawMessage: message);
+      ErrorHandler.logError(appException, StackTrace.current, context: {
+        'messageType': message['type'],
+        'messageContent': message,
+      });
+      
+      _handleWebSocketError(appException);
     }
   }
 
@@ -325,35 +398,39 @@ class ChatNotifier extends StateNotifier<ChatState> {
     try {
       final ttsMessage = TtsMessage.fromJson(messageData);
       
-      // 只处理包含文字内容的TTS消息
-      if (ttsMessage.text != null && ttsMessage.text!.isNotEmpty) {
-        // 根据TTS状态决定如何处理
-        switch (ttsMessage.state) {
-          case 'start':
-            print('[ChatNotifier] AI开始回复');
-            state = state.copyWith(
-              isReceiving: true,
-              isSending: false,
-            );
-            break;
-          case 'sentence_start':
-            // 这是AI的实际回复内容
-            final aiMessage = ChatUIMessageConverter.createAssistantMessage(
-              ttsMessage.text!,
-            );
-            
-            // 添加AI回复消息
-            state = state.copyWith(
-              messages: [...state.messages, aiMessage],
-              isReceiving: false,
-              error: null,
-            );
-            
-            print('[ChatNotifier] AI回复: ${ttsMessage.text}');
-            break;
-          default:
-            print('[ChatNotifier] TTS状态: ${ttsMessage.state}');
-        }
+      // 根据TTS状态决定如何处理
+      switch (ttsMessage.state) {
+        case 'start':
+          print('[ChatNotifier] AI开始回复');
+          state = state.copyWith(
+            isReceiving: true,
+            isSending: false,
+          );
+          // 重置当前AI消息ID
+          _currentAiMessageId = null;
+          break;
+        case 'sentence_start':
+          // 检查是否有文字内容
+          if (ttsMessage.text != null && ttsMessage.text!.isNotEmpty) {
+            _handleAiResponse(ttsMessage.text!);
+          } else {
+            print('[ChatNotifier] sentence_start状态但无文字内容');
+          }
+          break;
+        case 'sentence_end':
+          print('[ChatNotifier] AI完成一句话');
+          break;
+        case 'stop':
+          print('[ChatNotifier] AI回复完成');
+          state = state.copyWith(
+            isReceiving: false,
+            isSending: false,
+          );
+          // 清除当前AI消息ID
+          _currentAiMessageId = null;
+          break;
+        default:
+          print('[ChatNotifier] TTS状态: ${ttsMessage.state}');
       }
       
     } catch (e) {
@@ -372,43 +449,64 @@ class ChatNotifier extends StateNotifier<ChatState> {
       if (llmMessage.emotion != null) {
         print('[ChatNotifier] AI情感状态: ${llmMessage.emotion}');
         
-        // 如果是thinking状态，可以显示AI正在思考
+        // 如果是thinking状态，显示AI正在思考
         if (llmMessage.emotion == 'thinking') {
-          // 创建一个思考状态的消息
-          final thinkingMessage = ChatUIMessageConverter.createSystemMessage(
-            '🤔 AI正在思考...',
-          );
-          
-          // 临时添加思考消息（之后会被实际回复替换）
           state = state.copyWith(
-            messages: [...state.messages, thinkingMessage],
             isReceiving: true,
+            isSending: false,
           );
+          print('[ChatNotifier] AI正在思考中...');
         }
       }
       
       // 处理包含文字内容的LLM消息
       if (llmMessage.text.isNotEmpty && llmMessage.text != '🤔') {
-        final aiMessage = ChatUIMessageConverter.createAssistantMessage(
-          llmMessage.text,
-        );
-        
-        // 移除可能的思考消息，添加实际回复
-        final messagesWithoutThinking = state.messages
-            .where((msg) => msg.content != '🤔 AI正在思考...')
-            .toList();
-        
-        state = state.copyWith(
-          messages: [...messagesWithoutThinking, aiMessage],
-          isReceiving: false,
-          error: null,
-        );
-        
-        print('[ChatNotifier] LLM回复: ${llmMessage.text}');
+        _handleAiResponse(llmMessage.text);
       }
       
     } catch (e) {
       print('[ChatNotifier] 解析LLM消息失败: $e');
+    }
+  }
+  
+  /// 处理AI回复内容（统一处理来自TTS和LLM的回复）
+  void _handleAiResponse(String responseText) {
+    print('[ChatNotifier] 处理AI回复: $responseText');
+    
+    // 如果当前没有正在构建的AI消息，创建一个新的
+    if (_currentAiMessageId == null) {
+      final aiMessage = ChatUIMessageConverter.createAssistantMessage(
+        responseText,
+      );
+      
+      // 添加AI回复消息
+      state = state.copyWith(
+        messages: [...state.messages, aiMessage],
+        isReceiving: false,
+        error: null,
+      );
+      
+      _currentAiMessageId = aiMessage.id;
+      print('[ChatNotifier] 创建新的AI消息: ${aiMessage.id}');
+    } else {
+      // 如果有正在构建的AI消息，更新其内容（支持流式回复）
+      final updatedMessages = state.messages.map((message) {
+        if (message.id == _currentAiMessageId) {
+          return message.copyWith(
+            content: '${message.content}\n\n$responseText',
+            timestamp: DateTime.now(),
+          );
+        }
+        return message;
+      }).toList();
+      
+      state = state.copyWith(
+        messages: updatedMessages,
+        isReceiving: false,
+        error: null,
+      );
+      
+      print('[ChatNotifier] 更新AI消息: $_currentAiMessageId');
     }
   }
 
@@ -416,10 +514,23 @@ class ChatNotifier extends StateNotifier<ChatState> {
   void _handleWebSocketError(dynamic error) {
     print('[ChatNotifier] WebSocket错误: $error');
     
+    // 清除当前AI消息构建状态
+    _currentAiMessageId = null;
+    
+    // 使用错误处理器处理错误
+    final errorMessage = ErrorHandler.getErrorMessage(error);
+    
+    // 记录错误日志
+    ErrorHandler.logError(error, StackTrace.current, context: {
+      'currentAiMessageId': _currentAiMessageId,
+      'sessionId': state.sessionId,
+      'messageCount': state.messages.length,
+    });
+    
     state = state.copyWith(
       isSending: false,
       isReceiving: false,
-      error: _getErrorMessage(error),
+      error: errorMessage,
     );
   }
 
@@ -457,12 +568,9 @@ class ChatNotifier extends StateNotifier<ChatState> {
     await _ref.read(connectionManagerProvider.notifier).reconnect();
   }
 
-  /// 获取错误消息
+  /// 获取错误消息（已弃用，使用ErrorHandler.getErrorMessage）
   String _getErrorMessage(dynamic error) {
-    if (error is Exception) {
-      return error.toString().replaceFirst('Exception: ', '');
-    }
-    return error.toString();
+    return ErrorHandler.getErrorMessage(error);
   }
 
   @override
