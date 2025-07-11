@@ -7,6 +7,7 @@ import '../../data/models/chat_state.dart';
 import '../../data/models/connection_state.dart';
 import '../../core/services/handshake_service.dart';
 import '../../core/errors/error_handler.dart';
+import '../../core/errors/exceptions.dart';
 import 'connection_provider.dart';
 
 
