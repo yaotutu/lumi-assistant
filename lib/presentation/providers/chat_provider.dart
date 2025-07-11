@@ -383,9 +383,25 @@ class ChatNotifier extends StateNotifier<ChatState> {
     try {
       final sttMessage = SttMessage.fromJson(messageData);
       
-      // STT消息只是显示用户的语音被识别的结果，通常不需要在聊天界面显示
-      // 因为用户输入的消息已经显示了
-      print('[ChatNotifier] STT识别结果: ${sttMessage.text}');
+      // 按照Android客户端的实现：将语音识别结果作为用户消息显示
+      if (sttMessage.text.isNotEmpty) {
+        print('[ChatNotifier] STT识别结果: ${sttMessage.text}');
+        
+        // 创建用户消息（语音识别结果）
+        final userMessage = ChatUIMessageConverter.createUserMessage(sttMessage.text).copyWith(
+          metadata: {'isVoiceInput': true}, // 标记这是语音输入
+        );
+        
+        // 添加到消息列表
+        state = state.copyWith(
+          messages: [...state.messages, userMessage],
+          isSending: false,
+          isReceiving: true, // 等待AI回复
+          error: null,
+        );
+        
+        print('[ChatNotifier] 语音识别消息添加成功: ${sttMessage.text}');
+      }
       
     } catch (e) {
       print('[ChatNotifier] 解析STT消息失败: $e');
@@ -569,10 +585,6 @@ class ChatNotifier extends StateNotifier<ChatState> {
     await _ref.read(connectionManagerProvider.notifier).reconnect();
   }
 
-  /// 获取错误消息（已弃用，使用ErrorHandler.getErrorMessage）
-  String _getErrorMessage(dynamic error) {
-    return ErrorHandler.getErrorMessage(error);
-  }
 
   @override
   void dispose() {

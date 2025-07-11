@@ -22,7 +22,8 @@
       "WebFetch(domain:pub.dev)",
       "WebFetch(domain:github.com)",
       "Bash(go build:*)",
-      "Bash(rg:*)"
+      "Bash(rg:*)",
+      "Bash(r)"
     ],
     "deny": []
   }

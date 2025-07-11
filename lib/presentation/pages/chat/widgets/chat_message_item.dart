@@ -167,6 +167,30 @@ class ChatMessageItem extends StatelessWidget {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
+            // 语音输入标识
+            if (_isVoiceInput())
+              Padding(
+                padding: const EdgeInsets.only(bottom: 6),
+                child: Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Icon(
+                      Icons.mic,
+                      size: 14,
+                      color: _getTextColor().withValues(alpha: 0.7),
+                    ),
+                    const SizedBox(width: 4),
+                    Text(
+                      '语音输入',
+                      style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                        color: _getTextColor().withValues(alpha: 0.7),
+                        fontSize: 11,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            
             // 消息内容
             Text(
               message.content,
@@ -320,6 +344,11 @@ class ChatMessageItem extends StatelessWidget {
     } else {
       return '${time.hour.toString().padLeft(2, '0')}:${time.minute.toString().padLeft(2, '0')}';
     }
+  }
+
+  /// 检查是否为语音输入
+  bool _isVoiceInput() {
+    return message.metadata?['isVoiceInput'] == true;
   }
 
   /// 显示消息选项
