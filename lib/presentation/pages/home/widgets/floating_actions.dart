@@ -5,6 +5,7 @@ class FloatingActions extends StatelessWidget {
   final VoidCallback? onSettingsTap;
   final VoidCallback? onMainActionTap;
   final VoidCallback? onAudioTestTap;
+  final VoidCallback? onServerSwitchTap;
   final String mainActionLabel;
   final IconData mainActionIcon;
 
@@ -13,6 +14,7 @@ class FloatingActions extends StatelessWidget {
     this.onSettingsTap,
     this.onMainActionTap,
     this.onAudioTestTap,
+    this.onServerSwitchTap,
     this.mainActionLabel = '开始对话',
     this.mainActionIcon = Icons.chat_bubble_outline,
   });
@@ -25,6 +27,7 @@ class FloatingActions extends StatelessWidget {
       child: Column(
         mainAxisSize: MainAxisSize.min,
         children: [
+          
           // 音频测试按钮
           if (onAudioTestTap != null) ...[
             FloatingActionButton.small(

@@ -20,7 +20,8 @@
       "Bash(dart run:*)",
       "Bash(ffmpeg:*)",
       "WebFetch(domain:pub.dev)",
-      "WebFetch(domain:github.com)"
+      "WebFetch(domain:github.com)",
+      "Bash(go build:*)"
     ],
     "deny": []
   }

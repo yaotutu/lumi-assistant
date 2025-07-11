@@ -124,16 +124,24 @@ flutter analyze
 
 ## Backend Integration
 
-**WebSocket**: `ws://[SERVER_IP]:8000/` (开发阶段：`ws://192.168.110.199:8000/`)
-**HTTP API**: `http://[SERVER_IP]:8000/api` (开发阶段：`http://192.168.110.199:8000/api`)
+**Python Backend Server**: `/Users/yaotutu/Desktop/code/xiaozhi-esp32-server/main/xiaozhi-server`
+**WebSocket**: `ws://192.168.110.199:8000/` (固定使用Python服务器)
+**HTTP API**: `http://192.168.110.199:8000/api` (固定使用Python服务器)
 **Authentication**: Bearer Token + Device-ID headers
 
 Message types: `hello` (handshake), `chat` (text), `listen` (voice), `image` (vision)
 
-**服务器IP配置说明**：
-- 开发环境：使用局域网IP `192.168.110.199`
-- 生产环境：需要根据实际部署的服务器IP地址调整
+**服务器配置说明**：
+- 开发环境：使用局域网IP `192.168.110.199` (Python服务器)
+- 不支持服务器切换功能，统一使用Python后端
 - 配置位置：`lib/core/constants/api_constants.dart`
+
+## Reference Implementation
+
+**Android Client**: `/Users/yaotutu/Desktop/code/xiaozhi-android-client`
+- Use this Android client as the main reference for implementation patterns
+- Follow similar WebSocket handling and UI interaction patterns
+- Reference authentication and message handling approaches
 
 ## Milestone-Driven Development
 
@@ -188,7 +196,6 @@ Important docs are organized in `docs/`:
 - `planning/` - Project plans and milestone tracking
 - `architecture/` - Technical architecture and specifications  
 - `frontend/` - Development guidelines and best practices
-- Root level - Backend API documentation
 
 **Always check milestone status** in `docs/planning/MILESTONE_TRACKING.md` before making changes.
 

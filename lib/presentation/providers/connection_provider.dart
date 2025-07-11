@@ -98,7 +98,9 @@ class ConnectionManager extends StateNotifier<ConnectionManagerState> {
   }
 
   /// 连接WebSocket
-  Future<void> connectWebSocket() async {
+  /// 
+  /// [serverUrl] 可选的服务器URL
+  Future<void> connectWebSocket([String? serverUrl]) async {
     print('[ConnectionManager] 开始连接WebSocket');
     
     if (!state.networkState.isConnected) {
@@ -108,8 +110,9 @@ class ConnectionManager extends StateNotifier<ConnectionManagerState> {
 
     print('[ConnectionManager] 调用WebSocket服务进行连接');
     final webSocketService = _ref.read(webSocketServiceProvider.notifier);
-    await webSocketService.connect();
+    await webSocketService.connect(serverUrl);
   }
+  
 
   /// 断开WebSocket连接
   Future<void> disconnectWebSocket() async {

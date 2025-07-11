@@ -34,7 +34,9 @@ class WebSocketService extends StateNotifier<WebSocketState> {
   }
 
   /// 连接到WebSocket服务器
-  Future<void> connect() async {
+  /// 
+  /// [serverUrl] 可选的服务器URL，如果不提供则使用默认URL
+  Future<void> connect([String? serverUrl]) async {
     print('[WebSocket] 开始连接流程');
     
     if (state.isConnected || state.isConnecting) {
@@ -53,7 +55,9 @@ class WebSocketService extends StateNotifier<WebSocketState> {
       
       // 构建WebSocket URL - 按照小智Android项目方式
       final deviceId = await _getDeviceId();
-      final uri = Uri.parse(ApiConstants.webSocketBaseUrl).replace(
+      final baseUrl = serverUrl ?? ApiConstants.webSocketBaseUrl;
+      print('[WebSocket] 使用服务器URL: $baseUrl');
+      final uri = Uri.parse(baseUrl).replace(
         queryParameters: {
           'device-id': deviceId,
           'client-id': deviceId,  // 使用相同的device-id作为client-id

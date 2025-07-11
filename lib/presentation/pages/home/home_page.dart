@@ -34,6 +34,7 @@ class HomePage extends HookConsumerWidget {
             onSettingsTap: () => _showSettings(context),
             onMainActionTap: () => _startChat(context),
             onAudioTestTap: () => _showAudioTest(context, ref),
+            onServerSwitchTap: null,
           ),
         ],
       ),
@@ -120,6 +121,7 @@ class HomePage extends HookConsumerWidget {
       ),
     );
   }
+
 }
 
 /// 音频测试对话框
