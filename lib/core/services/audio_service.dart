@@ -4,6 +4,9 @@ import 'package:audio_session/audio_session.dart';
 import 'package:flutter_pcm_player/flutter_pcm_player.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'dart:async';
+import '../constants/audio_constants.dart';
+import '../../data/models/exceptions.dart';
+import 'permission_service.dart';
 
 /// 音频播放服务
 /// 
@@ -11,8 +14,12 @@ import 'dart:async';
 /// 参考xiaozhi-android-client项目的音频处理实现
 class AudioService {
   static const String tag = 'AudioService';
-  static const int sampleRate = 16000; // 16kHz采样率
-  static const int channels = 1; // 单声道
+  
+  // 权限服务
+  final PermissionService _permissionService = PermissionService();
+  
+  // 音频状态
+  String _currentState = AudioConstants.stateIdle;
   
   // FlutterPcmPlayer实例 - 参考xiaozhi-android-client
   FlutterPcmPlayer? _pcmPlayer;
@@ -20,8 +27,8 @@ class AudioService {
   
   // Opus解码器 - 使用静态初始化，参考xiaozhi-android-client
   static final SimpleOpusDecoder _decoder = SimpleOpusDecoder(
-    sampleRate: sampleRate,
-    channels: channels,
+    sampleRate: AudioConstants.sampleRate,
+    channels: AudioConstants.channels,
   );
   
   // 音频会话
@@ -39,21 +46,53 @@ class AudioService {
 
     try {
       print('[$tag] 开始初始化音频服务');
+      _currentState = AudioConstants.stateProcessing;
       
-      // 1. 初始化音频会话
+      // 1. 检查麦克风权限
+      await _checkAudioPermissions();
+      
+      // 2. 初始化音频会话
       await _initializeAudioSession();
       
-      // 2. 初始化PCM播放器
+      // 3. 初始化PCM播放器
       await _initializePCMPlayer();
       
-      // 3. Opus解码器已静态初始化
+      // 4. Opus解码器已静态初始化
       print('[$tag] Opus解码器使用静态初始化');
       
       _isInitialized = true;
+      _currentState = AudioConstants.stateIdle;
       print('[$tag] 音频服务初始化完成');
       
     } catch (e) {
+      _currentState = AudioConstants.stateError;
       print('[$tag] 音频服务初始化失败: $e');
+      throw AppException.system(
+        message: '音频服务初始化失败',
+        code: AudioConstants.errorCodeAudioSessionFailed.toString(),
+        component: 'AudioService',
+        details: {'error': e.toString()},
+      );
+    }
+  }
+  
+  /// 检查音频权限
+  Future<void> _checkAudioPermissions() async {
+    try {
+      final permissions = await _permissionService.checkAudioPermissions();
+      
+      if (!permissions['microphone']!) {
+        throw AppException.system(
+          message: '麦克风权限未授予',
+          code: AudioConstants.errorCodePermissionDenied.toString(),
+          component: 'AudioService',
+          details: {'permission': 'microphone'},
+        );
+      }
+      
+      print('[$tag] 音频权限检查完成');
+    } catch (e) {
+      print('[$tag] 音频权限检查失败: $e');
       rethrow;
     }
   }
@@ -239,10 +278,28 @@ class AudioService {
       // 释放其他资源
       _audioSession = null;
       _isInitialized = false;
+      _currentState = AudioConstants.stateIdle;
       
       print('[$tag] 音频服务资源释放完成');
     } catch (e) {
       print('[$tag] 音频服务资源释放失败: $e');
+    }
+  }
+  
+  /// 获取当前音频状态
+  String get currentState => _currentState;
+  
+  /// 获取是否已初始化
+  bool get isInitialized => _isInitialized;
+  
+  /// 请求音频权限
+  Future<bool> requestAudioPermissions() async {
+    try {
+      final permissions = await _permissionService.requestAudioPermissions();
+      return permissions['microphone'] ?? false;
+    } catch (e) {
+      print('[$tag] 请求音频权限失败: $e');
+      return false;
     }
   }
 

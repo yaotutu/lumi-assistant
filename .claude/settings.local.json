@@ -21,7 +21,8 @@
       "Bash(ffmpeg:*)",
       "WebFetch(domain:pub.dev)",
       "WebFetch(domain:github.com)",
-      "Bash(go build:*)"
+      "Bash(go build:*)",
+      "Bash(rg:*)"
     ],
     "deny": []
   }

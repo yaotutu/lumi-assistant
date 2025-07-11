@@ -40,6 +40,16 @@ class FloatingActions extends StatelessWidget {
             const SizedBox(height: 12),
           ],
           
+          // 录制测试按钮
+          FloatingActionButton.small(
+            heroTag: "audio_test",
+            onPressed: onAudioTestTap,
+            backgroundColor: Colors.orange.withValues(alpha: 0.8),
+            foregroundColor: Colors.white,
+            child: const Icon(Icons.mic, size: 20),
+          ),
+          const SizedBox(height: 12),
+          
           // 设置按钮（更小更精致）
           FloatingActionButton.small(
             heroTag: "settings",

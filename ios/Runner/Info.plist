@@ -45,5 +45,15 @@
 	<true/>
 	<key>UIApplicationSupportsIndirectInputEvents</key>
 	<true/>
+	
+	<!-- 音频权限配置 -->
+	<key>NSMicrophoneUsageDescription</key>
+	<string>Lumi Assistant需要录音权限来实现语音交互功能，让您可以通过语音与AI助手对话。</string>
+	
+	<!-- 背景音频模式配置 -->
+	<key>UIBackgroundModes</key>
+	<array>
+		<string>audio</string>
+	</array>
 </dict>
 </plist>
