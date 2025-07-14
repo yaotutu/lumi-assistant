@@ -1,16 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 
-import '../../widgets/connection_status_widget.dart';
-import '../../widgets/handshake_status_widget.dart';
 import '../chat/chat_page.dart';
 import 'widgets/background_layer.dart';
-import 'widgets/app_status_bar.dart';
-import 'widgets/time_panel.dart';
-import 'widgets/interaction_layer.dart';
 import 'widgets/floating_actions.dart';
 
-/// 应用主页 - 里程碑4：基础UI框架（重构后）
+/// 应用主页 - 极简背景设计
 class HomePage extends HookConsumerWidget {
   const HomePage({super.key});
 
@@ -18,17 +13,75 @@ class HomePage extends HookConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     return Scaffold(
       body: Stack(
+        fit: StackFit.expand,
         children: [
-          // 底层：背景图片和基础装饰
+          // 统一背景
           const BackgroundLayer(),
           
-          // 底层：固定UI元素（时间、状态等）
-          _buildBaseUILayer(context, ref),
+          // 顶部状态 - 极简
+          Positioned(
+            top: 50,
+            left: 20,
+            right: 20,
+            child: Row(
+              children: [
+                // 应用名
+                Text(
+                  'Lumi Assistant',
+                  style: TextStyle(
+                    color: Colors.white.withValues(alpha: 0.8),
+                    fontSize: 16,
+                    fontWeight: FontWeight.w500,
+                  ),
+                ),
+                const Spacer(),
+                // 连接状态
+                Icon(
+                  Icons.wifi,
+                  color: Colors.white.withValues(alpha: 0.6),
+                  size: 20,
+                ),
+              ],
+            ),
+          ),
           
-          // 中间层：主要交互区域（为聊天、语音等预留）
-          const InteractionLayer(),
+          // 时间 - 直接显示在背景上
+          Positioned(
+            bottom: 160,
+            left: 0,
+            right: 0,
+            child: StreamBuilder<DateTime>(
+              stream: Stream.periodic(const Duration(seconds: 1), (_) => DateTime.now()),
+              initialData: DateTime.now(),
+              builder: (context, snapshot) {
+                final now = snapshot.data ?? DateTime.now();
+                return Column(
+                  children: [
+                    Text(
+                      '${now.hour.toString().padLeft(2, '0')}:${now.minute.toString().padLeft(2, '0')}',
+                      style: TextStyle(
+                        color: Colors.white.withValues(alpha: 0.9),
+                        fontSize: 56,
+                        fontWeight: FontWeight.w100,
+                        letterSpacing: 4.0,
+                      ),
+                    ),
+                    const SizedBox(height: 8),
+                    Text(
+                      _formatDate(now),
+                      style: TextStyle(
+                        color: Colors.white.withValues(alpha: 0.6),
+                        fontSize: 16,
+                        fontWeight: FontWeight.w300,
+                      ),
+                    ),
+                  ],
+                );
+              },
+            ),
+          ),
           
-          // 顶层：浮动操作按钮
+          // 浮动按钮
           FloatingActions(
             onSettingsTap: () => _showSettings(context),
             onMainActionTap: () => _startChat(context),
@@ -37,54 +90,15 @@ class HomePage extends HookConsumerWidget {
       ),
     );
   }
-
-  /// 构建底层固定UI元素
-  Widget _buildBaseUILayer(BuildContext context, WidgetRef ref) {
-    return SafeArea(
-      child: Column(
-        children: [
-          // 顶部状态栏（轻量化）
-          AppStatusBar(
-            onConnectionTap: () => _showConnectionDetails(context),
-            onHandshakeTap: () => _showHandshakeDetails(context),
-          ),
-          
-          const Spacer(),
-          
-          // 底部时间信息（固定在底部）
-          const TimePanel(),
-        ],
-      ),
-    );
-  }
   
-  /// 显示连接详情对话框
-  void _showConnectionDetails(BuildContext context) {
-    showDialog(
-      context: context,
-      builder: (context) => Dialog(
-        child: SizedBox(
-          width: 400,
-          child: const ConnectionStatusCard(),
-        ),
-      ),
-    );
+  /// 格式化日期
+  String _formatDate(DateTime time) {
+    const weekdays = ['周日', '周一', '周二', '周三', '周四', '周五', '周六'];
+    const months = ['1月', '2月', '3月', '4月', '5月', '6月', '7月', '8月', '9月', '10月', '11月', '12月'];
+    return '${time.year}年${months[time.month - 1]}${time.day}日 ${weekdays[time.weekday % 7]}';
   }
 
-  /// 显示握手详情对话框
-  void _showHandshakeDetails(BuildContext context) {
-    showDialog(
-      context: context,
-      builder: (context) => Dialog(
-        child: SizedBox(
-          width: 400,
-          child: const HandshakeStatusCard(),
-        ),
-      ),
-    );
-  }
-
-  /// 显示设置界面
+  /// 显示设置
   void _showSettings(BuildContext context) {
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
@@ -106,4 +120,3 @@ class HomePage extends HookConsumerWidget {
     );
   }
 }
-
