@@ -15,6 +15,7 @@ import 'audio_service_v2.dart';
 import 'audio_service_v3.dart';
 import 'audio_service_simple.dart';
 import 'audio_service_direct.dart';
+import 'audio_service_android_style.dart';
 
 
 /// WebSocket服务类
@@ -29,6 +30,7 @@ class WebSocketService extends StateNotifier<WebSocketState> {
   AudioServiceV3? _audioServiceV3;
   AudioServiceSimple? _audioServiceSimple;
   AudioServiceDirect? _audioServiceDirect;
+  AudioServiceAndroidStyle? _audioServiceAndroidStyle;
 
   WebSocketService() : super(WebSocketStateFactory.disconnected());
 
@@ -63,6 +65,12 @@ class WebSocketService extends StateNotifier<WebSocketState> {
   void setAudioServiceDirect(AudioServiceDirect audioServiceDirect) {
     _audioServiceDirect = audioServiceDirect;
     print('[WebSocket] 直接PCM播放音频服务已设置（严格按照约定）');
+  }
+
+  /// 设置Android客户端风格音频服务
+  void setAudioServiceAndroidStyle(AudioServiceAndroidStyle audioServiceAndroidStyle) {
+    _audioServiceAndroidStyle = audioServiceAndroidStyle;
+    print('[WebSocket] Android客户端风格音频服务已设置（完全按照Android客户端实现）');
   }
 
   /// 连接到WebSocket服务器
@@ -346,11 +354,11 @@ class WebSocketService extends StateNotifier<WebSocketState> {
         print('[WebSocket] 判断为音频数据，开始播放');
         print('[WebSocket] 音频服务状态: ${_audioService != null ? "可用" : "不可用"}');
         
-        // 优先使用直接PCM播放音频服务（严格按照约定）
-        if (_audioServiceDirect != null) {
-          print('[WebSocket] 调用直接PCM播放音频服务（严格按照约定：Opus->PCM->直接播放PCM）');
-          await _audioServiceDirect!.playOpusAudio(data);
-          print('[WebSocket] 音频播放请求已完成(Direct)');
+        // 优先使用Android客户端风格音频服务（完全按照Android客户端实现）
+        if (_audioServiceAndroidStyle != null) {
+          print('[WebSocket] 调用Android客户端风格音频服务（完全按照Android客户端实现）');
+          await _audioServiceAndroidStyle!.playOpusAudio(data);
+          print('[WebSocket] 音频播放请求已完成(AndroidStyle)');
         } else if (_audioServiceSimple != null) {
           print('[WebSocket] 调用简化音频服务播放音频（Android客户端方式）');
           await _audioServiceSimple!.playOpusAudio(data);

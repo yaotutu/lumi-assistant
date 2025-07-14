@@ -1,6 +1,7 @@
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'dart:typed_data';
 import '../../core/services/audio_service.dart';
+import '../../core/services/audio_service_android_style.dart';
 import '../../core/services/permission_service.dart';
 import '../../core/constants/audio_constants.dart';
 import '../../data/models/exceptions.dart';
@@ -300,4 +301,9 @@ final audioPlayingProvider = Provider<bool>((ref) {
 /// 音频错误状态Provider
 final audioErrorProvider = Provider<String?>((ref) {
   return ref.watch(audioProvider).errorMessage;
+});
+
+/// Android客户端风格音频服务Provider
+final audioServiceAndroidStyleProvider = Provider<AudioServiceAndroidStyle>((ref) {
+  return AudioServiceAndroidStyle();
 });

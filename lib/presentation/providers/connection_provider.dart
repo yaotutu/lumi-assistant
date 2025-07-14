@@ -7,7 +7,8 @@ import '../../core/services/audio_service.dart';
 import '../../core/services/audio_service_v2.dart';
 import '../../core/services/audio_service_v3.dart';
 import '../../core/services/audio_service_simple.dart';
-import '../../core/services/audio_service_direct.dart';
+import '../../core/services/audio_service_android_style.dart';
+import 'audio_provider.dart';
 import '../../data/models/connection_state.dart';
 import '../../data/models/websocket_state.dart';
 
@@ -128,13 +129,18 @@ class ConnectionManager extends StateNotifier<ConnectionManagerState> {
     final audioServiceV3 = _ref.read(audioServiceV3Provider);
     webSocketService.setAudioServiceV3(audioServiceV3);
     
-    // 设置简化音频服务 - 最简单的Android客户端方式
+    // 设置Android客户端风格音频服务 - 完全按照Android客户端实现
+    final audioServiceAndroidStyle = _ref.read(audioServiceAndroidStyleProvider);
+    webSocketService.setAudioServiceAndroidStyle(audioServiceAndroidStyle);
+    
+    // 设置简化音频服务 - 备用方案
     final audioServiceSimple = _ref.read(audioServiceSimpleProvider);
     webSocketService.setAudioServiceSimple(audioServiceSimple);
     
-    // 设置直接PCM播放音频服务 - 严格按照约定
-    final audioServiceDirect = _ref.read(audioServiceDirectProvider);
-    webSocketService.setAudioServiceDirect(audioServiceDirect);
+    // 跳过AudioServiceDirect - 在此设备上不兼容
+    // 将使用AudioServiceSimple作为主要音频服务
+    // final audioServiceDirect = _ref.read(audioServiceDirectProvider);
+    // webSocketService.setAudioServiceDirect(audioServiceDirect);
     
     await webSocketService.connect(serverUrl);
   }
