@@ -138,10 +138,39 @@ class WebSocketService extends StateNotifier<WebSocketState> {
       // 开始监听消息
       _startListening();
       
-      // 按照Android客户端方式：连接后200ms延迟发送HELLO握手消息
+      // ===== 关键时序处理：200ms延迟发送HELLO握手消息 =====
+      // 
+      // 问题背景：
+      // 1. WebSocket连接分为两个阶段：
+      //    - 阶段1：HTTP升级握手 (HTTP → WebSocket协议切换)
+      //    - 阶段2：应用层握手 (发送hello消息进行业务初始化)
+      //
+      // 2. 时序问题：
+      //    - _channel.ready 表示协议层握手完成
+      //    - 但服务端还需要时间完成应用层初始化：
+      //      * 创建ConnectionHandler
+      //      * 验证device-id和Authorization
+      //      * 初始化session和超时检查
+      //      * 准备消息路由
+      //
+      // 3. 如果立即发送hello消息会导致：
+      //    - 服务端还在初始化阶段，未准备好接收消息
+      //    - 出现"EOFError: stream ends after 0 bytes"
+      //    - 连接握手失败
+      //
+      // 4. 解决方案：
+      //    - 参考Android客户端的成功实现
+      //    - 在协议握手完成后等待200ms
+      //    - 给服务端足够时间完成应用层初始化
+      //    - 200ms是基于实际测试的经验值
+      //
+      // 5. 更好的解决方案(未来改进)：
+      //    - 服务端提供应用层ready信号
+      //    - 客户端使用重试机制而非固定延迟
+      //
       Timer(Duration(milliseconds: 200), () async {
         if (state.isConnected) {
-          print('[WebSocket] 发送HELLO握手消息(延迟200ms)');
+          print('[WebSocket] 发送HELLO握手消息(延迟200ms - 等待服务端应用层初始化完成)');
           try {
             await _sendHello();
           } catch (error) {
@@ -459,6 +488,24 @@ class WebSocketService extends StateNotifier<WebSocketState> {
   }
 
   /// 发送HELLO握手消息
+  /// 
+  /// 这是WebSocket应用层握手的关键步骤：
+  /// 1. 协议层握手完成后，客户端需要发送hello消息告知服务端客户端信息
+  /// 2. 服务端收到hello后会回复包含session_id的hello响应
+  /// 3. 握手完成后才能进行正常的业务消息收发
+  /// 
+  /// 消息格式遵循服务端API规范：
+  /// {
+  ///   "type": "hello",
+  ///   "version": 1,
+  ///   "transport": "websocket", 
+  ///   "audio_params": {
+  ///     "format": "opus",
+  ///     "sample_rate": 16000,
+  ///     "channels": 1,
+  ///     "frame_duration": 60
+  ///   }
+  /// }
   Future<void> _sendHello() async {
     try {
       final helloMsg = {
