@@ -1,9 +1,9 @@
 /// API相关常量
 class ApiConstants {
   /// WebSocket服务器基础地址
-  /// 使用Python服务器：ws://192.168.110.199:8000/
+  /// 使用Python服务器：ws://192.168.110.199:8000/xiaozhi/v1
   /// 生产环境需要根据实际服务器IP调整
-  static const String webSocketBaseUrl = 'ws://192.168.110.199:8000/';
+  static const String webSocketBaseUrl = 'ws://192.168.110.199:8000/xiaozhi/v1';
 
   /// HTTP API基础地址
   /// 使用Python服务器：http://192.168.110.199:8000/api

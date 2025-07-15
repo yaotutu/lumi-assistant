@@ -92,33 +92,21 @@ class WebSocketService extends StateNotifier<WebSocketState> {
       await _checkNetworkConnection();
       print('[WebSocket] 网络连接检查通过');
       
-      // 构建WebSocket URL - 按照小智Android项目方式
+      // 构建WebSocket URL - 完全按照Android客户端方式
       final deviceId = await _getDeviceId();
       final baseUrl = serverUrl ?? ApiConstants.webSocketBaseUrl;
       print('[WebSocket] 使用服务器URL: $baseUrl');
-      final uri = Uri.parse(baseUrl).replace(
-        queryParameters: {
-          'device-id': deviceId,
-          'client-id': deviceId,  // 使用相同的device-id作为client-id
-        },
-      );
+      
+      // Android客户端直接使用原始URL，不添加query parameters
+      final uri = Uri.parse(baseUrl);
       
       print('[WebSocket] 准备连接到: $uri');
-      print('[WebSocket] URI主机: ${uri.host}');
-      print('[WebSocket] URI端口: ${uri.port}');
-      print('[WebSocket] URI路径: ${uri.path}');
-      print('[WebSocket] URI查询参数: ${uri.query}');
       print('[WebSocket] 连接超时设置: ${ApiConstants.connectionTimeout}ms');
       
-      // 先测试TCP连接
-      print('[WebSocket] 测试TCP连接到 ${uri.host}:${uri.port}');
-      await _testTcpConnection(uri.host, uri.port);
-      print('[WebSocket] TCP连接测试通过');
-      
-      // 建立WebSocket连接 - 按照小智Android项目方式
+      // 建立WebSocket连接 - 完全按照Android客户端方式
       print('[WebSocket] 开始创建WebSocket连接...');
       try {
-        // 尝试使用Headers传递认证信息
+        // 按照Android客户端的headers格式
         final headers = <String, dynamic>{
           'device-id': deviceId,
           'client-id': deviceId,
@@ -144,16 +132,23 @@ class WebSocketService extends StateNotifier<WebSocketState> {
       await _channel!.ready;
       print('[WebSocket] WebSocket连接就绪');
       
-      // 连接成功后，发送认证消息（作为备用方案）
-      print('[WebSocket] 发送认证消息作为备用方案');
-      final authMessage = 'Authorization: Bearer ${ApiConstants.defaultToken}';
-      _channel!.sink.add(authMessage);
-      
       state = state.connectSuccess();
 
-      print('[WebSocket] 连接成功，开始监听消息');
+      print('[WebSocket] 开始监听消息流');
       // 开始监听消息
       _startListening();
+      
+      // 按照Android客户端方式：连接后200ms延迟发送HELLO握手消息
+      Timer(Duration(milliseconds: 200), () async {
+        if (state.isConnected) {
+          print('[WebSocket] 发送HELLO握手消息(延迟200ms)');
+          try {
+            await _sendHello();
+          } catch (error) {
+            print('[WebSocket] 延迟HELLO握手失败: $error');
+          }
+        }
+      });
       
       
     } catch (error) {
@@ -170,25 +165,6 @@ class WebSocketService extends StateNotifier<WebSocketState> {
     }
   }
 
-  /// 测试TCP连接
-  Future<void> _testTcpConnection(String host, int port) async {
-    try {
-      final socket = await Socket.connect(
-        host, 
-        port, 
-        timeout: const Duration(seconds: 5)
-      );
-      await socket.close();
-      print('[WebSocket] TCP连接测试成功');
-    } catch (error) {
-      print('[WebSocket] TCP连接测试失败: $error');
-      throw AppExceptionFactory.createNetworkException(
-        '无法连接到服务器 $host:$port - $error',
-        code: 'TCP_CONNECTION_FAILED',
-        details: {'host': host, 'port': port, 'error': error.toString()},
-      );
-    }
-  }
 
   /// 断开连接
   Future<void> disconnect() async {
@@ -479,6 +455,31 @@ class WebSocketService extends StateNotifier<WebSocketState> {
     } catch (error) {
       // 如果获取失败，使用默认MAC格式
       return '51:2C:C4:66:25:41';
+    }
+  }
+
+  /// 发送HELLO握手消息
+  Future<void> _sendHello() async {
+    try {
+      final helloMsg = {
+        'type': 'hello',
+        'version': 1,
+        'transport': 'websocket',
+        'audio_params': {
+          'format': 'opus',
+          'sample_rate': 16000,
+          'channels': 1,
+          'frame_duration': 60,
+        },
+      };
+      print('[WebSocket] 发送HELLO握手消息: $helloMsg');
+      await sendMessage(helloMsg);
+    } catch (error) {
+      print('[WebSocket] 发送HELLO握手失败: $error');
+      throw AppExceptionFactory.createWebSocketException(
+        'HELLO握手失败: ${error.toString()}',
+        code: 'HANDSHAKE_FAILED',
+      );
     }
   }
 
