@@ -23,7 +23,6 @@ class WebSocketService extends StateNotifier<WebSocketState> {
   WebSocketChannel? _channel;
   StreamSubscription? _messageSubscription;
   Timer? _reconnectTimer;
-  Timer? _heartbeatTimer;
   final StreamController<Map<String, dynamic>> _messageController = StreamController.broadcast();
   AudioService? _audioService;
   AudioServiceV2? _audioServiceV2;
@@ -156,9 +155,6 @@ class WebSocketService extends StateNotifier<WebSocketState> {
       // 开始监听消息
       _startListening();
       
-      print('[WebSocket] 启动心跳机制');
-      // 启动心跳
-      _startHeartbeat();
       
     } catch (error) {
       print('[WebSocket] 连接失败，错误详情: $error');
@@ -198,7 +194,6 @@ class WebSocketService extends StateNotifier<WebSocketState> {
   Future<void> disconnect() async {
     print('[WebSocket] 开始断开连接');
     _stopReconnectTimer();
-    _stopHeartbeat();
     
     await _messageSubscription?.cancel();
     await _channel?.sink.close();
@@ -426,27 +421,6 @@ class WebSocketService extends StateNotifier<WebSocketState> {
     }
   }
 
-  /// 启动心跳
-  void _startHeartbeat() {
-    _heartbeatTimer = Timer.periodic(
-      Duration(milliseconds: ApiConstants.heartbeatInterval),
-      (timer) {
-        if (state.isConnected) {
-          try {
-            sendMessage({'type': 'ping', 'timestamp': DateTime.now().millisecondsSinceEpoch});
-          } catch (error) {
-            print('[WebSocket] 心跳发送失败: $error');
-          }
-        }
-      },
-    );
-  }
-
-  /// 停止心跳
-  void _stopHeartbeat() {
-    _heartbeatTimer?.cancel();
-    _heartbeatTimer = null;
-  }
 
   /// 安排重连
   void _scheduleReconnect() {

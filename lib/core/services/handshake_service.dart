@@ -204,9 +204,6 @@ class HandshakeService extends StateNotifier<HandshakeResult> {
         case 'error':
           _handleErrorResponse(data);
           break;
-        case 'pong':
-          // 心跳响应，暂不处理
-          break;
         default:
           // 其他消息类型，握手阶段不处理
           break;

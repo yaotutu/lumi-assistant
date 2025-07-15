@@ -41,8 +41,6 @@ const _$MessageTypeEnumMap = {
   MessageType.chat: 'chat',
   MessageType.listen: 'listen',
   MessageType.image: 'image',
-  MessageType.ping: 'ping',
-  MessageType.pong: 'pong',
   MessageType.error: 'error',
   MessageType.response: 'response',
   MessageType.stt: 'stt',
@@ -182,40 +180,6 @@ Map<String, dynamic> _$$ErrorMessageImplToJson(_$ErrorMessageImpl instance) =>
       'request_id': instance.requestId,
       'timestamp': instance.timestamp,
       'error_details': instance.errorDetails,
-    };
-
-_$PingMessageImpl _$$PingMessageImplFromJson(Map<String, dynamic> json) =>
-    _$PingMessageImpl(
-      id: json['id'] as String,
-      type:
-          $enumDecodeNullable(_$MessageTypeEnumMap, json['type']) ??
-          MessageType.ping,
-      timestamp: (json['timestamp'] as num).toInt(),
-    );
-
-Map<String, dynamic> _$$PingMessageImplToJson(_$PingMessageImpl instance) =>
-    <String, dynamic>{
-      'id': instance.id,
-      'type': _$MessageTypeEnumMap[instance.type]!,
-      'timestamp': instance.timestamp,
-    };
-
-_$PongMessageImpl _$$PongMessageImplFromJson(Map<String, dynamic> json) =>
-    _$PongMessageImpl(
-      id: json['id'] as String,
-      type:
-          $enumDecodeNullable(_$MessageTypeEnumMap, json['type']) ??
-          MessageType.pong,
-      pingId: json['ping_id'] as String,
-      timestamp: (json['timestamp'] as num).toInt(),
-    );
-
-Map<String, dynamic> _$$PongMessageImplToJson(_$PongMessageImpl instance) =>
-    <String, dynamic>{
-      'id': instance.id,
-      'type': _$MessageTypeEnumMap[instance.type]!,
-      'ping_id': instance.pingId,
-      'timestamp': instance.timestamp,
     };
 
 _$ListenMessageImpl _$$ListenMessageImplFromJson(Map<String, dynamic> json) =>

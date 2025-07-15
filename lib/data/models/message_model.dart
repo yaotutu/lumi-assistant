@@ -13,10 +13,6 @@ enum MessageType {
   listen,
   @JsonValue('image')
   image,
-  @JsonValue('ping')
-  ping,
-  @JsonValue('pong')
-  pong,
   @JsonValue('error')
   error,
   @JsonValue('response')
@@ -238,44 +234,6 @@ class ErrorMessage with _$ErrorMessage {
       _$ErrorMessageFromJson(json);
 }
 
-/// 心跳消息模型
-@freezed
-class PingMessage with _$PingMessage {
-  const factory PingMessage({
-    /// 消息ID
-    required String id,
-    
-    /// 消息类型（固定为ping）
-    @Default(MessageType.ping) MessageType type,
-    
-    /// 发送时间戳
-    required int timestamp,
-  }) = _PingMessage;
-
-  factory PingMessage.fromJson(Map<String, dynamic> json) =>
-      _$PingMessageFromJson(json);
-}
-
-/// 心跳响应消息模型
-@freezed
-class PongMessage with _$PongMessage {
-  const factory PongMessage({
-    /// 消息ID
-    required String id,
-    
-    /// 消息类型（固定为pong）
-    @Default(MessageType.pong) MessageType type,
-    
-    /// 原始ping消息ID
-    @JsonKey(name: 'ping_id') required String pingId,
-    
-    /// 响应时间戳
-    required int timestamp,
-  }) = _PongMessage;
-
-  factory PongMessage.fromJson(Map<String, dynamic> json) =>
-      _$PongMessageFromJson(json);
-}
 
 /// Listen消息模型（文字输入）
 @freezed

@@ -23,7 +23,8 @@
       "WebFetch(domain:github.com)",
       "Bash(go build:*)",
       "Bash(rg:*)",
-      "Bash(r)"
+      "Bash(r)",
+      "Bash(adb:*)"
     ],
     "deny": []
   }
