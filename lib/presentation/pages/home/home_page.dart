@@ -98,18 +98,6 @@ class HomePage extends HookConsumerWidget {
           ),
           
           
-          // 测试按钮 - 暂时禁用以排除干扰
-          // Positioned(
-          //   bottom: 80,
-          //   left: 24,
-          //   child: FloatingActionButton.small(
-          //     heroTag: "test_character",
-          //     onPressed: () => _testVirtualCharacter(context),
-          //     backgroundColor: Colors.orange.withValues(alpha: 0.8),
-          //     foregroundColor: Colors.white,
-          //     child: const Icon(Icons.bug_report, size: 16),
-          //   ),
-          // ),
           
           // // 统一测试按钮
           // Positioned(

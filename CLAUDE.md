@@ -401,11 +401,59 @@ Message types: `hello` (handshake), `chat` (text), `listen` (voice), `image` (vi
 - Follow similar WebSocket handling and UI interaction patterns
 - Reference authentication and message handling approaches
 
+**ESP32 Client**: `/Users/yaotutu/Desktop/code/xiaozhi-esp32`
+- **Most Standard Client**: This is the most standard and reliable client implementation
+- **Primary Reference**: When encountering any issues, always refer to this ESP32 client first
+- **Complete Implementation**: Contains the most complete and tested implementation patterns
+- **Hardware Reference**: Shows how to properly integrate with the Python backend from embedded devices
+
 ## Project Memory and Context
 
 ### Reference Projects Overview
 
-#### Android Client (`/Users/yaotutu/Desktop/code/xiaozhi-android-client`)
+#### ESP32 Client (`/Users/yaotutu/Desktop/code/xiaozhi-esp32`) **[PRIMARY REFERENCE]**
+**Project Type**: C++ embedded client for ESP32 microcontroller
+**Architecture**: Event-driven embedded system with real-time processing
+**Key Features**:
+- **Most Standard Implementation**: This is the gold standard for Python backend integration
+- **Complete Protocol Implementation**: Full WebSocket protocol with all message types
+- **Hardware Integration**: Direct hardware control (LEDs, buttons, speakers, microphones)
+- **Real-time Audio Processing**: Optimized Opus audio encoding/decoding
+- **Production-Ready**: Stable, tested, and battle-proven implementation
+- **IoT Device Control**: Native hardware control capabilities
+
+**Why This is the Primary Reference**:
+- **Proven Stability**: Most reliable and tested client implementation
+- **Complete Feature Set**: Implements all backend protocols correctly
+- **Hardware Integration**: Shows proper device control patterns
+- **Performance Optimized**: Efficient resource usage and real-time processing
+- **Protocol Compliance**: Strict adherence to backend API specifications
+
+**Key Implementation Patterns to Reference**:
+```cpp
+// WebSocket connection and message handling
+class WebSocketManager {
+  void connect(const char* url);
+  void sendMessage(const char* message);
+  void handleMessage(const char* message);
+};
+
+// Audio processing pipeline
+class AudioProcessor {
+  static const int SAMPLE_RATE = 16000;
+  static const int CHANNELS = 1;
+  static const int FRAME_SIZE = 960; // 60ms at 16kHz
+};
+
+// Hardware control interface
+class HardwareController {
+  void setLED(bool state);
+  void setVolume(uint8_t level);
+  bool getButtonState();
+};
+```
+
+#### Android Client (`/Users/yaotutu/Desktop/code/xiaozhi-android-client`) **[SECONDARY REFERENCE]**
 **Project Type**: Flutter application (not native Android)
 **Architecture**: Provider-based state management with service layer pattern
 **Key Features**:
@@ -653,10 +701,17 @@ abstract class TTSProvider {
 
 **当前状态**: 里程碑6已完成，可以进入下一阶段开发
 
+**IoT设备控制功能状态**:
+- ✅ **基础架构**：IoT工具注册和执行机制 - 已完成
+- ✅ **音量控制**：adjust_volume和get_current_volume工具 - 已完成
+- ✅ **WebSocket集成**：IoT工具调用消息处理 - 已完成
+- ✅ **AI集成**：语音助手可通过IoT调用控制设备音量 - 已完成
+- 🔄 **功能扩展**：可基于现有架构添加更多设备控制功能
+
 **下一阶段任务**（里程碑7：LLM响应处理）:
 - 实现服务器响应消息接收和显示
 - 完善聊天消息流管理
-- 处理不同类型的服务器响应
+- 处理不同类型的服务器响应（包括IoT工具调用结果）
 - 实现消息状态追踪和错误处理
 
 ## Code Patterns
@@ -698,26 +753,37 @@ Important docs are organized in `docs/`:
 ### 项目记忆重要提醒
 
 1. **参考项目位置**：
-   - Android客户端：`/Users/yaotutu/Desktop/code/xiaozhi-android-client`
-   - Python后端：`/Users/yaotutu/Desktop/code/xiaozhi-esp32-server/main/xiaozhi-server`
+   - **ESP32客户端**：`/Users/yaotutu/Desktop/code/xiaozhi-esp32` **[最标准的客户端实现]**
+   - **Android客户端**：`/Users/yaotutu/Desktop/code/xiaozhi-android-client` **[次要参考]**
+   - **Python后端**：`/Users/yaotutu/Desktop/code/xiaozhi-esp32-server/main/xiaozhi-server`
 
-2. **API文档来源**：
-   - 所有接口规范都来自Python后端项目的`docs/`目录
-   - WebSocket协议和HTTP API的详细定义在上面的项目记忆中
+2. **参考优先级**：
+   - **首选**：遇到任何问题时，首先参考ESP32客户端的实现方式
+   - **次选**：ESP32客户端无法提供参考时，再参考Android客户端
+   - **API规范**：所有接口规范都来自Python后端项目的`docs/`目录
 
-3. **开发优先级**：
+3. **ESP32客户端的重要性**：
+   - **最标准的客户端**：经过充分测试，实现最完整和可靠
+   - **协议参考**：WebSocket协议实现的标准参考
+   - **硬件控制**：展示了如何正确实现设备控制功能
+   - **性能优化**：实时处理和资源优化的最佳实践
+
+4. **开发优先级**：
    - 当前阶段主要关注文本聊天功能的完善
-   - 音频功能在后续阶段实现，需要参考Android客户端的Opus音频处理
-   - 多模态功能（视觉、IoT控制）将在最后实现
+   - 音频功能在后续阶段实现，需要参考ESP32客户端的Opus音频处理
+   - IoT设备控制功能已完成基础实现（音量控制）
+   - 多模态功能（视觉、更多IoT控制）将在后续实现
 
-4. **技术架构对齐**：
+5. **技术架构对齐**：
    - 当前项目使用的hooks_riverpod比Android客户端的Provider更现代
-   - 但需要参考Android客户端的WebSocket事件驱动架构
-   - 音频处理管道需要完全遵循Android客户端的模式
+   - 但需要参考ESP32客户端的WebSocket协议实现
+   - 音频处理管道需要完全遵循ESP32客户端的模式
+   - IoT设备控制功能要参考ESP32客户端的硬件控制接口
 
-5. **当前开发重点**：
+6. **当前开发重点**：
    - 里程碑6已完成文本消息发送功能
-   - 下一步需要实现服务器响应消息的完整处理
+   - 里程碑7需要实现服务器响应消息的完整处理
+   - IoT设备控制功能已实现音量控制，可作为扩展其他设备功能的基础
    - 重点关注消息状态管理和错误处理机制
    - 不支持服务器切换功能，统一使用Python后端
 
@@ -733,17 +799,26 @@ Important docs are organized in `docs/`:
 ## Integration Guidelines
 
 ### When implementing new features:
-1. **Reference Android client** (`/Users/yaotutu/Desktop/code/xiaozhi-android-client`) for implementation patterns
+1. **Reference ESP32 client** (`/Users/yaotutu/Desktop/code/xiaozhi-esp32`) as the primary reference for implementation patterns
 2. **Check Python backend docs** (`/Users/yaotutu/Desktop/code/xiaozhi-esp32-server/main/xiaozhi-server/docs/`) for API specifications
-3. **Follow WebSocket protocol** as defined in project memory section above
+3. **Follow WebSocket protocol** as implemented in ESP32 client (most standard implementation)
 4. **Maintain session management** with proper device-id and session-id handling
 5. **Use consistent error handling** patterns across all network operations
+6. **Hardware control patterns** should follow ESP32 client's hardware abstraction layer
 
 ### Audio feature implementation (future milestone):
-- Reference Android client's `AudioUtil` class for Opus codec integration
+- **Primary reference**: ESP32 client's audio processing implementation
+- **Secondary reference**: Android client's `AudioUtil` class for Flutter-specific integration
 - Follow the audio processing pipeline: `Microphone → PCM16 → Opus → WebSocket`
 - Implement real-time audio streaming with 60ms frame duration
 - Use 16kHz sample rate, mono channel configuration
+- Reference ESP32 client for optimal buffer management and real-time processing
+
+### IoT device control implementation:
+- **Follow ESP32 patterns**: Reference ESP32 client's hardware control interface
+- **Device abstraction**: Create Flutter equivalents of ESP32's hardware control classes
+- **Message handling**: Follow ESP32 client's IoT message processing patterns
+- **Error handling**: Implement similar error recovery mechanisms
 
 ### UI/UX consistency:
 - Follow Material Design 3 with neumorphism elements

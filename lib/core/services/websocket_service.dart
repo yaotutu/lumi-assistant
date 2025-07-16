@@ -12,6 +12,7 @@ import '../errors/exceptions.dart';
 import '../../data/models/websocket_state.dart';
 import 'audio_service_android_style.dart';
 import 'audio_service_simple.dart';
+import 'mcp_service_standard.dart';
 
 
 /// WebSocket服务类
@@ -24,8 +25,11 @@ class WebSocketService extends StateNotifier<WebSocketState> {
   // 性能优化：使用单一的音频服务实例，而不是维护多个实例
   dynamic _activeAudioService;
   String _audioServiceType = 'android_style'; // 默认使用最稳定的Android风格服务
+  
+  // 标准MCP协议服务
+  final McpServiceStandard _mcpService;
 
-  WebSocketService() : super(WebSocketStateFactory.disconnected());
+  WebSocketService(this._mcpService) : super(WebSocketStateFactory.disconnected());
 
   /// 消息流
   Stream<Map<String, dynamic>> get messageStream => _messageController.stream;
@@ -299,7 +303,15 @@ class WebSocketService extends StateNotifier<WebSocketState> {
       print('[WebSocket] 收到文本消息: $data');
       final Map<String, dynamic> message = jsonDecode(data);
       print('[WebSocket] 解析消息成功: ${message['type']}');
-      _messageController.add(message);
+      
+      // 检查是否为MCP消息
+      if (message['type'] == 'mcp') {
+        print('[WebSocket] 检测到MCP消息，路由到MCP服务');
+        _handleMcpMessage(message);
+      } else {
+        print('[WebSocket] 非MCP消息，添加到消息流: ${message['type']}');
+        _messageController.add(message);
+      }
     } catch (error) {
       print('[WebSocket] 解析文本消息失败: $error');
     }
@@ -436,6 +448,47 @@ class WebSocketService extends StateNotifier<WebSocketState> {
     }
   }
 
+
+  /// 处理MCP消息 - 路由到MCP协议服务
+  Future<void> _handleMcpMessage(Map<String, dynamic> message) async {
+    print('[WebSocket] 路由MCP消息到协议服务');
+    print('[WebSocket] MCP消息内容: $message');
+    
+    try {
+      // 确保MCP服务已初始化
+      await _mcpService.initialize();
+      print('[WebSocket] MCP服务初始化完成');
+      
+      // 使用标准MCP服务处理消息
+      final response = await _mcpService.handleMcpRequest(message);
+      print('[WebSocket] MCP响应生成: $response');
+      
+      // 发送响应
+      await sendMessage(response);
+      print('[WebSocket] MCP响应已发送');
+    } catch (error) {
+      print('[WebSocket] MCP消息处理失败: $error');
+      print('[WebSocket] 错误堆栈: ${error.toString()}');
+      
+      // 发送错误响应
+      final errorResponse = {
+        'type': 'mcp',
+        'session_id': message['session_id'],
+        'payload': {
+          'jsonrpc': '2.0',
+          'id': message['payload']?['id'],
+          'error': {
+            'code': -32603,
+            'message': 'Internal error: $error',
+          },
+        },
+      };
+      
+      await sendMessage(errorResponse);
+    }
+  }
+  
+
   /// 发送HELLO握手消息
   /// 
   /// 这是WebSocket应用层握手的关键步骤：
@@ -443,11 +496,14 @@ class WebSocketService extends StateNotifier<WebSocketState> {
   /// 2. 服务端收到hello后会回复包含session_id的hello响应
   /// 3. 握手完成后才能进行正常的业务消息收发
   /// 
-  /// 消息格式遵循服务端API规范：
+  /// 消息格式遵循ESP32客户端和服务端API规范（支持MCP协议）：
   /// {
   ///   "type": "hello",
   ///   "version": 1,
-  ///   "transport": "websocket", 
+  ///   "transport": "websocket",
+  ///   "features": {
+  ///     "mcp": true  // 声明支持MCP协议
+  ///   },
   ///   "audio_params": {
   ///     "format": "opus",
   ///     "sample_rate": 16000,
@@ -461,6 +517,9 @@ class WebSocketService extends StateNotifier<WebSocketState> {
         'type': 'hello',
         'version': 1,
         'transport': 'websocket',
+        'features': {
+          'mcp': true,  // 声明支持MCP协议，参考ESP32实现
+        },
         'audio_params': {
           'format': 'opus',
           'sample_rate': 16000,
@@ -468,8 +527,12 @@ class WebSocketService extends StateNotifier<WebSocketState> {
           'frame_duration': 60,
         },
       };
-      print('[WebSocket] 发送HELLO握手消息: $helloMsg');
+      print('[WebSocket] 发送HELLO握手消息（支持MCP协议）: $helloMsg');
       await sendMessage(helloMsg);
+      
+      // MCP协议：服务器会在握手完成后主动发送tools/list请求
+      // 我们只需要等待并响应服务器的查询，不需要主动注册
+      print('[WebSocket] Hello握手完成，等待服务器MCP工具查询');
     } catch (error) {
       print('[WebSocket] 发送HELLO握手失败: $error');
       throw AppExceptionFactory.createWebSocketException(
@@ -489,7 +552,9 @@ class WebSocketService extends StateNotifier<WebSocketState> {
 
 /// WebSocket服务提供者
 final webSocketServiceProvider = StateNotifierProvider<WebSocketService, WebSocketState>((ref) {
-  final service = WebSocketService();
+  // 注入标准MCP服务
+  final mcpService = ref.read(mcpServiceStandardProvider);
+  final service = WebSocketService(mcpService);
   
   // 性能优化：延迟注入单一音频服务，避免循环依赖和内存浪费
   Future.microtask(() {

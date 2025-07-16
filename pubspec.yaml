@@ -54,6 +54,13 @@ dependencies:
   permission_handler: ^11.4.0
   path_provider: ^2.1.5
   record: 5.1.0
+  volume_controller: ^2.0.7
+  
+  # 设备控制
+  screen_brightness: ^1.0.1
+  
+  # MCP协议支持
+  mcp_server: ^0.1.0
   
   # 图标
   cupertino_icons: ^1.0.8

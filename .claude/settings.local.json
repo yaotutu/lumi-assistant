@@ -26,7 +26,8 @@
       "Bash(r)",
       "Bash(adb:*)",
       "mcp__ide__getDiagnostics",
-      "Bash(q)"
+      "Bash(q)",
+      "Bash(git add:*)"
     ],
     "deny": []
   }
