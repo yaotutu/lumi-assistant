@@ -750,3 +750,158 @@ Important docs are organized in `docs/`:
 - Maintain gradient backgrounds and floating elements
 - Implement smooth animations and transitions
 - Ensure responsive design for different screen sizes
+
+## Configuration System Architecture
+
+### 配置系统设计原则
+
+**核心理念**: 统一配置入口，分层管理，专业分组
+
+项目采用**双层配置架构**，所有应用配置必须遵循以下设计原则：
+
+#### 1. **统一配置入口规则**
+- **所有配置项**必须统一放在 `lib/core/config/app_settings.dart` 中管理
+- **禁止**在代码中散布硬编码的配置值
+- **所有组件**都必须从 `AppSettings` 获取配置，不得直接使用魔法数字
+- **新增配置项**时必须同时添加到配置系统中
+
+#### 2. **双层架构设计**
+```dart
+// 静态默认值 - 性能优化，零运行时开销
+static const _defaultFloatingChatSize = 80.0;
+
+// 用户动态设置 - 可在设置页面修改
+double? _userFloatingChatSize;
+
+// 公共访问接口 - 自动选择用户设置或默认值
+double get floatingChatSize => _userFloatingChatSize ?? _defaultFloatingChatSize;
+```
+
+**架构优势**：
+- **性能优化**：静态默认值减少运行时判断
+- **用户灵活性**：可在设置页面随时调整
+- **代码简洁**：统一的配置访问接口
+- **易于扩展**：后期可轻松添加新配置
+
+#### 3. **分层设置页面结构**
+
+**主设置页面** (`SettingsMainPage`) - 分组导航入口
+```
+设置主页面
+├── UI界面设置 (蓝色主题)
+├── 网络连接设置 (绿色主题)  
+├── 音频设置 (橙色主题)
+├── 主题样式 (紫色主题)
+└── 开发者选项 (红色主题)
+```
+
+**专业设置子页面** - 按功能域分组：
+- `SettingsUIPage`: 界面相关（悬浮窗、字体、动画等）
+- `SettingsNetworkPage`: 网络相关（服务器地址、超时等）
+- `SettingsAudioPage`: 音频相关（采样率、声道、帧时长等）
+- `SettingsThemePage`: 主题相关（Material、动画、波纹等）
+- `SettingsDebugPage`: 调试相关（各种日志开关）
+
+#### 4. **配置项分类规则**
+
+新增配置项时，必须按以下规则分类：
+
+| 配置类型 | 归属页面 | 命名前缀 | 示例 |
+|---------|---------|---------|------|
+| UI布局尺寸 | UI界面设置 | `floating`, `font`, `animation` | `floatingChatSize` |
+| 网络连接 | 网络设置 | `server`, `api`, `connection` | `serverUrl` |
+| 音频处理 | 音频设置 | `sample`, `channels`, `frame` | `sampleRate` |
+| 主题外观 | 主题样式 | `use`, `enable` | `useMaterial3` |
+| 调试开关 | 开发者选项 | `debug` | `debugEnableLogging` |
+
+#### 5. **配置项实现规范**
+
+**添加新配置项的完整流程**：
+
+1. **在 `AppSettings` 中定义**：
+```dart
+// 1. 添加静态默认值
+static const _defaultNewSetting = 'default_value';
+
+// 2. 添加用户设置字段
+String? _userNewSetting;
+
+// 3. 添加公共访问接口
+String get newSetting => _userNewSetting ?? _defaultNewSetting;
+
+// 4. 添加更新方法
+Future<void> updateNewSetting(String value) async {
+  _userNewSetting = value;
+  notifyListeners();
+  await _saveSettings();
+}
+
+// 5. 添加重置方法（如需要）
+Future<void> resetNewSetting() async {
+  _userNewSetting = null;
+  notifyListeners();
+  await _saveSettings();
+}
+
+// 6. 在loadSettings()中添加加载逻辑
+_userNewSetting = prefs.getString('user_new_setting');
+
+// 7. 在_saveSettings()中添加保存逻辑
+if (_userNewSetting != null) {
+  await prefs.setString('user_new_setting', _userNewSetting!);
+} else {
+  await prefs.remove('user_new_setting');
+}
+```
+
+2. **在对应设置页面中添加UI控件**：
+   - 根据配置类型选择合适的设置子页面
+   - 使用统一的UI组件样式
+   - 提供重置功能（如果需要）
+
+3. **在业务代码中使用**：
+```dart
+// ✅ 正确方式 - 从配置系统获取
+final settings = ref.watch(appSettingsProvider);
+final value = settings.newSetting;
+
+// ❌ 错误方式 - 硬编码
+final value = 'hardcoded_value';
+```
+
+#### 6. **配置系统扩展指南**
+
+**添加新配置分组时**：
+1. 创建新的设置子页面 `SettingsXxxPage`
+2. 在主设置页面添加对应的导航卡片
+3. 选择合适的主题色彩
+4. 遵循现有的UI设计模式
+
+**配置项命名规范**：
+- 使用驼峰命名法
+- 体现配置的功能和作用域
+- 保持简洁且见名知意
+- 避免缩写和模糊词汇
+
+#### 7. **性能和用户体验要求**
+
+- **即时生效**：配置变更必须立即反映到UI中
+- **持久化存储**：所有用户设置自动保存到SharedPreferences
+- **重置功能**：支持单项重置和全局重置
+- **验证机制**：输入验证和错误提示
+- **响应式设计**：适配不同屏幕尺寸
+
+### 实施检查清单
+
+在添加任何新的配置功能时，请确认：
+
+- [ ] 配置项已添加到 `AppSettings` 类中
+- [ ] 遵循双层架构设计（静态默认值 + 用户设置）
+- [ ] 配置项已归类到正确的设置子页面
+- [ ] 提供了适当的UI控件和交互
+- [ ] 实现了持久化存储
+- [ ] 业务代码从配置系统获取值，无硬编码
+- [ ] 添加了必要的验证和错误处理
+- [ ] 测试了配置变更的即时生效
+
+**重要提醒**：这个配置系统是应用的核心基础设施，任何破坏性修改都可能影响整个应用的稳定性。请严格遵循以上规则进行配置相关的开发工作。

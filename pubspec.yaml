@@ -45,6 +45,7 @@ dependencies:
   
   # 实用工具
   uuid: ^4.2.1
+  shared_preferences: ^2.2.2
   
   # 音频处理
   opus_dart: ^3.0.1

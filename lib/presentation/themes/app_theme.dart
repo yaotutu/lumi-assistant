@@ -47,7 +47,7 @@ class AppTheme {
   /// 获取亮色主题 - 性能优化版本（关闭动画和Material效果）
   static ThemeData getLightTheme() {
     return ThemeData(
-      useMaterial3: false, // 关闭Material3以减少渲染复杂度
+      useMaterial3: false, // 主题配置通过动态配置管理
       brightness: Brightness.light,
       
       // 色彩方案
@@ -136,7 +136,7 @@ class AppTheme {
   /// 获取暗色主题 - 性能优化版本（关闭动画和Material效果）
   static ThemeData getDarkTheme() {
     return ThemeData(
-      useMaterial3: false, // 关闭Material3以减少渲染复杂度
+      useMaterial3: false, // 主题配置通过动态配置管理
       brightness: Brightness.dark,
       
       // 色彩方案

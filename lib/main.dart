@@ -7,7 +7,6 @@ import 'package:opus_dart/opus_dart.dart';
 import 'presentation/themes/app_theme.dart';
 import 'presentation/pages/home/home_page.dart';
 import 'core/constants/app_constants.dart';
-import 'core/constants/performance_constants.dart';
 
 /// 应用入口点
 void main() async {
@@ -37,10 +36,8 @@ Future<void> _applyPerformanceOptimizations() async {
     ),
   );
   
-  // 简化的性能优化设置
-  if (!PerformanceConstants.enableDebugLogging) {
-    print('[性能] 调试日志已禁用');
-  }
+  // 简化：直接禁用调试日志（主要配置在动态配置中处理）
+  print('[性能] 调试日志已禁用');
 }
 
 /// 性能优化：异步初始化Opus库
@@ -64,8 +61,8 @@ class LumiAssistantApp extends StatelessWidget {
       title: AppConstants.appName,
       debugShowCheckedModeBanner: false,
       
-      // 性能优化：禁用不必要的功能
-      showPerformanceOverlay: PerformanceConstants.enablePerformanceMonitoring,
+      // 简化：禁用性能监控（主要配置在动态配置中处理）
+      showPerformanceOverlay: false,
       checkerboardRasterCacheImages: false,
       checkerboardOffscreenLayers: false,
       showSemanticsDebugger: false,

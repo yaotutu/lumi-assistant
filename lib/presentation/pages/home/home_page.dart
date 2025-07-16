@@ -3,6 +3,7 @@ import 'package:hooks_riverpod/hooks_riverpod.dart';
 
 import 'widgets/background_layer.dart';
 import '../../widgets/floating_chat/floating_chat_widget.dart';
+import '../settings/settings_main_page.dart';
 
 /// 应用主页 - 极简背景设计
 class HomePage extends HookConsumerWidget {
@@ -34,6 +35,23 @@ class HomePage extends HookConsumerWidget {
                   ),
                 ),
                 const Spacer(),
+                // 设置按钮
+                IconButton(
+                  onPressed: () {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (context) => const SettingsMainPage(),
+                      ),
+                    );
+                  },
+                  icon: Icon(
+                    Icons.settings,
+                    color: Colors.white.withValues(alpha: 0.6),
+                    size: 20,
+                  ),
+                ),
+                const SizedBox(width: 8),
                 // 连接状态
                 Icon(
                   Icons.wifi,
@@ -133,11 +151,9 @@ class HomePage extends HookConsumerWidget {
           //   ),
           // ),
           
-          // 悬浮聊天组件 - 使用响应式参数
+          // 悬浮聊天组件 - 写死配置
           const FloatingChatWidget(
             initialState: FloatingChatState.collapsed,
-            enableBackgroundBlur: true,
-            // 其他参数将通过ScreenUtils自动计算
           ),
         ],
       ),

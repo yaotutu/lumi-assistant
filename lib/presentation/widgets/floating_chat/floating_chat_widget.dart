@@ -15,6 +15,7 @@ import '../../../data/models/chat_ui_model.dart';
 import '../chat/chat_interface.dart';
 import '../../../core/utils/emotion_mapper.dart';
 import '../../../core/utils/screen_utils.dart';
+import '../../../core/config/app_settings.dart';
 import 'voice_input_button.dart';
 import '../virtual_character/models/character_enums.dart';
 
@@ -38,34 +39,21 @@ class FloatingChatWidget extends HookConsumerWidget {
   /// 初始状态
   final FloatingChatState initialState;
   
-  /// 是否启用背景模糊
-  final bool enableBackgroundBlur;
-  
   /// 自定义位置偏移
   final Offset? positionOffset;
-  
-  /// 收缩状态下的虚拟人物大小
-  final double collapsedSize;
-  
-  /// 展开状态下的最大宽度比例
-  final double expandedWidthRatio;
-  
-  /// 展开状态下的最大高度比例
-  final double expandedHeightRatio;
   
   /// 构造函数
   const FloatingChatWidget({
     super.key,
     this.initialState = FloatingChatState.collapsed,
-    this.enableBackgroundBlur = true,
     this.positionOffset,
-    this.collapsedSize = 80.0,
-    this.expandedWidthRatio = 0.9,
-    this.expandedHeightRatio = 0.7,
   });
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    // 获取应用设置
+    final settings = ref.watch(appSettingsProvider);
+    
     // 获取屏幕信息
     final screenSize = MediaQuery.of(context).size;
     final layoutParams = ScreenUtils.getFloatingChatLayoutParams(context);
@@ -99,26 +87,24 @@ class FloatingChatWidget extends HookConsumerWidget {
       }
     });
     
-    // 简化动画控制器
+    // 使用应用设置的动画时长
     final animationController = useAnimationController(
-      duration: const Duration(milliseconds: 200), // 固定较短的动画时间
+      duration: settings.animationDurationMs,
       initialValue: initialState == FloatingChatState.expanded ? 1.0 : 0.0,
     );
     
-    // 简化动画
-    final expandAnimation = useMemoized(() => animationController, [animationController]);
     
     // 位置动画
     final positionAnimation = useMemoized(() => Tween<Offset>(
-      begin: _getCollapsedPosition(screenSize, isLandscape, layoutParams),
-      end: _getExpandedPosition(screenSize, isLandscape, layoutParams),
-    ).animate(animationController), [animationController, screenSize, isLandscape, layoutParams]);
+      begin: _getCollapsedPosition(screenSize, isLandscape, layoutParams, settings),
+      end: _getExpandedPosition(screenSize, isLandscape, layoutParams, settings),
+    ).animate(animationController), [animationController, screenSize, isLandscape, layoutParams, settings]);
     
-    // 大小动画
+    // 大小动画 - 使用应用设置
     final sizeAnimation = useMemoized(() => Tween<Size>(
-      begin: Size(layoutParams.collapsedSize, layoutParams.collapsedSize),
-      end: _getExpandedSize(screenSize, isLandscape, layoutParams),
-    ).animate(animationController), [animationController, screenSize, isLandscape, layoutParams]);
+      begin: Size(settings.floatingChatSize, settings.floatingChatSize),
+      end: _getExpandedSize(screenSize, isLandscape, layoutParams, settings),
+    ).animate(animationController), [animationController, screenSize, isLandscape, layoutParams, settings]);
     
     // 状态切换处理
     final toggleChatState = useCallback(() {
@@ -215,7 +201,6 @@ class FloatingChatWidget extends HookConsumerWidget {
       builder: (context, child) {
         final currentPosition = positionAnimation.value;
         final currentSize = sizeAnimation.value;
-        final currentExpansion = expandAnimation.value;
         
         return Stack(
           children: [
@@ -229,10 +214,8 @@ class FloatingChatWidget extends HookConsumerWidget {
                     toggleChatState();
                   },
                   child: Container(
-                    // 简化背景效果
-                    color: enableBackgroundBlur
-                        ? Colors.black.withValues(alpha: 0.1 * currentExpansion)
-                        : Colors.transparent,
+                    // 写死：不启用背景模糊
+                    color: Colors.transparent,
                   ),
                 ),
               ),
@@ -258,8 +241,8 @@ class FloatingChatWidget extends HookConsumerWidget {
                 child: ClipRRect(
                   borderRadius: BorderRadius.circular(16),
                   child: chatState.value == FloatingChatState.collapsed
-                      ? _buildCollapsedContent(context, ref, onCharacterTap, layoutParams)
-                      : _buildExpandedContent(context, ref, onCharacterTap, toggleChatState, isLandscape, layoutParams, voiceInputState.value, startRecording, stopRecording),
+                      ? _buildCollapsedContent(context, ref, onCharacterTap, settings)
+                      : _buildExpandedContent(context, ref, onCharacterTap, toggleChatState, isLandscape, layoutParams, voiceInputState.value, startRecording, stopRecording, settings),
                 ),
               ),
             ),
@@ -270,8 +253,7 @@ class FloatingChatWidget extends HookConsumerWidget {
   }
   
   /// 构建收缩状态内容
-  Widget _buildCollapsedContent(BuildContext context, WidgetRef ref, VoidCallback onTap, FloatingChatLayoutParams layoutParams) {
-    print('[FloatingChatWidget] 构建收缩状态内容，尺寸: ${layoutParams.collapsedSize}');
+  Widget _buildCollapsedContent(BuildContext context, WidgetRef ref, VoidCallback onTap, AppSettings settings) {
     
     return Container(
       decoration: BoxDecoration(
@@ -299,10 +281,10 @@ class FloatingChatWidget extends HookConsumerWidget {
               child: Text(
                 '🙂',
                 style: TextStyle(
-                  // 使用相对于容器大小的字体
-                  fontSize: layoutParams.collapsedSize * 0.5, // 容器大小的50%
+                  // 使用应用设置的字体大小
+                  fontSize: settings.floatingChatCollapsedFontSize,
                   color: Colors.white,
-                  height: 1.0, // 设置行高为1.0，避免额外空间
+                  height: 1.0,
                 ),
                 textAlign: TextAlign.center,
               ),
@@ -324,18 +306,10 @@ class FloatingChatWidget extends HookConsumerWidget {
     VoiceInputState voiceInputState,
     VoidCallback onStartRecording,
     VoidCallback onStopRecording,
+    AppSettings settings,
   ) {
-    if (enableBackgroundBlur) {
-      return Container(
-        decoration: BoxDecoration(
-          color: Colors.black.withValues(alpha: 0.05),
-          borderRadius: BorderRadius.circular(16),
-        ),
-        child: _buildExpandedLayout(context, ref, onCharacterTap, onClose, isLandscape, layoutParams, voiceInputState, onStartRecording, onStopRecording),
-      );
-    } else {
-      return _buildExpandedLayout(context, ref, onCharacterTap, onClose, isLandscape, layoutParams, voiceInputState, onStartRecording, onStopRecording);
-    }
+    // 根据应用设置决定是否启用背景模糊
+    return _buildExpandedLayout(context, ref, onCharacterTap, onClose, isLandscape, layoutParams, voiceInputState, onStartRecording, onStopRecording, settings);
   }
   
   /// 构建展开状态布局
@@ -349,6 +323,7 @@ class FloatingChatWidget extends HookConsumerWidget {
     VoiceInputState voiceInputState,
     VoidCallback onStartRecording,
     VoidCallback onStopRecording,
+    AppSettings settings,
   ) {
     return Container(
       decoration: BoxDecoration(
@@ -356,8 +331,8 @@ class FloatingChatWidget extends HookConsumerWidget {
         borderRadius: BorderRadius.circular(16),
       ),
       child: layoutParams.showFullChatInterface
-          ? _buildLargeScreenLayout(context, ref, onCharacterTap, onClose, isLandscape, layoutParams, voiceInputState, onStartRecording, onStopRecording)
-          : _buildSmallScreenLayout(context, ref, onCharacterTap, onClose, isLandscape, layoutParams, voiceInputState, onStartRecording, onStopRecording),
+          ? _buildLargeScreenLayout(context, ref, onCharacterTap, onClose, isLandscape, layoutParams, voiceInputState, onStartRecording, onStopRecording, settings)
+          : _buildSmallScreenLayout(context, ref, onCharacterTap, onClose, isLandscape, layoutParams, voiceInputState, onStartRecording, onStopRecording, settings),
     );
   }
   
@@ -372,6 +347,7 @@ class FloatingChatWidget extends HookConsumerWidget {
     VoiceInputState voiceInputState,
     VoidCallback onStartRecording,
     VoidCallback onStopRecording,
+    AppSettings settings,
   ) {
     return Row(
       children: [
@@ -421,7 +397,7 @@ class FloatingChatWidget extends HookConsumerWidget {
                   bottomRight: Radius.circular(16),
                 ),
               ),
-              child: _buildCharacterArea(context, ref, onCharacterTap, voiceInputState, onStartRecording, onStopRecording),
+              child: _buildCharacterArea(context, ref, onCharacterTap, voiceInputState, onStartRecording, onStopRecording, settings),
             ),
           ),
         ],
@@ -440,6 +416,7 @@ class FloatingChatWidget extends HookConsumerWidget {
     VoiceInputState voiceInputState,
     VoidCallback onStartRecording,
     VoidCallback onStopRecording,
+    AppSettings settings,
   ) {
     return Column(
       children: [
@@ -488,7 +465,7 @@ class FloatingChatWidget extends HookConsumerWidget {
                 bottomRight: Radius.circular(16),
               ),
             ),
-            child: _buildCharacterArea(context, ref, onCharacterTap, voiceInputState, onStartRecording, onStopRecording),
+            child: _buildCharacterArea(context, ref, onCharacterTap, voiceInputState, onStartRecording, onStopRecording, settings),
           ),
         ),
       ],
@@ -503,6 +480,7 @@ class FloatingChatWidget extends HookConsumerWidget {
     VoiceInputState voiceInputState,
     VoidCallback onStartRecording,
     VoidCallback onStopRecording,
+    AppSettings settings,
   ) {
     final characterState = ref.watch(virtualCharacterProvider);
     
@@ -555,7 +533,7 @@ class FloatingChatWidget extends HookConsumerWidget {
                     ? _getEmotionEmoji(characterState.emotion)
                     : '🙂',
                   style: TextStyle(
-                    fontSize: 64, // 大字体，充分利用空间
+                    fontSize: settings.floatingChatCharacterFontSize, // 使用应用设置
                     color: Colors.white,
                     height: 1.0,
                   ),
@@ -606,9 +584,10 @@ class FloatingChatWidget extends HookConsumerWidget {
   }
   
   /// 获取收缩状态位置
-  Offset _getCollapsedPosition(Size screenSize, bool isLandscape, FloatingChatLayoutParams layoutParams) {
-    final defaultX = screenSize.width - layoutParams.collapsedSize - 20;
-    final defaultY = screenSize.height - layoutParams.collapsedSize - 100;
+  Offset _getCollapsedPosition(Size screenSize, bool isLandscape, FloatingChatLayoutParams layoutParams, AppSettings settings) {
+    // 使用应用设置
+    final defaultX = screenSize.width - settings.floatingChatSize - 16.0; // 使用固定边距
+    final defaultY = screenSize.height - settings.floatingChatSize - 80.0; // 使用固定边距
     
     if (positionOffset != null) {
       return Offset(
@@ -621,16 +600,16 @@ class FloatingChatWidget extends HookConsumerWidget {
   }
   
   /// 获取展开状态位置
-  Offset _getExpandedPosition(Size screenSize, bool isLandscape, FloatingChatLayoutParams layoutParams) {
-    final expandedSize = _getExpandedSize(screenSize, isLandscape, layoutParams);
+  Offset _getExpandedPosition(Size screenSize, bool isLandscape, FloatingChatLayoutParams layoutParams, AppSettings settings) {
+    final expandedSize = _getExpandedSize(screenSize, isLandscape, layoutParams, settings);
     
     // 根据layoutParams决定是否居中显示
     if (layoutParams.centerContent) {
-      final safeMargin = 20.0; // 安全边距
       final x = (screenSize.width - expandedSize.width) / 2;
       final y = (screenSize.height - expandedSize.height) / 2;
       
-      // 确保不会超出屏幕边界
+      // 确保不会超出屏幕边界 - 使用固定边距
+      final safeMargin = 20.0;
       final safeX = x.clamp(safeMargin, screenSize.width - expandedSize.width - safeMargin);
       final safeY = y.clamp(safeMargin, screenSize.height - expandedSize.height - safeMargin);
       
@@ -642,9 +621,10 @@ class FloatingChatWidget extends HookConsumerWidget {
   }
   
   /// 获取展开状态大小
-  Size _getExpandedSize(Size screenSize, bool isLandscape, FloatingChatLayoutParams layoutParams) {
-    final maxWidth = screenSize.width * layoutParams.expandedWidthRatio;
-    final maxHeight = screenSize.height * layoutParams.expandedHeightRatio;
+  Size _getExpandedSize(Size screenSize, bool isLandscape, FloatingChatLayoutParams layoutParams, AppSettings settings) {
+    // 使用应用设置的展开比例
+    final maxWidth = screenSize.width * settings.floatingChatWidthRatio;
+    final maxHeight = screenSize.height * settings.floatingChatHeightRatio;
     
     // 根据屏幕模式调整尺寸，优先保证中间区域正常显示
     if (isLandscape) {
