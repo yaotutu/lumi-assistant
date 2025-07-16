@@ -12,7 +12,7 @@ import '../../providers/virtual_character_provider.dart';
 import '../../providers/audio_stream_provider.dart';
 import '../../providers/chat_provider.dart';
 import '../../../data/models/chat_ui_model.dart';
-import 'floating_chat_panel.dart';
+import '../chat/chat_interface.dart';
 import '../../../core/utils/emotion_mapper.dart';
 import '../../../core/utils/screen_utils.dart';
 import 'voice_input_button.dart';
@@ -400,9 +400,12 @@ class FloatingChatWidget extends HookConsumerWidget {
                 bottomLeft: Radius.circular(16),
               ),
             ),
-            child: FloatingChatPanel(
-              onClose: onClose,
+            child: ChatInterface(
+              mode: ChatInterfaceMode.compact,
               isLandscape: isLandscape,
+              onClose: onClose,
+              enableVoiceInput: false, // 禁用语音输入，因为虚拟人物区域处理语音
+              enableTextInput: true,
             ),
           ),
         ),
@@ -454,36 +457,24 @@ class FloatingChatWidget extends HookConsumerWidget {
   ) {
     return Column(
       children: [
-        // 顶部文字区域
-        Container(
-          height: 60,
-          padding: const EdgeInsets.all(16),
-          decoration: BoxDecoration(
-            color: Colors.grey.shade50,
-            borderRadius: const BorderRadius.only(
-              topLeft: Radius.circular(16),
-              topRight: Radius.circular(16),
+        // 顶部聊天区域（简化版）
+        Expanded(
+          flex: 2,
+          child: Container(
+            decoration: BoxDecoration(
+              color: Colors.grey.shade50,
+              borderRadius: const BorderRadius.only(
+                topLeft: Radius.circular(16),
+                topRight: Radius.circular(16),
+              ),
             ),
-          ),
-          child: Row(
-            children: [
-              const Expanded(
-                child: Text(
-                  '语音识别结果将在此显示',
-                  style: TextStyle(
-                    fontSize: 12,
-                    color: Colors.grey,
-                  ),
-                ),
-              ),
-              IconButton(
-                onPressed: onClose,
-                icon: const Icon(Icons.close, size: 16),
-                iconSize: 16,
-                constraints: const BoxConstraints(minWidth: 24, minHeight: 24),
-                padding: EdgeInsets.zero,
-              ),
-            ],
+            child: ChatInterface(
+              mode: ChatInterfaceMode.compact,
+              isLandscape: isLandscape,
+              onClose: onClose,
+              enableVoiceInput: false, // 禁用语音输入，虚拟人物区域处理
+              enableTextInput: false, // 小屏幕禁用文本输入，专注语音
+            ),
           ),
         ),
         
@@ -493,8 +484,9 @@ class FloatingChatWidget extends HookConsumerWidget {
           color: Colors.grey.shade300,
         ),
         
-        // 中间虚拟人物区域
+        // 下方虚拟人物区域
         Expanded(
+          flex: 3,
           child: Container(
             decoration: BoxDecoration(
               gradient: LinearGradient(

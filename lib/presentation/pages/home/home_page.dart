@@ -1,9 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 
-import '../chat/chat_page.dart';
 import 'widgets/background_layer.dart';
-import 'widgets/floating_chat_button.dart';
 import '../../widgets/floating_chat/floating_chat_widget.dart';
 
 /// 应用主页 - 极简背景设计
@@ -82,16 +80,6 @@ class HomePage extends HookConsumerWidget {
             ),
           ),
           
-          // 浮动聊天按钮
-          Positioned(
-            bottom: 140,
-            right: 140, // 调整位置，避免与悬浮聊天图标重叠
-            child: FloatingChatButton(
-              onTap: () => _startChat(context),
-              size: 80.0,
-              icon: Icons.chat_bubble_outline,
-            ),
-          ),
           
           // 测试按钮 - 暂时禁用以排除干扰
           // Positioned(
@@ -164,14 +152,6 @@ class HomePage extends HookConsumerWidget {
   }
 
 
-  /// 开始聊天
-  void _startChat(BuildContext context) {
-    Navigator.of(context).push(
-      MaterialPageRoute(
-        builder: (context) => const ChatPage(),
-      ),
-    );
-  }
 
   // 测试方法已移除，清理主页面界面
 }
