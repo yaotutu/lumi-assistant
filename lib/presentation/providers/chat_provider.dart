@@ -104,7 +104,7 @@ class ChatNotifier extends StateNotifier<ChatState> {
   /// 添加欢迎消息
   void _addWelcomeMessage() {
     final welcomeMessage = ChatUIMessageConverter.createSystemMessage(
-      '欢迎使用 Lumi Assistant！\n\n✅ 里程碑8: 错误处理完善\n\n🔄 完善的错误处理和重试机制\n🔄 用户友好的错误提示\n🔄 超时处理和状态恢复\n🔄 智能错误分类和建议\n\n现在具备完善的错误处理能力！',
+      '欢迎使用 Lumi Assistant！\n\n您可以通过文字或语音与我对话。',
     );
     
     state = state.copyWith(

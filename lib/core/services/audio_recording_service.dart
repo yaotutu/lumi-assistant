@@ -261,8 +261,8 @@ class AudioRecordingService {
     // 如果需要实时流处理，可能需要使用其他库如flutter_sound
   }
 
-  /// 处理录制的音频文件
-  Future<Uint8List> processRecordedFile() async {
+  /// 处理录制的音频文件，返回Opus帧列表
+  Future<List<Uint8List>> processRecordedFile() async {
     if (_currentRecordingPath == null || !File(_currentRecordingPath!).existsSync()) {
       throw AppException.system(
         message: '录制文件不存在',
@@ -279,28 +279,36 @@ class AudioRecordingService {
       final file = File(_currentRecordingPath!);
       final bytes = await file.readAsBytes();
       
-      // 跳过WAV头部，获取PCM数据
-      // WAV头部通常是44字节
-      const wavHeaderSize = 44;
-      if (bytes.length <= wavHeaderSize) {
+      // 解析WAV文件头部，获取数据块位置
+      final pcmData = _extractPCMFromWAV(bytes);
+      if (pcmData.isEmpty) {
         throw AppException.system(
-          message: '录制文件太小，可能损坏',
+          message: '无法从WAV文件中提取有效的PCM数据',
           code: AudioConstants.errorCodeRecordingFailed.toString(),
           component: 'AudioRecordingService',
           details: {'fileSize': bytes.length},
         );
       }
       
-      final pcmData = bytes.sublist(wavHeaderSize);
       print('[$tag] PCM数据提取完成，大小: ${pcmData.length} bytes');
       
-      // 将PCM数据转换为Opus编码
-      final opusData = await _encodePCMToOpus(Uint8List.fromList(pcmData));
+      // 验证PCM数据格式
+      if (!_validatePCMData(pcmData)) {
+        throw AppException.system(
+          message: 'PCM数据格式验证失败',
+          code: AudioConstants.errorCodeRecordingFailed.toString(),
+          component: 'AudioRecordingService',
+          details: {'pcmSize': pcmData.length},
+        );
+      }
+      
+      // 将PCM数据转换为Opus帧列表
+      final opusFrames = await _encodePCMToOpusFrames(pcmData);
       
       // 处理完成后清理文件
       await _cleanupRecordingFile();
       
-      return opusData;
+      return opusFrames;
       
     } catch (e) {
       print('[$tag] 处理录制文件失败: $e');
@@ -313,8 +321,8 @@ class AudioRecordingService {
     }
   }
 
-  /// 将PCM数据编码为Opus
-  Future<Uint8List> _encodePCMToOpus(Uint8List pcmData) async {
+  /// 将PCM数据编码为Opus帧列表
+  Future<List<Uint8List>> _encodePCMToOpusFrames(Uint8List pcmData) async {
     if (_opusEncoder == null) {
       throw AppException.system(
         message: 'Opus编码器未初始化',
@@ -327,55 +335,39 @@ class AudioRecordingService {
     try {
       print('[$tag] 开始PCM到Opus编码，PCM数据大小: ${pcmData.length} bytes');
       
-      // 将字节数组转换为Int16数组
-      final int16Data = <int>[];
-      for (int i = 0; i < pcmData.length; i += 2) {
-        if (i + 1 < pcmData.length) {
-          // 小端字节序
-          final value = pcmData[i] | (pcmData[i + 1] << 8);
-          // 转换为有符号16位整数
-          final signedValue = value > 32767 ? value - 65536 : value;
-          int16Data.add(signedValue);
-        }
+      // 将字节数组转换为Int16数组（与AudioStreamService保持一致的处理方式）
+      final int16Data = Int16List(pcmData.length ~/ 2);
+      for (int i = 0; i < int16Data.length; i++) {
+        // 小端字节序，与AudioStreamService._encodeAndSendFrame保持一致
+        int16Data[i] = (pcmData[i * 2] | (pcmData[i * 2 + 1] << 8));
       }
       
       print('[$tag] PCM样本数: ${int16Data.length}');
       
-      // 分帧编码
-      final frameSize = (AudioConstants.sampleRate * AudioConstants.frameDurationMs) ~/ 1000;
+      // 分帧编码（与AudioStreamService保持一致的帧大小）
+      final frameSize = 960; // 60ms at 16kHz = 960 samples，与AudioStreamService保持一致
       final opusFrames = <Uint8List>[];
       
       for (int i = 0; i < int16Data.length; i += frameSize) {
         final end = (i + frameSize < int16Data.length) ? i + frameSize : int16Data.length;
-        final frame = Int16List.fromList(int16Data.sublist(i, end));
+        final frameData = int16Data.sublist(i, end);
         
-        // 如果帧不够完整，填充0
-        if (frame.length < frameSize) {
+        // 如果帧不够完整，填充0（与AudioStreamService处理方式一致）
+        if (frameData.length < frameSize) {
           final paddedFrame = Int16List(frameSize);
-          paddedFrame.setRange(0, frame.length, frame);
+          paddedFrame.setRange(0, frameData.length, frameData);
           final opusFrame = _opusEncoder!.encode(input: paddedFrame);
           opusFrames.add(opusFrame);
         } else {
-          final opusFrame = _opusEncoder!.encode(input: frame);
+          final opusFrame = _opusEncoder!.encode(input: frameData);
           opusFrames.add(opusFrame);
         }
         
         _encodedFrames++;
       }
       
-      // 合并所有Opus帧
-      final totalLength = opusFrames.fold<int>(0, (sum, frame) => sum + frame.length);
-      final result = Uint8List(totalLength);
-      int offset = 0;
-      
-      for (final frame in opusFrames) {
-        result.setRange(offset, offset + frame.length, frame);
-        offset += frame.length;
-      }
-      
-      print('[$tag] Opus编码完成，编码帧数: ${opusFrames.length}, 总大小: ${result.length} bytes');
-      
-      return result;
+      print('[$tag] Opus编码完成，生成帧数: ${opusFrames.length}');
+      return opusFrames;
       
     } catch (e) {
       print('[$tag] PCM到Opus编码失败: $e');
@@ -385,6 +377,105 @@ class AudioRecordingService {
         component: 'AudioRecordingService',
         details: {'error': e.toString()},
       );
+    }
+  }
+
+  /// 从WAV文件中提取PCM数据
+  Uint8List _extractPCMFromWAV(Uint8List wavBytes) {
+    try {
+      if (wavBytes.length < 44) {
+        print('[$tag] WAV文件太小，长度: ${wavBytes.length}');
+        return Uint8List(0);
+      }
+      
+      // 验证WAV文件头
+      final riffHeader = String.fromCharCodes(wavBytes.sublist(0, 4));
+      final waveHeader = String.fromCharCodes(wavBytes.sublist(8, 12));
+      
+      if (riffHeader != 'RIFF' || waveHeader != 'WAVE') {
+        print('[$tag] 不是有效的WAV文件: RIFF=$riffHeader, WAVE=$waveHeader');
+        return Uint8List(0);
+      }
+      
+      // 查找data块
+      int offset = 12; // 跳过RIFF头部
+      while (offset < wavBytes.length - 8) {
+        final chunkId = String.fromCharCodes(wavBytes.sublist(offset, offset + 4));
+        final chunkSize = _readLittleEndian32(wavBytes, offset + 4);
+        
+        print('[$tag] 发现块: $chunkId, 大小: $chunkSize, 偏移: $offset');
+        
+        if (chunkId == 'data') {
+          // 找到数据块
+          final dataStart = offset + 8;
+          final dataEnd = dataStart + chunkSize;
+          
+          if (dataEnd <= wavBytes.length) {
+            final pcmData = wavBytes.sublist(dataStart, dataEnd);
+            print('[$tag] 成功提取PCM数据: ${pcmData.length} bytes (从偏移 $dataStart 到 $dataEnd)');
+            return pcmData;
+          } else {
+            print('[$tag] 数据块超出文件边界: dataEnd=$dataEnd, fileLength=${wavBytes.length}');
+            return Uint8List(0);
+          }
+        }
+        
+        // 移动到下一个块
+        offset += 8 + chunkSize;
+        // 确保偶数对齐
+        if (chunkSize % 2 != 0) {
+          offset += 1;
+        }
+      }
+      
+      print('[$tag] 未找到data块');
+      return Uint8List(0);
+    } catch (e) {
+      print('[$tag] 解析WAV文件失败: $e');
+      return Uint8List(0);
+    }
+  }
+  
+  /// 读取小端32位整数
+  int _readLittleEndian32(Uint8List bytes, int offset) {
+    return bytes[offset] |
+           (bytes[offset + 1] << 8) |
+           (bytes[offset + 2] << 16) |
+           (bytes[offset + 3] << 24);
+  }
+  
+  /// 验证PCM数据格式
+  bool _validatePCMData(Uint8List pcmData) {
+    try {
+      // 检查数据长度是否为偶数（16位PCM）
+      if (pcmData.length % 2 != 0) {
+        print('[$tag] PCM数据长度不是偶数: ${pcmData.length}');
+        return false;
+      }
+      
+      // 检查最小长度（至少一帧的数据）
+      final minFrameSize = (AudioConstants.sampleRate * AudioConstants.frameDurationMs) ~/ 1000 * 2;
+      if (pcmData.length < minFrameSize) {
+        print('[$tag] PCM数据太短: ${pcmData.length} < $minFrameSize');
+        return false;
+      }
+      
+      // 检查采样率对应的数据长度合理性
+      final expectedSamples = pcmData.length ~/ 2;
+      final durationMs = (expectedSamples * 1000) / AudioConstants.sampleRate;
+      
+      print('[$tag] PCM数据验证通过: ${pcmData.length} bytes, $expectedSamples samples, ${durationMs.toInt()}ms');
+      
+      // 检查录制时长是否合理（0.1秒到60秒之间）
+      if (durationMs < 100 || durationMs > 60000) {
+        print('[$tag] 录制时长不合理: ${durationMs}ms');
+        return false;
+      }
+      
+      return true;
+    } catch (e) {
+      print('[$tag] PCM数据验证失败: $e');
+      return false;
     }
   }
 

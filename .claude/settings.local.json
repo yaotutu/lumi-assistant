@@ -24,7 +24,8 @@
       "Bash(go build:*)",
       "Bash(rg:*)",
       "Bash(r)",
-      "Bash(adb:*)"
+      "Bash(adb:*)",
+      "mcp__ide__getDiagnostics"
     ],
     "deny": []
   }

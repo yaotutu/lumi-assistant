@@ -250,8 +250,8 @@ class AudioRecordingNotifier extends StateNotifier<AudioRecordingState> {
     }
   }
 
-  /// 停止录制并返回编码后的音频数据
-  Future<Uint8List?> stopRecording() async {
+  /// 停止录制并返回编码后的Opus帧列表
+  Future<List<Uint8List>?> stopRecording() async {
     try {
       if (!state.isRecording) {
         print('[$tag] 录制未在进行中，无需停止');
@@ -266,13 +266,13 @@ class AudioRecordingNotifier extends StateNotifier<AudioRecordingState> {
       // 停止录制
       await _recordingService.stopRecording();
       
-      // 处理录制的文件并获取Opus编码数据
-      final opusData = await _recordingService.processRecordedFile();
+      // 处理录制的文件并获取Opus帧列表
+      final opusFrames = await _recordingService.processRecordedFile();
       
       state = const AudioRecordingState.ready();
-      print('[$tag] 录制停止成功，获得Opus数据: ${opusData.length} bytes');
+      print('[$tag] 录制停止成功，获得Opus帧数: ${opusFrames.length}');
       
-      return opusData;
+      return opusFrames;
     } catch (e) {
       print('[$tag] 停止录制失败: $e');
       final errorMessage = e is AppException 

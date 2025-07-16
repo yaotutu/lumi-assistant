@@ -3,7 +3,8 @@ import 'package:hooks_riverpod/hooks_riverpod.dart';
 
 import '../chat/chat_page.dart';
 import 'widgets/background_layer.dart';
-import 'widgets/floating_actions.dart';
+import 'widgets/floating_chat_button.dart';
+import '../../widgets/floating_chat/floating_chat_widget.dart';
 
 /// 应用主页 - 极简背景设计
 class HomePage extends HookConsumerWidget {
@@ -81,10 +82,74 @@ class HomePage extends HookConsumerWidget {
             ),
           ),
           
-          // 浮动按钮
-          FloatingActions(
-            onSettingsTap: () => _showSettings(context),
-            onMainActionTap: () => _startChat(context),
+          // 浮动聊天按钮
+          Positioned(
+            bottom: 140,
+            right: 140, // 调整位置，避免与悬浮聊天图标重叠
+            child: FloatingChatButton(
+              onTap: () => _startChat(context),
+              size: 80.0,
+              icon: Icons.chat_bubble_outline,
+            ),
+          ),
+          
+          // 测试按钮 - 暂时禁用以排除干扰
+          // Positioned(
+          //   bottom: 80,
+          //   left: 24,
+          //   child: FloatingActionButton.small(
+          //     heroTag: "test_character",
+          //     onPressed: () => _testVirtualCharacter(context),
+          //     backgroundColor: Colors.orange.withValues(alpha: 0.8),
+          //     foregroundColor: Colors.white,
+          //     child: const Icon(Icons.bug_report, size: 16),
+          //   ),
+          // ),
+          
+          // // 统一测试按钮
+          // Positioned(
+          //   bottom: 80,
+          //   left: 80,
+          //   child: FloatingActionButton.small(
+          //     heroTag: "test_unified",
+          //     onPressed: () => _testUnifiedCharacter(context),
+          //     backgroundColor: Colors.green.withValues(alpha: 0.8),
+          //     foregroundColor: Colors.white,
+          //     child: const Icon(Icons.widgets, size: 16),
+          //   ),
+          // ),
+          
+          // // 简化测试按钮
+          // Positioned(
+          //   bottom: 80,
+          //   left: 136,
+          //   child: FloatingActionButton.small(
+          //     heroTag: "test_simple",
+          //     onPressed: () => _testSimpleCharacter(context),
+          //     backgroundColor: Colors.purple.withValues(alpha: 0.8),
+          //     foregroundColor: Colors.white,
+          //     child: const Icon(Icons.phone_android, size: 16),
+          //   ),
+          // ),
+          
+          // // 直接渲染器测试按钮
+          // Positioned(
+          //   bottom: 80,
+          //   left: 192,
+          //   child: FloatingActionButton.small(
+          //     heroTag: "test_direct",
+          //     onPressed: () => _testDirectRenderer(context),
+          //     backgroundColor: Colors.red.withValues(alpha: 0.8),
+          //     foregroundColor: Colors.white,
+          //     child: const Icon(Icons.build, size: 16),
+          //   ),
+          // ),
+          
+          // 悬浮聊天组件 - 使用响应式参数
+          const FloatingChatWidget(
+            initialState: FloatingChatState.collapsed,
+            enableBackgroundBlur: true,
+            // 其他参数将通过ScreenUtils自动计算
           ),
         ],
       ),
@@ -98,18 +163,6 @@ class HomePage extends HookConsumerWidget {
     return '${time.year}年${months[time.month - 1]}${time.day}日 ${weekdays[time.weekday % 7]}';
   }
 
-  /// 显示设置
-  void _showSettings(BuildContext context) {
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(
-        content: const Text('设置功能将在后续里程碑中实现'),
-        action: SnackBarAction(
-          label: '确定',
-          onPressed: () {},
-        ),
-      ),
-    );
-  }
 
   /// 开始聊天
   void _startChat(BuildContext context) {
@@ -119,4 +172,6 @@ class HomePage extends HookConsumerWidget {
       ),
     );
   }
+
+  // 测试方法已移除，清理主页面界面
 }
