@@ -125,7 +125,7 @@ class VoiceInputButton extends HookConsumerWidget {
                       _getText(),
                       style: TextStyle(
                         color: Colors.white,
-                        fontSize: size * 0.12,
+                        fontSize: 12, // 使用固定小字体，会被全局fontScale缩放
                         fontWeight: FontWeight.w500,
                       ),
                       textAlign: TextAlign.center,
@@ -242,7 +242,7 @@ class VoiceInputHint extends StatelessWidget {
               _getText(),
               style: TextStyle(
                 color: _getTextColor(),
-                fontSize: 12,
+                fontSize: 12, // 使用固定小字体，会被全局fontScale缩放
                 fontWeight: FontWeight.w500,
               ),
             ),

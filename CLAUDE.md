@@ -905,3 +905,113 @@ final value = 'hardcoded_value';
 - [ ] 测试了配置变更的即时生效
 
 **重要提醒**：这个配置系统是应用的核心基础设施，任何破坏性修改都可能影响整个应用的稳定性。请严格遵循以上规则进行配置相关的开发工作。
+
+## Global Font Scaling Best Practices
+
+### 字体缩放架构原则
+
+**核心理念**: 全局统一，使用Flutter原生机制
+
+项目使用**Flutter的MediaQuery.textScaler机制**实现全局字体缩放，而不是在每个组件中单独设置字体大小。
+
+#### 1. **全局字体缩放实现**
+
+在`main.dart`中的MaterialApp.builder实现：
+
+```dart
+builder: (context, child) {
+  final settings = ref.watch(appSettingsProvider);
+  return MediaQuery(
+    data: MediaQuery.of(context).copyWith(
+      // 使用配置系统的字体缩放比例
+      textScaler: TextScaler.linear(settings.fontScale),
+    ),
+    child: child!,
+  );
+},
+```
+
+#### 2. **组件字体大小规范**
+
+**✅ 正确做法**：
+```dart
+// 使用默认字体大小，由全局textScaler缩放
+Text(
+  'Hello World',
+  style: TextStyle(
+    color: Colors.black,
+    fontWeight: FontWeight.bold,
+    // 不设置fontSize，使用主题默认值
+  ),
+)
+
+// 特殊情况：明确需要小字体的场景
+Text(
+  '提示信息',
+  style: TextStyle(
+    fontSize: 12, // 固定小字体，会被textScaler缩放
+    color: Colors.grey,
+  ),
+)
+```
+
+**❌ 错误做法**：
+```dart
+// 不要基于设备类型或其他条件动态计算字体大小
+final fontSize = isCompact ? 12.0 : 14.0;
+Text('Content', style: TextStyle(fontSize: fontSize))
+
+// 不要在每个组件中重复设置fontSize
+Text('Content', style: TextStyle(fontSize: 16))
+```
+
+#### 3. **字体大小分类标准**
+
+| 用途 | 处理方式 | 示例 |
+|------|---------|------|
+| 主要文本内容 | 不设置fontSize | 聊天消息、标题、按钮文字 |
+| 辅助信息文本 | fontSize: 12 | 时间戳、提示文本、状态信息 |
+| 图标尺寸 | 固定size值 | Icon(size: 24), 会被textScaler影响 |
+
+#### 4. **配置系统集成**
+
+`AppSettings`中的`fontScale`配置会：
+- 自动应用到所有未明确设置fontSize的Text组件
+- 影响所有明确设置了fontSize的组件（按比例缩放）
+- 影响Icon组件的size属性
+- 影响主题中的默认字体大小
+
+#### 5. **迁移检查清单**
+
+从固定字体大小迁移到全局缩放时：
+
+- [ ] 移除组件中不必要的fontSize设置
+- [ ] 保留明确需要小字体的场景（如提示文本）
+- [ ] 删除基于设备类型的字体大小计算逻辑
+- [ ] 确保TextStyle中只保留必要的样式属性
+- [ ] 测试不同fontScale值下的显示效果
+
+#### 6. **性能优化效果**
+
+使用全局字体缩放带来的好处：
+- **减少代码复杂度**：无需在每个组件中计算字体大小
+- **提升性能**：减少运行时字体大小计算
+- **增强一致性**：所有文本自动跟随用户设置变化
+- **简化维护**：字体相关逻辑集中在一处管理
+
+#### 7. **实际应用示例**
+
+修改前（复杂）：
+```dart
+final fontSize = isCompact ? 12.0 : 13.0;
+Text(message.content, style: TextStyle(fontSize: fontSize))
+```
+
+修改后（简洁）：
+```dart
+Text(message.content, style: TextStyle(color: Colors.black))
+```
+
+用户在设置页面调整"字体缩放比例"时，所有文本都会自动按比例缩放，无需重启应用。
+
+**重要提醒**：添加新的文本组件时，优先使用默认字体大小，只在明确需要特殊尺寸时才设置fontSize。

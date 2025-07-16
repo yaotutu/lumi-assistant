@@ -24,7 +24,6 @@ class ChatMessageItem extends StatelessWidget {
     final isUser = message.isUser;
     // 性能优化：预计算尺寸值，减少运行时计算
     final avatarSize = isCompact ? 24.0 : 32.0;
-    final fontSize = isCompact ? 12.0 : 13.0;
     final padding = isCompact ? 12.0 : 16.0;
     final verticalPadding = isCompact ? 6.0 : 8.0;
     final messagePadding = isCompact ? 8.0 : 12.0;
@@ -67,7 +66,6 @@ class ChatMessageItem extends StatelessWidget {
                   Text(
                     message.content,
                     style: TextStyle(
-                      fontSize: fontSize,
                       color: isUser ? Colors.white : Colors.black87,
                       height: 1.3,
                     ),
@@ -75,7 +73,7 @@ class ChatMessageItem extends StatelessWidget {
                   
                   // 如果有元数据，显示额外信息
                   if (message.metadata != null && message.metadata!.isNotEmpty)
-                    _buildMetadata(context, isUser, fontSize),
+                    _buildMetadata(context, isUser),
                 ],
               ),
             ),
@@ -121,7 +119,7 @@ class ChatMessageItem extends StatelessWidget {
   }
   
   /// 构建元数据信息
-  Widget _buildMetadata(BuildContext context, bool isUser, double fontSize) {
+  Widget _buildMetadata(BuildContext context, bool isUser) {
     final metadata = message.metadata!;
     final isVoiceInput = metadata['isVoiceInput'] as bool? ?? false;
     
@@ -134,7 +132,7 @@ class ChatMessageItem extends StatelessWidget {
         children: [
           Icon(
             Icons.mic,
-            size: fontSize * 0.8,
+            size: 12.0, // 使用固定小尺寸，会被全局fontScale缩放
             color: isUser 
                 ? Colors.white.withValues(alpha: 0.7)
                 : Colors.grey.shade600,
@@ -143,7 +141,7 @@ class ChatMessageItem extends StatelessWidget {
           Text(
             '语音输入',
             style: TextStyle(
-              fontSize: fontSize * 0.8,
+              fontSize: 10.0, // 使用固定小字体，会被全局fontScale缩放
               color: isUser 
                   ? Colors.white.withValues(alpha: 0.7)
                   : Colors.grey.shade600,

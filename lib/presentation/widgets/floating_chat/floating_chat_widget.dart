@@ -556,7 +556,7 @@ class FloatingChatWidget extends HookConsumerWidget {
                       isRecording ? '正在录音' : '处理中',
                       style: const TextStyle(
                         color: Colors.white,
-                        fontSize: 12,
+                        fontSize: 12, // 使用固定小字体，会被全局fontScale缩放
                         fontWeight: FontWeight.w500,
                       ),
                     ),
@@ -570,7 +570,7 @@ class FloatingChatWidget extends HookConsumerWidget {
                       '长按说话',
                       style: TextStyle(
                         color: Colors.white.withValues(alpha: 0.7),
-                        fontSize: 10,
+                        fontSize: 10, // 使用固定小字体，会被全局fontScale缩放
                         fontWeight: FontWeight.w400,
                       ),
                     ),

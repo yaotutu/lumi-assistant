@@ -30,7 +30,6 @@ class HomePage extends HookConsumerWidget {
                   'Lumi Assistant',
                   style: TextStyle(
                     color: Colors.white.withValues(alpha: 0.8),
-                    fontSize: 16,
                     fontWeight: FontWeight.w500,
                   ),
                 ),

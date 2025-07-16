@@ -245,11 +245,10 @@ class ChatInterface extends HookConsumerWidget {
     return Row(
       children: [
         // 标题
-        const Expanded(
+        Expanded(
           child: Text(
             'Lumi Assistant',
             style: TextStyle(
-              fontSize: 16,
               fontWeight: FontWeight.w600,
               color: Colors.black87,
             ),
@@ -338,7 +337,7 @@ class ChatInterface extends HookConsumerWidget {
             Text(
               '开始对话吧！',
               style: TextStyle(
-                fontSize: isCompact ? 14 : 16,
+                // 使用默认字体大小，通过全局fontScale缩放
                 color: Colors.grey.shade600,
                 fontWeight: FontWeight.w500,
               ),
@@ -347,7 +346,7 @@ class ChatInterface extends HookConsumerWidget {
             Text(
               enableTextInput ? '输入消息或使用语音与AI助手聊天' : '使用语音与AI助手聊天',
               style: TextStyle(
-                fontSize: isCompact ? 10 : 12,
+                fontSize: 12, // 小字体提示文本
                 color: Colors.grey.shade500,
               ),
               textAlign: TextAlign.center,
@@ -408,7 +407,7 @@ class ChatInterface extends HookConsumerWidget {
                   Text(
                     '正在思考...',
                     style: TextStyle(
-                      fontSize: isCompact ? 10 : 12,
+                      fontSize: 12, // 小字体加载提示
                       color: Colors.grey.shade600,
                     ),
                   ),
@@ -452,7 +451,7 @@ class ChatInterface extends HookConsumerWidget {
           style: Theme.of(context).textTheme.bodySmall?.copyWith(
             color: Colors.white.withValues(alpha: 0.9),
             fontWeight: FontWeight.w600,
-            fontSize: 12,
+            fontSize: 12, // 小字体信息
           ),
         );
       case DeviceType.tiny:
@@ -504,7 +503,7 @@ class ChatInterface extends HookConsumerWidget {
               '智能语音助手',
               style: Theme.of(context).textTheme.bodySmall?.copyWith(
                 color: Colors.white.withValues(alpha: 0.6),
-                fontSize: 12,
+                fontSize: 12, // 小字体信息
               ),
             ),
           ],

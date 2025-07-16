@@ -166,7 +166,6 @@ class ChatInputSection extends HookConsumerWidget {
                 hintText: '输入消息...',
                 hintStyle: TextStyle(
                   color: Colors.grey[500],
-                  fontSize: _getFontSizeForDevice(deviceType, isCompact),
                 ),
                 border: InputBorder.none,
                 contentPadding: EdgeInsets.symmetric(
@@ -174,9 +173,8 @@ class ChatInputSection extends HookConsumerWidget {
                   vertical: _getVerticalPaddingForDevice(deviceType, isCompact),
                 ),
               ),
-              style: TextStyle(
+              style: const TextStyle(
                 color: Colors.black87,
-                fontSize: _getFontSizeForDevice(deviceType, isCompact),
                 fontWeight: FontWeight.w400,
                 height: 1.4,
               ),
@@ -290,17 +288,6 @@ class ChatInputSection extends HookConsumerWidget {
     return isCompact ? basePadding * 0.8 : basePadding;
   }
 
-  /// 根据设备类型获取字体大小
-  double _getFontSizeForDevice(DeviceType deviceType, bool isCompact) {
-    final baseFontSize = switch (deviceType) {
-      DeviceType.micro => 14.0,
-      DeviceType.tiny => 15.0,
-      DeviceType.small => 16.0,
-      DeviceType.standard => 17.0,
-    };
-    
-    return isCompact ? baseFontSize * 0.9 : baseFontSize;
-  }
 
   /// 根据设备类型获取最大行数
   int _getMaxLinesForDevice(DeviceType deviceType, bool isCompact) {

@@ -372,7 +372,7 @@ class VoiceStatusIndicator extends StatelessWidget {
               _getStatusText(),
               style: TextStyle(
                 color: Colors.white,
-                fontSize: size * 0.15,
+                fontSize: 14, // 使用固定字体，会被全局fontScale缩放
                 fontWeight: FontWeight.w500,
               ),
             ),
