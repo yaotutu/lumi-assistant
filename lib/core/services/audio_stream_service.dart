@@ -62,8 +62,10 @@ class AudioStreamService {
       // 检查权限
       await _checkPermissions();
       
-      // 初始化Opus编码器
-      await _initializeOpusEncoder();
+      // 如果Opus编码器尚未初始化，则初始化
+      if (_opusEncoder == null) {
+        await _initializeOpusEncoder();
+      }
       
       // 设置录制配置
       _setupRecordConfig();

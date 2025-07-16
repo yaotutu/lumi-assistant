@@ -8,6 +8,7 @@ import 'presentation/themes/app_theme.dart';
 import 'presentation/pages/home/home_page.dart';
 import 'core/constants/app_constants.dart';
 import 'core/config/app_settings.dart';
+import 'presentation/providers/audio_stream_provider.dart';
 
 /// 应用入口点
 void main() async {
@@ -59,6 +60,18 @@ class LumiAssistantApp extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final settings = ref.watch(appSettingsProvider);
+    
+    // 🎯 核心优化：应用启动时预初始化音频服务，解决长按卡顿问题
+    Future.microtask(() async {
+      try {
+        final audioNotifier = ref.read(audioStreamProvider.notifier);
+        await audioNotifier.initializeStreaming();
+        print('[优化] 音频服务预初始化完成');
+      } catch (e) {
+        print('[优化] 音频服务预初始化失败: $e');
+      }
+    });
+    
     return MaterialApp(
       title: AppConstants.appName,
       debugShowCheckedModeBanner: false,
@@ -85,7 +98,7 @@ class LumiAssistantApp extends ConsumerWidget {
       darkTheme: AppTheme.getDarkTheme(),
       themeMode: ThemeMode.system,
       
-      // 首页
+      // 主页
       home: const HomePage(),
     );
   }

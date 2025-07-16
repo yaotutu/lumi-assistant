@@ -127,7 +127,7 @@ class FloatingChatWidget extends HookConsumerWidget {
           final audioStreamState = ref.read(audioStreamProvider);
           final audioStreamNotifier = ref.read(audioStreamProvider.notifier);
           
-          // 如果服务未初始化，先初始化
+          // 如果服务未初始化，先初始化（应用启动时应该已经初始化了）
           if (!audioStreamState.isInitialized) {
             print('[FloatingChatWidget] 初始化AudioStreamService');
             await audioStreamNotifier.initializeStreaming();

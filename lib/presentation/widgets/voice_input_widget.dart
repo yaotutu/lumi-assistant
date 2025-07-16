@@ -34,16 +34,7 @@ class VoiceInputWidget extends HookConsumerWidget {
     final isPressed = useState(false);
     final pressStartTime = useState<DateTime?>(null);
     
-    // 自动初始化音频流服务
-    useEffect(() {
-      if (!streamState.isInitialized && !streamState.isProcessing) {
-        Future.microtask(() async {
-          print('[VoiceInputWidget] 自动初始化音频流服务');
-          await streamNotifier.initializeStreaming();
-        });
-      }
-      return null;
-    }, [streamState.isInitialized, streamState.isProcessing]);
+    // 移除自动初始化逻辑 - 现在在应用启动时预初始化
     
     // 计算是否可以使用语音功能
     final canUseVoice = connectionState.webSocketState.isConnected &&
@@ -184,7 +175,7 @@ class VoiceInputWidget extends HookConsumerWidget {
     isPressed.value = true;
     pressStartTime.value = DateTime.now();
     
-    // 确保已初始化
+    // 确保已初始化（应用启动时应该已经初始化了）
     if (!streamState.isInitialized) {
       final success = await streamNotifier.initializeStreaming();
       if (!success) {
