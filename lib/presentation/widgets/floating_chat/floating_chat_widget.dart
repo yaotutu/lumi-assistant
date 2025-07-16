@@ -570,7 +570,7 @@ class FloatingChatWidget extends HookConsumerWidget {
                       '长按说话',
                       style: TextStyle(
                         color: Colors.white.withValues(alpha: 0.7),
-                        fontSize: 10, // 使用固定小字体，会被全局fontScale缩放
+                        // 使用默认字体大小，会被全局fontScale缩放
                         fontWeight: FontWeight.w400,
                       ),
                     ),
