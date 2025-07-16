@@ -1,5 +1,22 @@
 import 'package:flutter/material.dart';
 
+/// 无动画页面切换构建器 - 性能优化
+class _NoAnimationPageTransitionsBuilder extends PageTransitionsBuilder {
+  const _NoAnimationPageTransitionsBuilder();
+
+  @override
+  Widget buildTransitions<T extends Object?>(
+    PageRoute<T> route,
+    BuildContext context,
+    Animation<double> animation,
+    Animation<double> secondaryAnimation,
+    Widget child,
+  ) {
+    // 直接返回child，不添加任何动画
+    return child;
+  }
+}
+
 /// 应用主题配置
 class AppTheme {
   /// 主色调
@@ -27,10 +44,10 @@ class AppTheme {
   /// 警告色
   static const Color warningColor = Color(0xFFFF9800);
   
-  /// 获取亮色主题
+  /// 获取亮色主题 - 性能优化版本（关闭动画和Material效果）
   static ThemeData getLightTheme() {
     return ThemeData(
-      useMaterial3: true,
+      useMaterial3: false, // 关闭Material3以减少渲染复杂度
       brightness: Brightness.light,
       
       // 色彩方案
@@ -39,23 +56,39 @@ class AppTheme {
         brightness: Brightness.light,
       ),
       
-      // AppBar主题
+      // 性能优化：关闭所有动画
+      pageTransitionsTheme: PageTransitionsTheme(
+        builders: {
+          TargetPlatform.android: const _NoAnimationPageTransitionsBuilder(),
+          TargetPlatform.iOS: const _NoAnimationPageTransitionsBuilder(),
+        },
+      ),
+      
+      // 关闭Material波纹效果
+      splashFactory: NoSplash.splashFactory,
+      highlightColor: Colors.transparent,
+      splashColor: Colors.transparent,
+      
+      // AppBar主题 - 去除阴影
       appBarTheme: const AppBarTheme(
         elevation: 0,
+        shadowColor: Colors.transparent,
         centerTitle: true,
         backgroundColor: Colors.transparent,
         foregroundColor: textColorPrimary,
       ),
       
-      // 卡片主题
+      // 卡片主题 - 去除阴影
       cardTheme: CardTheme(
-        elevation: 2,
+        elevation: 0, // 关闭阴影
+        shadowColor: Colors.transparent,
         shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.circular(12),
+          side: BorderSide(color: Colors.grey.shade300, width: 1),
         ),
       ),
       
-      // 输入框主题
+      // 输入框主题 - 简化
       inputDecorationTheme: InputDecorationTheme(
         border: OutlineInputBorder(
           borderRadius: BorderRadius.circular(8),
@@ -64,9 +97,11 @@ class AppTheme {
         fillColor: surfaceColor,
       ),
       
-      // 按钮主题
+      // 按钮主题 - 去除阴影
       elevatedButtonTheme: ElevatedButtonThemeData(
         style: ElevatedButton.styleFrom(
+          elevation: 0, // 关闭阴影
+          shadowColor: Colors.transparent,
           padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(8),
@@ -74,18 +109,34 @@ class AppTheme {
         ),
       ),
       
-      // 浮动按钮主题
+      // 浮动按钮主题 - 去除阴影
       floatingActionButtonTheme: const FloatingActionButtonThemeData(
-        elevation: 4,
+        elevation: 0, // 关闭阴影
+        focusElevation: 0,
+        hoverElevation: 0,
+        highlightElevation: 0,
+        disabledElevation: 0,
         shape: CircleBorder(),
+      ),
+      
+      // 关闭对话框动画
+      dialogTheme: const DialogTheme(
+        elevation: 0,
+        shadowColor: Colors.transparent,
+      ),
+      
+      // 关闭底部表单动画
+      bottomSheetTheme: const BottomSheetThemeData(
+        elevation: 0,
+        shadowColor: Colors.transparent,
       ),
     );
   }
   
-  /// 获取暗色主题
+  /// 获取暗色主题 - 性能优化版本（关闭动画和Material效果）
   static ThemeData getDarkTheme() {
     return ThemeData(
-      useMaterial3: true,
+      useMaterial3: false, // 关闭Material3以减少渲染复杂度
       brightness: Brightness.dark,
       
       // 色彩方案
@@ -94,22 +145,38 @@ class AppTheme {
         brightness: Brightness.dark,
       ),
       
-      // AppBar主题
+      // 性能优化：关闭所有动画
+      pageTransitionsTheme: PageTransitionsTheme(
+        builders: {
+          TargetPlatform.android: const _NoAnimationPageTransitionsBuilder(),
+          TargetPlatform.iOS: const _NoAnimationPageTransitionsBuilder(),
+        },
+      ),
+      
+      // 关闭Material波纹效果
+      splashFactory: NoSplash.splashFactory,
+      highlightColor: Colors.transparent,
+      splashColor: Colors.transparent,
+      
+      // AppBar主题 - 去除阴影
       appBarTheme: const AppBarTheme(
         elevation: 0,
+        shadowColor: Colors.transparent,
         centerTitle: true,
         backgroundColor: Colors.transparent,
       ),
       
-      // 卡片主题
+      // 卡片主题 - 去除阴影
       cardTheme: CardTheme(
-        elevation: 2,
+        elevation: 0, // 关闭阴影
+        shadowColor: Colors.transparent,
         shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.circular(12),
+          side: BorderSide(color: Colors.grey.shade700, width: 1),
         ),
       ),
       
-      // 输入框主题
+      // 输入框主题 - 简化
       inputDecorationTheme: InputDecorationTheme(
         border: OutlineInputBorder(
           borderRadius: BorderRadius.circular(8),
@@ -117,9 +184,11 @@ class AppTheme {
         filled: true,
       ),
       
-      // 按钮主题
+      // 按钮主题 - 去除阴影
       elevatedButtonTheme: ElevatedButtonThemeData(
         style: ElevatedButton.styleFrom(
+          elevation: 0, // 关闭阴影
+          shadowColor: Colors.transparent,
           padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(8),
@@ -127,10 +196,26 @@ class AppTheme {
         ),
       ),
       
-      // 浮动按钮主题
+      // 浮动按钮主题 - 去除阴影
       floatingActionButtonTheme: const FloatingActionButtonThemeData(
-        elevation: 4,
+        elevation: 0, // 关闭阴影
+        focusElevation: 0,
+        hoverElevation: 0,
+        highlightElevation: 0,
+        disabledElevation: 0,
         shape: CircleBorder(),
+      ),
+      
+      // 关闭对话框动画
+      dialogTheme: const DialogTheme(
+        elevation: 0,
+        shadowColor: Colors.transparent,
+      ),
+      
+      // 关闭底部表单动画
+      bottomSheetTheme: const BottomSheetThemeData(
+        elevation: 0,
+        shadowColor: Colors.transparent,
       ),
     );
   }

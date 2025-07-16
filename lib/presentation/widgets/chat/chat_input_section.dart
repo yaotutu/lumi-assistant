@@ -213,22 +213,23 @@ class ChatInputSection extends HookConsumerWidget {
     );
   }
 
-  /// 构建发送按钮
+  /// 构建发送按钮 - 性能优化版本
   Widget _buildSendButton(BuildContext context) {
     return GestureDetector(
       onTap: _sendMessage,
-      child: AnimatedContainer(
-        duration: const Duration(milliseconds: 200),
+      child: Container(
+        // 性能优化：移除AnimatedContainer，使用静态Container
         width: _getButtonSizeForDevice(deviceType, isCompact),
         height: _getButtonSizeForDevice(deviceType, isCompact),
         decoration: BoxDecoration(
           color: Colors.blue,
           shape: BoxShape.circle,
-          boxShadow: [
-            BoxShadow(
-              color: Colors.blue.withValues(alpha: 0.3),
+          // 性能优化：简化或移除阴影
+          boxShadow: isCompact ? null : [
+            const BoxShadow(
+              color: Color(0x4D2196F3), // 固定透明度，避免计算
               blurRadius: 4,
-              offset: const Offset(0, 2),
+              offset: Offset(0, 2),
             ),
           ],
         ),

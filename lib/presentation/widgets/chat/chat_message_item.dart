@@ -22,6 +22,7 @@ class ChatMessageItem extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final isUser = message.isUser;
+    // 性能优化：预计算尺寸值，减少运行时计算
     final avatarSize = isCompact ? 24.0 : 32.0;
     final fontSize = isCompact ? 12.0 : 13.0;
     final padding = isCompact ? 12.0 : 16.0;
