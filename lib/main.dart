@@ -11,19 +11,25 @@ import 'core/constants/app_constants.dart';
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   
-  // 初始化Opus库 - 参考xiaozhi-android-client
-  try {
-    initOpus(await opus_flutter.load());
-    print('[主程序] Opus初始化成功: ${getOpusVersion()}');
-  } catch (e) {
-    print('[主程序] Opus初始化失败: $e');
-  }
+  // 性能优化：异步初始化Opus库，不阻塞应用启动
+  _initializeOpusAsync();
   
   runApp(
     const ProviderScope(
       child: LumiAssistantApp(),
     ),
   );
+}
+
+/// 性能优化：异步初始化Opus库
+Future<void> _initializeOpusAsync() async {
+  try {
+    initOpus(await opus_flutter.load());
+    print('[主程序] Opus初始化成功: ${getOpusVersion()}');
+  } catch (e) {
+    print('[主程序] Opus初始化失败: $e');
+    // 启动后续的重试机制或降级处理
+  }
 }
 
 /// Lumi Assistant应用根组件

@@ -117,30 +117,7 @@ class ConnectionManager extends StateNotifier<ConnectionManagerState> {
     print('[ConnectionManager] 调用WebSocket服务进行连接');
     final webSocketService = _ref.read(webSocketServiceProvider.notifier);
     
-    // 设置音频服务 - 修复TTS音频播放问题
-    final audioService = _ref.read(audioServiceProvider);
-    webSocketService.setAudioService(audioService);
-    
-    // 设置音频服务V2 - 使用just_audio替代方案
-    final audioServiceV2 = _ref.read(audioServiceV2Provider);
-    webSocketService.setAudioServiceV2(audioServiceV2);
-    
-    // 设置音频服务V3 - 使用Android客户端方式
-    final audioServiceV3 = _ref.read(audioServiceV3Provider);
-    webSocketService.setAudioServiceV3(audioServiceV3);
-    
-    // 设置Android客户端风格音频服务 - 完全按照Android客户端实现
-    final audioServiceAndroidStyle = _ref.read(audioServiceAndroidStyleProvider);
-    webSocketService.setAudioServiceAndroidStyle(audioServiceAndroidStyle);
-    
-    // 设置简化音频服务 - 备用方案
-    final audioServiceSimple = _ref.read(audioServiceSimpleProvider);
-    webSocketService.setAudioServiceSimple(audioServiceSimple);
-    
-    // 跳过AudioServiceDirect - 在此设备上不兼容
-    // 将使用AudioServiceSimple作为主要音频服务
-    // final audioServiceDirect = _ref.read(audioServiceDirectProvider);
-    // webSocketService.setAudioServiceDirect(audioServiceDirect);
+    // 性能优化：音频服务在WebSocketService内部自动设置
     
     await webSocketService.connect(serverUrl);
   }

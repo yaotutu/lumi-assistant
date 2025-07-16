@@ -222,61 +222,64 @@ class FloatingChatWidget extends HookConsumerWidget {
       }
     }, [chatState, toggleChatState, ref]);
     
-    return AnimatedBuilder(
-      animation: animationController,
-      builder: (context, child) {
-        final currentPosition = positionAnimation.value;
-        final currentSize = sizeAnimation.value;
-        final currentExpansion = expandAnimation.value;
+    // 性能优化：使用RepaintBoundary隔离动画重绘
+    return RepaintBoundary(
+      child: AnimatedBuilder(
+        animation: animationController,
+        builder: (context, child) {
+          final currentPosition = positionAnimation.value;
+          final currentSize = sizeAnimation.value;
+          final currentExpansion = expandAnimation.value;
         
-        return Stack(
-          children: [
-            // 展开状态时显示全屏背景，用于检测外部点击
-            if (chatState.value == FloatingChatState.expanded)
-              Positioned.fill(
-                child: GestureDetector(
-                  onTap: () {
-                    // 点击外部区域关闭窗口
-                    print('[FloatingChatWidget] 点击外部区域，关闭悬浮聊天窗口');
-                    toggleChatState();
-                  },
-                  child: AnimatedContainer(
-                    duration: Duration(milliseconds: 300),
-                    color: enableBackgroundBlur 
-                        ? Colors.black.withValues(alpha: 0.1 * currentExpansion)
-                        : Colors.transparent,
+          return Stack(
+            children: [
+              // 展开状态时显示全屏背景，用于检测外部点击
+              if (chatState.value == FloatingChatState.expanded)
+                Positioned.fill(
+                  child: GestureDetector(
+                    onTap: () {
+                      // 点击外部区域关闭窗口
+                      print('[FloatingChatWidget] 点击外部区域，关闭悬浮聊天窗口');
+                      toggleChatState();
+                    },
+                    child: AnimatedContainer(
+                      duration: Duration(milliseconds: 300),
+                      color: enableBackgroundBlur 
+                          ? Colors.black.withValues(alpha: 0.1 * currentExpansion)
+                          : Colors.transparent,
+                    ),
+                  ),
+                ),
+              
+              // 悬浮聊天窗口主体
+              Positioned(
+                left: currentPosition.dx,
+                top: currentPosition.dy,
+                child: Container(
+                  width: currentSize.width,
+                  height: currentSize.height,
+                  decoration: BoxDecoration(
+                    borderRadius: BorderRadius.circular(16),
+                    boxShadow: [
+                      BoxShadow(
+                        color: Colors.black.withValues(alpha: 0.1 + (currentExpansion * 0.15)),
+                        blurRadius: 8 + (currentExpansion * 12),
+                        offset: Offset(0, 4 + (currentExpansion * 4)),
+                      ),
+                    ],
+                  ),
+                  child: ClipRRect(
+                    borderRadius: BorderRadius.circular(16),
+                    child: chatState.value == FloatingChatState.collapsed
+                        ? _buildCollapsedContent(context, ref, onCharacterTap, layoutParams)
+                        : _buildExpandedContent(context, ref, onCharacterTap, toggleChatState, isLandscape, layoutParams, voiceInputState.value, startRecording, stopRecording),
                   ),
                 ),
               ),
-            
-            // 悬浮聊天窗口主体
-            Positioned(
-              left: currentPosition.dx,
-              top: currentPosition.dy,
-              child: Container(
-                width: currentSize.width,
-                height: currentSize.height,
-                decoration: BoxDecoration(
-                  borderRadius: BorderRadius.circular(16),
-                  boxShadow: [
-                    BoxShadow(
-                      color: Colors.black.withValues(alpha: 0.1 + (currentExpansion * 0.15)),
-                      blurRadius: 8 + (currentExpansion * 12),
-                      offset: Offset(0, 4 + (currentExpansion * 4)),
-                    ),
-                  ],
-                ),
-                child: ClipRRect(
-                  borderRadius: BorderRadius.circular(16),
-                  child: chatState.value == FloatingChatState.collapsed
-                      ? _buildCollapsedContent(context, ref, onCharacterTap, layoutParams)
-                      : _buildExpandedContent(context, ref, onCharacterTap, toggleChatState, isLandscape, layoutParams, voiceInputState.value, startRecording, stopRecording),
-                ),
-              ),
-            ),
-          ],
-        );
-      },
+            ],
+          );
+        },
+      ),
     );
   }
   

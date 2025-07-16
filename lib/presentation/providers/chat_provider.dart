@@ -16,6 +16,9 @@ class ChatNotifier extends StateNotifier<ChatState> {
   final Ref _ref;
   static const _uuid = Uuid();
   
+  // 性能优化：限制内存中保留的消息数量
+  static const int _maxMessagesInMemory = 50;
+  
   // 跟踪当前正在构建的AI回复消息
   String? _currentAiMessageId;
 
@@ -112,6 +115,35 @@ class ChatNotifier extends StateNotifier<ChatState> {
     );
   }
 
+  /// 性能优化：添加消息并自动修剪
+  void _addMessageWithTrimming(ChatUIMessage message) {
+    state = state.copyWith(
+      messages: [...state.messages, message],
+    );
+    _trimMessagesIfNeeded();
+  }
+
+  /// 性能优化：修剪消息列表以避免内存溢出
+  void _trimMessagesIfNeeded() {
+    if (state.messages.length > _maxMessagesInMemory) {
+      print('[ChatNotifier] 消息数量超过限制 ($_maxMessagesInMemory)，开始修剪旧消息');
+      
+      // 保留最近的消息，但确保保留欢迎消息
+      final messages = state.messages;
+      final welcomeMessage = messages.firstWhere(
+        (msg) => msg.sender == ChatSender.system,
+        orElse: () => messages.first,
+      );
+      
+      // 保留欢迎消息 + 最新的消息
+      final recentMessages = messages.skip(messages.length - _maxMessagesInMemory + 1).toList();
+      final trimmedMessages = [welcomeMessage, ...recentMessages];
+      
+      state = state.copyWith(messages: trimmedMessages);
+      print('[ChatNotifier] 消息修剪完成，当前消息数: ${trimmedMessages.length}');
+    }
+  }
+
   /// 发送消息
   Future<void> sendMessage(String content) async {
     if (content.trim().isEmpty) return;
@@ -127,6 +159,9 @@ class ChatNotifier extends StateNotifier<ChatState> {
       isSending: true,
       error: null,
     );
+    
+    // 性能优化：检查是否需要修剪消息
+    _trimMessagesIfNeeded();
 
     try {
       // 使用错误处理器的重试机制发送消息

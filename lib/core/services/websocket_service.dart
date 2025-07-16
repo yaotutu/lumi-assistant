@@ -10,12 +10,8 @@ import 'package:web_socket_channel/web_socket_channel.dart';
 import '../constants/api_constants.dart';
 import '../errors/exceptions.dart';
 import '../../data/models/websocket_state.dart';
-import 'audio_service.dart';
-import 'audio_service_v2.dart';
-import 'audio_service_v3.dart';
-import 'audio_service_simple.dart';
-import 'audio_service_direct.dart';
 import 'audio_service_android_style.dart';
+import 'audio_service_simple.dart';
 
 
 /// WebSocket服务类
@@ -24,52 +20,21 @@ class WebSocketService extends StateNotifier<WebSocketState> {
   StreamSubscription? _messageSubscription;
   Timer? _reconnectTimer;
   final StreamController<Map<String, dynamic>> _messageController = StreamController.broadcast();
-  AudioService? _audioService;
-  AudioServiceV2? _audioServiceV2;
-  AudioServiceV3? _audioServiceV3;
-  AudioServiceSimple? _audioServiceSimple;
-  AudioServiceDirect? _audioServiceDirect;
-  AudioServiceAndroidStyle? _audioServiceAndroidStyle;
+  
+  // 性能优化：使用单一的音频服务实例，而不是维护多个实例
+  dynamic _activeAudioService;
+  String _audioServiceType = 'android_style'; // 默认使用最稳定的Android风格服务
 
   WebSocketService() : super(WebSocketStateFactory.disconnected());
 
   /// 消息流
   Stream<Map<String, dynamic>> get messageStream => _messageController.stream;
 
-  /// 设置音频服务
-  void setAudioService(AudioService audioService) {
-    _audioService = audioService;
-    print('[WebSocket] 音频服务已设置');
-  }
-
-  /// 设置音频服务V2
-  void setAudioServiceV2(AudioServiceV2 audioServiceV2) {
-    _audioServiceV2 = audioServiceV2;
-    print('[WebSocket] 音频服务V2已设置');
-  }
-
-  /// 设置音频服务V3
-  void setAudioServiceV3(AudioServiceV3 audioServiceV3) {
-    _audioServiceV3 = audioServiceV3;
-    print('[WebSocket] 音频服务V3已设置（Android客户端方式）');
-  }
-
-  /// 设置简化音频服务
-  void setAudioServiceSimple(AudioServiceSimple audioServiceSimple) {
-    _audioServiceSimple = audioServiceSimple;
-    print('[WebSocket] 简化音频服务已设置');
-  }
-
-  /// 设置直接PCM播放音频服务
-  void setAudioServiceDirect(AudioServiceDirect audioServiceDirect) {
-    _audioServiceDirect = audioServiceDirect;
-    print('[WebSocket] 直接PCM播放音频服务已设置（严格按照约定）');
-  }
-
-  /// 设置Android客户端风格音频服务
-  void setAudioServiceAndroidStyle(AudioServiceAndroidStyle audioServiceAndroidStyle) {
-    _audioServiceAndroidStyle = audioServiceAndroidStyle;
-    print('[WebSocket] Android客户端风格音频服务已设置（完全按照Android客户端实现）');
+  /// 性能优化：设置单一音频服务实例
+  void setAudioService(dynamic audioService, String serviceType) {
+    _activeAudioService = audioService;
+    _audioServiceType = serviceType;
+    print('[WebSocket] 音频服务已设置: $serviceType');
   }
 
   /// 连接到WebSocket服务器
@@ -352,29 +317,13 @@ class WebSocketService extends StateNotifier<WebSocketState> {
       // 检查是否为音频数据（Opus帧通常是10-320字节）
       if (data.length >= 10 && data.length <= 1000) {
         print('[WebSocket] 判断为音频数据，开始播放');
-        print('[WebSocket] 音频服务状态: ${_audioService != null ? "可用" : "不可用"}');
+        print('[WebSocket] 音频服务状态: ${_activeAudioService != null ? "可用($_audioServiceType)" : "不可用"}');
         
-        // 优先使用Android客户端风格音频服务（完全按照Android客户端实现）
-        if (_audioServiceAndroidStyle != null) {
-          print('[WebSocket] 调用Android客户端风格音频服务（完全按照Android客户端实现）');
-          await _audioServiceAndroidStyle!.playOpusAudio(data);
-          print('[WebSocket] 音频播放请求已完成(AndroidStyle)');
-        } else if (_audioServiceSimple != null) {
-          print('[WebSocket] 调用简化音频服务播放音频（Android客户端方式）');
-          await _audioServiceSimple!.playOpusAudio(data);
-          print('[WebSocket] 音频播放请求已完成(Simple)');
-        } else if (_audioServiceV2 != null) {
-          print('[WebSocket] 调用音频服务V2播放音频（JustAudio）');
-          await _audioServiceV2!.playOpusAudio(data);
-          print('[WebSocket] 音频播放请求已完成(V2)');
-        } else if (_audioServiceV3 != null) {
-          print('[WebSocket] 调用音频服务V3播放音频（Android客户端方式）');
-          await _audioServiceV3!.playOpusAudio(data);
-          print('[WebSocket] 音频播放请求已完成(V3)');
-        } else if (_audioService != null) {
-          print('[WebSocket] 调用音频服务V1播放音频（flutter_pcm_player）');
-          await _audioService!.playOpusAudio(data);
-          print('[WebSocket] 音频播放请求已完成(V1)');
+        // 性能优化：使用单一的音频服务实例
+        if (_activeAudioService != null) {
+          print('[WebSocket] 调用音频服务播放音频: $_audioServiceType');
+          await _activeAudioService.playOpusAudio(data);
+          print('[WebSocket] 音频播放请求已完成: $_audioServiceType');
         } else {
           print('[WebSocket] 音频服务不可用，跳过播放');
         }
@@ -542,25 +491,21 @@ class WebSocketService extends StateNotifier<WebSocketState> {
 final webSocketServiceProvider = StateNotifierProvider<WebSocketService, WebSocketState>((ref) {
   final service = WebSocketService();
   
-  // 延迟注入音频服务，避免循环依赖
+  // 性能优化：延迟注入单一音频服务，避免循环依赖和内存浪费
   Future.microtask(() {
     try {
-      final audioService = ref.read(audioServiceProvider);
-      service.setAudioService(audioService);
-      
-      final audioServiceV2 = ref.read(audioServiceV2Provider);
-      service.setAudioServiceV2(audioServiceV2);
-      
-      final audioServiceV3 = ref.read(audioServiceV3Provider);
-      service.setAudioServiceV3(audioServiceV3);
-      
-      final audioServiceSimple = ref.read(audioServiceSimpleProvider);
-      service.setAudioServiceSimple(audioServiceSimple);
-      
-      final audioServiceDirect = ref.read(audioServiceDirectProvider);
-      service.setAudioServiceDirect(audioServiceDirect);
+      // 只注入最稳定的Android风格音频服务
+      final audioServiceAndroidStyle = AudioServiceAndroidStyle();
+      service.setAudioService(audioServiceAndroidStyle, 'android_style');
     } catch (e) {
-      print('[WebSocket] 音频服务注入失败: $e');
+      print('[WebSocket] 音频服务注入失败，尝试fallback: $e');
+      try {
+        // 如果失败，尝试使用简化服务作为fallback
+        final audioServiceSimple = AudioServiceSimple();
+        service.setAudioService(audioServiceSimple, 'simple');
+      } catch (fallbackError) {
+        print('[WebSocket] Fallback音频服务也失败: $fallbackError');
+      }
     }
   });
   

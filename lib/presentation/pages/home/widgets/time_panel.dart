@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
 
@@ -9,15 +11,32 @@ class TimePanel extends HookWidget {
 
   @override
   Widget build(BuildContext context) {
-    // 使用Hook管理时间状态
+    // 性能优化：使用Hook管理时间状态，但减少更新频率
     final currentTime = useState(DateTime.now());
     
-    // 定时更新时间
+    // 优化：只在分钟变化时更新，而不是每秒更新
     useEffect(() {
-      final timer = Stream.periodic(const Duration(seconds: 1), (_) => DateTime.now())
-          .listen((time) => currentTime.value = time);
+      final now = DateTime.now();
+      final nextMinute = DateTime(now.year, now.month, now.day, now.hour, now.minute + 1);
+      final delayToNextMinute = nextMinute.difference(now);
       
-      return timer.cancel;
+      Timer? periodicTimer;
+      
+      // 首先延迟到下一分钟开始
+      final firstTimer = Timer(delayToNextMinute, () {
+        currentTime.value = DateTime.now();
+        
+        // 然后每分钟更新一次
+        periodicTimer = Timer.periodic(const Duration(minutes: 1), (_) {
+          currentTime.value = DateTime.now();
+        });
+      });
+      
+      // 清理函数
+      return () {
+        firstTimer.cancel();
+        periodicTimer?.cancel();
+      };
     }, []);
 
     return Container(
