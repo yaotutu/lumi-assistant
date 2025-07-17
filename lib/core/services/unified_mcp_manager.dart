@@ -279,6 +279,9 @@ class UnifiedMcpManager {
       await client.connect();
       _externalClients[serverId] = client;
       print('[UnifiedMCP] 外部客户端连接成功: $serverId (${config.transport.name})');
+      
+      // 给服务器一点时间完成初始化
+      await Future.delayed(Duration(milliseconds: 500));
     } catch (e) {
       print('[UnifiedMCP] 连接外部服务器失败 $serverId: $e');
     }

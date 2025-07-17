@@ -672,10 +672,97 @@ class StreamableHttpMcpClient implements McpClient {
 
   @override
   Future<List<dynamic>> listTools() async {
-    final result = await _sendRequest('tools/list', {});
-    final tools = result['tools'] as List<dynamic>? ?? [];
-    print('[Streamable-HTTP-MCP] 获取到 ${tools.length} 个工具');
-    return tools;
+    try {
+      print('[Streamable-HTTP-MCP] 开始请求工具列表');
+      
+      // 尝试不同的请求格式来调试问题
+      Map<String, dynamic> result;
+      try {
+        // 首先尝试不带参数的请求
+        result = await _sendRequest('tools/list', {});
+      } catch (e) {
+        print('[Streamable-HTTP-MCP] 不带参数的请求失败，尝试带空params: $e');
+        try {
+          // 如果失败，尝试显式传递null参数
+          result = await _sendRequestWithNullParams('tools/list');
+        } catch (e2) {
+          print('[Streamable-HTTP-MCP] 带null参数的请求也失败: $e2');
+          rethrow;
+        }
+      }
+      
+      final tools = result['tools'] as List<dynamic>? ?? [];
+      print('[Streamable-HTTP-MCP] 获取到 ${tools.length} 个工具');
+      return tools;
+    } catch (e) {
+      print('[Streamable-HTTP-MCP] 获取工具列表失败: $e');
+      rethrow;
+    }
+  }
+  
+  /// 发送不包含params字段的请求（用于调试）
+  Future<Map<String, dynamic>> _sendRequestWithNullParams(String method) async {
+    if (!_isConnected && method != 'initialize') {
+      throw Exception('HTTP连接未建立');
+    }
+    
+    final requestId = ++_requestId;
+    
+    // 构造完全不包含params字段的请求
+    final request = <String, dynamic>{
+      'jsonrpc': '2.0',
+      'id': requestId,
+      'method': method,
+    };
+    
+    print('[Streamable-HTTP-MCP] 发送无params请求: ${jsonEncode(request)}');
+    
+    final client = HttpClient();
+    try {
+      final httpRequest = await client.postUrl(Uri.parse(serverUrl));
+      
+      // 设置MCP规范要求的请求头
+      httpRequest.headers.set('Content-Type', 'application/json');
+      httpRequest.headers.set('Accept', 'application/json, text/event-stream');
+      
+      // 添加Session ID支持 (如果有的话)
+      if (_sessionId != null) {
+        httpRequest.headers.set('Mcp-Session-Id', _sessionId!);
+      }
+      
+      if (headers != null) {
+        headers!.forEach((key, value) {
+          httpRequest.headers.set(key, value);
+        });
+      }
+      
+      httpRequest.add(utf8.encode(jsonEncode(request)));
+      final response = await httpRequest.close();
+      
+      if (response.statusCode == 200) {
+        final responseBody = await response.transform(utf8.decoder).join();
+        print('[Streamable-HTTP-MCP] 原始响应体: $responseBody');
+        
+        // 检查响应是否为SSE格式
+        if (responseBody.startsWith('event:') || responseBody.contains('event: message')) {
+          print('[Streamable-HTTP-MCP] 检测到SSE格式响应，解析SSE消息');
+          return _parseSSEResponse(responseBody);
+        } else {
+          // 标准JSON响应
+          final result = jsonDecode(responseBody);
+          
+          if (result.containsKey('error')) {
+            throw Exception('MCP错误: ${result['error']}');
+          }
+          
+          return result['result'] ?? {};
+        }
+      } else {
+        throw Exception('HTTP请求失败: ${response.statusCode}');
+      }
+    } finally {
+      client.close();
+    }
   }
   
   /// 获取资源列表
@@ -790,6 +877,8 @@ class StreamableHttpMcpClient implements McpClient {
       request['params'] = params;
     }
     
+    print('[Streamable-HTTP-MCP] 发送请求: ${jsonEncode(request)}');
+    
     final client = HttpClient();
     try {
       final httpRequest = await client.postUrl(Uri.parse(serverUrl));
@@ -878,7 +967,9 @@ class StreamableHttpMcpClient implements McpClient {
             
             if (jsonData is Map<String, dynamic>) {
               if (jsonData.containsKey('error')) {
-                throw Exception('MCP错误: ${jsonData['error']}');
+                // 直接抛出MCP错误，不要在这里捕获
+                final error = jsonData['error'];
+                throw Exception('MCP服务器错误: ${error['message']} (代码: ${error['code']})');
               }
               
               // 返回result部分，如果没有则返回整个对象
@@ -887,6 +978,10 @@ class StreamableHttpMcpClient implements McpClient {
           } catch (e) {
             print('[Streamable-HTTP-MCP] JSON解析失败: $e');
             print('[Streamable-HTTP-MCP] 原始数据: $combinedData');
+            // 如果是MCP错误，重新抛出
+            if (e.toString().contains('MCP服务器错误')) {
+              rethrow;
+            }
           }
         }
         
@@ -905,13 +1000,18 @@ class StreamableHttpMcpClient implements McpClient {
         
         if (jsonData is Map<String, dynamic>) {
           if (jsonData.containsKey('error')) {
-            throw Exception('MCP错误: ${jsonData['error']}');
+            final error = jsonData['error'];
+            throw Exception('MCP服务器错误: ${error['message']} (代码: ${error['code']})');
           }
           
           return jsonData['result'] ?? jsonData;
         }
       } catch (e) {
         print('[Streamable-HTTP-MCP] 最后事件JSON解析失败: $e');
+        // 如果是MCP错误，重新抛出
+        if (e.toString().contains('MCP服务器错误')) {
+          rethrow;
+        }
       }
     }
     
