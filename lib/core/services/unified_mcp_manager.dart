@@ -405,6 +405,91 @@ class UnifiedMcpManager {
     print('[UnifiedMCP] 获取到 ${allTools.length} 个可用工具');
     return allTools;
   }
+  
+  /// 获取所有可用资源
+  Future<List<UnifiedMcpResource>> getAvailableResources() async {
+    if (!_isInitialized) await initialize();
+    
+    final allResources = <UnifiedMcpResource>[];
+    
+    for (final entry in _configs.entries) {
+      final serverId = entry.key;
+      final config = entry.value;
+      
+      if (!config.enabled) continue;
+      
+      try {
+        List<dynamic> resources;
+        
+        switch (config.type) {
+          case McpServerType.embedded:
+            // 内置服务器目前可能不支持资源
+            resources = [];
+            break;
+            
+          case McpServerType.external:
+            final client = _externalClients[serverId];
+            if (client != null && client.isConnected) {
+              resources = await client.listResources();
+            } else {
+              print('[UnifiedMCP] 外部服务器未连接，跳过资源列表: $serverId');
+              continue;
+            }
+            break;
+        }
+        
+        for (final resource in resources) {
+          if (resource is Map<String, dynamic>) {
+            allResources.add(UnifiedMcpResource(
+              uri: resource['uri'] ?? '',
+              name: resource['name'] ?? '',
+              description: resource['description'] ?? '',
+              serverId: serverId,
+              serverType: config.type,
+              mimeType: resource['mimeType'],
+            ));
+          }
+        }
+      } catch (e) {
+        print('[UnifiedMCP] 获取资源列表失败 $serverId: $e');
+      }
+    }
+    
+    print('[UnifiedMCP] 获取到 ${allResources.length} 个可用资源');
+    return allResources;
+  }
+  
+  /// 读取资源内容
+  Future<Map<String, dynamic>> readResource(String uri, String serverId) async {
+    if (!_isInitialized) await initialize();
+    
+    final config = _configs[serverId];
+    if (config == null) {
+      throw Exception('服务器配置未找到: $serverId');
+    }
+    
+    if (!config.enabled) {
+      throw Exception('服务器已禁用: $serverId');
+    }
+    
+    try {
+      switch (config.type) {
+        case McpServerType.embedded:
+          throw Exception('内置服务器暂不支持资源读取');
+          
+        case McpServerType.external:
+          final client = _externalClients[serverId];
+          if (client != null && client.isConnected) {
+            return await client.readResource(uri);
+          } else {
+            throw Exception('外部服务器未连接: $serverId');
+          }
+      }
+    } catch (e) {
+      print('[UnifiedMCP] 读取资源失败 $serverId:$uri: $e');
+      rethrow;
+    }
+  }
 
   /// 按分类获取工具
   Future<Map<String, List<UnifiedMcpTool>>> getToolsByCategory() async {

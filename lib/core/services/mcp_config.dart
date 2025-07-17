@@ -363,6 +363,53 @@ class UnifiedMcpTool {
   int get hashCode => Object.hash(name, serverId);
 }
 
+/// MCP 资源信息
+class UnifiedMcpResource {
+  /// 资源URI
+  final String uri;
+  /// 资源名称
+  final String name;
+  /// 资源描述
+  final String description;
+  /// 所属服务器ID
+  final String serverId;
+  /// 服务器类型
+  final McpServerType serverType;
+  /// MIME类型
+  final String? mimeType;
+
+  const UnifiedMcpResource({
+    required this.uri,
+    required this.name,
+    required this.description,
+    required this.serverId,
+    required this.serverType,
+    this.mimeType,
+  });
+
+  /// 是否为内置资源（高性能）
+  bool get isBuiltin => serverType == McpServerType.embedded;
+
+  /// 是否为外部资源
+  bool get isExternal => serverType == McpServerType.external;
+
+  @override
+  String toString() {
+    return 'UnifiedMcpResource(uri: $uri, name: $name, serverId: $serverId, type: ${serverType.name})';
+  }
+
+  @override
+  bool operator ==(Object other) {
+    if (identical(this, other)) return true;
+    return other is UnifiedMcpResource && 
+           other.uri == uri && 
+           other.serverId == serverId;
+  }
+
+  @override
+  int get hashCode => Object.hash(uri, serverId);
+}
+
 /// MCP 服务器进程管理
 class McpServerProcess {
   final McpServerConfig config;
@@ -461,21 +508,38 @@ class McpServerProcess {
 }
 
 /// MCP 客户端接口（连接外部服务器）
+/// 符合MCP官方规范的完整客户端接口
 abstract class McpClient {
-  /// 连接到服务器
+  /// 连接到服务器并进行初始化握手
   Future<void> connect();
 
-  /// 断开连接
+  /// 断开连接并清理资源
   Future<void> disconnect();
 
   /// 是否已连接
   bool get isConnected;
 
-  /// 列出工具
+  /// 列出可用工具
   Future<List<dynamic>> listTools();
 
   /// 调用工具
   Future<Map<String, dynamic>> callTool(String toolName, Map<String, dynamic> arguments);
+  
+  /// 列出可用资源（MCP核心功能）
+  Future<List<dynamic>> listResources();
+  
+  /// 读取资源内容
+  Future<Map<String, dynamic>> readResource(String uri);
+  
+  /// 列出可用提示模板（如果服务器支持）
+  Future<List<dynamic>> listPrompts() async {
+    throw UnimplementedError('此客户端不支持提示模板功能');
+  }
+  
+  /// 获取提示模板（如果服务器支持）
+  Future<Map<String, dynamic>> getPrompt(String name, Map<String, dynamic> arguments) async {
+    throw UnimplementedError('此客户端不支持提示模板功能');
+  }
 }
 
 /// Stdio MCP 客户端实现 (暂未实现)
@@ -520,6 +584,26 @@ class StdioMcpClient implements McpClient {
   Future<Map<String, dynamic>> callTool(String toolName, Map<String, dynamic> arguments) async {
     throw UnimplementedError('Stdio MCP客户端暂未实现');
   }
+  
+  @override
+  Future<List<dynamic>> listResources() async {
+    throw UnimplementedError('Stdio MCP客户端暂未实现');
+  }
+  
+  @override
+  Future<Map<String, dynamic>> readResource(String uri) async {
+    throw UnimplementedError('Stdio MCP客户端暂未实现');
+  }
+  
+  @override
+  Future<List<dynamic>> listPrompts() async {
+    throw UnimplementedError('Stdio MCP客户端暂未实现');
+  }
+  
+  @override
+  Future<Map<String, dynamic>> getPrompt(String name, Map<String, dynamic> arguments) async {
+    throw UnimplementedError('Stdio MCP客户端暂未实现');
+  }
 }
 
 /// Streamable HTTP MCP 客户端实现
@@ -539,21 +623,28 @@ class StreamableHttpMcpClient implements McpClient {
     try {
       print('[Streamable-HTTP-MCP] 连接到Streamable HTTP服务器: $serverUrl');
       
-      // 发送初始化请求测试连接
+      // 发送MCP初始化请求按照官方规范
       final result = await _sendRequest('initialize', {
-        'protocolVersion': '2024-11-05',
-        'capabilities': {},
+        'protocolVersion': '2025-06-18',  // 使用最新版本
+        'capabilities': {
+          'roots': {
+            'listChanged': true
+          },
+          'sampling': {}
+        },
         'clientInfo': {
           'name': 'LumiAssistant',
           'version': '1.0.0'
         }
       });
       
-      if (result.containsKey('protocolVersion')) {
+      if (result.containsKey('protocolVersion') && result.containsKey('capabilities')) {
         _isConnected = true;
-        print('[Streamable-HTTP-MCP] Streamable HTTP连接建立成功');
+        print('[Streamable-HTTP-MCP] MCP协议初始化成功');
+        print('[Streamable-HTTP-MCP] 服务器版本: ${result['protocolVersion']}');
+        print('[Streamable-HTTP-MCP] 服务器能力: ${result['capabilities']}');
       } else {
-        throw Exception('MCP初始化失败');
+        throw Exception('MCP初始化失败: 服务器响应不符合规范');
       }
     } catch (e) {
       print('[Streamable-HTTP-MCP] 连接失败: $e');
@@ -563,8 +654,17 @@ class StreamableHttpMcpClient implements McpClient {
 
   @override
   Future<void> disconnect() async {
-    print('[Streamable-HTTP-MCP] 断开Streamable HTTP连接');
+    if (_isConnected) {
+      try {
+        // 发送关闭通知按照MCP规范
+        await _sendNotification('notifications/cancelled', {});
+      } catch (e) {
+        print('[Streamable-HTTP-MCP] 关闭通知发送失败: $e');
+      }
+    }
+    print('[Streamable-HTTP-MCP] 断开MCP连接');
     _isConnected = false;
+    _sessionId = null;
   }
 
   @override
@@ -573,17 +673,103 @@ class StreamableHttpMcpClient implements McpClient {
   @override
   Future<List<dynamic>> listTools() async {
     final result = await _sendRequest('tools/list', {});
-    return result['tools'] ?? [];
+    final tools = result['tools'] as List<dynamic>? ?? [];
+    print('[Streamable-HTTP-MCP] 获取到 ${tools.length} 个工具');
+    return tools;
+  }
+  
+  /// 获取资源列表
+  Future<List<dynamic>> listResources() async {
+    final result = await _sendRequest('resources/list', {});
+    final resources = result['resources'] as List<dynamic>? ?? [];
+    print('[Streamable-HTTP-MCP] 获取到 ${resources.length} 个资源');
+    return resources;
+  }
+  
+  /// 读取资源
+  @override
+  Future<Map<String, dynamic>> readResource(String uri) async {
+    return await _sendRequest('resources/read', {
+      'uri': uri,
+    });
+  }
+  
+  /// 列出可用提示模板
+  @override
+  Future<List<dynamic>> listPrompts() async {
+    final result = await _sendRequest('prompts/list', {});
+    final prompts = result['prompts'] as List<dynamic>? ?? [];
+    print('[Streamable-HTTP-MCP] 获取到 ${prompts.length} 个提示模板');
+    return prompts;
+  }
+  
+  /// 获取提示模板
+  @override
+  Future<Map<String, dynamic>> getPrompt(String name, Map<String, dynamic> arguments) async {
+    return await _sendRequest('prompts/get', {
+      'name': name,
+      'arguments': arguments,
+    });
   }
 
   @override
   Future<Map<String, dynamic>> callTool(String toolName, Map<String, dynamic> arguments) async {
-    return await _sendRequest('tools/call', {
+    final result = await _sendRequest('tools/call', {
       'name': toolName,
       'arguments': arguments,
     });
+    
+    // 按照MCP规范处理工具调用结果
+    if (result.containsKey('content')) {
+      return {
+        'success': true,
+        'content': result['content'],
+        'isError': result['isError'] ?? false,
+      };
+    } else if (result.containsKey('error')) {
+      return {
+        'success': false,
+        'error': result['error'],
+        'isError': true,
+      };
+    }
+    
+    return result;
   }
   
+  /// 发送MCP通知（无需响应）
+  Future<void> _sendNotification(String method, Map<String, dynamic> params) async {
+    final notification = <String, dynamic>{
+      'jsonrpc': '2.0',
+      'method': method,
+    };
+    
+    if (params.isNotEmpty) {
+      notification['params'] = params;
+    }
+    
+    final client = HttpClient();
+    try {
+      final httpRequest = await client.postUrl(Uri.parse(serverUrl));
+      httpRequest.headers.set('Content-Type', 'application/json');
+      
+      if (_sessionId != null) {
+        httpRequest.headers.set('Mcp-Session-Id', _sessionId!);
+      }
+      
+      if (headers != null) {
+        headers!.forEach((key, value) {
+          httpRequest.headers.set(key, value);
+        });
+      }
+      
+      httpRequest.add(utf8.encode(jsonEncode(notification)));
+      await httpRequest.close();
+    } finally {
+      client.close();
+    }
+  }
+
   /// 发送MCP请求
   Future<Map<String, dynamic>> _sendRequest(String method, Map<String, dynamic> params) async {
     if (!_isConnected && method != 'initialize') {
@@ -592,13 +778,17 @@ class StreamableHttpMcpClient implements McpClient {
     
     final requestId = ++_requestId;
     
-    // 构造JSON-RPC请求
-    final request = {
+    // 构造符合MCP规范的JSON-RPC 2.0请求
+    final request = <String, dynamic>{
       'jsonrpc': '2.0',
       'id': requestId,
       'method': method,
-      'params': params,
     };
+    
+    // 只在有参数时才添加params字段
+    if (params.isNotEmpty) {
+      request['params'] = params;
+    }
     
     final client = HttpClient();
     try {
