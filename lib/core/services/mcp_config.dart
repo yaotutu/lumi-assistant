@@ -10,15 +10,14 @@ enum McpServerType {
   external 
 }
 
-/// MCP 传输模式
+/// MCP 传输模式 (仅支持官方标准的两种模式)
 enum McpTransportMode {
-  /// WebSocket传输 - 全双工实时通信
-  websocket,
-  /// Server-Sent Events - 服务端推送
-  sse,
-  /// HTTP/REST - 简单请求响应
-  http,
-  /// 本地进程 - 通过stdin/stdout通信
+  /// Streamable HTTP Transport - HTTP POST + SSE响应流
+  /// 用于远程MCP服务器通信，支持实时数据流
+  streamableHttp,
+  
+  /// Stdio Transport - 标准输入输出通信
+  /// 用于本地进程间通信，通过stdin/stdout交换JSON-RPC消息
   stdio,
 }
 
@@ -84,7 +83,7 @@ class McpServerConfig {
     required this.name,
     required this.description,
     required this.type,
-    this.transport = McpTransportMode.websocket,
+    this.transport = McpTransportMode.streamableHttp,
     this.command,
     this.args = const [],
     this.workingDirectory,
@@ -108,10 +107,10 @@ class McpServerConfig {
       orElse: () => McpServerType.external,
     );
 
-    final transportString = json['transport'] as String? ?? 'websocket';
+    final transportString = json['transport'] as String? ?? 'streamableHttp';
     final transport = McpTransportMode.values.firstWhere(
       (e) => e.name == transportString,
-      orElse: () => McpTransportMode.websocket,
+      orElse: () => McpTransportMode.streamableHttp,
     );
 
     return McpServerConfig(
@@ -166,8 +165,9 @@ class McpServerConfig {
   /// 是否为内置服务器
   bool get isEmbedded => type == McpServerType.embedded;
 
-  /// 创建WebSocket传输模式的配置
-  factory McpServerConfig.websocket({
+  /// 创建Streamable HTTP传输模式的配置
+  /// 这是MCP官方标准的远程通信方式，使用HTTP POST + SSE响应流
+  factory McpServerConfig.streamableHttp({
     required String id,
     required String name,
     required String description,
@@ -185,69 +185,7 @@ class McpServerConfig {
       name: name,
       description: description,
       type: McpServerType.external,
-      transport: McpTransportMode.websocket,
-      url: url,
-      headers: headers,
-      enabled: enabled,
-      autoStart: autoStart,
-      capabilities: capabilities,
-      tools: tools,
-      category: category,
-      priority: priority,
-    );
-  }
-
-  /// 创建SSE传输模式的配置
-  factory McpServerConfig.sse({
-    required String id,
-    required String name,
-    required String description,
-    required String url,
-    Map<String, String>? headers,
-    bool enabled = true,
-    bool autoStart = false,
-    List<String> capabilities = const [],
-    List<String> tools = const [],
-    String? category,
-    int priority = 0,
-  }) {
-    return McpServerConfig(
-      id: id,
-      name: name,
-      description: description,
-      type: McpServerType.external,
-      transport: McpTransportMode.sse,
-      url: url,
-      headers: headers,
-      enabled: enabled,
-      autoStart: autoStart,
-      capabilities: capabilities,
-      tools: tools,
-      category: category,
-      priority: priority,
-    );
-  }
-
-  /// 创建HTTP传输模式的配置
-  factory McpServerConfig.http({
-    required String id,
-    required String name,
-    required String description,
-    required String url,
-    Map<String, String>? headers,
-    bool enabled = true,
-    bool autoStart = false,
-    List<String> capabilities = const [],
-    List<String> tools = const [],
-    String? category,
-    int priority = 0,
-  }) {
-    return McpServerConfig(
-      id: id,
-      name: name,
-      description: description,
-      type: McpServerType.external,
-      transport: McpTransportMode.http,
+      transport: McpTransportMode.streamableHttp,
       url: url,
       headers: headers,
       enabled: enabled,
@@ -311,7 +249,7 @@ class McpServerConfig {
       name: name,
       description: description,
       type: McpServerType.embedded,
-      transport: McpTransportMode.websocket, // 嵌入式服务器内部使用WebSocket协议
+      transport: McpTransportMode.streamableHttp, // 嵌入式服务器内部使用标准协议
       enabled: enabled,
       autoStart: autoStart,
       capabilities: capabilities,
@@ -540,76 +478,34 @@ abstract class McpClient {
   Future<Map<String, dynamic>> callTool(String toolName, Map<String, dynamic> arguments);
 }
 
-/// SSE MCP 客户端实现
-class SseMcpClient implements McpClient {
-  final String serverUrl;
-  final Map<String, String>? headers;
+/// Stdio MCP 客户端实现 (暂未实现)
+/// 这将用于与本地MCP服务器进程通信
+class StdioMcpClient implements McpClient {
+  final String command;
+  final List<String> args;
+  final String? workingDirectory;
+  final Map<String, dynamic>? environment;
   
   bool _isConnected = false;
-  StreamSubscription? _subscription;
+  Process? _process;
   int _requestId = 0;
   final Map<int, Completer<Map<String, dynamic>>> _pendingRequests = {};
-  String? _sessionEndpoint;
-  String? _currentEventType;
   
-  SseMcpClient(this.serverUrl, this.headers);
+  StdioMcpClient({
+    required this.command,
+    this.args = const [],
+    this.workingDirectory,
+    this.environment,
+  });
 
   @override
   Future<void> connect() async {
-    try {
-      print('[SSE-MCP] 连接到SSE服务器: $serverUrl');
-      
-      // 创建SSE连接
-      final uri = Uri.parse(serverUrl);
-      final request = await HttpClient().getUrl(uri);
-      
-      // 添加必要的headers
-      request.headers.set('Accept', 'text/event-stream');
-      request.headers.set('Cache-Control', 'no-cache');
-      if (headers != null) {
-        headers!.forEach((key, value) {
-          request.headers.set(key, value);
-        });
-      }
-      
-      final response = await request.close();
-      
-      if (response.statusCode == 200) {
-        _isConnected = true;
-        _subscription = response
-            .transform(utf8.decoder)
-            .transform(const LineSplitter())
-            .listen(_handleSseMessage);
-        
-        print('[SSE-MCP] SSE连接建立成功');
-        
-        // 等待获取session端点
-        await _waitForSessionEndpoint();
-        
-        // 发送MCP初始化握手
-        await _initializeMcpSession();
-        
-      } else {
-        throw Exception('SSE连接失败: ${response.statusCode}');
-      }
-    } catch (e) {
-      print('[SSE-MCP] 连接失败: $e');
-      rethrow;
-    }
+    throw UnimplementedError('Stdio MCP客户端暂未实现');
   }
 
   @override
   Future<void> disconnect() async {
-    print('[SSE-MCP] 断开SSE连接');
-    _isConnected = false;
-    await _subscription?.cancel();
-    _subscription = null;
-    
-    // 清理所有待处理请求
-    for (final completer in _pendingRequests.values) {
-      completer.completeError(Exception('连接已断开'));
-    }
-    _pendingRequests.clear();
+    throw UnimplementedError('Stdio MCP客户端暂未实现');
   }
 
   @override
@@ -617,267 +513,31 @@ class SseMcpClient implements McpClient {
 
   @override
   Future<List<dynamic>> listTools() async {
-    final result = await _sendRequest('tools/list', {});
-    return result['tools'] ?? [];
+    throw UnimplementedError('Stdio MCP客户端暂未实现');
   }
 
   @override
   Future<Map<String, dynamic>> callTool(String toolName, Map<String, dynamic> arguments) async {
-    return await _sendRequest('tools/call', {
-      'name': toolName,
-      'arguments': arguments,
-    });
-  }
-  
-  /// 等待获取session端点
-  Future<void> _waitForSessionEndpoint() async {
-    print('[SSE-MCP] 等待获取session端点...');
-    var waitCount = 0;
-    while (_sessionEndpoint == null && waitCount < 50) {
-      await Future.delayed(Duration(milliseconds: 100));
-      waitCount++;
-    }
-    
-    if (_sessionEndpoint == null) {
-      throw Exception('无法获取session端点');
-    }
-    print('[SSE-MCP] 获取到session端点: $_sessionEndpoint');
-  }
-  
-  /// 初始化MCP会话
-  Future<void> _initializeMcpSession() async {
-    print('[SSE-MCP] 初始化MCP会话...');
-    
-    try {
-      final result = await _sendRequest('initialize', {
-        'protocolVersion': '2024-11-05',
-        'capabilities': {
-          'tools': {}
-        },
-        'clientInfo': {
-          'name': 'LumiAssistant',
-          'version': '1.0.0'
-        }
-      });
-      
-      print('[SSE-MCP] MCP会话初始化成功: $result');
-    } catch (e) {
-      print('[SSE-MCP] MCP会话初始化失败: $e');
-      throw Exception('MCP会话初始化失败: $e');
-    }
-  }
-  
-  /// 发送MCP请求
-  Future<Map<String, dynamic>> _sendRequest(String method, Map<String, dynamic> params) async {
-    if (!_isConnected) {
-      throw Exception('SSE连接未建立');
-    }
-    
-    if (_sessionEndpoint == null) {
-      throw Exception('Session端点未就绪');
-    }
-    
-    final requestId = ++_requestId;
-    final completer = Completer<Map<String, dynamic>>();
-    _pendingRequests[requestId] = completer;
-    
-    // 构造JSON-RPC请求
-    final request = {
-      'jsonrpc': '2.0',
-      'id': requestId,
-      'method': method,
-      'params': params,
-    };
-    
-    // 使用从SSE获取的session端点
-    final baseUrl = serverUrl.contains('/sse') 
-        ? serverUrl.substring(0, serverUrl.lastIndexOf('/sse'))
-        : serverUrl;
-    
-    final sessionUrl = '$baseUrl$_sessionEndpoint';
-    
-    try {
-      print('[SSE-MCP] 使用session端点: $sessionUrl');
-      
-      // 发送HTTP POST请求（异步）
-      await _httpPostAsync(sessionUrl, request);
-      
-      // 等待SSE流返回响应
-      final response = await completer.future;
-      
-      if (response.containsKey('error')) {
-        throw Exception('MCP错误: ${response['error']}');
-      }
-      
-      return response['result'] ?? response;
-    } catch (e) {
-      print('[SSE-MCP] 请求失败: $e');
-      _pendingRequests.remove(requestId);
-      rethrow;
-    }
-  }
-  
-  /// 处理SSE消息
-  void _handleSseMessage(String line) {
-    print('[SSE-MCP] 收到原始行: $line');
-    
-    if (line.startsWith('data: ')) {
-      final data = line.substring(6);
-      if (data.trim().isEmpty) return;
-      
-      // 处理端点信息
-      if (data.startsWith('/messages/')) {
-        print('[SSE-MCP] 收到session端点: $data');
-        _sessionEndpoint = data;
-        return;
-      }
-      
-      // 尝试解析JSON数据
-      try {
-        final message = jsonDecode(data);
-        print('[SSE-MCP] 收到JSON消息: $message');
-        
-        if (message.containsKey('id')) {
-          final requestId = message['id'] as int;
-          final completer = _pendingRequests.remove(requestId);
-          if (completer != null) {
-            if (message.containsKey('error')) {
-              completer.completeError(Exception('MCP错误: ${message['error']}'));
-            } else {
-              completer.complete(message['result'] ?? {});
-            }
-          }
-        }
-      } catch (e) {
-        print('[SSE-MCP] JSON解析消息失败: $e');
-        print('[SSE-MCP] 原始数据: $data');
-      }
-    } else if (line.startsWith('event: ')) {
-      final eventType = line.substring(7);
-      print('[SSE-MCP] 收到事件类型: $eventType');
-      _currentEventType = eventType;
-    } else if (line.startsWith(': ')) {
-      // SSE注释行（如ping消息）
-      print('[SSE-MCP] 收到注释: $line');
-    } else if (line.trim().isEmpty) {
-      // 空行表示事件结束
-      _currentEventType = null;
-    } else {
-      print('[SSE-MCP] 收到其他消息: $line');
-    }
-  }
-  
-  /// HTTP POST请求（异步，不等待响应）
-  Future<void> _httpPostAsync(String url, Map<String, dynamic> data) async {
-    final client = HttpClient();
-    try {
-      print('[SSE-MCP] 发送异步POST请求到: $url');
-      final request = await client.postUrl(Uri.parse(url));
-      request.headers.set('Content-Type', 'application/json');
-      
-      if (headers != null) {
-        headers!.forEach((key, value) {
-          request.headers.set(key, value);
-        });
-      }
-      
-      request.add(utf8.encode(jsonEncode(data)));
-      final response = await request.close();
-      
-      print('[SSE-MCP] 异步POST请求发送完成，状态码: ${response.statusCode}');
-      
-      if (response.statusCode != 202 && response.statusCode != 200) {
-        throw Exception('HTTP请求失败: ${response.statusCode}');
-      }
-      
-      // 读取响应体（如果有）但不等待
-      response.transform(utf8.decoder).listen(
-        (data) => print('[SSE-MCP] HTTP响应体: $data'),
-        onError: (error) => print('[SSE-MCP] HTTP响应读取错误: $error'),
-      );
-      
-    } finally {
-      client.close();
-    }
-  }
-  
-  /// HTTP POST请求（同步，等待响应）
-  Future<Map<String, dynamic>> _httpPost(String url, Map<String, dynamic> data) async {
-    final client = HttpClient();
-    try {
-      var currentUrl = url;
-      var redirectCount = 0;
-      const maxRedirects = 5;
-      
-      while (redirectCount < maxRedirects) {
-        print('[SSE-MCP] 发送POST请求到: $currentUrl');
-        final request = await client.postUrl(Uri.parse(currentUrl));
-        request.headers.set('Content-Type', 'application/json');
-        
-        if (headers != null) {
-          headers!.forEach((key, value) {
-            request.headers.set(key, value);
-          });
-        }
-        
-        request.add(utf8.encode(jsonEncode(data)));
-        final response = await request.close();
-        
-        print('[SSE-MCP] 收到响应状态码: ${response.statusCode}');
-        
-        if (response.statusCode == 200) {
-          final responseBody = await response.transform(utf8.decoder).join();
-          print('[SSE-MCP] 响应体: $responseBody');
-          return jsonDecode(responseBody);
-        } else if (response.statusCode == 202) {
-          // 202 Accepted - 异步响应，将在SSE流中返回结果
-          print('[SSE-MCP] 请求已被接受，响应将通过SSE流返回');
-          response.transform(utf8.decoder).listen(
-            (data) => print('[SSE-MCP] 202响应体: $data'),
-            onError: (error) => print('[SSE-MCP] 202响应读取错误: $error'),
-          );
-          return {}; // 返回空对象，实际响应通过SSE流处理
-        } else if (response.statusCode == 307 || response.statusCode == 302) {
-          // 处理重定向
-          final location = response.headers.value('location');
-          if (location != null) {
-            // 如果是相对路径，构造完整URL
-            if (location.startsWith('/')) {
-              final uri = Uri.parse(currentUrl);
-              currentUrl = '${uri.scheme}://${uri.host}:${uri.port}$location';
-            } else {
-              currentUrl = location;
-            }
-            print('[SSE-MCP] 重定向到: $currentUrl');
-            redirectCount++;
-            continue;
-          }
-        }
-        
-        throw Exception('HTTP请求失败: ${response.statusCode}');
-      }
-      
-      throw Exception('重定向次数过多');
-    } finally {
-      client.close();
-    }
+    throw UnimplementedError('Stdio MCP客户端暂未实现');
   }
 }
 
-/// HTTP MCP 客户端实现
-class HttpMcpClient implements McpClient {
+/// Streamable HTTP MCP 客户端实现
+/// 符合MCP官方标准的Streamable HTTP Transport模式
+class StreamableHttpMcpClient implements McpClient {
   final String serverUrl;
   final Map<String, String>? headers;
   
   bool _isConnected = false;
   int _requestId = 0;
+  String? _sessionId; // MCP Session ID支持
   
-  HttpMcpClient(this.serverUrl, this.headers);
+  StreamableHttpMcpClient(this.serverUrl, this.headers);
 
   @override
   Future<void> connect() async {
     try {
-      print('[HTTP-MCP] 连接到HTTP服务器: $serverUrl');
+      print('[Streamable-HTTP-MCP] 连接到Streamable HTTP服务器: $serverUrl');
       
       // 发送初始化请求测试连接
       final result = await _sendRequest('initialize', {
@@ -891,19 +551,19 @@ class HttpMcpClient implements McpClient {
       
       if (result.containsKey('protocolVersion')) {
         _isConnected = true;
-        print('[HTTP-MCP] HTTP连接建立成功');
+        print('[Streamable-HTTP-MCP] Streamable HTTP连接建立成功');
       } else {
         throw Exception('MCP初始化失败');
       }
     } catch (e) {
-      print('[HTTP-MCP] 连接失败: $e');
+      print('[Streamable-HTTP-MCP] 连接失败: $e');
       rethrow;
     }
   }
 
   @override
   Future<void> disconnect() async {
-    print('[HTTP-MCP] 断开HTTP连接');
+    print('[Streamable-HTTP-MCP] 断开Streamable HTTP连接');
     _isConnected = false;
   }
 
@@ -943,7 +603,18 @@ class HttpMcpClient implements McpClient {
     final client = HttpClient();
     try {
       final httpRequest = await client.postUrl(Uri.parse(serverUrl));
+      
+      // 设置MCP规范要求的请求头
       httpRequest.headers.set('Content-Type', 'application/json');
+      httpRequest.headers.set('Accept', 'application/json, text/event-stream');
+      
+      print('[Streamable-HTTP-MCP] 请求头: Content-Type=application/json, Accept=application/json, text/event-stream');
+      
+      // 添加Session ID支持 (如果有的话)
+      if (_sessionId != null) {
+        httpRequest.headers.set('Mcp-Session-Id', _sessionId!);
+        print('[Streamable-HTTP-MCP] 添加Session ID: $_sessionId');
+      }
       
       if (headers != null) {
         headers!.forEach((key, value) {
@@ -954,15 +625,30 @@ class HttpMcpClient implements McpClient {
       httpRequest.add(utf8.encode(jsonEncode(request)));
       final response = await httpRequest.close();
       
+      // 检查是否返回了Session ID (仅在initialize时)
+      if (method == 'initialize' && response.headers.value('mcp-session-id') != null) {
+        _sessionId = response.headers.value('mcp-session-id');
+        print('[Streamable-HTTP-MCP] 收到Session ID: $_sessionId');
+      }
+      
       if (response.statusCode == 200) {
         final responseBody = await response.transform(utf8.decoder).join();
-        final result = jsonDecode(responseBody);
+        print('[Streamable-HTTP-MCP] 原始响应体: $responseBody');
         
-        if (result.containsKey('error')) {
-          throw Exception('MCP错误: ${result['error']}');
+        // 检查响应是否为SSE格式
+        if (responseBody.startsWith('event:') || responseBody.contains('event: message')) {
+          print('[Streamable-HTTP-MCP] 检测到SSE格式响应，解析SSE消息');
+          return _parseSSEResponse(responseBody);
+        } else {
+          // 标准JSON响应
+          final result = jsonDecode(responseBody);
+          
+          if (result.containsKey('error')) {
+            throw Exception('MCP错误: ${result['error']}');
+          }
+          
+          return result['result'] ?? {};
         }
-        
-        return result['result'] ?? {};
       } else {
         throw Exception('HTTP请求失败: ${response.statusCode}');
       }
@@ -970,119 +656,78 @@ class HttpMcpClient implements McpClient {
       client.close();
     }
   }
-}
-
-/// WebSocket MCP 客户端实现
-class WebSocketMcpClient implements McpClient {
-  final String serverUrl;
-  final Map<String, String>? headers;
   
-  WebSocket? _webSocket;
-  bool _isConnected = false;
-  int _requestId = 0;
-  final Map<int, Completer<Map<String, dynamic>>> _pendingRequests = {};
-  
-  WebSocketMcpClient(this.serverUrl, this.headers);
-
-  @override
-  Future<void> connect() async {
-    try {
-      print('[WS-MCP] 连接到WebSocket服务器: $serverUrl');
-      
-      _webSocket = await WebSocket.connect(serverUrl, headers: headers);
-      _isConnected = true;
-      
-      _webSocket!.listen(
-        _handleMessage,
-        onError: (error) {
-          print('[WS-MCP] WebSocket错误: $error');
-          _isConnected = false;
-        },
-        onDone: () {
-          print('[WS-MCP] WebSocket连接关闭');
-          _isConnected = false;
-        },
-      );
-      
-      print('[WS-MCP] WebSocket连接建立成功');
-    } catch (e) {
-      print('[WS-MCP] 连接失败: $e');
-      rethrow;
-    }
-  }
-
-  @override
-  Future<void> disconnect() async {
-    print('[WS-MCP] 断开WebSocket连接');
-    _isConnected = false;
-    await _webSocket?.close();
-    _webSocket = null;
+  /// 解析SSE格式的响应
+  Map<String, dynamic> _parseSSEResponse(String sseData) {
+    print('[Streamable-HTTP-MCP] 开始解析SSE响应');
+    print('[Streamable-HTTP-MCP] 原始SSE数据: $sseData');
     
-    // 清理所有待处理请求
-    for (final completer in _pendingRequests.values) {
-      completer.completeError(Exception('连接已断开'));
-    }
-    _pendingRequests.clear();
-  }
-
-  @override
-  bool get isConnected => _isConnected;
-
-  @override
-  Future<List<dynamic>> listTools() async {
-    final result = await _sendRequest('tools/list', {});
-    return result['tools'] ?? [];
-  }
-
-  @override
-  Future<Map<String, dynamic>> callTool(String toolName, Map<String, dynamic> arguments) async {
-    return await _sendRequest('tools/call', {
-      'name': toolName,
-      'arguments': arguments,
-    });
-  }
-  
-  /// 发送MCP请求
-  Future<Map<String, dynamic>> _sendRequest(String method, Map<String, dynamic> params) async {
-    if (!_isConnected || _webSocket == null) {
-      throw Exception('WebSocket连接未建立');
-    }
+    final lines = sseData.split('\n');
+    String? currentEvent;
+    final dataLines = <String>[];
     
-    final requestId = ++_requestId;
-    final completer = Completer<Map<String, dynamic>>();
-    _pendingRequests[requestId] = completer;
-    
-    // 构造JSON-RPC请求
-    final request = {
-      'jsonrpc': '2.0',
-      'id': requestId,
-      'method': method,
-      'params': params,
-    };
-    
-    _webSocket!.add(jsonEncode(request));
-    return await completer.future;
-  }
-  
-  /// 处理WebSocket消息
-  void _handleMessage(dynamic message) {
-    try {
-      final data = jsonDecode(message.toString());
-      print('[WS-MCP] 收到消息: $data');
+    for (final line in lines) {
+      final trimmedLine = line.trim();
       
-      if (data.containsKey('id')) {
-        final requestId = data['id'] as int;
-        final completer = _pendingRequests.remove(requestId);
-        if (completer != null) {
-          if (data.containsKey('error')) {
-            completer.completeError(Exception('MCP错误: ${data['error']}'));
-          } else {
-            completer.complete(data['result'] ?? {});
+      if (trimmedLine.startsWith('event: ')) {
+        currentEvent = trimmedLine.substring(7);
+        print('[Streamable-HTTP-MCP] SSE事件类型: $currentEvent');
+      } else if (trimmedLine.startsWith('data: ')) {
+        final data = trimmedLine.substring(6);
+        dataLines.add(data);
+        print('[Streamable-HTTP-MCP] SSE数据行: $data');
+      } else if (trimmedLine.isEmpty && dataLines.isNotEmpty) {
+        // 空行表示一个SSE事件结束，处理累积的数据
+        final combinedData = dataLines.join('\n');
+        print('[Streamable-HTTP-MCP] 处理完整SSE事件，数据: $combinedData');
+        
+        if (currentEvent == 'message' && combinedData.isNotEmpty) {
+          try {
+            final jsonData = jsonDecode(combinedData);
+            print('[Streamable-HTTP-MCP] 成功解析SSE中的JSON数据: $jsonData');
+            
+            if (jsonData is Map<String, dynamic>) {
+              if (jsonData.containsKey('error')) {
+                throw Exception('MCP错误: ${jsonData['error']}');
+              }
+              
+              // 返回result部分，如果没有则返回整个对象
+              return jsonData['result'] ?? jsonData;
+            }
+          } catch (e) {
+            print('[Streamable-HTTP-MCP] JSON解析失败: $e');
+            print('[Streamable-HTTP-MCP] 原始数据: $combinedData');
           }
         }
+        
+        // 重置状态准备处理下一个事件
+        dataLines.clear();
+        currentEvent = null;
       }
-    } catch (e) {
-      print('[WS-MCP] 解析消息失败: $e');
     }
+    
+    // 处理最后一个事件（如果没有以空行结尾）
+    if (dataLines.isNotEmpty && currentEvent == 'message') {
+      final combinedData = dataLines.join('\n');
+      try {
+        final jsonData = jsonDecode(combinedData);
+        print('[Streamable-HTTP-MCP] 最后事件解析成功: $jsonData');
+        
+        if (jsonData is Map<String, dynamic>) {
+          if (jsonData.containsKey('error')) {
+            throw Exception('MCP错误: ${jsonData['error']}');
+          }
+          
+          return jsonData['result'] ?? jsonData;
+        }
+      } catch (e) {
+        print('[Streamable-HTTP-MCP] 最后事件JSON解析失败: $e');
+      }
+    }
+    
+    // 如果没有找到有效的JSON数据，返回空对象
+    print('[Streamable-HTTP-MCP] 未找到有效的JSON数据，返回空响应');
+    return {};
   }
 }
+

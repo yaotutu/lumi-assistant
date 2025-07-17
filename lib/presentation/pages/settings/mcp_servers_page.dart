@@ -431,11 +431,7 @@ class McpServersPage extends HookConsumerWidget {
   /// 获取传输模式颜色
   Color _getTransportColor(McpTransportMode transport) {
     switch (transport) {
-      case McpTransportMode.websocket:
-        return Colors.blue;
-      case McpTransportMode.sse:
-        return Colors.orange;
-      case McpTransportMode.http:
+      case McpTransportMode.streamableHttp:
         return Colors.green;
       case McpTransportMode.stdio:
         return Colors.purple;
@@ -535,7 +531,7 @@ class _McpServerConfigDialog extends HookWidget {
       text: initialConfig?.description ?? '',
     );
     final urlController = useTextEditingController(
-      text: initialConfig?.url ?? 'http://192.168.200.68:8200/sse',
+      text: initialConfig?.url ?? 'http://192.168.200.68:8200/mcp/',
     );
     final toolsController = useTextEditingController(
       text: initialConfig?.tools.join(', ') ?? '',
@@ -547,7 +543,7 @@ class _McpServerConfigDialog extends HookWidget {
     );
     
     final selectedTransport = useState(
-      initialConfig?.transport ?? McpTransportMode.sse,
+      initialConfig?.transport ?? McpTransportMode.streamableHttp,
     );
     final enabled = useState(initialConfig?.enabled ?? true);
     final autoStart = useState(initialConfig?.autoStart ?? false);
@@ -601,14 +597,8 @@ class _McpServerConfigDialog extends HookWidget {
         // 创建临时客户端
         McpClient? client;
         switch (selectedTransport.value) {
-          case McpTransportMode.websocket:
-            client = WebSocketMcpClient(tempConfig.url!, tempConfig.headers);
-            break;
-          case McpTransportMode.sse:
-            client = SseMcpClient(tempConfig.url!, tempConfig.headers);
-            break;
-          case McpTransportMode.http:
-            client = HttpMcpClient(tempConfig.url!, tempConfig.headers);
+          case McpTransportMode.streamableHttp:
+            client = StreamableHttpMcpClient(tempConfig.url!, tempConfig.headers);
             break;
           case McpTransportMode.stdio:
             testResult.value = '❌ Stdio模式不支持连接测试';
@@ -659,14 +649,8 @@ class _McpServerConfigDialog extends HookWidget {
         // 创建临时客户端
         McpClient? client;
         switch (selectedTransport.value) {
-          case McpTransportMode.websocket:
-            client = WebSocketMcpClient(tempConfig.url!, tempConfig.headers);
-            break;
-          case McpTransportMode.sse:
-            client = SseMcpClient(tempConfig.url!, tempConfig.headers);
-            break;
-          case McpTransportMode.http:
-            client = HttpMcpClient(tempConfig.url!, tempConfig.headers);
+          case McpTransportMode.streamableHttp:
+            client = StreamableHttpMcpClient(tempConfig.url!, tempConfig.headers);
             break;
           case McpTransportMode.stdio:
             testResult.value = '❌ Stdio模式不支持工具获取';
@@ -1010,12 +994,8 @@ class _McpServerConfigDialog extends HookWidget {
 
   String _getUrlHint(McpTransportMode transport) {
     switch (transport) {
-      case McpTransportMode.websocket:
-        return 'ws://192.168.200.68:8200/mcp';
-      case McpTransportMode.sse:
-        return 'http://192.168.200.68:8200/sse';
-      case McpTransportMode.http:
-        return 'http://192.168.200.68:8200/api';
+      case McpTransportMode.streamableHttp:
+        return 'http://192.168.200.68:8200/mcp/';
       case McpTransportMode.stdio:
         return '不需要URL';
     }

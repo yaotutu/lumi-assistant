@@ -3,19 +3,19 @@ import 'package:lumi_assistant/core/services/mcp_config.dart';
 
 void main() {
   group('MCP Configuration Tests', () {
-    test('Default SSE configuration should be created correctly', () {
-      final config = McpServerConfig.sse(
-        id: 'test_sse',
-        name: 'Test SSE Server',
-        description: 'Test SSE Server Description',
-        url: 'http://192.168.162.104:8100/sse',
+    test('Default Streamable HTTP configuration should be created correctly', () {
+      final config = McpServerConfig.streamableHttp(
+        id: 'test_streamable_http',
+        name: 'Test Streamable HTTP Server',
+        description: 'Test Streamable HTTP Server Description',
+        url: 'http://192.168.200.68:8200/mcp/',
         tools: ['test_tool'],
       );
 
-      expect(config.id, 'test_sse');
-      expect(config.name, 'Test SSE Server');
-      expect(config.transport, McpTransportMode.sse);
-      expect(config.url, 'http://192.168.162.104:8100/sse');
+      expect(config.id, 'test_streamable_http');
+      expect(config.name, 'Test Streamable HTTP Server');
+      expect(config.transport, McpTransportMode.streamableHttp);
+      expect(config.url, 'http://192.168.200.68:8200/mcp/');
       expect(config.enabled, true);
       expect(config.autoStart, false);
       expect(config.priority, 0);
@@ -61,38 +61,18 @@ void main() {
       expect(tools, []);
     });
 
-    test('All transport modes should be supported', () {
-      // Test WebSocket
-      final wsConfig = McpServerConfig.websocket(
-        id: 'ws_test',
-        name: 'WebSocket Test',
-        description: 'Test WebSocket',
-        url: 'ws://localhost:8080/mcp',
-        tools: ['ws_tool'],
+    test('MCP standard transport modes should be supported', () {
+      // Test Streamable HTTP (MCP official remote transport)
+      final streamableHttpConfig = McpServerConfig.streamableHttp(
+        id: 'streamable_http_test',
+        name: 'Streamable HTTP Test',
+        description: 'Test Streamable HTTP',
+        url: 'http://192.168.200.68:8200/mcp/',
+        tools: ['streamable_http_tool'],
       );
-      expect(wsConfig.transport, McpTransportMode.websocket);
+      expect(streamableHttpConfig.transport, McpTransportMode.streamableHttp);
 
-      // Test SSE
-      final sseConfig = McpServerConfig.sse(
-        id: 'sse_test',
-        name: 'SSE Test',
-        description: 'Test SSE',
-        url: 'http://localhost:8080/sse',
-        tools: ['sse_tool'],
-      );
-      expect(sseConfig.transport, McpTransportMode.sse);
-
-      // Test HTTP
-      final httpConfig = McpServerConfig.http(
-        id: 'http_test',
-        name: 'HTTP Test',
-        description: 'Test HTTP',
-        url: 'http://localhost:8080/api',
-        tools: ['http_tool'],
-      );
-      expect(httpConfig.transport, McpTransportMode.http);
-
-      // Test Stdio
+      // Test Stdio (MCP official local transport)
       final stdioConfig = McpServerConfig.stdio(
         id: 'stdio_test',
         name: 'Stdio Test',

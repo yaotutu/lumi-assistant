@@ -207,10 +207,8 @@ class UnifiedMcpManager {
         // Stdio模式：需要启动本地进程
         return await _startLocalProcess(serverId, config);
         
-      case McpTransportMode.websocket:
-      case McpTransportMode.sse:
-      case McpTransportMode.http:
-        // 直连模式：直接连接到外部服务器
+      case McpTransportMode.streamableHttp:
+        // Streamable HTTP模式：直接连接到外部服务器
         return await _connectToExternalServer(serverId, config);
     }
   }
@@ -258,29 +256,24 @@ class UnifiedMcpManager {
       
       // 根据传输模式创建相应的客户端
       switch (config.transport) {
-        case McpTransportMode.websocket:
+        case McpTransportMode.streamableHttp:
           if (config.url == null) {
-            throw Exception('WebSocket传输模式需要URL配置');
+            throw Exception('Streamable HTTP传输模式需要URL配置');
           }
-          client = WebSocketMcpClient(config.url!, config.headers);
-          break;
-          
-        case McpTransportMode.sse:
-          if (config.url == null) {
-            throw Exception('SSE传输模式需要URL配置');
-          }
-          client = SseMcpClient(config.url!, config.headers);
-          break;
-          
-        case McpTransportMode.http:
-          if (config.url == null) {
-            throw Exception('HTTP传输模式需要URL配置');
-          }
-          client = HttpMcpClient(config.url!, config.headers);
+          client = StreamableHttpMcpClient(config.url!, config.headers);
           break;
           
         case McpTransportMode.stdio:
-          throw Exception('Stdio传输模式暂不支持');
+          if (config.command == null) {
+            throw Exception('Stdio传输模式需要command配置');
+          }
+          client = StdioMcpClient(
+            command: config.command!,
+            args: config.args,
+            workingDirectory: config.workingDirectory,
+            environment: config.environment,
+          );
+          break;
       }
       
       await client.connect();

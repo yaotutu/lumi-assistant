@@ -145,38 +145,27 @@ class McpTestPage extends HookConsumerWidget {
     Future<void> testConfigCreation() async {
       addResult('--- 测试配置创建 ---');
       
-      // 测试WebSocket配置
-      final wsConfig = McpServerConfig.websocket(
-        id: 'test_ws',
-        name: 'Test WebSocket',
-        description: 'WebSocket测试服务器',
-        url: 'ws://localhost:8080/mcp',
+      // 测试Streamable HTTP配置
+      final streamableHttpConfig = McpServerConfig.streamableHttp(
+        id: 'test_streamable_http',
+        name: 'Test Streamable HTTP',
+        description: 'Streamable HTTP测试服务器',
+        url: 'http://localhost:8080/mcp/',
         headers: {'Authorization': 'Bearer test-token'},
         tools: ['test_tool'],
       );
-      addResult('✅ WebSocket配置创建成功: ${wsConfig.transport.name}');
+      addResult('✅ Streamable HTTP配置创建成功: ${streamableHttpConfig.transport.name}');
       
-      // 测试SSE配置
-      final sseConfig = McpServerConfig.sse(
-        id: 'test_sse',
-        name: 'Test SSE',
-        description: 'SSE测试服务器',
-        url: 'http://localhost:8080/mcp/stream',
-        headers: {'Authorization': 'Bearer test-token'},
+      // 测试Stdio配置
+      final stdioConfig = McpServerConfig.stdio(
+        id: 'test_stdio',
+        name: 'Test Stdio',
+        description: 'Stdio测试服务器',
+        command: 'node',
+        args: ['server.js'],
         tools: ['test_tool'],
       );
-      addResult('✅ SSE配置创建成功: ${sseConfig.transport.name}');
-      
-      // 测试HTTP配置
-      final httpConfig = McpServerConfig.http(
-        id: 'test_http',
-        name: 'Test HTTP',
-        description: 'HTTP测试服务器',
-        url: 'http://localhost:8080/mcp/api',
-        headers: {'Authorization': 'Bearer test-token'},
-        tools: ['test_tool'],
-      );
-      addResult('✅ HTTP配置创建成功: ${httpConfig.transport.name}');
+      addResult('✅ Stdio配置创建成功: ${stdioConfig.transport.name}');
       
       // 测试嵌入式配置
       final embeddedConfig = McpServerConfig.embedded(
@@ -194,20 +183,20 @@ class McpTestPage extends HookConsumerWidget {
       
       // 由于是模拟环境，这里主要测试客户端创建逻辑
       try {
-        // 测试WebSocket客户端创建
-        final _ = WebSocketMcpClient('ws://localhost:8080/mcp', {'test': 'header'});
-        addResult('✅ WebSocket客户端创建成功');
+        // 测试Streamable HTTP客户端创建
+        final streamableClient = StreamableHttpMcpClient('http://localhost:8080/mcp/', {'test': 'header'});
+        addResult('✅ Streamable HTTP客户端创建成功');
         
-        // 测试SSE客户端创建
-        final _1 = SseMcpClient('http://localhost:8080/mcp/stream', {'test': 'header'});
-        addResult('✅ SSE客户端创建成功');
-        
-        // 测试HTTP客户端创建
-        final _2 = HttpMcpClient('http://localhost:8080/mcp/api', {'test': 'header'});
-        addResult('✅ HTTP客户端创建成功');
+        // 测试Stdio客户端创建
+        final stdioClient = StdioMcpClient(
+          command: 'node',
+          args: ['server.js'],
+        );
+        addResult('✅ Stdio客户端创建成功');
         
         // 注意：不测试实际连接，因为没有真实的服务器
         addResult('ℹ️ 实际连接测试需要运行相应的MCP服务器');
+        addResult('ℹ️ 已移除非标准传输模式，仅支持MCP官方标准的两种模式');
         
       } catch (e) {
         addResult('❌ 传输连接测试失败: $e');
@@ -218,7 +207,7 @@ class McpTestPage extends HookConsumerWidget {
     Future<void> testMultiTransport() async {
       isLoading.value = true;
       try {
-        addResult('=== 测试多传输模式 ===');
+        addResult('=== 测试MCP标准传输模式 ===');
         
         // 测试配置不同传输模式的服务器
         await testConfigCreation();
