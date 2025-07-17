@@ -4,6 +4,7 @@ import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'widgets/background_layer.dart';
 import '../../widgets/floating_chat/floating_chat_widget.dart';
 import '../settings/settings_main_page.dart';
+import '../test/mcp_test_page.dart';
 
 /// 应用主页 - 极简背景设计
 class HomePage extends HookConsumerWidget {
@@ -46,6 +47,23 @@ class HomePage extends HookConsumerWidget {
                   },
                   icon: Icon(
                     Icons.settings,
+                    color: Colors.white.withValues(alpha: 0.6),
+                    size: 20,
+                  ),
+                ),
+                const SizedBox(width: 8),
+                // MCP测试按钮
+                IconButton(
+                  onPressed: () {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (context) => const McpTestPage(),
+                      ),
+                    );
+                  },
+                  icon: Icon(
+                    Icons.build_circle,
                     color: Colors.white.withValues(alpha: 0.6),
                     size: 20,
                   ),

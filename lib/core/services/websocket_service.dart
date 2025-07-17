@@ -12,7 +12,7 @@ import '../errors/exceptions.dart';
 import '../../data/models/websocket_state.dart';
 import 'audio_service_android_style.dart';
 import 'audio_service_simple.dart';
-import 'mcp_service_standard.dart';
+import 'unified_mcp_manager.dart';
 
 
 /// WebSocket服务类
@@ -26,10 +26,10 @@ class WebSocketService extends StateNotifier<WebSocketState> {
   dynamic _activeAudioService;
   String _audioServiceType = 'android_style'; // 默认使用最稳定的Android风格服务
   
-  // 标准MCP协议服务
-  final McpServiceStandard _mcpService;
+  // 统一MCP管理器
+  final UnifiedMcpManager _mcpManager;
 
-  WebSocketService(this._mcpService) : super(WebSocketStateFactory.disconnected());
+  WebSocketService(this._mcpManager) : super(WebSocketStateFactory.disconnected());
 
   /// 消息流
   Stream<Map<String, dynamic>> get messageStream => _messageController.stream;
@@ -306,7 +306,7 @@ class WebSocketService extends StateNotifier<WebSocketState> {
       
       // 检查是否为MCP消息
       if (message['type'] == 'mcp') {
-        print('[WebSocket] 检测到MCP消息，路由到MCP服务');
+        print('[WebSocket] 检测到MCP消息，路由到统一MCP管理器');
         _handleMcpMessage(message);
       } else {
         print('[WebSocket] 非MCP消息，添加到消息流: ${message['type']}');
@@ -449,26 +449,115 @@ class WebSocketService extends StateNotifier<WebSocketState> {
   }
 
 
-  /// 处理MCP消息 - 路由到MCP协议服务
+  /// 处理MCP消息 - 路由到统一MCP管理器
   Future<void> _handleMcpMessage(Map<String, dynamic> message) async {
-    print('[WebSocket] 路由MCP消息到协议服务');
+    print('[WebSocket] 路由MCP消息到统一管理器');
     print('[WebSocket] MCP消息内容: $message');
     
     try {
-      // 确保MCP服务已初始化
-      await _mcpService.initialize();
-      print('[WebSocket] MCP服务初始化完成');
+      // 确保统一MCP管理器已初始化
+      await _mcpManager.initialize();
+      print('[WebSocket] 统一MCP管理器初始化完成');
       
-      // 使用标准MCP服务处理消息
-      final response = await _mcpService.handleMcpRequest(message);
-      print('[WebSocket] MCP响应生成: $response');
+      // 解析MCP请求
+      final payload = message['payload'] as Map<String, dynamic>?;
+      if (payload == null) {
+        throw Exception('MCP消息缺少payload');
+      }
+      
+      final method = payload['method'] as String?;
+      final id = payload['id'];
+      final sessionId = message['session_id'] as String?;
+      
+      Map<String, dynamic> response;
+      
+      switch (method) {
+        case 'tools/call':
+          // 工具调用请求
+          final params = payload['params'] as Map<String, dynamic>?;
+          if (params == null) {
+            throw Exception('工具调用缺少参数');
+          }
+          
+          final toolName = params['name'] as String;
+          final arguments = params['arguments'] as Map<String, dynamic>? ?? {};
+          
+          print('[WebSocket] 调用工具: $toolName');
+          final toolResult = await _mcpManager.callTool(toolName, arguments);
+          
+          response = {
+            'type': 'mcp',
+            'session_id': sessionId,
+            'payload': {
+              'jsonrpc': '2.0',
+              'id': id,
+              'result': {
+                'content': toolResult['content'] ?? [
+                  {'type': 'text', 'text': toolResult['message'] ?? '操作完成'}
+                ],
+                'isError': toolResult['isError'] ?? false,
+              },
+            },
+          };
+          break;
+          
+        case 'tools/list':
+          // 工具列表请求
+          print('[WebSocket] 获取工具列表');
+          final tools = await _mcpManager.getAvailableTools();
+          
+          response = {
+            'type': 'mcp',
+            'session_id': sessionId,
+            'payload': {
+              'jsonrpc': '2.0',
+              'id': id,
+              'result': {
+                'tools': tools.map((tool) => {
+                  'name': tool.name,
+                  'description': tool.description,
+                  'inputSchema': tool.inputSchema,
+                }).toList(),
+              },
+            },
+          };
+          break;
+          
+        case 'initialize':
+          // 初始化请求
+          response = {
+            'type': 'mcp',
+            'session_id': sessionId,
+            'payload': {
+              'jsonrpc': '2.0',
+              'id': id,
+              'result': {
+                'protocolVersion': '2024-11-05',
+                'capabilities': {
+                  'tools': {},
+                  'resources': {},
+                  'prompts': {},
+                },
+                'serverInfo': {
+                  'name': 'LumiAssistant',
+                  'version': '1.0.0',
+                },
+              },
+            },
+          };
+          break;
+          
+        default:
+          throw Exception('不支持的MCP方法: $method');
+      }
+      
+      print('[WebSocket] MCP响应生成: ${response['payload']['result']}');
       
       // 发送响应
       await sendMessage(response);
       print('[WebSocket] MCP响应已发送');
     } catch (error) {
       print('[WebSocket] MCP消息处理失败: $error');
-      print('[WebSocket] 错误堆栈: ${error.toString()}');
       
       // 发送错误响应
       final errorResponse = {
@@ -552,9 +641,19 @@ class WebSocketService extends StateNotifier<WebSocketState> {
 
 /// WebSocket服务提供者
 final webSocketServiceProvider = StateNotifierProvider<WebSocketService, WebSocketState>((ref) {
-  // 注入标准MCP服务
-  final mcpService = ref.read(mcpServiceStandardProvider);
-  final service = WebSocketService(mcpService);
+  // 注入统一MCP管理器
+  final mcpManager = ref.read(unifiedMcpManagerProvider);
+  final service = WebSocketService(mcpManager);
+  
+  // 初始化统一MCP管理器
+  Future.microtask(() async {
+    try {
+      await mcpManager.initialize();
+      await mcpManager.startAutoStartServers();
+    } catch (e) {
+      print('[WebSocket] 统一MCP管理器初始化失败: $e');
+    }
+  });
   
   // 性能优化：延迟注入单一音频服务，避免循环依赖和内存浪费
   Future.microtask(() {

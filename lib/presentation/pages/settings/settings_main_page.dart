@@ -6,6 +6,7 @@ import 'settings_network_page.dart';
 import 'settings_audio_page.dart';
 import 'settings_theme_page.dart';
 import 'settings_debug_page.dart';
+import 'mcp_servers_page.dart';
 
 /// 设置主页面 - 分组导航
 /// 
@@ -112,6 +113,20 @@ class SettingsMainPage extends ConsumerWidget {
             onTap: () => Navigator.push(
               context,
               MaterialPageRoute(builder: (context) => const SettingsAudioPage()),
+            ),
+          ),
+          
+          const SizedBox(height: 12),
+          
+          _buildSettingsCategoryCard(
+            context,
+            title: 'MCP服务器配置',
+            subtitle: '管理内置和外部MCP服务器，配置设备控制功能',
+            icon: Icons.settings_remote,
+            color: Colors.orange.shade700,
+            onTap: () => Navigator.push(
+              context,
+              MaterialPageRoute(builder: (context) => const McpServersPage()),
             ),
           ),
           

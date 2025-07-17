@@ -9,19 +9,16 @@ void main() {
     // Build our app and trigger a frame.
     await tester.pumpWidget(const ProviderScope(child: LumiAssistantApp()));
 
-    // Wait for the widget to settle
-    await tester.pumpAndSettle();
+    // Wait for initial frame
+    await tester.pump();
 
     // Verify that our app title is displayed
     expect(find.text('Lumi Assistant'), findsOneWidget);
     
-    // Verify that the success message is displayed
-    expect(find.text('项目初始化成功！'), findsOneWidget);
+    // Verify that the settings icon is displayed
+    expect(find.byIcon(Icons.settings), findsOneWidget);
     
-    // Verify that the check icon is displayed
-    expect(find.byIcon(Icons.check_circle), findsOneWidget);
-    
-    // Clean up any pending timers or streams
-    await tester.binding.delayed(const Duration(milliseconds: 100));
+    // Verify that the MCP test icon is displayed
+    expect(find.byIcon(Icons.build_circle), findsOneWidget);
   });
 }

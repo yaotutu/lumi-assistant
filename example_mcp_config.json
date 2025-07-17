@@ -1,0 +1,65 @@
+{
+  "mcpServers": {
+    "embedded_device": {
+      "type": "embedded",
+      "transport": "websocket",
+      "name": "嵌入式设备控制",
+      "description": "内置的高性能设备控制MCP服务器",
+      "enabled": true,
+      "autoStart": true,
+      "tools": [
+        "set_brightness",
+        "get_current_brightness",
+        "adjust_volume",
+        "get_current_volume",
+        "get_system_info"
+      ],
+      "priority": 100
+    },
+    "example_sse_server": {
+      "type": "external",
+      "transport": "sse",
+      "name": "SSE示例服务器",
+      "description": "使用Server-Sent Events的MCP服务器",
+      "url": "http://localhost:8080/mcp/stream",
+      "headers": {
+        "Authorization": "Bearer your-sse-token",
+        "Accept": "text/event-stream"
+      },
+      "enabled": false,
+      "autoStart": false,
+      "tools": ["example_sse_tool"],
+      "priority": 40
+    },
+    "example_http_server": {
+      "type": "external",
+      "transport": "http",
+      "name": "HTTP示例服务器",
+      "description": "使用HTTP REST API的MCP服务器",
+      "url": "http://localhost:8080/mcp/api",
+      "headers": {
+        "Authorization": "Bearer your-http-token",
+        "Content-Type": "application/json"
+      },
+      "enabled": false,
+      "autoStart": false,
+      "tools": ["example_http_tool"],
+      "priority": 30
+    },
+    "example_websocket_server": {
+      "type": "external",
+      "transport": "websocket",
+      "name": "WebSocket示例服务器",
+      "description": "使用WebSocket的外部MCP服务器",
+      "url": "ws://localhost:8080/mcp/ws",
+      "headers": {
+        "Authorization": "Bearer your-ws-token",
+        "Device-Id": "flutter-client"
+      },
+      "enabled": false,
+      "autoStart": false,
+      "tools": ["example_ws_tool"],
+      "priority": 50
+    }
+  }
+}

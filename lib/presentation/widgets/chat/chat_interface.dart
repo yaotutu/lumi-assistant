@@ -5,7 +5,6 @@ import 'package:hooks_riverpod/hooks_riverpod.dart';
 import '../../providers/chat_provider.dart';
 import '../../providers/virtual_character_provider.dart';
 import '../../../data/models/chat_state.dart';
-import '../../../data/models/chat_ui_model.dart';
 import '../../../core/constants/device_constants.dart';
 import '../virtual_character/models/character_enums.dart';
 import '../connection_status_widget.dart';
