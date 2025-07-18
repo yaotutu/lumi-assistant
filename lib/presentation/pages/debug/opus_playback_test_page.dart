@@ -6,6 +6,7 @@ import 'dart:typed_data';
 import 'package:path_provider/path_provider.dart';
 import '../../../core/services/audio_service_android_style.dart';
 import '../../../core/services/audio_service_simple.dart';
+import '../../../core/services/audio_service_raw_pcm.dart';
 
 /// Opus播放测试页面
 /// 
@@ -178,45 +179,75 @@ class OpusPlaybackTestPage extends HookConsumerWidget {
                       const SizedBox(height: 16),
                       
                       // 测试按钮
-                      Row(
+                      Column(
                         children: [
-                          Expanded(
-                            child: ElevatedButton.icon(
+                          // 第一行：AndroidStyle 和 Simple
+                          Row(
+                            children: [
+                              Expanded(
+                                child: ElevatedButton(
+                                  onPressed: currentlyTesting.value.isNotEmpty ? null : () async {
+                                    await _testAudioServiceMultiple(
+                                      'AndroidStyle(PCM直播)',
+                                      audioServiceAndroid,
+                                      opusFiles.value,
+                                      currentlyTesting,
+                                      testResults,
+                                    );
+                                  },
+                                  style: ElevatedButton.styleFrom(
+                                    backgroundColor: Colors.blue,
+                                    foregroundColor: Colors.white,
+                                  ),
+                                  child: const Text('AndroidStyle'),
+                                ),
+                              ),
+                              const SizedBox(width: 8),
+                              Expanded(
+                                child: ElevatedButton(
+                                  onPressed: currentlyTesting.value.isNotEmpty ? null : () async {
+                                    await _testAudioServiceMultiple(
+                                      'Simple(文件播放)',
+                                      audioServiceSimple,
+                                      opusFiles.value,
+                                      currentlyTesting,
+                                      testResults,
+                                    );
+                                  },
+                                  style: ElevatedButton.styleFrom(
+                                    backgroundColor: Colors.green,
+                                    foregroundColor: Colors.white,
+                                  ),
+                                  child: const Text('Simple'),
+                                ),
+                              ),
+                            ],
+                          ),
+                          const SizedBox(height: 8),
+                          // 第二行：原始PCM对照组
+                          SizedBox(
+                            width: double.infinity,
+                            child: ElevatedButton(
                               onPressed: currentlyTesting.value.isNotEmpty ? null : () async {
-                                await _testAudioService(
-                                  'AndroidStyle',
-                                  audioServiceAndroid,
-                                  selectedFile.value!,
+                                await _testRawPcmPlayback(
+                                  opusFiles.value,
                                   currentlyTesting,
                                   testResults,
                                 );
                               },
-                              icon: const Icon(Icons.play_arrow),
-                              label: const Text('测试 AndroidStyle'),
                               style: ElevatedButton.styleFrom(
-                                backgroundColor: Colors.blue,
+                                backgroundColor: Colors.orange,
                                 foregroundColor: Colors.white,
                               ),
+                              child: const Text('原始PCM播放(对照组)'),
                             ),
                           ),
-                          const SizedBox(width: 8),
-                          Expanded(
-                            child: ElevatedButton.icon(
-                              onPressed: currentlyTesting.value.isNotEmpty ? null : () async {
-                                await _testAudioService(
-                                  'Simple',
-                                  audioServiceSimple,
-                                  selectedFile.value!,
-                                  currentlyTesting,
-                                  testResults,
-                                );
-                              },
-                              icon: const Icon(Icons.play_arrow),
-                              label: const Text('测试 Simple'),
-                              style: ElevatedButton.styleFrom(
-                                backgroundColor: Colors.green,
-                                foregroundColor: Colors.white,
-                              ),
+                          const SizedBox(height: 8),
+                          Text(
+                            '连续播放所有opus文件 (${opusFiles.value.length}个)',
+                            style: const TextStyle(
+                              fontSize: 12,
+                              color: Colors.grey,
                             ),
                           ),
                         ],
@@ -351,7 +382,145 @@ class OpusPlaybackTestPage extends HookConsumerWidget {
     }
   }
 
-  /// 测试音频服务播放opus文件
+  /// 测试原始PCM播放（对照组）
+  static Future<void> _testRawPcmPlayback(
+    List<File> opusFiles,
+    ValueNotifier<String> currentlyTesting,
+    ValueNotifier<Map<String, String>> testResults,
+  ) async {
+    const serviceName = '原始PCM播放(对照组)';
+    
+    if (opusFiles.isEmpty) {
+      testResults.value = {
+        ...testResults.value,
+        serviceName: '没有opus文件可测试',
+      };
+      return;
+    }
+
+    currentlyTesting.value = serviceName;
+    
+    try {
+      // 最多播放10个文件
+      final filesToTest = opusFiles.take(10).toList();
+      int successCount = 0;
+      int totalBytes = 0;
+      
+      print('[OpusPlaybackTest] 开始原始PCM播放测试: ${filesToTest.length} 个文件');
+      
+      // 准备所有opus数据
+      final opusDataList = <Uint8List>[];
+      for (final file in filesToTest) {
+        try {
+          final opusData = await file.readAsBytes();
+          opusDataList.add(Uint8List.fromList(opusData));
+          totalBytes += opusData.length;
+        } catch (e) {
+          print('[OpusPlaybackTest] 读取文件失败: $e');
+        }
+      }
+      
+      if (opusDataList.isNotEmpty) {
+        // 使用原始PCM服务连续播放
+        await AudioServiceRawPcm.playMultipleOpusFiles(opusDataList);
+        successCount = opusDataList.length;
+      }
+      
+      final result = '原始PCM播放: $successCount/${filesToTest.length}个文件, 总计$totalBytes字节';
+      testResults.value = {
+        ...testResults.value,
+        serviceName: result,
+      };
+      
+      print('[OpusPlaybackTest] 原始PCM播放测试完成: $successCount/${filesToTest.length}');
+      
+    } catch (error) {
+      final result = '原始PCM播放失败: $error';
+      testResults.value = {
+        ...testResults.value,
+        serviceName: result,
+      };
+      
+      print('[OpusPlaybackTest] 原始PCM播放测试失败: $error');
+    } finally {
+      currentlyTesting.value = '';
+    }
+  }
+
+  /// 测试音频服务播放多个opus文件
+  static Future<void> _testAudioServiceMultiple(
+    String serviceName,
+    dynamic audioService,
+    List<File> opusFiles,
+    ValueNotifier<String> currentlyTesting,
+    ValueNotifier<Map<String, String>> testResults,
+  ) async {
+    if (opusFiles.isEmpty) {
+      testResults.value = {
+        ...testResults.value,
+        serviceName: '没有opus文件可测试',
+      };
+      return;
+    }
+
+    currentlyTesting.value = serviceName;
+    
+    try {
+      // 最多播放10个文件，避免播放时间过长
+      final filesToTest = opusFiles.take(10).toList();
+      int successCount = 0;
+      int totalBytes = 0;
+      
+      print('[OpusPlaybackTest] 开始连续测试 $serviceName: ${filesToTest.length} 个文件');
+      
+      for (int i = 0; i < filesToTest.length; i++) {
+        final file = filesToTest[i];
+        
+        try {
+          // 读取opus文件数据
+          final opusData = await file.readAsBytes();
+          totalBytes += opusData.length;
+          
+          print('[OpusPlaybackTest] 播放文件 ${i + 1}/${filesToTest.length}: ${opusData.length} 字节');
+          
+          // 播放opus数据
+          await audioService.playOpusAudio(Uint8List.fromList(opusData));
+          
+          // 短暂间隔，让每个文件播放清晰
+          await Future.delayed(const Duration(milliseconds: 800));
+          
+          successCount++;
+          
+        } catch (fileError) {
+          print('[OpusPlaybackTest] 文件 ${i + 1} 播放失败: $fileError');
+        }
+      }
+      
+      // 等待最后一个文件播放完成
+      await Future.delayed(const Duration(seconds: 1));
+      
+      final result = '连续播放成功: $successCount/${filesToTest.length}个文件, 总计$totalBytes字节';
+      testResults.value = {
+        ...testResults.value,
+        serviceName: result,
+      };
+      
+      print('[OpusPlaybackTest] $serviceName 连续测试完成: $successCount/${filesToTest.length}');
+      
+    } catch (error) {
+      final result = '连续播放失败: $error';
+      testResults.value = {
+        ...testResults.value,
+        serviceName: result,
+      };
+      
+      print('[OpusPlaybackTest] $serviceName 连续测试失败: $error');
+    } finally {
+      currentlyTesting.value = '';
+    }
+  }
+
+  /// 测试音频服务播放单个opus文件（保留原方法作为备用）
   static Future<void> _testAudioService(
     String serviceName,
     dynamic audioService,
