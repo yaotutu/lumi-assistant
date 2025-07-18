@@ -13,6 +13,7 @@ import '../../data/models/websocket_state.dart';
 import 'audio_service_android_style.dart';
 import 'audio_service_simple.dart';
 import 'unified_mcp_manager.dart';
+import 'opus_data_capture_service.dart';
 
 
 /// WebSocket服务类
@@ -320,6 +321,9 @@ class WebSocketService extends StateNotifier<WebSocketState> {
     try {
       // 检查是否为音频数据（Opus帧通常是10-320字节）
       if (data.length >= 10 && data.length <= 1000) {
+        // 捕获opus数据（用于测试和分析）
+        OpusDataCaptureService.captureOpusData(data, messageType: 'binary_audio');
+        
         // 性能优化：使用单一的音频服务实例
         if (_activeAudioService != null) {
           await _activeAudioService.playOpusAudio(data);
