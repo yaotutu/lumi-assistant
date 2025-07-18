@@ -688,6 +688,30 @@ class WebSocketService extends StateNotifier<WebSocketState> {
     }
   }
 
+  /// 强制重新生成会话（用于MCP工具变化后确保工具同步）
+  Future<void> regenerateSession() async {
+    print('[WebSocket] 开始强制重新生成会话...');
+    
+    if (!state.isConnected) {
+      print('[WebSocket] 当前未连接，直接建立新连接');
+      await connect();
+      return;
+    }
+    
+    // 优雅断开当前连接
+    print('[WebSocket] 断开当前连接');
+    await disconnect();
+    
+    // 短暂延迟确保资源清理完成
+    await Future.delayed(Duration(milliseconds: 500));
+    
+    // 重新建立连接，这会触发新的hello握手和工具列表请求
+    print('[WebSocket] 重新建立连接和会话');
+    await connect();
+    
+    print('[WebSocket] 会话重新生成完成，Python后端将获得最新的工具列表');
+  }
+
   @override
   void dispose() {
     disconnect();
@@ -705,6 +729,11 @@ final webSocketServiceProvider = StateNotifierProvider<WebSocketService, WebSock
   // 初始化统一MCP管理器
   Future.microtask(() async {
     try {
+      // 注入会话重新生成回调
+      mcpManager.setSessionRegenerateCallback(() async {
+        await service.regenerateSession();
+      });
+      
       await mcpManager.initialize();
       await mcpManager.startAutoStartServers();
     } catch (e) {

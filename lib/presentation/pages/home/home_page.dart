@@ -1,10 +1,14 @@
 import 'package:flutter/material.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
+import 'package:flutter_hooks/flutter_hooks.dart';
 
 import 'widgets/background_layer.dart';
 import '../../widgets/floating_chat/floating_chat_widget.dart';
+import '../../widgets/mcp/mcp_call_status_widget.dart';
+import '../../widgets/mcp/mcp_change_notification.dart';
 import '../settings/settings_main_page.dart';
 import '../test/mcp_test_page.dart';
+import '../../../core/services/unified_mcp_manager.dart';
 
 /// 应用主页 - 极简背景设计
 class HomePage extends HookConsumerWidget {
@@ -12,6 +16,15 @@ class HomePage extends HookConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    // 设置MCP变化通知回调
+    useEffect(() {
+      final mcpManager = ref.read(unifiedMcpManagerProvider);
+      mcpManager.setUserNotificationCallback((title, message) {
+        McpChangeNotification.show(context, title, message);
+      });
+      return null;
+    }, []);
+    
     return Scaffold(
       body: Stack(
         fit: StackFit.expand,
@@ -160,6 +173,9 @@ class HomePage extends HookConsumerWidget {
           const FloatingChatWidget(
             initialState: FloatingChatState.collapsed,
           ),
+          
+          // MCP调用状态显示（悬浮在底部）
+          const McpCallStatusOverlay(),
         ],
       ),
     );

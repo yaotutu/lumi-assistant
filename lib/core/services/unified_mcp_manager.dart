@@ -29,6 +29,12 @@ class UnifiedMcpManager {
   
   /// 是否已初始化
   bool _isInitialized = false;
+  
+  /// 会话重新生成回调函数（由WebSocket服务注入）
+  Future<void> Function()? _sessionRegenerateCallback;
+  
+  /// 用户通知回调函数（显示MCP变化提示）
+  void Function(String title, String message)? _userNotificationCallback;
 
   /// 加载所有配置并初始化
   Future<void> initialize() async {
@@ -190,7 +196,12 @@ class UnifiedMcpManager {
           return true;
           
         case McpServerType.external:
-          return await _startExternalServer(serverId, config);
+          final success = await _startExternalServer(serverId, config);
+          if (success) {
+            // 🔥 关键：外部服务器启动成功后强制重新生成会话
+            await _triggerSessionRegeneration('外部MCP服务器启动', config.name);
+          }
+          return success;
       }
     } catch (e) {
       print('[UnifiedMCP] 启动服务器失败 $serverId: $e');
@@ -607,6 +618,9 @@ class UnifiedMcpManager {
         await process?.stop();
         
         print('[UnifiedMCP] 外部服务器已停止: $serverId');
+        
+        // 🔥 关键：外部服务器停止后也要重新生成会话
+        await _triggerSessionRegeneration('外部MCP服务器停止', config.name);
         break;
     }
   }
@@ -651,6 +665,35 @@ class UnifiedMcpManager {
            old.command != newConfig.command ||
            old.port != newConfig.port ||
            old.enabled != newConfig.enabled;
+  }
+
+  /// 设置会话重新生成回调
+  void setSessionRegenerateCallback(Future<void> Function() callback) {
+    _sessionRegenerateCallback = callback;
+  }
+  
+  /// 设置用户通知回调
+  void setUserNotificationCallback(void Function(String title, String message) callback) {
+    _userNotificationCallback = callback;
+  }
+  
+  /// 触发会话重新生成
+  Future<void> _triggerSessionRegeneration(String reason, String serverName) async {
+    print('[UnifiedMCP] 触发会话重新生成: $reason ($serverName)');
+    
+    // 显示用户通知
+    _userNotificationCallback?.call(
+      'MCP服务更新',
+      '$reason: $serverName\n\n正在重新连接以获取最新功能...'
+    );
+    
+    // 执行会话重新生成
+    try {
+      await _sessionRegenerateCallback?.call();
+      print('[UnifiedMCP] 会话重新生成完成');
+    } catch (e) {
+      print('[UnifiedMCP] 会话重新生成失败: $e');
+    }
   }
 
   /// 保存用户配置
