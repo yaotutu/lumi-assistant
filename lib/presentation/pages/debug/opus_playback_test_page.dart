@@ -40,8 +40,8 @@ class OpusPlaybackTestPage extends HookConsumerWidget {
         backgroundColor: Colors.purple,
         foregroundColor: Colors.white,
       ),
-      body: Padding(
-        padding: const EdgeInsets.all(16.0),
+      body: SingleChildScrollView(
+        padding: const EdgeInsets.all(12.0),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
@@ -81,7 +81,7 @@ class OpusPlaybackTestPage extends HookConsumerWidget {
                       )
                     else
                       SizedBox(
-                        height: 120,
+                        height: 80,
                         child: ListView.builder(
                           scrollDirection: Axis.horizontal,
                           itemCount: opusFiles.value.length,
@@ -93,7 +93,7 @@ class OpusPlaybackTestPage extends HookConsumerWidget {
                               child: GestureDetector(
                                 onTap: () => selectedFile.value = file,
                                 child: Container(
-                                  width: 200,
+                                  width: 150,
                                   decoration: BoxDecoration(
                                     border: Border.all(
                                       color: isSelected ? Colors.purple : Colors.grey.shade300,
@@ -245,76 +245,80 @@ class OpusPlaybackTestPage extends HookConsumerWidget {
             const SizedBox(height: 16),
 
             // 测试结果区域
-            Expanded(
-              child: Card(
-                child: Padding(
-                  padding: const EdgeInsets.all(16.0),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(
-                        '测试结果',
-                        style: Theme.of(context).textTheme.headlineSmall,
-                      ),
-                      const SizedBox(height: 12),
-                      if (testResults.value.isEmpty)
-                        const Text(
-                          '暂无测试结果',
-                          style: TextStyle(color: Colors.grey),
-                        )
-                      else
-                        Expanded(
-                          child: ListView.builder(
-                            itemCount: testResults.value.length,
-                            itemBuilder: (context, index) {
-                              final entry = testResults.value.entries.elementAt(index);
-                              final isSuccess = entry.value.contains('成功');
-                              return Card(
-                                color: isSuccess ? Colors.green.shade50 : Colors.red.shade50,
-                                child: ListTile(
-                                  leading: Icon(
-                                    isSuccess ? Icons.check_circle : Icons.error,
-                                    color: isSuccess ? Colors.green : Colors.red,
-                                  ),
-                                  title: Text(entry.key),
-                                  subtitle: Text(entry.value),
-                                ),
-                              );
-                            },
-                          ),
-                        ),
-                    ],
-                  ),
-                ),
-              ),
-            ),
-
-            // 使用说明
             Card(
-              color: Colors.blue.shade50,
               child: Padding(
-                padding: const EdgeInsets.all(16.0),
+                padding: const EdgeInsets.all(12.0),
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(
-                      '使用说明',
-                      style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                        color: Colors.blue.shade700,
-                        fontWeight: FontWeight.bold,
-                      ),
+                      '测试结果',
+                      style: Theme.of(context).textTheme.titleMedium,
                     ),
                     const SizedBox(height: 8),
-                    const Text(
-                      '1. 首先使用"Opus音频调试"功能捕获opus文件\n'
-                      '2. 在此页面选择要测试的opus文件\n'
-                      '3. 点击不同的测试按钮来比较音频播放效果\n'
-                      '4. 观察测试结果，选择最佳的音频播放方案\n'
-                      '5. 如果所有测试都失败，说明需要研究其他音频库',
-                      style: TextStyle(fontSize: 14),
-                    ),
+                    if (testResults.value.isEmpty)
+                      const Text(
+                        '暂无测试结果',
+                        style: TextStyle(color: Colors.grey),
+                      )
+                    else
+                      Column(
+                        children: testResults.value.entries.map((entry) {
+                          final isSuccess = entry.value.contains('成功');
+                          return Container(
+                            margin: const EdgeInsets.symmetric(vertical: 4),
+                            padding: const EdgeInsets.all(8),
+                            decoration: BoxDecoration(
+                              color: isSuccess ? Colors.green.shade50 : Colors.red.shade50,
+                              borderRadius: BorderRadius.circular(6),
+                            ),
+                            child: Row(
+                              children: [
+                                Icon(
+                                  isSuccess ? Icons.check_circle : Icons.error,
+                                  color: isSuccess ? Colors.green : Colors.red,
+                                  size: 16,
+                                ),
+                                const SizedBox(width: 8),
+                                Expanded(
+                                  child: Column(
+                                    crossAxisAlignment: CrossAxisAlignment.start,
+                                    children: [
+                                      Text(
+                                        entry.key,
+                                        style: const TextStyle(fontWeight: FontWeight.w500),
+                                      ),
+                                      Text(
+                                        entry.value,
+                                        style: const TextStyle(fontSize: 12),
+                                      ),
+                                    ],
+                                  ),
+                                ),
+                              ],
+                            ),
+                          );
+                        }).toList(),
+                      ),
                   ],
                 ),
+              ),
+            ),
+
+            // 简化说明
+            Container(
+              padding: const EdgeInsets.all(12.0),
+              decoration: BoxDecoration(
+                color: Colors.blue.shade50,
+                borderRadius: BorderRadius.circular(8),
+              ),
+              child: const Text(
+                '选择opus文件 → 测试播放效果 → 观察结果',
+                style: TextStyle(
+                  fontSize: 14,
+                  fontWeight: FontWeight.w500,
+                ),
+                textAlign: TextAlign.center,
               ),
             ),
           ],

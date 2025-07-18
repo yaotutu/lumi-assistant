@@ -1,0 +1,11 @@
+{
+  "mcp": {
+    "servers": {
+      "android-mcp-server": {
+        "command": "uv",
+        "args": ["--directory", "/Users/yaotutu/Desktop/code/mcp-server/android-mcp-server", "run", "server.py"],
+        "description": "Android设备控制和adb命令执行服务器，提供设备管理、应用控制、UI自动化等功能"
+      }
+    }
+  }
+}

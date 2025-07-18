@@ -28,28 +28,24 @@ class OpusCaptureDebugPage extends HookConsumerWidget {
         backgroundColor: Colors.blue,
         foregroundColor: Colors.white,
       ),
-      body: Padding(
-        padding: const EdgeInsets.all(16.0),
+      body: SingleChildScrollView(
+        padding: const EdgeInsets.all(12.0),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            // 状态卡片
+            // 状态和统计信息合并卡片
             Card(
               child: Padding(
-                padding: const EdgeInsets.all(16.0),
+                padding: const EdgeInsets.all(12.0),
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Text(
-                      '捕获状态',
-                      style: Theme.of(context).textTheme.headlineSmall,
-                    ),
-                    const SizedBox(height: 8),
                     Row(
                       children: [
                         Icon(
                           isCapturing.value ? Icons.fiber_manual_record : Icons.stop_circle,
                           color: isCapturing.value ? Colors.red : Colors.grey,
+                          size: 20,
                         ),
                         const SizedBox(width: 8),
                         Text(
@@ -59,6 +55,22 @@ class OpusCaptureDebugPage extends HookConsumerWidget {
                             fontWeight: FontWeight.bold,
                           ),
                         ),
+                        const Spacer(),
+                        Text(
+                          '数据包: ${captureStats.value['total_samples'] ?? 0}',
+                          style: const TextStyle(fontWeight: FontWeight.w500),
+                        ),
+                      ],
+                    ),
+                    const SizedBox(height: 8),
+                    Row(
+                      children: [
+                        Expanded(
+                          child: _buildCompactStatRow('总字节', '${captureStats.value['total_bytes'] ?? 0}'),
+                        ),
+                        Expanded(
+                          child: _buildCompactStatRow('平均大小', '${captureStats.value['average_size'] ?? 0}'),
+                        ),
                       ],
                     ),
                   ],
@@ -66,36 +78,13 @@ class OpusCaptureDebugPage extends HookConsumerWidget {
               ),
             ),
             
-            const SizedBox(height: 16),
+            const SizedBox(height: 12),
             
-            // 统计信息卡片
-            Card(
-              child: Padding(
-                padding: const EdgeInsets.all(16.0),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      '统计信息',
-                      style: Theme.of(context).textTheme.headlineSmall,
-                    ),
-                    const SizedBox(height: 8),
-                    _buildStatRow('数据包数量', '${captureStats.value['total_samples'] ?? 0}'),
-                    _buildStatRow('总字节数', '${captureStats.value['total_bytes'] ?? 0}'),
-                    _buildStatRow('平均大小', '${captureStats.value['average_size'] ?? 0} 字节'),
-                    _buildStatRow('会话ID', '${captureStats.value['session_id'] ?? 'N/A'}'),
-                  ],
-                ),
-              ),
-            ),
-            
-            const SizedBox(height: 16),
-            
-            // 控制按钮
+            // 控制按钮 - 紧凑布局
             Row(
               children: [
                 Expanded(
-                  child: ElevatedButton.icon(
+                  child: ElevatedButton(
                     onPressed: isCapturing.value ? null : () async {
                       final sessionId = 'debug_${DateTime.now().millisecondsSinceEpoch}';
                       
@@ -103,55 +92,40 @@ class OpusCaptureDebugPage extends HookConsumerWidget {
                       OpusDataCaptureService.startCapture(sessionId: sessionId);
                       isCapturing.value = true;
                       
-                      ScaffoldMessenger.of(context).showSnackBar(
-                        const SnackBar(content: Text('开始捕获opus数据，正在发送测试消息...')),
-                      );
-                      
                       // 自动发送测试消息给服务端，触发语音回复
                       try {
                         final webSocketService = ref.read(webSocketServiceProvider.notifier);
                         final testMessage = {
-                          'type': 'chat',
+                          'type': 'listen',
+                          'state': 'detect',
                           'text': '你好',
-                          'timestamp': DateTime.now().millisecondsSinceEpoch,
+                          'source': 'text',
                         };
                         
                         await webSocketService.sendMessage(testMessage);
-                        
-                        ScaffoldMessenger.of(context).showSnackBar(
-                          const SnackBar(content: Text('测试消息已发送，等待服务端语音回复...')),
-                        );
                       } catch (e) {
-                        ScaffoldMessenger.of(context).showSnackBar(
-                          SnackBar(content: Text('发送测试消息失败: $e')),
-                        );
+                        print('发送测试消息失败: $e');
                       }
                     },
-                    icon: const Icon(Icons.play_arrow),
-                    label: const Text('开始捕获'),
                     style: ElevatedButton.styleFrom(
                       backgroundColor: Colors.green,
                       foregroundColor: Colors.white,
                     ),
+                    child: const Text('开始捕获'),
                   ),
                 ),
                 const SizedBox(width: 8),
                 Expanded(
-                  child: ElevatedButton.icon(
+                  child: ElevatedButton(
                     onPressed: !isCapturing.value ? null : () {
                       OpusDataCaptureService.stopCapture();
                       isCapturing.value = false;
-                      
-                      ScaffoldMessenger.of(context).showSnackBar(
-                        const SnackBar(content: Text('停止捕获opus数据')),
-                      );
                     },
-                    icon: const Icon(Icons.stop),
-                    label: const Text('停止捕获'),
                     style: ElevatedButton.styleFrom(
                       backgroundColor: Colors.red,
                       foregroundColor: Colors.white,
                     ),
+                    child: const Text('停止'),
                   ),
                 ),
               ],
@@ -163,82 +137,55 @@ class OpusCaptureDebugPage extends HookConsumerWidget {
             Row(
               children: [
                 Expanded(
-                  child: ElevatedButton.icon(
+                  child: ElevatedButton(
                     onPressed: () async {
                       try {
                         final savedFiles = await OpusDataCaptureService.saveCapturedData();
-                        if (savedFiles.isNotEmpty) {
-                          ScaffoldMessenger.of(context).showSnackBar(
-                            SnackBar(content: Text('保存了 ${savedFiles.length} 个文件')),
-                          );
-                        } else {
-                          ScaffoldMessenger.of(context).showSnackBar(
-                            const SnackBar(content: Text('没有数据需要保存')),
-                          );
-                        }
+                        print('保存了 ${savedFiles.length} 个文件');
                       } catch (e) {
-                        ScaffoldMessenger.of(context).showSnackBar(
-                          SnackBar(content: Text('保存失败: $e')),
-                        );
+                        print('保存失败: $e');
                       }
                     },
-                    icon: const Icon(Icons.save),
-                    label: const Text('保存数据'),
                     style: ElevatedButton.styleFrom(
                       backgroundColor: Colors.blue,
                       foregroundColor: Colors.white,
                     ),
+                    child: const Text('保存'),
                   ),
                 ),
                 const SizedBox(width: 8),
                 Expanded(
-                  child: ElevatedButton.icon(
+                  child: ElevatedButton(
                     onPressed: () {
                       OpusDataCaptureService.clearCapturedData();
-                      ScaffoldMessenger.of(context).showSnackBar(
-                        const SnackBar(content: Text('已清空捕获数据')),
-                      );
+                      print('已清空捕获数据');
                     },
-                    icon: const Icon(Icons.clear),
-                    label: const Text('清空数据'),
                     style: ElevatedButton.styleFrom(
                       backgroundColor: Colors.orange,
                       foregroundColor: Colors.white,
                     ),
+                    child: const Text('清空'),
                   ),
                 ),
               ],
             ),
             
-            const SizedBox(height: 16),
+            const SizedBox(height: 12),
             
-            // 使用说明
-            Card(
-              color: Colors.blue.shade50,
-              child: Padding(
-                padding: const EdgeInsets.all(16.0),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      '使用说明',
-                      style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                        color: Colors.blue.shade700,
-                        fontWeight: FontWeight.bold,
-                      ),
-                    ),
-                    const SizedBox(height: 8),
-                    const Text(
-                      '1. 点击"开始捕获"按钮，系统会自动发送"你好"消息给服务端\n'
-                      '2. 服务端会回复语音数据，系统自动捕获这些opus数据\n'
-                      '3. 观察统计信息中的数据包数量变化\n'
-                      '4. 点击"停止捕获"按钮停止记录\n'
-                      '5. 点击"保存数据"将捕获的opus文件保存到设备存储\n'
-                      '6. 保存的.opus文件可用于后续的播放测试和分析',
-                      style: TextStyle(fontSize: 14),
-                    ),
-                  ],
+            // 简化的使用说明
+            Container(
+              padding: const EdgeInsets.all(12.0),
+              decoration: BoxDecoration(
+                color: Colors.blue.shade50,
+                borderRadius: BorderRadius.circular(8),
+              ),
+              child: const Text(
+                '操作步骤：开始捕获 → 等待回复 → 停止捕获 → 保存数据',
+                style: TextStyle(
+                  fontSize: 14,
+                  fontWeight: FontWeight.w500,
                 ),
+                textAlign: TextAlign.center,
               ),
             ),
           ],
@@ -247,16 +194,25 @@ class OpusCaptureDebugPage extends HookConsumerWidget {
     );
   }
 
-  Widget _buildStatRow(String label, String value) {
-    return Padding(
-      padding: const EdgeInsets.symmetric(vertical: 4.0),
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-        children: [
-          Text(label, style: const TextStyle(fontWeight: FontWeight.w500)),
-          Text(value, style: const TextStyle(fontFamily: 'monospace')),
-        ],
-      ),
+  Widget _buildCompactStatRow(String label, String value) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text(
+          label,
+          style: const TextStyle(
+            fontSize: 12,
+            color: Colors.grey,
+          ),
+        ),
+        Text(
+          value,
+          style: const TextStyle(
+            fontSize: 14,
+            fontWeight: FontWeight.w500,
+          ),
+        ),
+      ],
     );
   }
 }
