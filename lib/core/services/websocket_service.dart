@@ -398,6 +398,9 @@ class WebSocketService extends StateNotifier<WebSocketState> {
     print('[WebSocket] 路由MCP消息到统一管理器');
     print('[WebSocket] MCP消息内容: $message');
     
+    // 在顶层声明method变量，确保在catch块中也能访问
+    String? method;
+    
     try {
       // 确保统一MCP管理器已初始化
       await _mcpManager.initialize();
@@ -409,7 +412,7 @@ class WebSocketService extends StateNotifier<WebSocketState> {
         throw Exception('MCP消息缺少payload');
       }
       
-      final method = payload['method'] as String?;
+      method = payload['method'] as String?;
       final id = payload['id'];
       final sessionId = message['session_id'] as String?;
       
@@ -426,8 +429,16 @@ class WebSocketService extends StateNotifier<WebSocketState> {
           final toolName = params['name'] as String;
           final arguments = params['arguments'] as Map<String, dynamic>? ?? {};
           
-          print('[WebSocket] 调用工具: $toolName');
+          print('[WebSocket] ===== MCP工具调用 =====');
+          print('[WebSocket] 工具名称: $toolName');
+          print('[WebSocket] 调用参数: $arguments');
+          print('[WebSocket] 会话ID: $sessionId');
+          
+          // 通过统一的MCP管理器调用工具
           final toolResult = await _mcpManager.callTool(toolName, arguments);
+          
+          print('[WebSocket] 工具调用成功: $toolName');
+          print('[WebSocket] 调用结果: $toolResult');
           
           response = {
             'type': 'mcp',
@@ -513,9 +524,16 @@ class WebSocketService extends StateNotifier<WebSocketState> {
       await sendMessage(response);
       print('[WebSocket] MCP响应已发送');
     } catch (error) {
-      print('[WebSocket] MCP消息处理失败: $error');
+      print('[WebSocket] ===== MCP调用失败 =====');
+      print('[WebSocket] 错误详情: $error');
+      print('[WebSocket] 错误类型: ${error.runtimeType}');
+      print('[WebSocket] 方法: $method');
+      print('[WebSocket] 会话ID: ${message['session_id']}');
       
-      // 发送错误响应
+      // 生成用户友好的错误信息
+      final userFriendlyError = _generateUserFriendlyError(error, method ?? 'unknown');
+      
+      // 发送详细的错误响应
       final errorResponse = {
         'type': 'mcp',
         'session_id': message['session_id'],
@@ -523,13 +541,96 @@ class WebSocketService extends StateNotifier<WebSocketState> {
           'jsonrpc': '2.0',
           'id': message['payload']?['id'],
           'error': {
-            'code': -32603,
-            'message': 'Internal error: $error',
+            'code': _getErrorCode(error),
+            'message': userFriendlyError,
+            'data': {
+              'original_error': error.toString(),
+              'method': method ?? 'unknown',
+              'timestamp': DateTime.now().toIso8601String(),
+            },
           },
         },
       };
       
       await sendMessage(errorResponse);
+      print('[WebSocket] 错误响应已发送');
+      print('[WebSocket] ===========================');
+    }
+  }
+  
+  /// 生成用户友好的错误信息
+  String _generateUserFriendlyError(dynamic error, String method) {
+    final errorString = error.toString().toLowerCase();
+    
+    // 网络相关错误
+    if (errorString.contains('connection') || 
+        errorString.contains('timeout') ||
+        errorString.contains('network')) {
+      return '网络连接出现问题，请检查设备连接状态';
+    }
+    
+    // 权限相关错误
+    if (errorString.contains('permission') || 
+        errorString.contains('access denied') ||
+        errorString.contains('unauthorized')) {
+      return '权限不足，无法执行此操作';
+    }
+    
+    // 设备不可用
+    if (errorString.contains('not found') || 
+        errorString.contains('unavailable') ||
+        errorString.contains('offline')) {
+      return '设备暂时不可用，请稍后再试';
+    }
+    
+    // 参数错误
+    if (errorString.contains('invalid') || 
+        errorString.contains('parameter') ||
+        errorString.contains('argument')) {
+      return '操作参数有误，请检查输入';
+    }
+    
+    // 服务器错误
+    if (errorString.contains('server') || 
+        errorString.contains('internal') ||
+        errorString.contains('service')) {
+      return '服务暂时不可用，请稍后重试';
+    }
+    
+    // 特定方法的错误
+    switch (method) {
+      case 'tools/call':
+        return '工具调用失败，请检查设备状态';
+      case 'tools/list':
+        return '无法获取可用工具列表';
+      case 'initialize':
+        return 'MCP协议初始化失败';
+      default:
+        return '操作执行失败，请稍后重试';
+    }
+  }
+  
+  /// 获取错误代码
+  int _getErrorCode(dynamic error) {
+    final errorString = error.toString().toLowerCase();
+    
+    // 标准JSON-RPC错误代码
+    if (errorString.contains('invalid request')) {
+      return -32600;
+    } else if (errorString.contains('method not found')) {
+      return -32601;
+    } else if (errorString.contains('invalid params')) {
+      return -32602;
+    } else if (errorString.contains('parse error')) {
+      return -32700;
+    } else if (errorString.contains('timeout')) {
+      return -32001; // 自定义超时错误
+    } else if (errorString.contains('permission')) {
+      return -32002; // 自定义权限错误
+    } else if (errorString.contains('not found')) {
+      return -32003; // 自定义资源未找到错误
+    } else {
+      return -32603; // 内部错误
     }
   }
   
