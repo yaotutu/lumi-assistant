@@ -27,13 +27,11 @@ class AudioServiceAndroidStyle {
   /// 初始化播放器 - 完全按照Android客户端方式
   static Future<void> initPlayer() async {
     if (_isPlayerInitialized || _isInitializing) {
-      print('[AudioServiceAndroidStyle] 播放器已初始化或正在初始化中');
       return;
     }
 
     try {
       _isInitializing = true;
-      print('[AudioServiceAndroidStyle] 初始化PCM播放器（Android客户端方式）');
       
       // 创建播放器实例
       _pcmPlayer = FlutterPcmPlayer();
@@ -45,7 +43,6 @@ class AudioServiceAndroidStyle {
       await _pcmPlayer!.play();
       
       _isPlayerInitialized = true;
-      print('[AudioServiceAndroidStyle] PCM播放器初始化成功');
       
     } catch (e) {
       print('[AudioServiceAndroidStyle] PCM播放器初始化失败: $e');
@@ -60,19 +57,13 @@ class AudioServiceAndroidStyle {
   /// 播放Opus音频数据 - 完全按照Android客户端AudioUtil.playOpusData实现
   Future<void> playOpusAudio(Uint8List opusData) async {
     try {
-      print('[AudioServiceAndroidStyle] ===== 开始播放Opus音频（Android客户端方式） =====');
-      print('[AudioServiceAndroidStyle] Opus数据大小: ${opusData.length} bytes');
-
       // 1. 检查播放器状态 - 与Android客户端逻辑一致
       if (!_isPlayerInitialized || _pcmPlayer == null) {
-        print('[AudioServiceAndroidStyle] 播放器未初始化，开始初始化');
         await initPlayer();
       }
 
       // 2. 解码Opus数据为PCM - 与Android客户端完全一致
-      print('[AudioServiceAndroidStyle] 解码Opus数据为PCM');
       final Int16List pcmData = _decoder.decode(input: opusData);
-      print('[AudioServiceAndroidStyle] PCM数据长度: ${pcmData.length} samples');
 
       // 3. 转换为字节数组（小端字节序）- 与Android客户端完全一致
       final Uint8List pcmBytes = Uint8List(pcmData.length * 2);
@@ -81,18 +72,11 @@ class AudioServiceAndroidStyle {
       for (int i = 0; i < pcmData.length; i++) {
         bytes.setInt16(i * 2, pcmData[i], Endian.little);
       }
-      print('[AudioServiceAndroidStyle] PCM字节数据大小: ${pcmBytes.length} bytes');
 
       // 4. 发送到播放器 - 使用feed方法，与Android客户端一致
       if (_pcmPlayer != null) {
-        print('[AudioServiceAndroidStyle] 发送PCM数据到播放器');
         await _pcmPlayer!.feed(pcmBytes);
-        print('[AudioServiceAndroidStyle] PCM数据发送成功');
-      } else {
-        print('[AudioServiceAndroidStyle] 播放器实例为null，无法播放');
       }
-
-      print('[AudioServiceAndroidStyle] ===== Opus音频播放完成（Android客户端方式） =====');
       
     } catch (e) {
       print('[AudioServiceAndroidStyle] 播放Opus音频失败: $e');

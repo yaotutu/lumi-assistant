@@ -615,6 +615,8 @@ class StreamableHttpMcpClient implements McpClient {
   bool _isConnected = false;
   int _requestId = 0;
   String? _sessionId; // MCP Session ID支持
+  String? _serverProtocolVersion; // 服务器协议版本
+  Map<String, dynamic>? _serverCapabilities; // 服务器能力
   
   StreamableHttpMcpClient(this.serverUrl, this.headers);
 
@@ -633,22 +635,260 @@ class StreamableHttpMcpClient implements McpClient {
           'sampling': {}
         },
         'clientInfo': {
-          'name': 'LumiAssistant',
+          'name': 'TestClient',  // 使用与成功curl相同的名称
           'version': '1.0.0'
         }
       });
       
       if (result.containsKey('protocolVersion') && result.containsKey('capabilities')) {
-        _isConnected = true;
+        // 存储服务器协议版本和能力
+        _serverProtocolVersion = result['protocolVersion'] as String;
+        _serverCapabilities = result['capabilities'] as Map<String, dynamic>;
+        
         print('[Streamable-HTTP-MCP] MCP协议初始化成功');
-        print('[Streamable-HTTP-MCP] 服务器版本: ${result['protocolVersion']}');
-        print('[Streamable-HTTP-MCP] 服务器能力: ${result['capabilities']}');
+        print('[Streamable-HTTP-MCP] 服务器版本: $_serverProtocolVersion');
+        print('[Streamable-HTTP-MCP] 服务器能力: $_serverCapabilities');
+        
+        // 根据协议版本调整行为
+        await _handleProtocolVersionSpecificInitialization();
+        
+        _isConnected = true;
+        print('[Streamable-HTTP-MCP] MCP客户端完全初始化完成');
       } else {
         throw Exception('MCP初始化失败: 服务器响应不符合规范');
       }
     } catch (e) {
       print('[Streamable-HTTP-MCP] 连接失败: $e');
       rethrow;
+    }
+  }
+  
+  /// 根据协议版本执行特定的初始化流程
+  Future<void> _handleProtocolVersionSpecificInitialization() async {
+    if (_serverProtocolVersion == null) {
+      throw Exception('服务器协议版本未知');
+    }
+    
+    print('[Streamable-HTTP-MCP] 根据协议版本 $_serverProtocolVersion 调整客户端行为');
+    
+    // 解析协议版本
+    final version = _parseProtocolVersion(_serverProtocolVersion!);
+    
+    if (version >= _parseProtocolVersion('2025-06-18')) {
+      // 最新协议版本 (2025-06-18及以后)
+      print('[Streamable-HTTP-MCP] 使用最新协议版本处理流程');
+      
+      // 1. 发送initialized通知 (最新协议要求)
+      await _sendNotification('notifications/initialized', {});
+      print('[Streamable-HTTP-MCP] 已发送initialized通知');
+      
+      // 2. 等待服务器完成初始化 - 使用智能等待
+      print('[Streamable-HTTP-MCP] 等待服务器完成初始化...');
+      await _waitForServerInitialization();
+      print('[Streamable-HTTP-MCP] 服务器初始化等待完成');
+      
+    } else if (version >= _parseProtocolVersion('2024-11-05')) {
+      // 旧版协议处理
+      print('[Streamable-HTTP-MCP] 使用兼容模式处理旧版协议');
+      
+      // 旧版可能不需要initialized通知
+      await Future.delayed(Duration(milliseconds: 200));
+      
+    } else {
+      // 非常旧的版本
+      print('[Streamable-HTTP-MCP] 警告: 协议版本过旧，可能存在兼容性问题');
+      await Future.delayed(Duration(milliseconds: 200));
+    }
+  }
+  
+  /// 解析协议版本为可比较的数值
+  int _parseProtocolVersion(String version) {
+    // 将 "2025-06-18" 格式转换为数值进行比较
+    final parts = version.split('-');
+    if (parts.length != 3) {
+      print('[Streamable-HTTP-MCP] 无效的协议版本格式: $version');
+      return 0;
+    }
+    
+    try {
+      final year = int.parse(parts[0]);
+      final month = int.parse(parts[1]);
+      final day = int.parse(parts[2]);
+      
+      // 转换为YYYYMMDD格式的数字
+      return year * 10000 + month * 100 + day;
+    } catch (e) {
+      print('[Streamable-HTTP-MCP] 协议版本解析失败: $version, 错误: $e');
+      return 0;
+    }
+  }
+  
+  /// 根据协议版本调整请求参数
+  Map<String, dynamic> _adjustRequestForProtocolVersion(String method, Map<String, dynamic> params) {
+    if (_serverProtocolVersion == null) {
+      return params;
+    }
+    
+    final version = _parseProtocolVersion(_serverProtocolVersion!);
+    
+    // 针对最新协议版本的特殊处理
+    if (version >= _parseProtocolVersion('2025-06-18')) {
+      switch (method) {
+        case 'tools/list':
+          // 根据MCP规范，tools/list支持可选的cursor参数
+          if (params.isEmpty) {
+            // 提供空的params对象（某些服务器可能需要）
+            return {};
+          }
+          break;
+        case 'resources/list':
+          // 资源列表可能需要cursor参数
+          if (!params.containsKey('cursor') && _serverCapabilities?['resources']?['subscribe'] == true) {
+            params['cursor'] = null;
+          }
+          break;
+        case 'prompts/list':
+          // 提示列表的参数调整
+          if (!params.containsKey('cursor') && _serverCapabilities?['prompts']?['listChanged'] == true) {
+            params['cursor'] = null;
+          }
+          break;
+      }
+    }
+    
+    return params;
+  }
+  
+  /// 根据协议版本选择合适的HTTP状态码处理
+  bool _expectsHttpStatusCode202() {
+    if (_serverProtocolVersion == null) {
+      return false;
+    }
+    
+    final version = _parseProtocolVersion(_serverProtocolVersion!);
+    
+    // 新协议版本 (2025-03-26之后) 应该使用HTTP 202
+    return version >= _parseProtocolVersion('2025-03-26');
+  }
+  
+  /// 智能等待服务器完成初始化
+  Future<void> _waitForServerInitialization() async {
+    // 问题根源：原来的实现试图用工具列表请求来检查服务器状态，
+    // 但这会污染session状态，导致后续请求失败
+    // 解决方案：使用固定延迟，参考成功的curl序列
+    print('[Streamable-HTTP-MCP] 使用固定延迟等待服务器完成初始化');
+    await Future.delayed(Duration(seconds: 2));
+    print('[Streamable-HTTP-MCP] 服务器初始化等待完成');
+  }
+  
+  /// 发送ping请求检查服务器状态
+  Future<void> _sendPingRequest() async {
+    try {
+      // 临时启用连接状态以发送ping请求
+      final originalConnected = _isConnected;
+      _isConnected = true;
+      
+      try {
+        // 发送一个tools/list请求作为ping（使用无params格式）
+        await _sendRequestWithoutParams('tools/list');
+      } finally {
+        // 恢复原始连接状态
+        _isConnected = originalConnected;
+      }
+    } catch (e) {
+      // 重新抛出异常让调用者处理
+      rethrow;
+    }
+  }
+  
+  /// 调试用：模拟curl完整流程创建新session
+  Future<void> _debugCreateFreshSessionAndTest() async {
+    print('[DEBUG] 模拟curl完整流程 - 创建新session');
+    
+    final client = HttpClient();
+    try {
+      // 1. 创建新session (像curl一样)
+      print('[DEBUG] 1. 创建新session');
+      final initRequest = await client.postUrl(Uri.parse(serverUrl));
+      initRequest.headers.set('Content-Type', 'application/json');
+      initRequest.headers.set('Accept', 'application/json, text/event-stream');
+      
+      final initBody = {
+        'jsonrpc': '2.0',
+        'id': 1,
+        'method': 'initialize',
+        'params': {
+          'protocolVersion': '2025-06-18',
+          'capabilities': {
+            'roots': {'listChanged': true},
+            'sampling': {}
+          },
+          'clientInfo': {
+            'name': 'TestClient',
+            'version': '1.0.0'
+          }
+        }
+      };
+      
+      initRequest.add(utf8.encode(jsonEncode(initBody)));
+      final initResponse = await initRequest.close();
+      
+      final newSessionId = initResponse.headers.value('mcp-session-id');
+      print('[DEBUG] 新Session ID: $newSessionId');
+      
+      // 读取并忽略initialize响应
+      await initResponse.transform(utf8.decoder).join();
+      
+      // 2. 发送initialized通知
+      print('[DEBUG] 2. 发送initialized通知');
+      final notifyRequest = await client.postUrl(Uri.parse(serverUrl));
+      notifyRequest.headers.set('Content-Type', 'application/json');
+      notifyRequest.headers.set('Accept', 'application/json, text/event-stream');
+      notifyRequest.headers.set('Mcp-Session-Id', newSessionId!);
+      
+      final notifyBody = {
+        'jsonrpc': '2.0',
+        'method': 'notifications/initialized'
+      };
+      
+      notifyRequest.add(utf8.encode(jsonEncode(notifyBody)));
+      final notifyResponse = await notifyRequest.close();
+      
+      // 读取并忽略通知响应
+      await notifyResponse.transform(utf8.decoder).join();
+      
+      // 3. 等待2秒
+      print('[DEBUG] 3. 等待2秒');
+      await Future.delayed(Duration(seconds: 2));
+      
+      // 4. 发送tools/list请求
+      print('[DEBUG] 4. 发送tools/list请求');
+      final toolsRequest = await client.postUrl(Uri.parse(serverUrl));
+      toolsRequest.headers.set('Content-Type', 'application/json');
+      toolsRequest.headers.set('Accept', 'application/json, text/event-stream');
+      toolsRequest.headers.set('Mcp-Session-Id', newSessionId);
+      
+      final toolsBody = {
+        'jsonrpc': '2.0',
+        'id': 2,
+        'method': 'tools/list'
+      };
+      
+      toolsRequest.add(utf8.encode(jsonEncode(toolsBody)));
+      final toolsResponse = await toolsRequest.close();
+      
+      print('[DEBUG] tools/list响应状态码: ${toolsResponse.statusCode}');
+      final toolsResponseBody = await toolsResponse.transform(utf8.decoder).join();
+      print('[DEBUG] tools/list响应体: $toolsResponseBody');
+      
+      if (toolsResponseBody.contains('"result"')) {
+        print('[DEBUG] ✅ 成功！新session可以工作');
+      } else if (toolsResponseBody.contains('"error"')) {
+        print('[DEBUG] ❌ 失败！新session也不工作');
+      }
+      
+    } finally {
+      client.close();
     }
   }
 
@@ -665,6 +905,8 @@ class StreamableHttpMcpClient implements McpClient {
     print('[Streamable-HTTP-MCP] 断开MCP连接');
     _isConnected = false;
     _sessionId = null;
+    _serverProtocolVersion = null;
+    _serverCapabilities = null;
   }
 
   @override
@@ -674,22 +916,10 @@ class StreamableHttpMcpClient implements McpClient {
   Future<List<dynamic>> listTools() async {
     try {
       print('[Streamable-HTTP-MCP] 开始请求工具列表');
+      print('[Streamable-HTTP-MCP] 使用协议版本: $_serverProtocolVersion');
       
-      // 尝试不同的请求格式来调试问题
-      Map<String, dynamic> result;
-      try {
-        // 首先尝试不带参数的请求
-        result = await _sendRequest('tools/list', {});
-      } catch (e) {
-        print('[Streamable-HTTP-MCP] 不带参数的请求失败，尝试带空params: $e');
-        try {
-          // 如果失败，尝试显式传递null参数
-          result = await _sendRequestWithNullParams('tools/list');
-        } catch (e2) {
-          print('[Streamable-HTTP-MCP] 带null参数的请求也失败: $e2');
-          rethrow;
-        }
-      }
+      // 根据curl测试结果，FastMCP服务器需要不包含params字段的请求
+      final result = await _sendRequestWithoutParams('tools/list');
       
       final tools = result['tools'] as List<dynamic>? ?? [];
       print('[Streamable-HTTP-MCP] 获取到 ${tools.length} 个工具');
@@ -697,6 +927,195 @@ class StreamableHttpMcpClient implements McpClient {
     } catch (e) {
       print('[Streamable-HTTP-MCP] 获取工具列表失败: $e');
       rethrow;
+    }
+  }
+  
+  /// 发送不包含params字段的请求（FastMCP服务器需要）
+  Future<Map<String, dynamic>> _sendRequestWithoutParams(String method) async {
+    if (!_isConnected && method != 'initialize') {
+      throw Exception('HTTP连接未建立');
+    }
+    
+    final requestId = ++_requestId;
+    
+    // 构造完全不包含params字段的请求
+    final request = <String, dynamic>{
+      'jsonrpc': '2.0',
+      'id': requestId,
+      'method': method,
+    };
+    
+    print('[Streamable-HTTP-MCP] 发送无params请求: ${jsonEncode(request)}');
+    
+    final client = HttpClient();
+    try {
+      final httpRequest = await client.postUrl(Uri.parse(serverUrl));
+      
+      // 设置MCP规范要求的请求头
+      httpRequest.headers.set('Content-Type', 'application/json');
+      httpRequest.headers.set('Accept', 'application/json, text/event-stream');
+      
+      // 添加Session ID支持 (如果有的话)
+      if (_sessionId != null) {
+        httpRequest.headers.set('Mcp-Session-Id', _sessionId!);
+      }
+      
+      if (headers != null) {
+        headers!.forEach((key, value) {
+          httpRequest.headers.set(key, value);
+        });
+      }
+      
+      httpRequest.add(utf8.encode(jsonEncode(request)));
+      final response = await httpRequest.close();
+      
+      // 添加诊断日志来识别FastMCP服务器的响应模式
+      print('[Streamable-HTTP-MCP] 收到HTTP响应: ${response.statusCode} ${response.reasonPhrase}');
+      
+      if (response.statusCode == 202) {
+        // HTTP 202 Accepted - 按照新的Streamable HTTP规范
+        print('[Streamable-HTTP-MCP] 收到202 Accepted，按照新规范处理');
+        final responseBody = await response.transform(utf8.decoder).join();
+        print('[Streamable-HTTP-MCP] 原始响应体: $responseBody');
+        
+        if (responseBody.isEmpty) {
+          print('[Streamable-HTTP-MCP] 空响应体，可能需要SSE流');
+          return {};
+        } else if (responseBody.startsWith('event:') || responseBody.contains('event: message')) {
+          print('[Streamable-HTTP-MCP] 检测到SSE格式响应，解析SSE消息');
+          return _parseSSEResponse(responseBody);
+        } else {
+          try {
+            final result = jsonDecode(responseBody);
+            if (result.containsKey('error')) {
+              throw Exception('MCP错误: ${result['error']}');
+            }
+            return result['result'] ?? result;
+          } catch (e) {
+            print('[Streamable-HTTP-MCP] JSON解析失败，原始数据: $responseBody');
+            return {};
+          }
+        }
+      } else if (response.statusCode == 200) {
+        final responseBody = await response.transform(utf8.decoder).join();
+        print('[Streamable-HTTP-MCP] 原始响应体: $responseBody');
+        
+        // 检查响应是否为SSE格式
+        if (responseBody.startsWith('event:') || responseBody.contains('event: message')) {
+          print('[Streamable-HTTP-MCP] 检测到SSE格式响应，解析SSE消息');
+          return _parseSSEResponse(responseBody);
+        } else {
+          // 标准JSON响应
+          final result = jsonDecode(responseBody);
+          
+          if (result.containsKey('error')) {
+            throw Exception('MCP错误: ${result['error']}');
+          }
+          
+          return result['result'] ?? {};
+        }
+      } else {
+        final responseBody = await response.transform(utf8.decoder).join();
+        print('[Streamable-HTTP-MCP] HTTP错误响应: ${response.statusCode}, 内容: $responseBody');
+        throw Exception('HTTP请求失败: ${response.statusCode} - $responseBody');
+      }
+    } finally {
+      client.close();
+    }
+  }
+  
+  /// 发送显式包含params字段的请求（用于调试）
+  Future<Map<String, dynamic>> _sendRequestWithExplicitParams(String method, Map<String, dynamic> params) async {
+    if (!_isConnected && method != 'initialize') {
+      throw Exception('HTTP连接未建立');
+    }
+    
+    final requestId = ++_requestId;
+    
+    // 构造明确包含params字段的请求
+    final request = <String, dynamic>{
+      'jsonrpc': '2.0',
+      'id': requestId,
+      'method': method,
+      'params': params, // 总是包含params字段
+    };
+    
+    print('[Streamable-HTTP-MCP] 发送显式params请求: ${jsonEncode(request)}');
+    
+    final client = HttpClient();
+    try {
+      final httpRequest = await client.postUrl(Uri.parse(serverUrl));
+      
+      // 设置MCP规范要求的请求头
+      httpRequest.headers.set('Content-Type', 'application/json');
+      httpRequest.headers.set('Accept', 'application/json, text/event-stream');
+      
+      // 添加Session ID支持 (如果有的话)
+      if (_sessionId != null) {
+        httpRequest.headers.set('Mcp-Session-Id', _sessionId!);
+      }
+      
+      if (headers != null) {
+        headers!.forEach((key, value) {
+          httpRequest.headers.set(key, value);
+        });
+      }
+      
+      httpRequest.add(utf8.encode(jsonEncode(request)));
+      final response = await httpRequest.close();
+      
+      // 添加诊断日志来识别FastMCP服务器的响应模式
+      print('[Streamable-HTTP-MCP] 收到HTTP响应: ${response.statusCode} ${response.reasonPhrase}');
+      
+      if (response.statusCode == 202) {
+        // HTTP 202 Accepted - 按照新的Streamable HTTP规范
+        print('[Streamable-HTTP-MCP] 收到202 Accepted，按照新规范处理');
+        final responseBody = await response.transform(utf8.decoder).join();
+        print('[Streamable-HTTP-MCP] 原始响应体: $responseBody');
+        
+        if (responseBody.isEmpty) {
+          print('[Streamable-HTTP-MCP] 空响应体，可能需要SSE流');
+          return {};
+        } else if (responseBody.startsWith('event:') || responseBody.contains('event: message')) {
+          print('[Streamable-HTTP-MCP] 检测到SSE格式响应，解析SSE消息');
+          return _parseSSEResponse(responseBody);
+        } else {
+          try {
+            final result = jsonDecode(responseBody);
+            if (result.containsKey('error')) {
+              throw Exception('MCP错误: ${result['error']}');
+            }
+            return result['result'] ?? result;
+          } catch (e) {
+            print('[Streamable-HTTP-MCP] JSON解析失败，原始数据: $responseBody');
+            return {};
+          }
+        }
+      } else if (response.statusCode == 200) {
+        final responseBody = await response.transform(utf8.decoder).join();
+        print('[Streamable-HTTP-MCP] 原始响应体: $responseBody');
+        
+        // 检查响应是否为SSE格式
+        if (responseBody.startsWith('event:') || responseBody.contains('event: message')) {
+          print('[Streamable-HTTP-MCP] 检测到SSE格式响应，解析SSE消息');
+          return _parseSSEResponse(responseBody);
+        } else {
+          // 标准JSON响应
+          final result = jsonDecode(responseBody);
+          
+          if (result.containsKey('error')) {
+            throw Exception('MCP错误: ${result['error']}');
+          }
+          
+          return result['result'] ?? {};
+        }
+      } else {
+        final responseBody = await response.transform(utf8.decoder).join();
+        print('[Streamable-HTTP-MCP] HTTP错误响应: ${response.statusCode}, 内容: $responseBody');
+        throw Exception('HTTP请求失败: ${response.statusCode} - $responseBody');
+      }
+    } finally {
+      client.close();
     }
   }
   
@@ -739,7 +1158,34 @@ class StreamableHttpMcpClient implements McpClient {
       httpRequest.add(utf8.encode(jsonEncode(request)));
       final response = await httpRequest.close();
       
-      if (response.statusCode == 200) {
+      // 添加诊断日志来识别FastMCP服务器的响应模式
+      print('[Streamable-HTTP-MCP] 收到HTTP响应: ${response.statusCode} ${response.reasonPhrase}');
+      
+      if (response.statusCode == 202) {
+        // HTTP 202 Accepted - 按照新的Streamable HTTP规范
+        print('[Streamable-HTTP-MCP] 收到202 Accepted，按照新规范处理');
+        final responseBody = await response.transform(utf8.decoder).join();
+        print('[Streamable-HTTP-MCP] 原始响应体: $responseBody');
+        
+        if (responseBody.isEmpty) {
+          print('[Streamable-HTTP-MCP] 空响应体，可能需要SSE流');
+          return {};
+        } else if (responseBody.startsWith('event:') || responseBody.contains('event: message')) {
+          print('[Streamable-HTTP-MCP] 检测到SSE格式响应，解析SSE消息');
+          return _parseSSEResponse(responseBody);
+        } else {
+          try {
+            final result = jsonDecode(responseBody);
+            if (result.containsKey('error')) {
+              throw Exception('MCP错误: ${result['error']}');
+            }
+            return result['result'] ?? result;
+          } catch (e) {
+            print('[Streamable-HTTP-MCP] JSON解析失败，原始数据: $responseBody');
+            return {};
+          }
+        }
+      } else if (response.statusCode == 200) {
         final responseBody = await response.transform(utf8.decoder).join();
         print('[Streamable-HTTP-MCP] 原始响应体: $responseBody');
         
@@ -758,7 +1204,9 @@ class StreamableHttpMcpClient implements McpClient {
           return result['result'] ?? {};
         }
       } else {
-        throw Exception('HTTP请求失败: ${response.statusCode}');
+        final responseBody = await response.transform(utf8.decoder).join();
+        print('[Streamable-HTTP-MCP] HTTP错误响应: ${response.statusCode}, 内容: $responseBody');
+        throw Exception('HTTP请求失败: ${response.statusCode} - $responseBody');
       }
     } finally {
       client.close();
@@ -835,13 +1283,17 @@ class StreamableHttpMcpClient implements McpClient {
       notification['params'] = params;
     }
     
+    print('[Streamable-HTTP-MCP] 发送通知: ${jsonEncode(notification)}');
+    
     final client = HttpClient();
     try {
       final httpRequest = await client.postUrl(Uri.parse(serverUrl));
       httpRequest.headers.set('Content-Type', 'application/json');
+      httpRequest.headers.set('Accept', 'application/json, text/event-stream');
       
       if (_sessionId != null) {
         httpRequest.headers.set('Mcp-Session-Id', _sessionId!);
+        print('[Streamable-HTTP-MCP] 通知使用Session ID: $_sessionId');
       }
       
       if (headers != null) {
@@ -851,7 +1303,12 @@ class StreamableHttpMcpClient implements McpClient {
       }
       
       httpRequest.add(utf8.encode(jsonEncode(notification)));
-      await httpRequest.close();
+      final response = await httpRequest.close();
+      
+      print('[Streamable-HTTP-MCP] 通知响应状态码: ${response.statusCode}');
+      final responseBody = await response.transform(utf8.decoder).join();
+      print('[Streamable-HTTP-MCP] 通知响应体: $responseBody');
+      
     } finally {
       client.close();
     }
@@ -865,6 +1322,9 @@ class StreamableHttpMcpClient implements McpClient {
     
     final requestId = ++_requestId;
     
+    // 根据协议版本调整请求参数
+    final adjustedParams = _adjustRequestForProtocolVersion(method, params);
+    
     // 构造符合MCP规范的JSON-RPC 2.0请求
     final request = <String, dynamic>{
       'jsonrpc': '2.0',
@@ -873,8 +1333,8 @@ class StreamableHttpMcpClient implements McpClient {
     };
     
     // 只在有参数时才添加params字段
-    if (params.isNotEmpty) {
-      request['params'] = params;
+    if (adjustedParams.isNotEmpty) {
+      request['params'] = adjustedParams;
     }
     
     print('[Streamable-HTTP-MCP] 发送请求: ${jsonEncode(request)}');
@@ -892,7 +1352,9 @@ class StreamableHttpMcpClient implements McpClient {
       // 添加Session ID支持 (如果有的话)
       if (_sessionId != null) {
         httpRequest.headers.set('Mcp-Session-Id', _sessionId!);
-        print('[Streamable-HTTP-MCP] 添加Session ID: $_sessionId');
+        print('[Streamable-HTTP-MCP] 添加Session ID到请求头: $_sessionId');
+      } else {
+        print('[Streamable-HTTP-MCP] 警告: 没有Session ID，可能导致请求失败');
       }
       
       if (headers != null) {
@@ -904,15 +1366,56 @@ class StreamableHttpMcpClient implements McpClient {
       httpRequest.add(utf8.encode(jsonEncode(request)));
       final response = await httpRequest.close();
       
+      // 添加诊断日志来识别FastMCP服务器的响应模式
+      print('[Streamable-HTTP-MCP] 收到HTTP响应: ${response.statusCode} ${response.reasonPhrase}');
+      
       // 检查是否返回了Session ID (仅在initialize时)
-      if (method == 'initialize' && response.headers.value('mcp-session-id') != null) {
-        _sessionId = response.headers.value('mcp-session-id');
-        print('[Streamable-HTTP-MCP] 收到Session ID: $_sessionId');
+      if (method == 'initialize') {
+        final sessionIdFromHeader = response.headers.value('mcp-session-id');
+        if (sessionIdFromHeader != null) {
+          _sessionId = sessionIdFromHeader;
+          print('[Streamable-HTTP-MCP] 从响应头收到Session ID: $_sessionId');
+        } else {
+          // 有些服务器可能在响应体中返回Session ID
+          print('[Streamable-HTTP-MCP] 响应头中未找到Session ID，将从响应体中查找');
+        }
       }
       
-      if (response.statusCode == 200) {
+      // 根据协议版本判断预期的HTTP状态码
+      final expects202 = _expectsHttpStatusCode202();
+      print('[Streamable-HTTP-MCP] 协议版本 $_serverProtocolVersion 预期状态码: ${expects202 ? "202" : "200"}');
+      
+      if (response.statusCode == 202) {
+        // HTTP 202 Accepted - 按照新的Streamable HTTP规范
+        print('[Streamable-HTTP-MCP] 收到202 Accepted，按照新规范处理');
         final responseBody = await response.transform(utf8.decoder).join();
         print('[Streamable-HTTP-MCP] 原始响应体: $responseBody');
+        
+        // 新规范下，202响应可能没有响应体，或者包含SSE数据
+        if (responseBody.isEmpty) {
+          // 空响应体，可能需要通过其他方式获取数据
+          print('[Streamable-HTTP-MCP] 空响应体，可能需要SSE流');
+          return {}; // 暂时返回空结果
+        } else if (responseBody.startsWith('event:') || responseBody.contains('event: message')) {
+          print('[Streamable-HTTP-MCP] 检测到SSE格式响应，解析SSE消息');
+          return _parseSSEResponse(responseBody);
+        } else {
+          // 尝试解析JSON
+          try {
+            final result = jsonDecode(responseBody);
+            if (result.containsKey('error')) {
+              throw Exception('MCP错误: ${result['error']}');
+            }
+            return result['result'] ?? result;
+          } catch (e) {
+            print('[Streamable-HTTP-MCP] JSON解析失败，原始数据: $responseBody');
+            return {};
+          }
+        }
+      } else if (response.statusCode == 200) {
+        // 兼容旧格式
+        final responseBody = await response.transform(utf8.decoder).join();
+        print('[Streamable-HTTP-MCP] 原始响应体(200): $responseBody');
         
         // 检查响应是否为SSE格式
         if (responseBody.startsWith('event:') || responseBody.contains('event: message')) {
@@ -928,8 +1431,13 @@ class StreamableHttpMcpClient implements McpClient {
           
           return result['result'] ?? {};
         }
+      } else if (response.statusCode >= 400) {
+        // HTTP错误状态码表示服务器无法接受输入
+        final responseBody = await response.transform(utf8.decoder).join();
+        print('[Streamable-HTTP-MCP] HTTP错误响应: ${response.statusCode}, 内容: $responseBody');
+        throw Exception('MCP服务器拒绝请求: HTTP ${response.statusCode} - $responseBody');
       } else {
-        throw Exception('HTTP请求失败: ${response.statusCode}');
+        throw Exception('未处理的HTTP状态码: ${response.statusCode}');
       }
     } finally {
       client.close();

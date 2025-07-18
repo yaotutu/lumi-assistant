@@ -265,8 +265,6 @@ class WebSocketService extends StateNotifier<WebSocketState> {
     _messageSubscription = _channel!.stream.listen(
       (data) {
         try {
-          print('[WebSocket] 收到原始消息，类型: ${data.runtimeType}');
-          
           // 检查是否为二进制数据
           if (data is List<int>) {
             _handleBinaryMessage(Uint8List.fromList(data));
@@ -320,72 +318,18 @@ class WebSocketService extends StateNotifier<WebSocketState> {
   /// 处理二进制消息（音频数据）
   void _handleBinaryMessage(Uint8List data) async {
     try {
-      print('[WebSocket] ===== 收到二进制消息 =====');
-      print('[WebSocket] 数据大小: ${data.length} bytes');
-      
-      // 分析二进制数据的头部，判断格式
-      _analyzeBinaryData(data);
-      
       // 检查是否为音频数据（Opus帧通常是10-320字节）
       if (data.length >= 10 && data.length <= 1000) {
-        print('[WebSocket] 判断为音频数据，开始播放');
-        print('[WebSocket] 音频服务状态: ${_activeAudioService != null ? "可用($_audioServiceType)" : "不可用"}');
-        
         // 性能优化：使用单一的音频服务实例
         if (_activeAudioService != null) {
-          print('[WebSocket] 调用音频服务播放音频: $_audioServiceType');
           await _activeAudioService.playOpusAudio(data);
-          print('[WebSocket] 音频播放请求已完成: $_audioServiceType');
-        } else {
-          print('[WebSocket] 音频服务不可用，跳过播放');
         }
-      } else {
-        print('[WebSocket] 二进制数据大小不符合Opus帧规范: ${data.length} bytes');
-        print('[WebSocket] 可能不是音频数据，跳过播放');
       }
-      print('[WebSocket] ===== 二进制消息处理结束 =====');
     } catch (error) {
       print('[WebSocket] 处理二进制消息失败: $error');
-      print('[WebSocket] 错误类型: ${error.runtimeType}');
     }
   }
 
-  /// 分析二进制数据格式
-  void _analyzeBinaryData(Uint8List data) {
-    if (data.isEmpty) return;
-    
-    // 打印前16个字节的十六进制表示
-    final headerLength = data.length < 16 ? data.length : 16;
-    final headerHex = data.take(headerLength)
-        .map((b) => b.toRadixString(16).padLeft(2, '0'))
-        .join(' ');
-    
-    print('[WebSocket] 二进制数据头部(hex): $headerHex');
-    
-    // 尝试识别常见的音频格式
-    if (data.length >= 4) {
-      // 检查Opus魔数（OggS）
-      if (data[0] == 0x4F && data[1] == 0x67 && data[2] == 0x67 && data[3] == 0x53) {
-        print('[WebSocket] 检测到OGG容器格式（可能包含Opus）');
-      }
-      // 检查原始Opus帧
-      else if (data[0] == 0x4F && data[1] == 0x70 && data[2] == 0x75 && data[3] == 0x73) {
-        print('[WebSocket] 检测到Opus魔数');
-      }
-      // 检查WAV格式
-      else if (data[0] == 0x52 && data[1] == 0x49 && data[2] == 0x46 && data[3] == 0x46) {
-        print('[WebSocket] 检测到WAV文件格式');
-      }
-      // 检查MP3格式
-      else if ((data[0] == 0xFF && (data[1] & 0xE0) == 0xE0) || 
-               (data[0] == 0x49 && data[1] == 0x44 && data[2] == 0x33)) {
-        print('[WebSocket] 检测到MP3文件格式');
-      }
-      else {
-        print('[WebSocket] 未识别的音频格式，可能是原始Opus帧或其他格式');
-      }
-    }
-  }
 
 
   /// 安排重连
@@ -503,8 +447,23 @@ class WebSocketService extends StateNotifier<WebSocketState> {
           
         case 'tools/list':
           // 工具列表请求
-          print('[WebSocket] 获取工具列表');
+          print('[WebSocket] ===== Python后端请求工具列表 =====');
+          print('[WebSocket] 会话ID: $sessionId');
+          print('[WebSocket] 请求ID: $id');
+          
           final tools = await _mcpManager.getAvailableTools();
+          
+          print('[WebSocket] 准备发送工具列表给Python后端，工具数量: ${tools.length}');
+          final toolsResponse = tools.map((tool) => {
+            'name': tool.name,
+            'description': tool.description,
+            'inputSchema': tool.inputSchema,
+          }).toList();
+          
+          print('[WebSocket] 工具列表响应内容:');
+          for (int i = 0; i < toolsResponse.length; i++) {
+            print('[WebSocket]   ${i + 1}. ${toolsResponse[i]['name']} - ${toolsResponse[i]['description']}');
+          }
           
           response = {
             'type': 'mcp',
@@ -513,14 +472,11 @@ class WebSocketService extends StateNotifier<WebSocketState> {
               'jsonrpc': '2.0',
               'id': id,
               'result': {
-                'tools': tools.map((tool) => {
-                  'name': tool.name,
-                  'description': tool.description,
-                  'inputSchema': tool.inputSchema,
-                }).toList(),
+                'tools': toolsResponse,
               },
             },
           };
+          print('[WebSocket] ===============================');
           break;
           
         case 'initialize':

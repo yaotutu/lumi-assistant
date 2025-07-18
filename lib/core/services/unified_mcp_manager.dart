@@ -4,6 +4,7 @@ import 'dart:io';
 
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:path/path.dart' as path;
+import 'package:path_provider/path_provider.dart';
 import 'package:mcp_server/mcp_server.dart';
 
 import 'embedded_mcp_server.dart';
@@ -360,27 +361,61 @@ class UnifiedMcpManager {
     
     final allTools = <UnifiedMcpTool>[];
     
+    print('[UnifiedMCP] 开始获取所有可用工具，配置的服务器数量: ${_configs.length}');
+    
     for (final entry in _configs.entries) {
       final serverId = entry.key;
       final config = entry.value;
       
-      if (!config.enabled) continue;
+      print('[UnifiedMCP] 检查服务器: $serverId, 启用状态: ${config.enabled}, 类型: ${config.type.name}');
+      
+      if (!config.enabled) {
+        print('[UnifiedMCP] 跳过已禁用的服务器: $serverId');
+        continue;
+      }
       
       try {
         List<Tool> tools;
         
         switch (config.type) {
           case McpServerType.embedded:
+            print('[UnifiedMCP] 获取内置服务器工具: $serverId');
             tools = await _embeddedServer.listTools();
+            print('[UnifiedMCP] 内置服务器 $serverId 返回工具数量: ${tools.length}');
             break;
             
           case McpServerType.external:
             final client = _externalClients[serverId];
+            print('[UnifiedMCP] 检查外部服务器客户端: $serverId');
+            print('[UnifiedMCP] - 客户端存在: ${client != null}');
+            print('[UnifiedMCP] - 客户端已连接: ${client?.isConnected ?? false}');
+            
             if (client != null && client.isConnected) {
+              print('[UnifiedMCP] 获取外部服务器工具列表: $serverId');
               final toolsData = await client.listTools();
-              tools = toolsData.cast<Tool>(); // 临时转换，后续完善
+              print('[UnifiedMCP] 外部服务器 $serverId 返回工具数量: ${toolsData.length}');
+              print('[UnifiedMCP] 外部服务器 $serverId 返回的原始工具数据: $toolsData');
+              
+              // 正确转换工具数据
+              tools = toolsData.map<Tool>((toolData) {
+                if (toolData is Tool) {
+                  return toolData;
+                } else if (toolData is Map<String, dynamic>) {
+                  return Tool(
+                    name: toolData['name'] as String,
+                    description: toolData['description'] as String? ?? '',
+                    inputSchema: toolData['inputSchema'] as Map<String, dynamic>? ?? {},
+                  );
+                } else {
+                  throw Exception('无法识别的工具数据格式: ${toolData.runtimeType}');
+                }
+              }).toList();
+              
+              print('[UnifiedMCP] 外部服务器 $serverId 转换后工具: ${tools.map((t) => t.name).toList()}');
             } else {
               print('[UnifiedMCP] 外部服务器未连接，跳过工具列表: $serverId');
+              print('[UnifiedMCP] - 客户端存在: ${client != null}');
+              print('[UnifiedMCP] - 客户端已连接: ${client?.isConnected ?? false}');
               continue;
             }
             break;
@@ -405,7 +440,14 @@ class UnifiedMcpManager {
     // 按优先级排序
     allTools.sort((a, b) => b.priority.compareTo(a.priority));
     
-    print('[UnifiedMCP] 获取到 ${allTools.length} 个可用工具');
+    print('[UnifiedMCP] ===== 工具收集完成 =====');
+    print('[UnifiedMCP] 总共获取到 ${allTools.length} 个可用工具:');
+    for (int i = 0; i < allTools.length; i++) {
+      final tool = allTools[i];
+      print('[UnifiedMCP]   ${i + 1}. ${tool.name} (来自: ${tool.serverId}, 类型: ${tool.serverType.name})');
+    }
+    print('[UnifiedMCP] ===========================');
+    
     return allTools;
   }
   
@@ -524,12 +566,25 @@ class UnifiedMcpManager {
         final process = _externalProcesses[serverId];
         final client = _externalClients[serverId];
         
-        if (process?.isRunning == true && client?.isConnected == true) {
-          return McpServerStatus.running;
-        } else if (process?.isRunning == true) {
-          return McpServerStatus.starting;
-        } else {
-          return McpServerStatus.stopped;
+        // 根据传输模式决定状态检测方式
+        switch (config.transport) {
+          case McpTransportMode.stdio:
+            // Stdio模式需要本地进程
+            if (process?.isRunning == true && client?.isConnected == true) {
+              return McpServerStatus.running;
+            } else if (process?.isRunning == true) {
+              return McpServerStatus.starting;
+            } else {
+              return McpServerStatus.stopped;
+            }
+            
+          case McpTransportMode.streamableHttp:
+            // HTTP模式只需要客户端连接
+            if (client?.isConnected == true) {
+              return McpServerStatus.running;
+            } else {
+              return McpServerStatus.stopped;
+            }
         }
     }
   }
@@ -626,11 +681,19 @@ class UnifiedMcpManager {
 
   /// 获取用户配置文件路径
   Future<String> _getUserConfigPath() async {
-    final home = Platform.environment['HOME'] ?? Platform.environment['USERPROFILE'];
-    if (home == null) {
-      throw Exception('无法获取用户主目录');
+    // 针对不同平台使用不同的配置路径策略
+    if (Platform.isAndroid || Platform.isIOS) {
+      // 移动设备：使用应用专用目录
+      final Directory appDir = await getApplicationDocumentsDirectory();
+      return path.join(appDir.path, 'mcp_config.json');
+    } else {
+      // 桌面设备：使用用户主目录
+      final home = Platform.environment['HOME'] ?? Platform.environment['USERPROFILE'];
+      if (home == null) {
+        throw Exception('无法获取用户主目录');
+      }
+      return path.join(home, '.lumi_assistant', 'mcp_config.json');
     }
-    return path.join(home, '.lumi_assistant', 'mcp_config.json');
   }
 
   /// 转换 CallToolResult 为统一格式

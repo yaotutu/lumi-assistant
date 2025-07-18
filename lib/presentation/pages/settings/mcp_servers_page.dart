@@ -357,8 +357,29 @@ class McpServersPage extends HookConsumerWidget {
             onPressed: config.enabled ? () async {
               if (isRunning) {
                 await mcpManager.stopServer(serverId);
+                ScaffoldMessenger.of(context).showSnackBar(
+                  SnackBar(
+                    content: Text('服务器 ${config.name} 已停止'),
+                    backgroundColor: Colors.orange,
+                  ),
+                );
               } else {
-                await mcpManager.startServer(serverId);
+                final success = await mcpManager.startServer(serverId);
+                if (success) {
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    SnackBar(
+                      content: Text('服务器 ${config.name} 启动成功'),
+                      backgroundColor: Colors.green,
+                    ),
+                  );
+                } else {
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    SnackBar(
+                      content: Text('服务器 ${config.name} 启动失败'),
+                      backgroundColor: Colors.red,
+                    ),
+                  );
+                }
               }
               refresh();
             } : null,
@@ -446,7 +467,26 @@ class McpServersPage extends HookConsumerWidget {
         onSave: (config) async {
           final mcpManager = ref.read(unifiedMcpManagerProvider);
           mcpManager.addServerConfig(config.id, config);
-          await mcpManager.saveUserConfig();
+          try {
+            await mcpManager.saveUserConfig();
+            if (context.mounted) {
+              ScaffoldMessenger.of(context).showSnackBar(
+                const SnackBar(
+                  content: Text('MCP服务器配置已保存'),
+                  backgroundColor: Colors.green,
+                ),
+              );
+            }
+          } catch (e) {
+            if (context.mounted) {
+              ScaffoldMessenger.of(context).showSnackBar(
+                SnackBar(
+                  content: Text('保存配置失败: $e'),
+                  backgroundColor: Colors.red,
+                ),
+              );
+            }
+          }
           refresh();
         },
       ),
@@ -468,7 +508,26 @@ class McpServersPage extends HookConsumerWidget {
         onSave: (newConfig) async {
           final mcpManager = ref.read(unifiedMcpManagerProvider);
           await mcpManager.updateServerConfig(serverId, newConfig);
-          await mcpManager.saveUserConfig();
+          try {
+            await mcpManager.saveUserConfig();
+            if (context.mounted) {
+              ScaffoldMessenger.of(context).showSnackBar(
+                const SnackBar(
+                  content: Text('MCP服务器配置已更新'),
+                  backgroundColor: Colors.green,
+                ),
+              );
+            }
+          } catch (e) {
+            if (context.mounted) {
+              ScaffoldMessenger.of(context).showSnackBar(
+                SnackBar(
+                  content: Text('更新配置失败: $e'),
+                  backgroundColor: Colors.red,
+                ),
+              );
+            }
+          }
           refresh();
         },
       ),
@@ -546,7 +605,7 @@ class _McpServerConfigDialog extends HookWidget {
       initialConfig?.transport ?? McpTransportMode.streamableHttp,
     );
     final enabled = useState(initialConfig?.enabled ?? true);
-    final autoStart = useState(initialConfig?.autoStart ?? false);
+    final autoStart = useState(initialConfig?.autoStart ?? true);
     final priority = useState(initialConfig?.priority ?? 50);
     final isTestingConnection = useState(false);
     final isFetchingTools = useState(false);
