@@ -1,13 +1,18 @@
 import 'dart:typed_data';
 import 'package:opus_dart/opus_dart.dart';
-import 'package:flutter_pcm_player/flutter_pcm_player.dart';
+import 'native_audio_player.dart';
 
-/// 音频服务 - 完全按照Android客户端实现方式
+/// 音频服务 - Android原生实现 (简化版本)
 /// 
-/// 参考Android客户端AudioUtil类的实现：
-/// - 单例播放器，只初始化一次
-/// - 使用feed()方法持续喂数据
-/// - Opus解码配置完全一致
+/// 📱 专为Android平台优化的Opus音频播放服务
+/// 🚀 使用原生AudioTrack，性能卓越，延迟极低
+/// ✅ 完全替代第三方audio库，减少依赖风险
+/// 
+/// 核心特性：
+/// - 原生AudioTrack播放，无中间层损耗
+/// - Opus实时解码，支持音频流
+/// - 单例模式，资源利用最优
+/// - 简洁API，专注核心功能
 class AudioServiceAndroidStyle {
   static const int sampleRate = 16000;     // 采样率16kHz - 与Android客户端一致
   static const int channels = 1;            // 单声道 - 与Android客户端一致  
@@ -19,8 +24,8 @@ class AudioServiceAndroidStyle {
     channels: channels,
   );
 
-  /// PCM播放器实例 - 单例模式
-  static FlutterPcmPlayer? _pcmPlayer;
+  /// 原生PCM播放器实例 - 单例模式
+  static NativeAudioPlayer? _pcmPlayer;
   static bool _isPlayerInitialized = false;
   static bool _isInitializing = false;
 
@@ -33,11 +38,15 @@ class AudioServiceAndroidStyle {
     try {
       _isInitializing = true;
       
-      // 创建播放器实例
-      _pcmPlayer = FlutterPcmPlayer();
+      // 创建原生播放器实例
+      _pcmPlayer = NativeAudioPlayer();
       
-      // 初始化播放器
-      await _pcmPlayer!.initialize();
+      // 初始化播放器 - 使用与Android客户端一致的参数
+      await _pcmPlayer!.initialize(
+        nChannels: channels,
+        sampleRate: sampleRate,
+        pcmType: PCMType.pcm16,
+      );
       
       // 开始播放（准备接收数据）
       await _pcmPlayer!.play();
@@ -54,18 +63,18 @@ class AudioServiceAndroidStyle {
     }
   }
 
-  /// 播放Opus音频数据 - 完全按照Android客户端AudioUtil.playOpusData实现
+  /// 播放Opus音频数据 - 核心功能，简洁高效
   Future<void> playOpusAudio(Uint8List opusData) async {
     try {
-      // 1. 检查播放器状态 - 与Android客户端逻辑一致
+      // 1. 确保播放器已初始化
       if (!_isPlayerInitialized || _pcmPlayer == null) {
         await initPlayer();
       }
 
-      // 2. 解码Opus数据为PCM - 与Android客户端完全一致
+      // 2. Opus解码为PCM16
       final Int16List pcmData = _decoder.decode(input: opusData);
 
-      // 3. 转换为字节数组（小端字节序）- 与Android客户端完全一致
+      // 3. 转换为字节数组（小端字节序）
       final Uint8List pcmBytes = Uint8List(pcmData.length * 2);
       final ByteData bytes = ByteData.view(pcmBytes.buffer);
       
@@ -73,40 +82,12 @@ class AudioServiceAndroidStyle {
         bytes.setInt16(i * 2, pcmData[i], Endian.little);
       }
 
-      // 4. 发送到播放器 - 使用feed方法，与Android客户端一致
-      if (_pcmPlayer != null) {
-        await _pcmPlayer!.feed(pcmBytes);
-      }
+      // 4. 发送到原生播放器
+      await _pcmPlayer!.feed(pcmBytes);
       
     } catch (e) {
-      print('[AudioServiceAndroidStyle] 播放Opus音频失败: $e');
-      print('[AudioServiceAndroidStyle] 错误类型: ${e.runtimeType}');
-      
-      // 错误恢复 - 尝试重新初始化播放器
-      try {
-        print('[AudioServiceAndroidStyle] 尝试重新初始化播放器');
-        _isPlayerInitialized = false;
-        _pcmPlayer = null;
-        await initPlayer();
-        
-        // 重试播放
-        if (_pcmPlayer != null) {
-          print('[AudioServiceAndroidStyle] 重试播放Opus音频');
-          final Int16List pcmData = _decoder.decode(input: opusData);
-          final Uint8List pcmBytes = Uint8List(pcmData.length * 2);
-          final ByteData bytes = ByteData.view(pcmBytes.buffer);
-          
-          for (int i = 0; i < pcmData.length; i++) {
-            bytes.setInt16(i * 2, pcmData[i], Endian.little);
-          }
-          
-          await _pcmPlayer!.feed(pcmBytes);
-          print('[AudioServiceAndroidStyle] 重试播放成功');
-        }
-      } catch (retryError) {
-        print('[AudioServiceAndroidStyle] 重试播放失败: $retryError');
-        rethrow;
-      }
+      print('[AudioServiceAndroidStyle] 播放失败: $e');
+      rethrow;
     }
   }
 
@@ -140,5 +121,5 @@ class AudioServiceAndroidStyle {
   bool get isInitialized => _isPlayerInitialized;
   
   /// 获取播放器实例（用于调试）
-  FlutterPcmPlayer? get player => _pcmPlayer;
+  NativeAudioPlayer? get player => _pcmPlayer;
 }

@@ -11,7 +11,7 @@ import '../constants/api_constants.dart';
 import '../errors/exceptions.dart';
 import '../../data/models/websocket_state.dart';
 import 'audio_service_android_style.dart';
-import 'audio_service_simple.dart';
+// import 'audio_playback_service.dart'; // 暂时不使用跨平台fallback
 import 'unified_mcp_manager.dart';
 import 'opus_data_capture_service.dart';
 
@@ -748,18 +748,13 @@ final webSocketServiceProvider = StateNotifierProvider<WebSocketService, WebSock
   // 性能优化：延迟注入单一音频服务，避免循环依赖和内存浪费
   Future.microtask(() {
     try {
-      // 只注入最稳定的Android风格音频服务
+      // 只使用最稳定的Android风格音频服务
       final audioServiceAndroidStyle = AudioServiceAndroidStyle();
       service.setAudioService(audioServiceAndroidStyle, 'android_style');
+      print('[WebSocket] 音频服务注入成功: android_style');
     } catch (e) {
-      print('[WebSocket] 音频服务注入失败，尝试fallback: $e');
-      try {
-        // 如果失败，尝试使用简化服务作为fallback
-        final audioServiceSimple = AudioServiceSimple();
-        service.setAudioService(audioServiceSimple, 'simple');
-      } catch (fallbackError) {
-        print('[WebSocket] Fallback音频服务也失败: $fallbackError');
-      }
+      print('[WebSocket] 音频服务注入失败: $e');
+      // 不再使用fallback，专注使用我们的原生实现
     }
   });
   

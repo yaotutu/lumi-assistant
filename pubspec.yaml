@@ -49,13 +49,17 @@ dependencies:
   path: ^1.8.3
   
   # 音频处理
-  opus_dart: ^3.0.1
-  just_audio: ^0.9.36
-  audio_session: ^0.1.18
-  permission_handler: ^11.4.0
-  path_provider: ^2.1.5
-  record: 5.1.0
-  volume_controller: ^2.0.7
+  opus_dart: ^3.0.1               # Opus编解码（保留用于解码）
+  opus_flutter: ^3.0.3            # Opus原生库加载
+  permission_handler: ^11.4.0     # 录音权限
+  path_provider: ^2.1.5           # 文件存储路径
+  record: 5.1.0                   # 录音功能
+  volume_controller: ^2.0.7       # 系统音量控制（MCP功能）
+  
+  # 已移除的第三方音频库（使用原生实现替代）：
+  # just_audio: ^0.9.36           # → 使用 NativeAudioPlayer
+  # audio_session: ^0.1.18        # → Android原生音频会话管理
+  # flutter_pcm_player: ^0.0.1    # → 使用 NativeAudioPlayer
   
   # 设备控制
   screen_brightness: ^1.0.1
@@ -65,8 +69,6 @@ dependencies:
   
   # 图标
   cupertino_icons: ^1.0.8
-  flutter_pcm_player: ^0.0.1
-  opus_flutter: ^3.0.3
 
 dev_dependencies:
   flutter_test:

@@ -335,6 +335,166 @@ print('Text scale factor: ${MediaQuery.of(context).textScaleFactor}');
 
 **记住**: 应用应该在各种屏幕尺寸上都能正常工作。使用响应式设计原则，避免硬编码特定设备的参数。
 
+## 🚨 横屏设备UI布局强制规则 (重要!!!)
+
+### ⚠️ 关键约束条件
+**目标设备**: YT3002 (1280x736像素，横屏)
+**可用高度**: 约600-650像素 (扣除状态栏、导航栏、AppBar)
+**最大容忍高度**: 绝不能超过700像素
+
+### 📏 强制性UI高度限制
+
+#### 1. **总页面高度控制** - 生死线
+```dart
+// ✅ 必须使用 - 每个页面都要包装
+body: SingleChildScrollView(
+  padding: const EdgeInsets.all(8.0), // 最大边距8px
+  child: Column(children: [...])
+)
+
+// ❌ 绝对禁止 - 会导致溢出
+body: Padding(child: Column(children: [...]))
+body: Column(children: [...])
+```
+
+#### 2. **UI元素高度预算分配**
+```dart
+// 高度预算分配 (总计不超过600px)
+AppBar:           56px  (系统固定)
+总Padding:        16px  (上下各8px)
+主要内容区:        500px (最大允许)
+底部安全区:       28px  (系统预留)
+```
+
+#### 3. **具体组件高度限制**
+```dart
+// ✅ 紧凑卡片设计
+Card(
+  child: Padding(
+    padding: EdgeInsets.all(8.0),  // 最大8px
+    child: content,
+  ),
+)
+
+// ✅ 按钮高度限制
+ElevatedButton(
+  style: ElevatedButton.styleFrom(
+    minimumSize: Size(0, 32),  // 最大36px高度
+  ),
+)
+
+// ✅ 间距控制
+SizedBox(height: 8),  // 最大间距8px，通常用4px
+
+// ✅ 文件列表高度
+SizedBox(
+  height: 60,  // 最大80px，通常用60px
+  child: ListView.builder(...)
+)
+```
+
+#### 4. **垂直布局元素计数规则**
+```
+最大允许的垂直元素数量:
+- 主要卡片: 最多2个
+- 按钮行: 最多2行  
+- 间距: 最多6个SizedBox
+- 说明文字: 最多1行
+```
+
+### 🚫 绝对禁止的UI模式
+
+#### 1. **垂直堆叠过多元素**
+```dart
+// ❌ 禁止 - 元素过多
+Column(children: [
+  Card(...),        // 卡片1
+  SizedBox(16),     // 间距
+  Card(...),        // 卡片2  
+  SizedBox(16),     // 间距
+  Card(...),        // 卡片3 - 超出限制!
+  Row(...),         // 按钮行1
+  SizedBox(8),      // 间距
+  Row(...),         // 按钮行2
+  SizedBox(16),     // 间距
+  Container(...),   // 说明区域 - 超出限制!
+])
+```
+
+#### 2. **大尺寸组件**
+```dart
+// ❌ 禁止
+padding: EdgeInsets.all(16.0)  // 超过8px
+height: 120                     // ListView超过80px
+minimumSize: Size(0, 48)       // 按钮超过36px
+```
+
+#### 3. **不必要的装饰元素**
+```dart
+// ❌ 禁止 - 浪费空间
+Text('使用说明', style: headlineSmall)  // 大标题
+SizedBox(height: 16)                   // 大间距
+Icon(Icons.info, size: 24)             // 大图标
+```
+
+### ✅ 推荐的UI模式
+
+#### 1. **横向布局最大化**
+```dart
+// ✅ 推荐 - 三列按钮
+Row(children: [
+  Expanded(child: ElevatedButton(...)),
+  SizedBox(width: 4),
+  Expanded(child: ElevatedButton(...)),
+  SizedBox(width: 4),
+  Expanded(child: ElevatedButton(...)),
+])
+```
+
+#### 2. **信息合并显示**
+```dart
+// ✅ 推荐 - 合并状态和统计
+Card(child: Row(children: [
+  Icon(status), 
+  Text(statusText),
+  Spacer(),
+  Text('数据: $count'),
+]))
+```
+
+#### 3. **极简说明**
+```dart
+// ✅ 推荐 - 单行提示
+Container(
+  padding: EdgeInsets.all(8),
+  child: Text('操作: 捕获 → 停止 → 保存', 
+    style: TextStyle(fontSize: 12)),
+)
+```
+
+### 🔍 UI检查清单 (每次必须执行)
+
+在提交任何UI代码前，必须检查：
+
+- [ ] 是否使用了SingleChildScrollView包装?
+- [ ] 垂直元素总数是否少于10个?
+- [ ] 所有padding是否≤8px?
+- [ ] 所有SizedBox height是否≤8px?
+- [ ] 按钮高度是否≤36px?
+- [ ] ListView高度是否≤80px?
+- [ ] 是否优先使用Row而不是多个Column?
+- [ ] 是否移除了不必要的装饰元素?
+
+### 📱 目标设备测试要求
+
+每次UI修改后必须在YT3002设备上验证：
+1. 页面无需滚动即可看到主要内容
+2. 所有按钮都在可点击区域内
+3. 文字完全可见，无截断
+4. 导航栏和按钮不被遮挡
+
+**违反此规则的代码将被直接拒绝!**
+
 ### Screen Detection and Adaptation
 
 #### ScreenUtils Class
@@ -378,6 +538,73 @@ flutter build appbundle --release
 
 # Analyze code
 flutter analyze
+```
+
+## Platform Support
+
+### 📱 支持的平台
+
+| 平台 | 支持状态 | 音频实现 | 兼容性 |
+|------|----------|----------|--------|
+| **Android** | ✅ **完整支持** | 原生AudioTrack | Android 6.0+ (API 23+) |
+| **iOS** | ⚠️ **接口预留** | 待实现 | iOS 12.0+ (预期) |
+| **Web** | ❌ **不支持** | N/A | N/A |
+| **Desktop** | ❌ **不支持** | N/A | N/A |
+
+### 🚀 Android原生音频架构
+
+**核心优势**：
+- **零依赖风险** - 完全移除第三方音频库
+- **极低延迟** - 直接使用AudioTrack，无中间层损耗
+- **高性能** - HandlerThread异步处理，优化音频流
+- **完整控制** - 自主实现，可针对性优化
+
+**技术栈**：
+```kotlin
+// Android原生层
+AudioTrack + HandlerThread + MethodChannel
+
+// Flutter层  
+NativeAudioPlayer + AndroidNativeAudioService + AudioPlaybackService
+```
+
+**音频流水线**：
+```
+Opus数据 → Opus解码器 → PCM16 → MethodChannel → AudioTrack → 扬声器
+```
+
+### 📋 iOS扩展路线图
+
+**预留接口**：`AudioPlaybackServiceFactory.createService()` 会自动检测平台
+
+**iOS实现计划**：
+```swift
+// 未来iOS实现技术栈
+AVAudioEngine + AVAudioPlayerNode + MethodChannel + OpusDecoder
+```
+
+**实现步骤**：
+1. 创建iOS原生音频播放器 (Swift/Objective-C)
+2. 使用AVAudioEngine进行PCM播放
+3. 实现MethodChannel通信机制
+4. 集成Opus解码功能
+5. 统一AudioPlaybackService接口
+
+### 🔧 平台检测
+
+```dart
+// 自动平台检测和服务创建
+final audioService = AudioPlaybackServiceFactory.createService();
+
+// 检查平台支持
+if (AudioPlaybackServiceFactory.isPlatformSupported) {
+  await audioService.initialize();
+  await audioService.playOpusAudio(opusData);
+}
+
+// 获取平台能力描述
+print(AudioPlaybackServiceFactory.platformCapabilities);
+// 输出: "Android原生AudioTrack - 完整支持"
 ```
 
 ## Backend Integration

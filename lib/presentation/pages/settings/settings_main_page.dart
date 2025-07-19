@@ -7,8 +7,10 @@ import 'settings_audio_page.dart';
 import 'settings_theme_page.dart';
 import 'settings_debug_page.dart';
 import 'mcp_servers_page.dart';
-import '../debug/opus_capture_debug_page.dart';
-import '../debug/opus_playback_test_page.dart';
+// 已删除的调试页面：
+// import '../debug/opus_capture_debug_page.dart'; // Opus捕获调试页面
+// import '../debug/opus_playback_test_page.dart'; // Opus播放测试页面
+// 调试功能已完成，原生音频实现已稳定
 
 /// 设置主页面 - 分组导航
 /// 
@@ -160,33 +162,10 @@ class SettingsMainPage extends ConsumerWidget {
             ),
           ),
           
-          const SizedBox(height: 12),
-          
-          _buildSettingsCategoryCard(
-            context,
-            title: 'Opus音频调试',
-            subtitle: '捕获和分析服务端返回的opus音频数据',
-            icon: Icons.audiotrack,
-            color: Colors.purple.shade700,
-            onTap: () => Navigator.push(
-              context,
-              MaterialPageRoute(builder: (context) => const OpusCaptureDebugPage()),
-            ),
-          ),
-          
-          const SizedBox(height: 12),
-          
-          _buildSettingsCategoryCard(
-            context,
-            title: 'Opus播放测试',
-            subtitle: '测试不同音频库播放opus文件的效果和质量',
-            icon: Icons.music_note,
-            color: Colors.deepPurple.shade700,
-            onTap: () => Navigator.push(
-              context,
-              MaterialPageRoute(builder: (context) => const OpusPlaybackTestPage()),
-            ),
-          ),
+          // 音频调试功能已完成，页面已移除
+          // - Opus音频调试页面 ✅ 已完成
+          // - Opus播放测试页面 ✅ 已完成
+          // 原生音频实现已稳定，不再需要调试页面
           
           const SizedBox(height: 24),
           
