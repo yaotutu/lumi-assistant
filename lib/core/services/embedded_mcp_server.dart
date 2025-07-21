@@ -56,6 +56,9 @@ class EmbeddedMcpServer {
     
     // 注册系统信息工具
     await _registerSystemTools();
+    
+    // 注册打印机状态工具（演示用）
+    await _registerPrinterTool();
   }
   
   /// 注册亮度控制工具
@@ -303,6 +306,74 @@ class EmbeddedMcpServer {
     }
   }
   
+  /// 注册打印机状态工具（演示用）
+  Future<void> _registerPrinterTool() async {
+    if (_server == null) return;
+    
+    // 获取打印机状态工具
+    const toolName = 'get_printer_status';
+    if (!_registeredTools.contains(toolName)) {
+      Future<CallToolResult> getPrinterStatusHandler(Map<String, dynamic> arguments) async {
+        try {
+          print('[EmbeddedMCP] 执行打印机状态查询工具: $arguments');
+          
+          // 模拟打印机状态信息
+          final printerInfo = {
+            'status': 'ready',
+            'name': '模拟打印机-HP LaserJet',
+            'connection': 'USB连接',
+            'paper_level': '充足',
+            'ink_level': '墨粉：85%',
+            'queue_jobs': 0,
+            'last_job': '2025年1月21日 14:30',
+            'error_status': '无错误',
+          };
+          
+          final statusMessage = '''
+📄 打印机状态报告
+━━━━━━━━━━━━━━━━━━━━━━━━━━
+设备名称：${printerInfo['name']}
+连接方式：${printerInfo['connection']}
+设备状态：✅ ${printerInfo['status']} (就绪)
+纸张状态：📄 ${printerInfo['paper_level']}
+墨粉状态：🖤 ${printerInfo['ink_level']}
+排队任务：${printerInfo['queue_jobs']} 个
+最后任务：${printerInfo['last_job']}
+错误状态：${printerInfo['error_status']}
+━━━━━━━━━━━━━━━━━━━━━━━━━━
+          ''';
+          
+          return CallToolResult([
+            TextContent(text: statusMessage.trim())
+          ]);
+        } catch (e) {
+          print('[EmbeddedMCP] 打印机状态工具执行失败: $e');
+          return CallToolResult([
+            TextContent(text: '获取打印机状态失败: $e')
+          ], isError: true);
+        }
+      }
+      
+      _server!.addTool(
+        name: toolName,
+        description: '获取打印机设备状态信息（模拟实现）。包括连接状态、纸张情况、墨粉余量、任务队列等详细信息。',
+        inputSchema: {
+          'type': 'object',
+          'properties': {
+            'printer_name': {
+              'type': 'string',
+              'description': '打印机名称（可选，默认获取所有打印机状态）',
+            }
+          }
+        },
+        handler: getPrinterStatusHandler,
+      );
+      
+      _toolHandlers[toolName] = getPrinterStatusHandler;
+      _registeredTools.add(toolName);
+    }
+  }
+  
   /// 本地工具调用（无网络开销，最高性能）
   /// 
   /// 这是嵌入式服务器的核心优势：直接在本地调用工具处理器
@@ -311,7 +382,12 @@ class EmbeddedMcpServer {
     if (!_isInitialized) await initialize();
     
     try {
-      print('[EmbeddedMCP] 本地调用工具: $toolName, 参数: $arguments');
+      print('[EmbeddedMCP] ===== 内置工具调用 =====');
+      print('[EmbeddedMCP] 时间戳: ${DateTime.now().toIso8601String()}');
+      print('[EmbeddedMCP] 工具名称: $toolName');
+      print('[EmbeddedMCP] 工具参数: $arguments');
+      print('[EmbeddedMCP] 参数类型: ${arguments.runtimeType}');
+      print('[EmbeddedMCP] 可用工具: ${_toolHandlers.keys.toList()}');
       
       // 直接调用存储的工具处理器，零网络延迟
       final handler = _toolHandlers[toolName];
@@ -320,7 +396,10 @@ class EmbeddedMcpServer {
       }
       
       final result = await handler(arguments);
-      print('[EmbeddedMCP] 工具调用完成: $toolName');
+      print('[EmbeddedMCP] ===== 工具调用完成 =====');
+      print('[EmbeddedMCP] 工具名称: $toolName');
+      print('[EmbeddedMCP] 执行结果: $result');
+      print('[EmbeddedMCP] 是否有错误: ${result.isError}');
       return result;
     } catch (e) {
       print('[EmbeddedMCP] 工具调用失败: $toolName, 错误: $e');

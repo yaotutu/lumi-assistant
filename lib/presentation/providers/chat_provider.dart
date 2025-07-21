@@ -508,6 +508,28 @@ class ChatNotifier extends StateNotifier<ChatState> {
             isSending: false,
           );
           print('[ChatNotifier] AI正在思考中...');
+        } else if (llmMessage.emotion == 'error') {
+          // 如果是error状态，停止思考并显示错误
+          print('[ChatNotifier] AI遇到错误，停止思考状态');
+          
+          // 清除当前AI消息构建状态
+          _currentAiMessageId = null;
+          
+          state = state.copyWith(
+            isReceiving: false,
+            isSending: false,
+            error: llmMessage.text.isNotEmpty ? llmMessage.text : '操作过程中遇到错误',
+          );
+          
+          // 添加简化的错误消息到聊天记录
+          final simplifiedError = _simplifyErrorText(llmMessage.text);
+          final errorMessage = ChatUIMessageConverter.createSystemMessage(
+            '❌ $simplifiedError',
+          );
+          
+          state = state.copyWith(
+            messages: [...state.messages, errorMessage],
+          );
         }
       }
       
@@ -620,6 +642,39 @@ class ChatNotifier extends StateNotifier<ChatState> {
     await _ref.read(connectionManagerProvider.notifier).reconnect();
   }
 
+
+  /// 简化错误文本，只显示关键信息
+  String _simplifyErrorText(String errorText) {
+    if (errorText.isEmpty) return '操作失败，请稍后重试';
+    
+    // 移除"MCP工具调用失败:"前缀
+    String simplified = errorText.replaceFirst('MCP工具调用失败: ', '');
+    
+    // 提取关键错误信息
+    if (simplified.contains('设备响应超时')) {
+      return '设备响应较慢，请稍后重试';
+    } else if (simplified.contains('外部服务响应超时')) {
+      return '网络服务响应超时，请检查网络连接';
+    } else if (simplified.contains('操作超时')) {
+      return '操作超时，请稍后重试';
+    } else if (simplified.contains('网络连接')) {
+      return '网络连接异常，请检查网络状态';
+    } else if (simplified.contains('权限不足')) {
+      return '权限不足，无法执行此操作';
+    } else if (simplified.contains('设备不可用')) {
+      return '设备暂时不可用';
+    }
+    
+    // 移除多余的换行和格式，只保留第一行关键信息
+    simplified = simplified.split('\n').first.trim();
+    
+    // 如果还是太长，截取关键部分
+    if (simplified.length > 30) {
+      return simplified.substring(0, 27) + '...';
+    }
+    
+    return simplified.isNotEmpty ? simplified : '操作失败，请稍后重试';
+  }
 
   @override
   void dispose() {

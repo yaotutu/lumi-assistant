@@ -11,9 +11,9 @@ import '../constants/api_constants.dart';
 import '../errors/exceptions.dart';
 import '../../data/models/websocket_state.dart';
 import 'audio_service_android_style.dart';
-// import 'audio_playback_service.dart'; // 暂时不使用跨平台fallback
 import 'unified_mcp_manager.dart';
 import 'opus_data_capture_service.dart';
+import 'mcp_error_handler.dart';
 
 
 /// WebSocket服务类
@@ -499,16 +499,43 @@ class WebSocketService extends StateNotifier<WebSocketState> {
           final toolName = params['name'] as String;
           final arguments = params['arguments'] as Map<String, dynamic>? ?? {};
           
-          print('[WebSocket] ===== MCP工具调用 =====');
+          print('[WebSocket] ===== Python后端调用MCP工具 =====');
+          print('[WebSocket] 时间戳: ${DateTime.now().toIso8601String()}');
           print('[WebSocket] 工具名称: $toolName');
           print('[WebSocket] 调用参数: $arguments');
           print('[WebSocket] 会话ID: $sessionId');
+          print('[WebSocket] 请求ID: $id');
+          print('[WebSocket] 原始params: $params');
           
-          // 通过统一的MCP管理器调用工具
-          final toolResult = await _mcpManager.callTool(toolName, arguments);
+          // 通过统一的MCP管理器调用工具（添加30秒超时）
+          final toolResult = await _mcpManager.callTool(toolName, arguments)
+              .timeout(
+                Duration(seconds: 30),
+                onTimeout: () {
+                  print('[WebSocket] MCP工具调用超时: $toolName');
+                  
+                  // 使用统一的错误处理器生成用户友好的错误信息
+                  final errorMessage = McpErrorHandler.generateUserFriendlyMessage(
+                    error: 'MCP工具调用超时(30秒)',
+                    operation: 'tool_call',
+                    serverName: toolName,
+                  );
+                  
+                  return {
+                    'success': false,
+                    'error': 'MCP工具调用超时(30秒)',
+                    'isError': true,
+                    'message': errorMessage,
+                  };
+                },
+              );
           
-          print('[WebSocket] 工具调用成功: $toolName');
-          print('[WebSocket] 调用结果: $toolResult');
+          print('[WebSocket] ===== 工具调用成功 =====');
+          print('[WebSocket] 工具名称: $toolName');
+          print('[WebSocket] 调用结果类型: ${toolResult.runtimeType}');
+          print('[WebSocket] 调用结果内容: $toolResult');
+          print('[WebSocket] 结果大小: ${toolResult.toString().length} 字符');
+          print('[WebSocket] 是否有错误: ${toolResult['isError'] ?? false}');
           
           response = {
             'type': 'mcp',
@@ -541,10 +568,16 @@ class WebSocketService extends StateNotifier<WebSocketState> {
             'inputSchema': tool.inputSchema,
           }).toList();
           
-          print('[WebSocket] 工具列表响应内容:');
+          print('[WebSocket] ===== 发送给Python后端的工具列表 =====');
+          print('[WebSocket] 工具数量: ${toolsResponse.length}');
           for (int i = 0; i < toolsResponse.length; i++) {
-            print('[WebSocket]   ${i + 1}. ${toolsResponse[i]['name']} - ${toolsResponse[i]['description']}');
+            final tool = toolsResponse[i];
+            print('[WebSocket] 工具 ${i + 1}: ${tool['name']}');
+            print('[WebSocket]   描述: ${tool['description']}');
+            print('[WebSocket]   参数结构: ${tool['inputSchema']}');
+            print('[WebSocket]   ---');
           }
+          print('[WebSocket] =======================================');
           
           response = {
             'type': 'mcp',
@@ -588,7 +621,11 @@ class WebSocketService extends StateNotifier<WebSocketState> {
           throw Exception('不支持的MCP方法: $method');
       }
       
-      print('[WebSocket] MCP响应生成: ${response['payload']['result']}');
+      print('[WebSocket] ===== MCP响应生成完成 =====');
+      print('[WebSocket] 响应类型: ${response['type']}');
+      print('[WebSocket] 响应ID: ${response['payload']['id']}');
+      print('[WebSocket] 响应结果: ${response['payload']['result']}');
+      print('[WebSocket] 响应大小: ${response.toString().length} 字符');
       
       // 发送响应
       await sendMessage(response);
@@ -600,8 +637,12 @@ class WebSocketService extends StateNotifier<WebSocketState> {
       print('[WebSocket] 方法: $method');
       print('[WebSocket] 会话ID: ${message['session_id']}');
       
-      // 生成用户友好的错误信息
-      final userFriendlyError = _generateUserFriendlyError(error, method ?? 'unknown');
+      // 使用统一的错误处理器生成用户友好的错误信息
+      final userFriendlyError = McpErrorHandler.generateUserFriendlyMessage(
+        error: error,
+        operation: _mapMethodToOperation(method ?? 'unknown'),
+        serverType: 'mcp',
+      );
       
       // 发送详细的错误响应
       final errorResponse = {
@@ -611,7 +652,7 @@ class WebSocketService extends StateNotifier<WebSocketState> {
           'jsonrpc': '2.0',
           'id': message['payload']?['id'],
           'error': {
-            'code': _getErrorCode(error),
+            'code': McpErrorHandler.generateErrorCode(error, _mapMethodToOperation(method ?? 'unknown')),
             'message': userFriendlyError,
             'data': {
               'original_error': error.toString(),
@@ -624,85 +665,67 @@ class WebSocketService extends StateNotifier<WebSocketState> {
       
       await sendMessage(errorResponse);
       print('[WebSocket] 错误响应已发送');
+      
+      // 关键修复：向聊天界面发送错误消息，停止"正在思考"状态
+      await _notifyChatInterfaceOfMcpError(userFriendlyError, method ?? 'unknown');
+      
       print('[WebSocket] ===========================');
     }
   }
   
-  /// 生成用户友好的错误信息
-  String _generateUserFriendlyError(dynamic error, String method) {
-    final errorString = error.toString().toLowerCase();
-    
-    // 网络相关错误
-    if (errorString.contains('connection') || 
-        errorString.contains('timeout') ||
-        errorString.contains('network')) {
-      return '网络连接出现问题，请检查设备连接状态';
-    }
-    
-    // 权限相关错误
-    if (errorString.contains('permission') || 
-        errorString.contains('access denied') ||
-        errorString.contains('unauthorized')) {
-      return '权限不足，无法执行此操作';
-    }
-    
-    // 设备不可用
-    if (errorString.contains('not found') || 
-        errorString.contains('unavailable') ||
-        errorString.contains('offline')) {
-      return '设备暂时不可用，请稍后再试';
-    }
-    
-    // 参数错误
-    if (errorString.contains('invalid') || 
-        errorString.contains('parameter') ||
-        errorString.contains('argument')) {
-      return '操作参数有误，请检查输入';
-    }
-    
-    // 服务器错误
-    if (errorString.contains('server') || 
-        errorString.contains('internal') ||
-        errorString.contains('service')) {
-      return '服务暂时不可用，请稍后重试';
-    }
-    
-    // 特定方法的错误
+  /// 将WebSocket MCP方法映射为操作类型
+  String _mapMethodToOperation(String method) {
     switch (method) {
       case 'tools/call':
-        return '工具调用失败，请检查设备状态';
+        return 'tool_call';
       case 'tools/list':
-        return '无法获取可用工具列表';
+        return 'list_tools';
       case 'initialize':
-        return 'MCP协议初始化失败';
+        return 'initialize';
       default:
-        return '操作执行失败，请稍后重试';
+        return method;
     }
   }
   
-  /// 获取错误代码
-  int _getErrorCode(dynamic error) {
-    final errorString = error.toString().toLowerCase();
-    
-    // 标准JSON-RPC错误代码
-    if (errorString.contains('invalid request')) {
-      return -32600;
-    } else if (errorString.contains('method not found')) {
-      return -32601;
-    } else if (errorString.contains('invalid params')) {
-      return -32602;
-    } else if (errorString.contains('parse error')) {
-      return -32700;
-    } else if (errorString.contains('timeout')) {
-      return -32001; // 自定义超时错误
-    } else if (errorString.contains('permission')) {
-      return -32002; // 自定义权限错误
-    } else if (errorString.contains('not found')) {
-      return -32003; // 自定义资源未找到错误
-    } else {
-      return -32603; // 内部错误
+  /// 通知聊天界面MCP调用失败，停止"正在思考"状态
+  Future<void> _notifyChatInterfaceOfMcpError(String errorMessage, String method) async {
+    try {
+      // 生成一个临时的session ID，因为错误通知需要这个字段
+      final tempSessionId = 'error_${DateTime.now().millisecondsSinceEpoch}';
+      
+      // 创建一个错误的LLM消息来通知聊天界面停止思考状态
+      final errorNotification = {
+        'type': 'llm',
+        'session_id': tempSessionId,  // 必需字段
+        'emotion': 'error',  // 使用error情感状态
+        'text': 'MCP工具调用失败: $errorMessage',
+        'timestamp': DateTime.now().toIso8601String(),
+        'source': 'mcp_error',
+      };
+      
+      print('[WebSocket] 向聊天界面发送MCP错误通知: $errorNotification');
+      
+      // 直接添加到消息控制器，模拟从服务器收到的消息
+      _messageController.add(errorNotification);
+      
+      // 立即发送一个TTS stop消息来确保停止"正在思考"状态
+      final stopThinkingMessage = {
+        'type': 'tts',
+        'session_id': tempSessionId,  // 必需字段
+        'state': 'stop',
+        'text': errorMessage,
+        'timestamp': DateTime.now().toIso8601String(),
+        'source': 'mcp_error_recovery',
+      };
+      
+      print('[WebSocket] 发送TTS stop消息停止思考状态: $stopThinkingMessage');
+      _messageController.add(stopThinkingMessage);
+      
+    } catch (e) {
+      print('[WebSocket] 通知聊天界面MCP错误失败: $e');
     }
   }
+  
   
 
   /// 发送HELLO握手消息

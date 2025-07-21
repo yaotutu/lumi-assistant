@@ -949,7 +949,14 @@ class StreamableHttpMcpClient implements McpClient {
     
     final client = HttpClient();
     try {
-      final httpRequest = await client.postUrl(Uri.parse(serverUrl));
+      // 设置HTTP客户端超时 - 20秒连接超时，25秒接收超时
+      client.connectionTimeout = Duration(seconds: 20);
+      client.idleTimeout = Duration(seconds: 25);
+      
+      final httpRequest = await client.postUrl(Uri.parse(serverUrl))
+          .timeout(Duration(seconds: 20), onTimeout: () {
+            throw TimeoutException('MCP HTTP连接超时', Duration(seconds: 20));
+          });
       
       // 设置MCP规范要求的请求头
       httpRequest.headers.set('Content-Type', 'application/json');
@@ -967,7 +974,10 @@ class StreamableHttpMcpClient implements McpClient {
       }
       
       httpRequest.add(utf8.encode(jsonEncode(request)));
-      final response = await httpRequest.close();
+      final response = await httpRequest.close()
+          .timeout(Duration(seconds: 25), onTimeout: () {
+            throw TimeoutException('MCP HTTP响应超时', Duration(seconds: 25));
+          });
       
       // 添加诊断日志来识别FastMCP服务器的响应模式
       print('[Streamable-HTTP-MCP] 收到HTTP响应: ${response.statusCode} ${response.reasonPhrase}');
@@ -1044,7 +1054,14 @@ class StreamableHttpMcpClient implements McpClient {
     
     final client = HttpClient();
     try {
-      final httpRequest = await client.postUrl(Uri.parse(serverUrl));
+      // 设置HTTP客户端超时 - 20秒连接超时，25秒接收超时
+      client.connectionTimeout = Duration(seconds: 20);
+      client.idleTimeout = Duration(seconds: 25);
+      
+      final httpRequest = await client.postUrl(Uri.parse(serverUrl))
+          .timeout(Duration(seconds: 20), onTimeout: () {
+            throw TimeoutException('MCP HTTP连接超时', Duration(seconds: 20));
+          });
       
       // 设置MCP规范要求的请求头
       httpRequest.headers.set('Content-Type', 'application/json');
@@ -1062,7 +1079,10 @@ class StreamableHttpMcpClient implements McpClient {
       }
       
       httpRequest.add(utf8.encode(jsonEncode(request)));
-      final response = await httpRequest.close();
+      final response = await httpRequest.close()
+          .timeout(Duration(seconds: 25), onTimeout: () {
+            throw TimeoutException('MCP HTTP响应超时', Duration(seconds: 25));
+          });
       
       // 添加诊断日志来识别FastMCP服务器的响应模式
       print('[Streamable-HTTP-MCP] 收到HTTP响应: ${response.statusCode} ${response.reasonPhrase}');
@@ -1138,7 +1158,14 @@ class StreamableHttpMcpClient implements McpClient {
     
     final client = HttpClient();
     try {
-      final httpRequest = await client.postUrl(Uri.parse(serverUrl));
+      // 设置HTTP客户端超时 - 20秒连接超时，25秒接收超时
+      client.connectionTimeout = Duration(seconds: 20);
+      client.idleTimeout = Duration(seconds: 25);
+      
+      final httpRequest = await client.postUrl(Uri.parse(serverUrl))
+          .timeout(Duration(seconds: 20), onTimeout: () {
+            throw TimeoutException('MCP HTTP连接超时', Duration(seconds: 20));
+          });
       
       // 设置MCP规范要求的请求头
       httpRequest.headers.set('Content-Type', 'application/json');
@@ -1156,7 +1183,10 @@ class StreamableHttpMcpClient implements McpClient {
       }
       
       httpRequest.add(utf8.encode(jsonEncode(request)));
-      final response = await httpRequest.close();
+      final response = await httpRequest.close()
+          .timeout(Duration(seconds: 25), onTimeout: () {
+            throw TimeoutException('MCP HTTP响应超时', Duration(seconds: 25));
+          });
       
       // 添加诊断日志来识别FastMCP服务器的响应模式
       print('[Streamable-HTTP-MCP] 收到HTTP响应: ${response.statusCode} ${response.reasonPhrase}');
@@ -1287,7 +1317,14 @@ class StreamableHttpMcpClient implements McpClient {
     
     final client = HttpClient();
     try {
-      final httpRequest = await client.postUrl(Uri.parse(serverUrl));
+      // 设置HTTP客户端超时 - 20秒连接超时，25秒接收超时
+      client.connectionTimeout = Duration(seconds: 20);
+      client.idleTimeout = Duration(seconds: 25);
+      
+      final httpRequest = await client.postUrl(Uri.parse(serverUrl))
+          .timeout(Duration(seconds: 20), onTimeout: () {
+            throw TimeoutException('MCP HTTP连接超时', Duration(seconds: 20));
+          });
       httpRequest.headers.set('Content-Type', 'application/json');
       httpRequest.headers.set('Accept', 'application/json, text/event-stream');
       
@@ -1341,7 +1378,14 @@ class StreamableHttpMcpClient implements McpClient {
     
     final client = HttpClient();
     try {
-      final httpRequest = await client.postUrl(Uri.parse(serverUrl));
+      // 设置HTTP客户端超时 - 20秒连接超时，25秒接收超时
+      client.connectionTimeout = Duration(seconds: 20);
+      client.idleTimeout = Duration(seconds: 25);
+      
+      final httpRequest = await client.postUrl(Uri.parse(serverUrl))
+          .timeout(Duration(seconds: 20), onTimeout: () {
+            throw TimeoutException('MCP HTTP连接超时', Duration(seconds: 20));
+          });
       
       // 设置MCP规范要求的请求头
       httpRequest.headers.set('Content-Type', 'application/json');
@@ -1364,7 +1408,10 @@ class StreamableHttpMcpClient implements McpClient {
       }
       
       httpRequest.add(utf8.encode(jsonEncode(request)));
-      final response = await httpRequest.close();
+      final response = await httpRequest.close()
+          .timeout(Duration(seconds: 25), onTimeout: () {
+            throw TimeoutException('MCP HTTP响应超时', Duration(seconds: 25));
+          });
       
       // 添加诊断日志来识别FastMCP服务器的响应模式
       print('[Streamable-HTTP-MCP] 收到HTTP响应: ${response.statusCode} ${response.reasonPhrase}');

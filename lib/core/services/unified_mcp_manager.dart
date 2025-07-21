@@ -9,6 +9,7 @@ import 'package:mcp_server/mcp_server.dart';
 
 import 'embedded_mcp_server.dart';
 import 'mcp_config.dart';
+import 'mcp_error_handler.dart';
 
 /// 统一的 MCP 管理器
 /// 
@@ -84,7 +85,7 @@ class UnifiedMcpManager {
             'enabled': true,
             'autoStart': true,
             'capabilities': ['tools'],
-            'tools': ['set_brightness', 'adjust_volume', 'get_current_brightness', 'get_current_volume', 'get_system_info'],
+            'tools': ['set_brightness', 'adjust_volume', 'get_current_brightness', 'get_current_volume', 'get_system_info', 'get_printer_status'],
             'category': 'device',
             'priority': 100
           }
@@ -306,7 +307,11 @@ class UnifiedMcpManager {
   Future<Map<String, dynamic>> callTool(String toolName, Map<String, dynamic> arguments) async {
     if (!_isInitialized) await initialize();
     
-    print('[UnifiedMCP] 工具调用请求: $toolName, 参数: $arguments');
+    print('[UnifiedMCP] ===== 开始工具调用 =====');
+    print('[UnifiedMCP] 时间戳: ${DateTime.now().toIso8601String()}');
+    print('[UnifiedMCP] 工具名称: $toolName');
+    print('[UnifiedMCP] 工具参数: $arguments');
+    print('[UnifiedMCP] 参数类型: ${arguments.runtimeType}');
     
     // 查找提供该工具的服务器，按优先级排序
     final availableServers = <MapEntry<String, McpServerConfig>>[];
@@ -337,19 +342,73 @@ class UnifiedMcpManager {
         
         switch (config.type) {
           case McpServerType.embedded:
-            // 调用嵌入式服务器（最高性能）
-            final result = await _embeddedServer.callTool(toolName, arguments);
-            final converted = _convertCallToolResult(result);
-            print('[UnifiedMCP] 内置服务器调用成功: $toolName');
-            return converted;
+            // 调用嵌入式服务器（最高性能）- 添加15秒超时
+            try {
+              final result = await _embeddedServer.callTool(toolName, arguments)
+                  .timeout(
+                    Duration(seconds: 15),
+                    onTimeout: () {
+                      print('[UnifiedMCP] 内置服务器调用超时: $toolName (15秒)');
+                      throw TimeoutException('内置MCP服务器调用超时', Duration(seconds: 15));
+                    },
+                  );
+              final converted = _convertCallToolResult(result);
+              print('[UnifiedMCP] 内置服务器调用成功: $toolName');
+              return converted;
+            } on TimeoutException catch (e) {
+              print('[UnifiedMCP] 内置服务器超时: $e');
+              
+              // 使用统一的错误处理器生成用户友好的通知
+              final notification = McpErrorHandler.generateUserNotification(
+                error: e,
+                operation: 'tool_call',
+                serverName: '内置设备服务',
+              );
+              
+              print('[UnifiedMCP] 用户通知: ${notification['title']} - ${notification['message']}');
+              
+              _userNotificationCallback?.call(
+                notification['title']!,
+                notification['message']!,
+              );
+              
+              throw Exception('内置MCP服务器调用超时(15秒): $toolName');
+            }
             
           case McpServerType.external:
-            // 调用外部服务器
+            // 调用外部服务器 - 添加25秒超时
             final client = _externalClients[serverId];
             if (client != null && client.isConnected) {
-              final result = await client.callTool(toolName, arguments);
-              print('[UnifiedMCP] 外部服务器调用成功: $toolName');
-              return result;
+              try {
+                final result = await client.callTool(toolName, arguments)
+                    .timeout(
+                      Duration(seconds: 25),
+                      onTimeout: () {
+                        print('[UnifiedMCP] 外部服务器调用超时: $serverId/$toolName (25秒)');
+                        throw TimeoutException('外部MCP服务器调用超时', Duration(seconds: 25));
+                      },
+                    );
+                print('[UnifiedMCP] 外部服务器调用成功: $toolName');
+                return result;
+              } on TimeoutException catch (e) {
+                print('[UnifiedMCP] 外部服务器超时: $e');
+                
+                // 使用统一的错误处理器生成用户友好的通知
+                final notification = McpErrorHandler.generateUserNotification(
+                  error: e,
+                  operation: 'tool_call',
+                  serverName: config.name,
+                );
+                
+                print('[UnifiedMCP] 用户通知: ${notification['title']} - ${notification['message']}');
+                
+                _userNotificationCallback?.call(
+                  notification['title']!,
+                  notification['message']!,
+                );
+                
+                throw Exception('外部MCP服务器调用超时(25秒): $serverId/$toolName');
+              }
             } else {
               print('[UnifiedMCP] 外部服务器未连接: $serverId');
               continue;
@@ -357,13 +416,47 @@ class UnifiedMcpManager {
         }
       } catch (e) {
         print('[UnifiedMCP] 服务器 $serverId 调用失败: $e');
-        lastError = Exception('服务器 $serverId 调用失败: $e');
+        
+        // 对于超时错误，提供更好的用户提示
+        if (e.toString().contains('超时') || e.toString().contains('timeout')) {
+          print('[UnifiedMCP] 检测到超时错误，将提供用户友好提示');
+          lastError = Exception(McpErrorHandler.generateUserFriendlyMessage(
+            error: e,
+            operation: 'tool_call',
+            serverName: config.name,
+          ));
+        } else {
+          lastError = Exception(McpErrorHandler.generateUserFriendlyMessage(
+            error: e,
+            operation: 'tool_call',
+            serverName: config.name,
+          ));
+        }
         continue; // 尝试下一个服务器
       }
     }
     
     // 所有服务器都失败了
-    throw lastError ?? Exception('所有服务器调用都失败了: $toolName');
+    final finalError = lastError ?? Exception('所有服务器调用都失败了: $toolName');
+    
+    // 记录最终失败的原因
+    print('[UnifiedMCP] 所有可用服务器都失败，工具: $toolName');
+    print('[UnifiedMCP] 可用服务器数量: ${availableServers.length}');
+    print('[UnifiedMCP] 最后一个错误: $finalError');
+    
+    // 使用统一的错误处理器生成最终错误通知
+    final finalNotification = McpErrorHandler.generateUserNotification(
+      error: finalError,
+      operation: 'tool_call',
+      serverName: toolName,
+    );
+    
+    _userNotificationCallback?.call(
+      finalNotification['title']!,
+      finalNotification['message']!,
+    );
+    
+    throw finalError;
   }
 
   /// 获取所有可用工具

@@ -7,7 +7,7 @@ import 'package:hooks_riverpod/hooks_riverpod.dart';
 class McpChangeNotification {
   static OverlayEntry? _currentOverlay;
   
-  /// 显示MCP变化通知
+  /// 显示MCP变化通知（简单Toast风格）
   static void show(
     BuildContext context,
     String title,
@@ -16,6 +16,13 @@ class McpChangeNotification {
     // 移除之前的通知
     hide();
     
+    // 对于MCP错误，使用简单的Toast通知而不是大弹窗
+    if (title.contains('操作超时') || title.contains('操作失败') || title.contains('错误')) {
+      _showSimpleToast(context, title, message);
+      return;
+    }
+    
+    // 对于其他MCP通知（如服务更新），继续使用原来的样式
     _currentOverlay = OverlayEntry(
       builder: (context) => _McpChangeDialog(
         title: title,
@@ -28,6 +35,28 @@ class McpChangeNotification {
     
     // 3秒后自动隐藏
     Future.delayed(Duration(seconds: 3), () {
+      hide();
+    });
+  }
+  
+  /// 显示简单的Toast通知
+  static void _showSimpleToast(
+    BuildContext context,
+    String title,
+    String message,
+  ) {
+    _currentOverlay = OverlayEntry(
+      builder: (context) => _SimpleToast(
+        title: title,
+        message: message,
+        onDismiss: hide,
+      ),
+    );
+    
+    Overlay.of(context).insert(_currentOverlay!);
+    
+    // 2秒后自动隐藏
+    Future.delayed(Duration(seconds: 2), () {
       hide();
     });
   }
@@ -179,6 +208,135 @@ class _McpChangeDialog extends StatelessWidget {
         ),
       ),
     );
+  }
+}
+
+/// 简单的Toast通知组件
+class _SimpleToast extends StatelessWidget {
+  final String title;
+  final String message;
+  final VoidCallback onDismiss;
+
+  const _SimpleToast({
+    required this.title,
+    required this.message,
+    required this.onDismiss,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    // 获取屏幕尺寸
+    final screenSize = MediaQuery.of(context).size;
+    
+    return Positioned(
+      // 在屏幕底部显示，避免遮挡主要内容
+      bottom: 80,
+      left: 16,
+      right: 16,
+      child: Material(
+        color: Colors.transparent,
+        child: Container(
+          constraints: BoxConstraints(
+            maxHeight: screenSize.height * 0.15, // 最大高度不超过屏幕的15%
+          ),
+          decoration: BoxDecoration(
+            color: Colors.grey[850]?.withValues(alpha: 0.95),
+            borderRadius: BorderRadius.circular(8),
+            boxShadow: [
+              BoxShadow(
+                color: Colors.black.withValues(alpha: 0.2),
+                blurRadius: 8,
+                offset: Offset(0, 2),
+              ),
+            ],
+          ),
+          child: Padding(
+            padding: EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+            child: Row(
+              children: [
+                // 错误图标
+                Icon(
+                  Icons.error_outline,
+                  color: Colors.orange[300],
+                  size: 20,
+                ),
+                SizedBox(width: 12),
+                
+                // 消息内容
+                Expanded(
+                  child: Column(
+                    mainAxisSize: MainAxisSize.min,
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        title,
+                        style: TextStyle(
+                          color: Colors.white,
+                          fontSize: 14,
+                          fontWeight: FontWeight.w500,
+                        ),
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                      ),
+                      if (message.isNotEmpty) ...[
+                        SizedBox(height: 4),
+                        Text(
+                          // 简化错误消息，只显示关键信息
+                          _simplifyErrorMessage(message),
+                          style: TextStyle(
+                            color: Colors.grey[300],
+                            fontSize: 12,
+                          ),
+                          maxLines: 2,
+                          overflow: TextOverflow.ellipsis,
+                        ),
+                      ],
+                    ],
+                  ),
+                ),
+                
+                // 关闭按钮
+                GestureDetector(
+                  onTap: onDismiss,
+                  child: Container(
+                    padding: EdgeInsets.all(4),
+                    child: Icon(
+                      Icons.close,
+                      color: Colors.grey[400],
+                      size: 16,
+                    ),
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+  
+  /// 简化错误消息，提取关键信息
+  String _simplifyErrorMessage(String message) {
+    // 移除多余的换行和格式
+    String simplified = message.replaceAll('\n\n', ' ').replaceAll('\n', ' ');
+    
+    // 提取关键信息
+    if (simplified.contains('设备响应超时')) {
+      return '设备响应较慢，请稍后重试';
+    } else if (simplified.contains('外部服务响应超时')) {
+      return '网络服务响应超时';
+    } else if (simplified.contains('工具调用失败')) {
+      return '操作失败，请重试';
+    } else if (simplified.contains('网络连接')) {
+      return '网络连接异常';
+    }
+    
+    // 如果消息太长，截取前50个字符
+    if (simplified.length > 50) {
+      return simplified.substring(0, 47) + '...';
+    }
+    
+    return simplified;
   }
 }
 
