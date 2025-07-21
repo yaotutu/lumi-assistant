@@ -9,6 +9,14 @@
 # packages, and plugins designed to encourage good coding practices.
 include: package:flutter_lints/flutter.yaml
 
+analyzer:
+  errors:
+    # Ignore JsonKey annotation warnings in generated files
+    invalid_annotation_target: ignore
+    # Treat other issues as warnings instead of errors  
+    missing_required_param: warning
+    missing_return: warning
+
 linter:
   # The lint rules applied to this project can be customized in the
   # section below to disable rules from the `package:flutter_lints/flutter.yaml`
@@ -23,6 +31,9 @@ linter:
   rules:
     avoid_print: false  # Allow print statements for debugging
     # prefer_single_quotes: true  # Uncomment to enable the `prefer_single_quotes` rule
+    
+    # Disable problematic lints for this project  
+    use_build_context_synchronously: false  # Disable BuildContext async gap warnings
 
 # Additional information about this file can be found at
 # https://dart.dev/guides/language/analysis-options

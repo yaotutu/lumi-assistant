@@ -145,7 +145,7 @@ class AudioStreamService {
     );
     
     print('[$tag] 音频流录制配置设置完成');
-    print('[$tag] 配置详情: 采样率=${AudioConstants.sampleRate}Hz, 声道=${AudioConstants.channels}, 帧大小=${_frameSize}');
+    print('[$tag] 配置详情: 采样率=${AudioConstants.sampleRate}Hz, 声道=${AudioConstants.channels}, 帧大小=$_frameSize');
   }
 
   /// 初始化流控制器

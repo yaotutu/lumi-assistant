@@ -311,7 +311,7 @@ class RealTimeAudioService {
           ? DateTime.now().difference(_streamStartTime!).inMilliseconds
           : 0,
       'stream_stats': _streamService.currentStats,
-      'playback_stats': _playbackService.playbackStats,
+      'playback_stats': {}, // _playbackService.playbackStats, // Android风格音频服务不提供统计信息
     };
     
     onStatsUpdated?.call(stats);
@@ -327,14 +327,14 @@ class RealTimeAudioService {
 
       _receivedFrames++;
       
-      // 将音频数据传递给播放服务
-      await _playbackService.receiveTtsAudio(audioData);
+      // 将音频数据传递给播放服务（Android风格）
+      await _playbackService.playOpusAudio(audioData);
       
-      // 如果播放服务未播放，自动开始播放
-      if (!_playbackService.isPlaying) {
-        await _playbackService.startPlayback();
+      // Android风格的音频服务自动处理播放
+      // if (!_playbackService.isPlaying) { // Android风格服务没有isPlaying属性
+      //   await _playbackService.startPlayback();
         _playedFrames++;
-      }
+      // }
       
     } catch (e) {
       print('[$tag] 处理接收音频失败: $e');

@@ -41,7 +41,8 @@
       "Bash(echo:*)",
       "Bash(touch:*)",
       "Bash(git merge:*)",
-      "Bash(git stash:*)"
+      "Bash(git stash:*)",
+      "Bash(git worktree:*)"
     ],
     "deny": []
   }

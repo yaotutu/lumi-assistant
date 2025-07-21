@@ -1,10 +1,10 @@
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import '../../core/services/real_time_audio_service.dart';
-import '../../core/services/websocket_service.dart';
+// import '../../core/services/websocket_service.dart'; // 暂未使用
 import '../../core/constants/audio_constants.dart';
 import '../../data/models/exceptions.dart';
-import 'audio_stream_provider.dart';
-import 'audio_playback_provider.dart';
+// import 'audio_stream_provider.dart'; // 暂未使用
+// import 'audio_playback_provider.dart'; // 暂未使用
 
 /// 实时音频流处理状态
 class RealTimeAudioState {
@@ -320,15 +320,19 @@ class RealTimeAudioNotifier extends StateNotifier<RealTimeAudioState> {
 
 /// 实时音频服务提供者
 final realTimeAudioServiceProvider = Provider<RealTimeAudioService>((ref) {
-  final streamService = ref.watch(audioStreamServiceProvider);
-  final playbackService = ref.watch(audioPlaybackServiceProvider);
-  final webSocketService = ref.watch(webSocketServiceProvider.notifier);
+  // final streamService = ref.watch(audioStreamServiceProvider); // 暂未使用
+  // final playbackService = ref.watch(audioPlaybackServiceProvider); // 暂未使用
+  // final webSocketService = ref.watch(webSocketServiceProvider.notifier); // 暂未使用
   
-  return RealTimeAudioService(
+  // 临时跳过RealTimeAudioService，因为类型不匹配
+  // 需要重构RealTimeAudioService以支持Android风格音频服务
+  throw UnimplementedError('RealTimeAudioService需要重构以支持Android风格音频服务');
+  
+  /*return RealTimeAudioService(
     streamService: streamService,
-    playbackService: playbackService,
+    playbackService: playbackService, // 类型不匹配：需要AudioPlaybackService但得到AudioServiceAndroidStyle
     webSocketService: webSocketService,
-  );
+  );*/
 });
 
 /// 实时音频状态提供者

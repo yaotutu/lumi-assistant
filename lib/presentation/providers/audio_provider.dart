@@ -1,6 +1,7 @@
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'dart:typed_data';
-import '../../core/services/audio_service.dart';
+// 使用Android风格的音频服务实现
+// import '../../core/services/audio_service.dart';
 import '../../core/services/audio_service_android_style.dart';
 import '../../core/services/permission_service.dart';
 import '../../core/constants/audio_constants.dart';
@@ -106,7 +107,7 @@ class AudioState {
 class AudioNotifier extends StateNotifier<AudioState> {
   static const String tag = 'AudioNotifier';
 
-  final AudioService _audioService;
+  final AudioServiceAndroidStyle _audioService;
   final PermissionService _permissionService;
 
   AudioNotifier(this._audioService, this._permissionService) 
@@ -182,8 +183,8 @@ class AudioNotifier extends StateNotifier<AudioState> {
         }
       }
       
-      // 初始化音频服务
-      await _audioService.initialize();
+      // 初始化音频服务（Android风格音频服务不需要明确初始化）
+      // await _audioService.initialize();
       
       state = const AudioState.ready();
       print('[$tag] 音频服务初始化成功');
@@ -272,7 +273,7 @@ class AudioNotifier extends StateNotifier<AudioState> {
 
 /// 音频状态Provider
 final audioProvider = StateNotifierProvider<AudioNotifier, AudioState>((ref) {
-  final audioService = ref.watch(audioServiceProvider);
+  final audioService = ref.watch(audioServiceAndroidStyleProvider);
   final permissionService = PermissionService();
   
   return AudioNotifier(audioService, permissionService);

@@ -550,10 +550,10 @@ class StdioMcpClient implements McpClient {
   final String? workingDirectory;
   final Map<String, dynamic>? environment;
   
-  bool _isConnected = false;
-  Process? _process;
-  int _requestId = 0;
-  final Map<int, Completer<Map<String, dynamic>>> _pendingRequests = {};
+  final bool _isConnected = false; // 暂未使用
+  // Process? _process; // 暂未使用
+  // int _requestId = 0; // 暂未使用
+  // final Map<int, Completer<Map<String, dynamic>>> _pendingRequests = {}; // 暂未使用
   
   StdioMcpClient({
     required this.command,
@@ -782,115 +782,9 @@ class StreamableHttpMcpClient implements McpClient {
   }
   
   /// 发送ping请求检查服务器状态
-  Future<void> _sendPingRequest() async {
-    try {
-      // 临时启用连接状态以发送ping请求
-      final originalConnected = _isConnected;
-      _isConnected = true;
-      
-      try {
-        // 发送一个tools/list请求作为ping（使用无params格式）
-        await _sendRequestWithoutParams('tools/list');
-      } finally {
-        // 恢复原始连接状态
-        _isConnected = originalConnected;
-      }
-    } catch (e) {
-      // 重新抛出异常让调用者处理
-      rethrow;
-    }
-  }
+  // 已删除未使用的_sendPingRequest方法
   
-  /// 调试用：模拟curl完整流程创建新session
-  Future<void> _debugCreateFreshSessionAndTest() async {
-    print('[DEBUG] 模拟curl完整流程 - 创建新session');
-    
-    final client = HttpClient();
-    try {
-      // 1. 创建新session (像curl一样)
-      print('[DEBUG] 1. 创建新session');
-      final initRequest = await client.postUrl(Uri.parse(serverUrl));
-      initRequest.headers.set('Content-Type', 'application/json');
-      initRequest.headers.set('Accept', 'application/json, text/event-stream');
-      
-      final initBody = {
-        'jsonrpc': '2.0',
-        'id': 1,
-        'method': 'initialize',
-        'params': {
-          'protocolVersion': '2025-06-18',
-          'capabilities': {
-            'roots': {'listChanged': true},
-            'sampling': {}
-          },
-          'clientInfo': {
-            'name': 'TestClient',
-            'version': '1.0.0'
-          }
-        }
-      };
-      
-      initRequest.add(utf8.encode(jsonEncode(initBody)));
-      final initResponse = await initRequest.close();
-      
-      final newSessionId = initResponse.headers.value('mcp-session-id');
-      print('[DEBUG] 新Session ID: $newSessionId');
-      
-      // 读取并忽略initialize响应
-      await initResponse.transform(utf8.decoder).join();
-      
-      // 2. 发送initialized通知
-      print('[DEBUG] 2. 发送initialized通知');
-      final notifyRequest = await client.postUrl(Uri.parse(serverUrl));
-      notifyRequest.headers.set('Content-Type', 'application/json');
-      notifyRequest.headers.set('Accept', 'application/json, text/event-stream');
-      notifyRequest.headers.set('Mcp-Session-Id', newSessionId!);
-      
-      final notifyBody = {
-        'jsonrpc': '2.0',
-        'method': 'notifications/initialized'
-      };
-      
-      notifyRequest.add(utf8.encode(jsonEncode(notifyBody)));
-      final notifyResponse = await notifyRequest.close();
-      
-      // 读取并忽略通知响应
-      await notifyResponse.transform(utf8.decoder).join();
-      
-      // 3. 等待2秒
-      print('[DEBUG] 3. 等待2秒');
-      await Future.delayed(Duration(seconds: 2));
-      
-      // 4. 发送tools/list请求
-      print('[DEBUG] 4. 发送tools/list请求');
-      final toolsRequest = await client.postUrl(Uri.parse(serverUrl));
-      toolsRequest.headers.set('Content-Type', 'application/json');
-      toolsRequest.headers.set('Accept', 'application/json, text/event-stream');
-      toolsRequest.headers.set('Mcp-Session-Id', newSessionId);
-      
-      final toolsBody = {
-        'jsonrpc': '2.0',
-        'id': 2,
-        'method': 'tools/list'
-      };
-      
-      toolsRequest.add(utf8.encode(jsonEncode(toolsBody)));
-      final toolsResponse = await toolsRequest.close();
-      
-      print('[DEBUG] tools/list响应状态码: ${toolsResponse.statusCode}');
-      final toolsResponseBody = await toolsResponse.transform(utf8.decoder).join();
-      print('[DEBUG] tools/list响应体: $toolsResponseBody');
-      
-      if (toolsResponseBody.contains('"result"')) {
-        print('[DEBUG] ✅ 成功！新session可以工作');
-      } else if (toolsResponseBody.contains('"error"')) {
-        print('[DEBUG] ❌ 失败！新session也不工作');
-      }
-      
-    } finally {
-      client.close();
-    }
-  }
+  // 已删除未使用的_debugCreateFreshSessionAndTest方法
 
   @override
   Future<void> disconnect() async {
@@ -1035,7 +929,8 @@ class StreamableHttpMcpClient implements McpClient {
   }
   
   /// 发送显式包含params字段的请求（用于调试）
-  Future<Map<String, dynamic>> _sendRequestWithExplicitParams(String method, Map<String, dynamic> params) async {
+  // 已删除未使用的_sendRequestWithExplicitParams方法
+  /*Future<Map<String, dynamic>> _sendRequestWithExplicitParams(String method, Map<String, dynamic> params) async {
     if (!_isConnected && method != 'initialize') {
       throw Exception('HTTP连接未建立');
     }
@@ -1137,10 +1032,11 @@ class StreamableHttpMcpClient implements McpClient {
     } finally {
       client.close();
     }
-  }
+  }*/
   
   /// 发送不包含params字段的请求（用于调试）
-  Future<Map<String, dynamic>> _sendRequestWithNullParams(String method) async {
+  // 已删除未使用的_sendRequestWithNullParams方法
+  /*Future<Map<String, dynamic>> _sendRequestWithNullParams(String method) async {
     if (!_isConnected && method != 'initialize') {
       throw Exception('HTTP连接未建立');
     }
@@ -1241,9 +1137,10 @@ class StreamableHttpMcpClient implements McpClient {
     } finally {
       client.close();
     }
-  }
+  }*/
   
   /// 获取资源列表
+  @override
   Future<List<dynamic>> listResources() async {
     final result = await _sendRequest('resources/list', {});
     final resources = result['resources'] as List<dynamic>? ?? [];

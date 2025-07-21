@@ -260,6 +260,6 @@ class McpCallState {
 
   /// 生成用户友好的重试消息
   static String _getRetryingMessage(String toolName, int retryCount) {
-    return '第${retryCount}次重试 ${_getCallingMessage(toolName)}';
+    return '第$retryCount次重试 ${_getCallingMessage(toolName)}';
   }
 }

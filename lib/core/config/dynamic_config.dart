@@ -15,21 +15,21 @@ class DynamicConfig extends ChangeNotifier {
   double _floatingChatExpandedHeightRatio = 0.7;
   bool _floatingChatEnableBackgroundBlur = false;
   double _floatingChatCharacterFontSize = 64.0;
-  double _floatingChatPositionMarginX = 20.0;
-  double _floatingChatPositionMarginY = 100.0;
+  final double _floatingChatPositionMarginX = 20.0;
+  final double _floatingChatPositionMarginY = 100.0;
   
   /// 输入组件配置
-  double _inputBorderRadius = 24.0;
-  double _inputCompactBorderRadius = 20.0;
-  double _inputBorderWidth = 1.5;
-  double _inputPadding = 12.0;
-  double _inputCompactPadding = 10.0;
+  final double _inputBorderRadius = 24.0;
+  final double _inputCompactBorderRadius = 20.0;
+  final double _inputBorderWidth = 1.5;
+  final double _inputPadding = 12.0;
+  final double _inputCompactPadding = 10.0;
   
   // ==================== 动画配置 ====================
   
   int _animationFloatingChatDurationMs = 200;
-  int _animationPageTransitionDurationMs = 0;
-  int _animationScrollDurationMs = 300;
+  final int _animationPageTransitionDurationMs = 0;
+  final int _animationScrollDurationMs = 300;
   bool _animationEnableMaterialAnimations = false;
   bool _animationEnableRippleEffect = false;
   
@@ -37,39 +37,39 @@ class DynamicConfig extends ChangeNotifier {
   
   bool _themeUseMaterial3 = false;
   bool _themeEnableShadows = true;
-  bool _themeEnableHighlight = false;
-  bool _themeEnableSplash = false;
+  final bool _themeEnableHighlight = false;
+  final bool _themeEnableSplash = false;
   
   // ==================== 性能配置 ====================
   
   bool _performanceEnableMonitoring = false;
-  int _performanceMaxConcurrentAudio = 1;
+  final int _performanceMaxConcurrentAudio = 1;
   double _performanceImageQuality = 0.7;
-  int _performanceMemoryCacheLimitMB = 50;
-  int _performanceDiskCacheLimitMB = 100;
+  final int _performanceMemoryCacheLimitMB = 50;
+  final int _performanceDiskCacheLimitMB = 100;
   
   // ==================== 网络配置 ====================
   
-  int _networkConnectionTimeoutSec = 10;
-  int _networkReconnectIntervalSec = 5;
-  int _networkMaxRetryCount = 3;
-  int _networkHeartbeatIntervalSec = 30;
+  final int _networkConnectionTimeoutSec = 10;
+  final int _networkReconnectIntervalSec = 5;
+  final int _networkMaxRetryCount = 3;
+  final int _networkHeartbeatIntervalSec = 30;
   
   // ==================== 音频配置 ====================
   
-  int _audioSampleRate = 16000;
-  int _audioChannels = 1;
-  int _audioFrameDurationMs = 60;
-  String _audioFormat = 'opus';
-  int _audioSttTimeoutSec = 5;
+  final int _audioSampleRate = 16000;
+  final int _audioChannels = 1;
+  final int _audioFrameDurationMs = 60;
+  final String _audioFormat = 'opus';
+  final int _audioSttTimeoutSec = 5;
   
   // ==================== 调试配置 ====================
   
   bool _debugEnableLogging = false;
   bool _debugEnableNetworkLogging = false;
   bool _debugEnableAudioLogging = false;
-  bool _debugEnableUILogging = false;
-  bool _debugShowDebugInfo = false;
+  final bool _debugEnableUILogging = false;
+  final bool _debugShowDebugInfo = false;
   
   // ==================== Getters ====================
   

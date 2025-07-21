@@ -333,7 +333,7 @@ class _SimpleToast extends StatelessWidget {
     
     // 如果消息太长，截取前50个字符
     if (simplified.length > 50) {
-      return simplified.substring(0, 47) + '...';
+      return '${simplified.substring(0, 47)}...';
     }
     
     return simplified;

@@ -116,7 +116,7 @@ class TestDirectRenderer extends HookConsumerWidget {
                         children: [
                           // 渲染器输出
                           if (renderer != null)
-                            renderer!.render(state)
+                            renderer.render(state)
                           else
                             const Column(
                               children: [

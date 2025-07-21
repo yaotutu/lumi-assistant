@@ -1,5 +1,5 @@
 import 'package:hooks_riverpod/hooks_riverpod.dart';
-import 'package:uuid/uuid.dart';
+// import 'package:uuid/uuid.dart'; // 暂未使用
 
 import '../../data/models/chat_ui_model.dart';
 import '../../data/models/message_model.dart';
@@ -14,7 +14,7 @@ import 'connection_provider.dart';
 /// 聊天状态管理
 class ChatNotifier extends StateNotifier<ChatState> {
   final Ref _ref;
-  static const _uuid = Uuid();
+  // static const _uuid = Uuid(); // 暂未使用
   
   // 性能优化：限制内存中保留的消息数量
   static const int _maxMessagesInMemory = 50;
@@ -115,13 +115,13 @@ class ChatNotifier extends StateNotifier<ChatState> {
     );
   }
 
-  /// 性能优化：添加消息并自动修剪
-  void _addMessageWithTrimming(ChatUIMessage message) {
-    state = state.copyWith(
-      messages: [...state.messages, message],
-    );
-    _trimMessagesIfNeeded();
-  }
+  /// 性能优化：添加消息并自动修剪（暂未使用，但保留作为工具方法）
+  // void _addMessageWithTrimming(ChatUIMessage message) {
+  //   state = state.copyWith(
+  //     messages: [...state.messages, message],
+  //   );
+  //   _trimMessagesIfNeeded();
+  // }
 
   /// 性能优化：修剪消息列表以避免内存溢出
   void _trimMessagesIfNeeded() {
@@ -670,7 +670,7 @@ class ChatNotifier extends StateNotifier<ChatState> {
     
     // 如果还是太长，截取关键部分
     if (simplified.length > 30) {
-      return simplified.substring(0, 27) + '...';
+      return '${simplified.substring(0, 27)}...';
     }
     
     return simplified.isNotEmpty ? simplified : '操作失败，请稍后重试';

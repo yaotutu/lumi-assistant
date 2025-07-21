@@ -149,7 +149,7 @@ class McpServersPage extends HookConsumerWidget {
             status,
             refresh,
           );
-        }).toList(),
+        }),
       ],
     );
   }

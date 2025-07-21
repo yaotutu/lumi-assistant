@@ -25,7 +25,7 @@ class WebSocketService extends StateNotifier<WebSocketState> {
   
   // 性能优化：使用单一的音频服务实例，而不是维护多个实例
   dynamic _activeAudioService;
-  String _audioServiceType = 'android_style'; // 默认使用最稳定的Android风格服务
+  // String _audioServiceType = 'android_style'; // 暂未使用
   
   // 统一MCP管理器
   final UnifiedMcpManager _mcpManager;
@@ -38,7 +38,7 @@ class WebSocketService extends StateNotifier<WebSocketState> {
   /// 性能优化：设置单一音频服务实例
   void setAudioService(dynamic audioService, String serviceType) {
     _activeAudioService = audioService;
-    _audioServiceType = serviceType;
+    // _audioServiceType = serviceType; // 已删除字段
     print('[WebSocket] 音频服务已设置: $serviceType');
   }
 

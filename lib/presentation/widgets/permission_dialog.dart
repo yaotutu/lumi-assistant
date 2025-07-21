@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import '../../core/services/permission_service.dart';
-import '../../core/constants/audio_constants.dart';
+// import '../../core/constants/audio_constants.dart'; // 暂未使用
 
 /// 权限请求对话框
 /// 用于请求音频相关权限并提供用户友好的说明
@@ -13,13 +13,13 @@ class PermissionDialog extends HookConsumerWidget {
   final VoidCallback? onPermissionDenied;
 
   const PermissionDialog({
-    Key? key,
+    super.key,
     required this.title,
     required this.description,
     this.permissionType,
     this.onPermissionGranted,
     this.onPermissionDenied,
-  }) : super(key: key);
+  });
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -162,10 +162,10 @@ class MicrophonePermissionDialog extends StatelessWidget {
   final VoidCallback? onPermissionDenied;
 
   const MicrophonePermissionDialog({
-    Key? key,
+    super.key,
     this.onPermissionGranted,
     this.onPermissionDenied,
-  }) : super(key: key);
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -186,10 +186,10 @@ class AudioPermissionChecker extends HookConsumerWidget {
   final bool autoRequest;
 
   const AudioPermissionChecker({
-    Key? key,
+    super.key,
     required this.child,
     this.autoRequest = true,
-  }) : super(key: key);
+  });
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -243,9 +243,9 @@ class PermissionStatusIndicator extends HookConsumerWidget {
   final bool showText;
 
   const PermissionStatusIndicator({
-    Key? key,
+    super.key,
     this.showText = true,
-  }) : super(key: key);
+  });
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -262,7 +262,7 @@ class PermissionStatusIndicator extends HookConsumerWidget {
 
         final permissions = snapshot.data ?? {};
         final hasMicrophone = permissions['microphone'] ?? false;
-        final hasStorage = permissions['storage'] ?? false;
+        // final hasStorage = permissions['storage'] ?? false; // 暂未使用
 
         return Row(
           mainAxisSize: MainAxisSize.min,
@@ -307,11 +307,11 @@ class PermissionRequestButton extends HookConsumerWidget {
   final VoidCallback? onFailure;
 
   const PermissionRequestButton({
-    Key? key,
+    super.key,
     this.text = '请求权限',
     this.onSuccess,
     this.onFailure,
-  }) : super(key: key);
+  });
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {

@@ -184,14 +184,14 @@ class McpTestPage extends HookConsumerWidget {
       // 由于是模拟环境，这里主要测试客户端创建逻辑
       try {
         // 测试Streamable HTTP客户端创建
-        final streamableClient = StreamableHttpMcpClient('http://localhost:8080/mcp/', {'test': 'header'});
+        // final streamableClient = StreamableHttpMcpClient('http://localhost:8080/mcp/', {'test': 'header'}); // 暂未使用
         addResult('✅ Streamable HTTP客户端创建成功');
         
         // 测试Stdio客户端创建
-        final stdioClient = StdioMcpClient(
-          command: 'node',
-          args: ['server.js'],
-        );
+        // final stdioClient = StdioMcpClient( // 暂未使用
+        //   command: 'node',
+        //   args: ['server.js'],
+        // );
         addResult('✅ Stdio客户端创建成功');
         
         // 注意：不测试实际连接，因为没有真实的服务器

@@ -167,16 +167,7 @@ class HandshakeService extends StateNotifier<HandshakeResult> {
   }
 
   /// 获取客户端能力列表
-  List<String> _getClientCapabilities() {
-    return [
-      'chat',          // 文字聊天
-      'voice',         // 语音识别
-      'image',         // 图片分析
-      'real_time',     // 实时通信
-      'push',          // 推送通知
-      'offline',       // 离线支持
-    ];
-  }
+  // 已删除未使用的_getClientCapabilities方法
 
   /// 开始监听WebSocket消息
   void _startListening() {
