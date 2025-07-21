@@ -6,6 +6,7 @@ import '../../providers/chat_provider.dart';
 import '../../providers/virtual_character_provider.dart';
 import '../../../data/models/chat_state.dart';
 import '../../../core/constants/device_constants.dart';
+import '../../../core/services/voice_interrupt_service.dart';
 import '../virtual_character/models/character_enums.dart';
 import '../connection_status_widget.dart';
 import '../handshake_status_widget.dart';
@@ -542,9 +543,27 @@ class ChatInterface extends HookConsumerWidget {
   }
   
   /// 发送消息
-  void _sendMessage(WidgetRef ref, String message) {
+  /// 
+  /// 参考Android客户端实现：发送消息前自动停止音频播放
+  Future<void> _sendMessage(WidgetRef ref, String message) async {
     if (message.trim().isEmpty) return;
-    ref.read(chatProvider.notifier).sendMessage(message);
+    
+    try {
+      // 🎯 核心功能：发送消息前自动打断正在播放的AI语音
+      // 这是语音打断功能的核心实现，参考Android客户端的成功模式
+      print('[ChatInterface] 发送消息前执行自动语音打断');
+      
+      final voiceInterruptService = ref.read(voiceInterruptServiceProvider);
+      await voiceInterruptService.autoInterruptBeforeSend();
+      
+      // 发送消息
+      ref.read(chatProvider.notifier).sendMessage(message);
+      
+    } catch (e) {
+      print('[ChatInterface] 发送消息时的语音打断失败: $e');
+      // 即使打断失败，也要继续发送消息
+      ref.read(chatProvider.notifier).sendMessage(message);
+    }
   }
   
   /// 获取设备类型

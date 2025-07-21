@@ -235,6 +235,72 @@ class WebSocketService extends StateNotifier<WebSocketState> {
     }
   }
 
+  /// 发送语音打断消息
+  /// 
+  /// 当用户需要打断AI正在播放的语音时调用此方法
+  /// 这会立即通知服务器停止当前的TTS输出和相关处理
+  Future<void> sendAbortMessage({String reason = 'user_interrupt'}) async {
+    print('[WebSocket] 准备发送语音打断消息');
+    
+    if (!state.isConnected) {
+      print('[WebSocket] 发送打断消息失败: WebSocket未连接');
+      throw AppExceptionFactory.createWebSocketException(
+        'WebSocket未连接',
+        code: 'WEBSOCKET_NOT_CONNECTED',
+        connectionState: state.connectionState.name,
+      );
+    }
+
+    try {
+      final abortMessage = {
+        'type': 'abort',
+        'reason': reason,
+        'timestamp': DateTime.now().toIso8601String(),
+      };
+      
+      print('[WebSocket] 发送语音打断消息: $abortMessage');
+      await sendMessage(abortMessage);
+      print('[WebSocket] 语音打断消息发送成功');
+      
+    } catch (error) {
+      print('[WebSocket] 发送语音打断消息失败: $error');
+      throw AppExceptionFactory.createWebSocketException(
+        '发送语音打断消息失败: $error',
+        code: 'ABORT_MESSAGE_FAILED',
+        connectionState: state.connectionState.name,
+        details: {'error': error.toString(), 'reason': reason},
+      );
+    }
+  }
+
+  /// 发送停止监听消息
+  /// 
+  /// 用于停止当前的语音识别或音频流处理
+  Future<void> sendStopListenMessage() async {
+    print('[WebSocket] 准备发送停止监听消息');
+    
+    if (!state.isConnected) {
+      print('[WebSocket] 发送停止监听消息失败: WebSocket未连接');
+      return;
+    }
+
+    try {
+      final stopMessage = {
+        'type': 'listen',
+        'state': 'stop',
+        'timestamp': DateTime.now().toIso8601String(),
+      };
+      
+      print('[WebSocket] 发送停止监听消息: $stopMessage');
+      await sendMessage(stopMessage);
+      print('[WebSocket] 停止监听消息发送成功');
+      
+    } catch (error) {
+      print('[WebSocket] 发送停止监听消息失败: $error');
+      // 不抛出异常，因为这不是关键错误
+    }
+  }
+
   /// 检查网络连接
   Future<void> _checkNetworkConnection() async {
     try {

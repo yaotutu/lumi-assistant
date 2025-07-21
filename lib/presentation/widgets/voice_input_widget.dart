@@ -5,6 +5,7 @@ import '../providers/audio_stream_provider.dart';
 import '../providers/connection_provider.dart';
 import '../../core/constants/audio_constants.dart';
 import '../../data/models/websocket_state.dart';
+import '../../core/services/voice_interrupt_service.dart';
 
 /// 语音输入组件
 /// 提供按住说话和录制状态可视化功能
@@ -189,6 +190,17 @@ class VoiceInputWidget extends HookConsumerWidget {
       }
     }
 
+    // 🎯 核心功能：语音录制前自动打断正在播放的AI语音
+    // 用户开始说话时，立即停止AI正在播放的语音
+    try {
+      print('[VoiceInput] 语音录制前执行自动语音打断');
+      final voiceInterruptService = ref.read(voiceInterruptServiceProvider);
+      await voiceInterruptService.autoInterruptBeforeSend();
+    } catch (e) {
+      print('[VoiceInput] 语音录制前的打断失败: $e');
+      // 继续录制流程，不因为打断失败而阻止用户录制
+    }
+
     // 开始录制
     final success = await streamNotifier.startStreaming();
     if (!success) {
@@ -230,7 +242,18 @@ class VoiceInputWidget extends HookConsumerWidget {
       if (duration.inMilliseconds < 500) {
         print('[VoiceInput] 录制时间过短，取消录制');
         await streamNotifier.stopStreaming();
-        _showError(context, '录制时间过短，请长按录制');
+        
+        // 🎯 通知语音打断服务录制已取消（时间过短）
+        try {
+          final voiceInterruptService = ref.read(voiceInterruptServiceProvider);
+          await voiceInterruptService.cancelRecording(reason: 'duration_too_short');
+        } catch (e) {
+          print('[VoiceInput] 通知语音打断服务失败: $e');
+        }
+        
+        if (context.mounted) {
+          _showError(context, '录制时间过短，请长按录制');
+        }
         onVoiceCancel?.call();
         return;
       }
@@ -267,6 +290,15 @@ class VoiceInputWidget extends HookConsumerWidget {
 
     // 取消录制
     await streamNotifier.stopStreaming();
+    
+    // 🎯 通知语音打断服务录制已取消
+    try {
+      final voiceInterruptService = ref.read(voiceInterruptServiceProvider);
+      await voiceInterruptService.cancelRecording(reason: 'user_cancel');
+    } catch (e) {
+      print('[VoiceInput] 通知语音打断服务失败: $e');
+    }
+    
     print('[VoiceInput] 录制已取消');
     onVoiceCancel?.call();
   }
