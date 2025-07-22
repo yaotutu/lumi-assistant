@@ -4,9 +4,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Project Overview
 
-Lumi Assistant is a Flutter-based intelligent voice assistant client using a milestone-driven development approach. The project is currently in **Phase 1** (text chat functionality) with 10 planned milestones, each requiring user verification before proceeding.
-
-**Current Status**: Milestone 3 (Hello handshake flow) - Successfully completed. Ready for Milestone 4 (Basic UI framework).
+Lumi Assistant is a Flutter-based intelligent voice assistant client using modern Flutter architecture and AI technologies.
 
 ## Architecture
 
@@ -909,37 +907,21 @@ abstract class TTSProvider {
 **Audio Processing**: `Simple` → `Comprehensive Opus Pipeline` (to be implemented)
 **UI Pattern**: `Material Design` → `Material Design 3 + Neumorphism` (partially implemented)
 
-## Milestone-Driven Development
+## Development Status
 
-**Critical**: This project follows strict milestone verification:
-1. Each milestone must be fully completed before moving to next
-2. User verification required after each milestone
-3. No feature should be started without completing current milestone
-4. All progress tracked in `docs/planning/MILESTONE_TRACKING.md`
+**Current Features**:
+- ✅ **WebSocket Communication**: Real-time connection with Python backend
+- ✅ **Text Chat**: Send and receive text messages via WebSocket
+- ✅ **IoT Device Control**: Volume control through MCP protocol
+- ✅ **Responsive UI**: Adaptive layout for different screen sizes
+- ✅ **Settings System**: Configurable app settings and preferences
 
-**里程碑完成状态**:
-- ✅ 里程碑1：项目基础搭建 - 已完成
-- ✅ 里程碑2：网络连接基础 - 已完成  
-- ✅ 里程碑3：Hello握手流程 - 已完成
-- ✅ 里程碑4：基础UI框架 - 已完成
-- ✅ 里程碑5：聊天界面基础 - 已完成
-- ✅ 里程碑6：文字消息发送 - 已完成
-- ⏸️ 里程碑7：LLM响应处理 - 等待中
-
-**当前状态**: 里程碑6已完成，可以进入下一阶段开发
-
-**IoT设备控制功能状态**:
-- ✅ **基础架构**：IoT工具注册和执行机制 - 已完成
-- ✅ **音量控制**：adjust_volume和get_current_volume工具 - 已完成
-- ✅ **WebSocket集成**：IoT工具调用消息处理 - 已完成
-- ✅ **AI集成**：语音助手可通过IoT调用控制设备音量 - 已完成
-- 🔄 **功能扩展**：可基于现有架构添加更多设备控制功能
-
-**下一阶段任务**（里程碑7：LLM响应处理）:
-- 实现服务器响应消息接收和显示
-- 完善聊天消息流管理
-- 处理不同类型的服务器响应（包括IoT工具调用结果）
-- 实现消息状态追踪和错误处理
+**IoT Device Control**:
+- ✅ **Architecture**: IoT tool registration and execution mechanism
+- ✅ **Volume Control**: adjust_volume and get_current_volume tools
+- ✅ **WebSocket Integration**: IoT tool call message handling
+- ✅ **AI Integration**: Voice assistant can control device volume through IoT calls
+- 🔄 **Feature Expansion**: Can add more device control functions based on existing architecture
 
 ## Code Patterns
 
@@ -971,11 +953,10 @@ Use custom exception types (`NetworkException`, `WebSocketException`) with centr
 ## Documentation Structure
 
 Important docs are organized in `docs/`:
-- `planning/` - Project plans and milestone tracking
+- `technical/` - Technical implementation guides
 - `architecture/` - Technical architecture and specifications  
-- `frontend/` - Development guidelines and best practices
-
-**Always check milestone status** in `docs/planning/MILESTONE_TRACKING.md` before making changes.
+- `contributors/` - Development guidelines and best practices
+- `getting-started/` - Quick start guides for contributors
 
 ### 项目记忆重要提醒
 
@@ -1008,20 +989,20 @@ Important docs are organized in `docs/`:
    - IoT设备控制功能要参考ESP32客户端的硬件控制接口
 
 6. **当前开发重点**：
-   - 里程碑6已完成文本消息发送功能
-   - 里程碑7需要实现服务器响应消息的完整处理
+   - 文本消息发送功能已完成，需要实现服务器响应消息的完整处理
    - IoT设备控制功能已实现音量控制，可作为扩展其他设备功能的基础
    - 重点关注消息状态管理和错误处理机制
+   - 下一步实现音频录制和TTS播放功能
    - 不支持服务器切换功能，统一使用Python后端
 
 ## Quality Standards
 
 - All code must compile without warnings
-- Each milestone requires specific verification criteria
 - Hot reload must work properly
 - Follow the compositional architecture patterns
 - Use Hooks for local component state, Riverpod for global state
 - Maintain clear separation between presentation, business, and data layers
+- Follow comprehensive logging practices using AppLogger
 
 ## Integration Guidelines
 
@@ -1033,7 +1014,7 @@ Important docs are organized in `docs/`:
 5. **Use consistent error handling** patterns across all network operations
 6. **Hardware control patterns** should follow ESP32 client's hardware abstraction layer
 
-### Audio feature implementation (future milestone):
+### Audio feature implementation (future development):
 - **Primary reference**: ESP32 client's audio processing implementation
 - **Secondary reference**: Android client's `AudioUtil` class for Flutter-specific integration
 - Follow the audio processing pipeline: `Microphone → PCM16 → Opus → WebSocket`
