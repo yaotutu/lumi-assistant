@@ -132,15 +132,15 @@ jobs:
           if [ "${BRANCH_NAME}" = "main" ]; then
             BUILD_TYPE="release"
             BRANCH_SUFFIX=""
-            echo "📦 构建 Release 版本（main分支）"
+            echo "📦 构建正式Release版本（main分支）"
           elif [ "${BRANCH_NAME}" = "dev" ]; then
-            BUILD_TYPE="debug"
+            BUILD_TYPE="release"
             BRANCH_SUFFIX="-dev"
-            echo "🧪 构建开发测试版本（dev分支）"
+            echo "🧪 构建内测Release版本（dev分支）- 正式包用于内测"
           else
             BUILD_TYPE="debug"
             BRANCH_SUFFIX="-${BRANCH_NAME}"
-            echo "🔧 构建分支版本（${BRANCH_NAME}分支）"
+            echo "🔧 构建调试版本（${BRANCH_NAME}分支）"
           fi
           
           # 根据架构和构建类型选择构建命令

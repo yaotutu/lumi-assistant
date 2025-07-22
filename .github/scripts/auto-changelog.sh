@@ -181,7 +181,7 @@ generate_changelog() {
         VERSION_DESC="正式版本"
     elif [ "${CURRENT_BRANCH}" = "dev" ]; then
         VERSION_TYPE="🧪 Development"
-        VERSION_DESC="开发测试版本"
+        VERSION_DESC="内测版本"
     else
         VERSION_TYPE="🔧 Branch Build"
         VERSION_DESC="分支构建版本"
@@ -304,9 +304,9 @@ EOF
 EOF
     elif [ "${CURRENT_BRANCH}" = "dev" ]; then
         cat >> "$output_file" << EOF
-## ⚠️ 开发测试版本
+## ⚠️ 内测版本
 
-此为开发测试版本，包含最新功能但可能存在未完成功能和已知问题。
+此为内测版本，使用正式构建但包含最新功能，供内测用户体验和反馈。
 
 EOF
     else
