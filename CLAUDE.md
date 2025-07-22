@@ -925,6 +925,8 @@ abstract class TTSProvider {
 
 ## Code Patterns
 
+**重要提醒**: 以下所有代码示例在实际项目中都应该包含详细的注释！示例为了简洁省略了注释，但实际编写代码时必须遵循[Code Documentation Standards](#code-documentation-standards)中的注释规范。
+
 ### State Management
 ```dart
 // Riverpod Provider with Hooks
@@ -949,6 +951,257 @@ Use custom exception types (`NetworkException`, `WebSocketException`) with centr
 - snake_case for files: `chat_service.dart`
 - PascalCase for classes: `ChatService`
 - camelCase for variables/methods: `sendMessage`
+
+### Code Documentation Standards
+
+**核心原则**: 代码注释要极其详细，宁可过多不可过少
+
+#### 注释详细度要求
+- **每个关键行都要有注释** - 解释这一行在做什么
+- **每个函数都要有文档注释** - 说明功能、参数、返回值
+- **每个类都要有详细说明** - 职责、使用场景、依赖关系
+- **复杂逻辑必须逐行注释** - 帮助后续维护者理解思路
+- **业务逻辑要解释"为什么"** - 不仅说做什么，还要说为什么这样做
+
+#### 注释示例标准
+
+```dart
+/// WebSocket服务类
+/// 
+/// 职责：管理与Python后端服务器的实时双向通信
+/// 依赖：NetworkChecker（网络状态检查）、AppLogger（日志记录）
+/// 使用场景：聊天消息发送、音频流传输、IoT设备控制
+class WebSocketService extends BaseService {
+  // WebSocket连接实例，null表示未连接
+  WebSocket? _webSocket;
+  
+  // 消息流控制器，用于向外部提供消息流
+  final StreamController<dynamic> _messageController = StreamController.broadcast();
+  
+  // 连接状态流控制器，用于通知连接状态变化
+  final StreamController<ConnectionState> _connectionController = StreamController.broadcast();
+  
+  /// 连接到WebSocket服务器
+  /// 
+  /// 参数：
+  /// - [url] 服务器WebSocket地址，格式：ws://host:port
+  /// - [headers] 可选的HTTP头，用于认证和设备标识
+  /// 
+  /// 返回：Future<void> 连接完成时resolve，失败时抛出WebSocketException
+  /// 
+  /// 抛出：
+  /// - NetworkException：网络不可用
+  /// - WebSocketException：连接失败或协议错误
+  Future<void> connect(String url, {Map<String, String>? headers}) async {
+    try {
+      // 记录连接开始日志，便于调试连接问题
+      AppLogger.webSocket.info('🔄 开始连接WebSocket: $url');
+      
+      // 使用dart:io的WebSocket.connect方法建立连接
+      // 这是一个异步操作，可能因网络问题、服务器不可达等原因失败
+      _webSocket = await WebSocket.connect(url, headers: headers);
+      
+      // 连接成功后，通过状态流通知外部监听者
+      _connectionController.add(ConnectionState.connected());
+      
+      // 记录成功连接的日志，包含连接详情
+      AppLogger.webSocket.info('✅ WebSocket连接成功');
+      
+      // 设置消息监听器，处理来自服务器的消息
+      _webSocket!.listen(
+        _onMessage,        // 正常消息处理回调
+        onError: _onError, // 错误处理回调
+        onDone: _onDisconnected, // 连接断开处理回调
+      );
+      
+    } catch (error, stackTrace) {
+      // 连接失败时，记录详细的错误信息和堆栈跟踪
+      AppLogger.error.severe('❌ WebSocket连接失败: $error', error, stackTrace);
+      
+      // 通过状态流通知连接失败
+      _connectionController.add(ConnectionState.failed(error.toString()));
+      
+      // 抛出自定义异常，让调用者能够识别具体的失败原因
+      throw WebSocketException('连接失败: $error');
+    }
+  }
+  
+  /// 处理接收到的WebSocket消息
+  /// 
+  /// 参数：
+  /// - [message] 从服务器接收的原始消息，可能是String或List<int>
+  /// 
+  /// 消息类型处理：
+  /// - String: JSON文本消息，需要解码后转发
+  /// - List<int>: 二进制音频数据，包装后转发
+  void _onMessage(dynamic message) {
+    try {
+      // 记录接收到消息的日志，便于调试消息流
+      AppLogger.webSocket.fine('📥 接收到消息: ${message.toString()}');
+      
+      // 根据消息类型进行不同的处理
+      if (message is String) {
+        // 文本消息：通常是JSON格式的控制消息或聊天消息
+        final decoded = jsonDecode(message);
+        
+        // 将解码后的JSON对象转发给消息流监听者
+        _messageController.add(decoded);
+        
+      } else if (message is List<int>) {
+        // 二进制消息：通常是Opus编码的音频数据
+        final audioData = Uint8List.fromList(message);
+        
+        // 将二进制数据包装成标准格式，便于下游处理
+        _messageController.add({
+          'type': 'binary_audio',  // 标识这是音频数据
+          'data': audioData,       // 实际的音频数据
+        });
+      }
+      
+    } catch (error) {
+      // 消息解析失败时，记录错误但不中断连接
+      AppLogger.error.severe('❌ 消息解析失败: $error', error);
+    }
+  }
+}
+```
+
+#### 配置和常量注释标准
+
+```dart
+/// 应用核心常量配置
+/// 
+/// 包含所有硬编码的配置值，便于统一管理和修改
+/// 重要：修改这些常量可能影响与后端的兼容性
+class AppConstants {
+  // 应用基础信息
+  static const String appName = 'Lumi Assistant';  // 应用显示名称，用于标题栏
+  static const String appVersion = '1.0.0';        // 版本号，用于About页面和错误报告
+  
+  // 网络配置 - 与Python后端服务器通信的关键参数
+  static const String defaultServerHost = '192.168.110.199';  // 后端服务器IP地址
+  static const int defaultServerPort = 8000;                   // 后端服务器端口
+  
+  // WebSocket连接配置
+  static const int connectionTimeoutMs = 10000;     // 连接超时时间（毫秒）
+  static const int heartbeatIntervalMs = 30000;     // 心跳间隔（毫秒）
+  static const int maxReconnectAttempts = 5;        // 最大重连尝试次数
+  
+  // 音频处理参数 - 必须与后端Opus配置匹配
+  static const int audioSampleRate = 16000;         // 采样率：16kHz，标准语音质量
+  static const int audioChannels = 1;               // 声道数：单声道，减少数据量
+  static const int audioFrameDurationMs = 60;       // 音频帧时长：60ms，平衡延迟和质量
+  
+  // UI配置参数
+  static const double defaultFontScale = 1.0;       // 默认字体缩放比例
+  static const Duration animationDuration = Duration(milliseconds: 300);  // 标准动画时长
+}
+```
+
+#### 业务逻辑注释标准
+
+```dart
+/// 处理聊天消息发送的完整流程
+/// 
+/// 业务流程：
+/// 1. 验证消息内容和连接状态
+/// 2. 生成唯一消息ID用于追踪
+/// 3. 构造符合后端协议的消息格式
+/// 4. 通过WebSocket发送到服务器
+/// 5. 更新本地聊天状态
+/// 6. 处理发送结果（成功/失败）
+Future<void> sendMessage(String content) async {
+  // 1. 输入验证：确保消息内容不为空
+  if (content.trim().isEmpty) {
+    // 空消息不处理，直接返回，避免发送无意义数据
+    AppLogger.chat.warning('⚠️ 尝试发送空消息，已忽略');
+    return;
+  }
+  
+  // 2. 连接状态检查：确保WebSocket连接正常
+  if (!_webSocketService.isConnected) {
+    // 连接断开时不能发送消息，抛出异常让UI显示错误
+    final errorMsg = '无法发送消息：WebSocket连接已断开';
+    AppLogger.chat.severe('❌ $errorMsg');
+    throw ChatException(errorMsg);
+  }
+  
+  // 3. 生成消息ID：用于消息追踪和重发机制
+  final messageId = const Uuid().v4();  // 使用UUID v4确保全局唯一性
+  
+  // 4. 更新UI状态：显示发送中状态，提升用户体验
+  state = state.copyWith(
+    isLoading: true,        // 显示加载指示器
+    error: null,            // 清除之前的错误信息
+  );
+  
+  // 5. 构造消息对象：符合后端API协议格式
+  final message = {
+    'id': messageId,                              // 消息唯一标识
+    'type': 'chat',                              // 消息类型：聊天消息
+    'content': content.trim(),                   // 消息内容，移除首尾空白
+    'session_id': _webSocketService.sessionId,  // 会话ID，用于服务器关联对话上下文
+    'device_id': _deviceId,                     // 设备ID，用于多设备区分
+    'timestamp': DateTime.now().toIso8601String(), // 时间戳，ISO8601格式确保跨平台兼容
+  };
+  
+  try {
+    // 6. 记录发送日志：便于调试和问题追踪
+    AppLogger.chat.info('💬 发送聊天消息，ID: $messageId，长度: ${content.length}字符');
+    
+    // 7. 发送消息到服务器：异步操作，可能因网络问题失败
+    await _webSocketService.sendMessage(message);
+    
+    // 8. 发送成功：更新本地状态，添加消息到历史记录
+    final chatMessage = ChatMessage(
+      id: messageId,
+      content: content,
+      isUser: true,                    // 标记为用户发送的消息
+      timestamp: DateTime.now(),
+      status: MessageStatus.sent,      // 标记为已发送状态
+    );
+    
+    // 9. 更新聊天状态：添加新消息，清除加载状态
+    state = state.copyWith(
+      messages: [...state.messages, chatMessage],  // 使用展开运算符创建新列表
+      isLoading: false,                             // 清除加载状态
+    );
+    
+    // 10. 记录成功日志
+    AppLogger.chat.info('✅ 消息发送成功，ID: $messageId');
+    
+  } catch (error, stackTrace) {
+    // 11. 发送失败处理：记录错误，更新UI状态
+    AppLogger.error.severe('❌ 消息发送失败，ID: $messageId, 错误: $error', error, stackTrace);
+    
+    // 12. 更新UI状态：显示错误信息，清除加载状态
+    state = state.copyWith(
+      isLoading: false,                           // 清除加载状态
+      error: '消息发送失败: ${error.toString()}',    // 显示用户友好的错误信息
+    );
+    
+    // 13. 重新抛出异常：让调用者能够进行额外的错误处理
+    throw ChatException('消息发送失败: $error');
+  }
+}
+```
+
+#### 注释质量检查标准
+
+每次代码审查时，检查以下注释质量指标：
+
+- [ ] **覆盖率**: 每个公共方法都有文档注释
+- [ ] **详细度**: 复杂逻辑有逐行或逐块注释  
+- [ ] **准确性**: 注释描述与代码实际功能一致
+- [ ] **完整性**: 说明了参数、返回值、异常、副作用
+- [ ] **实用性**: 注释帮助理解"为什么"而不仅仅是"做什么"
+- [ ] **维护性**: 代码修改时同步更新了相关注释
+
+**重要**: 详细的注释是代码质量的重要组成部分，有助于：
+- 新团队成员快速理解代码
+- 降低维护成本和出错概率  
+- 提高代码review效率
+- 便于问题排查和调试
 
 ## Documentation Structure
 
@@ -997,12 +1250,15 @@ Important docs are organized in `docs/`:
 
 ## Quality Standards
 
-- All code must compile without warnings
-- Hot reload must work properly
-- Follow the compositional architecture patterns
-- Use Hooks for local component state, Riverpod for global state
-- Maintain clear separation between presentation, business, and data layers
-- Follow comprehensive logging practices using AppLogger
+- **All code must compile without warnings** - 零警告原则
+- **Hot reload must work properly** - 确保开发效率
+- **Follow the compositional architecture patterns** - 遵循组合式架构
+- **Use Hooks for local component state, Riverpod for global state** - 状态管理规范
+- **Maintain clear separation between presentation, business, and data layers** - 分层架构清晰
+- **Follow comprehensive logging practices using AppLogger** - 完善的日志记录
+- **📝 极其详细的代码注释** - 每个关键行、每个函数、每个类都要有详细注释，解释功能、参数、返回值、异常和业务逻辑
+- **文档注释标准** - 所有公共API使用///格式文档注释，私有成员使用//注释
+- **注释维护** - 代码修改时必须同步更新相关注释，保证注释的准确性
 
 ## Integration Guidelines
 

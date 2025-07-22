@@ -1,127 +1,129 @@
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
-import 'package:opus_flutter/opus_flutter.dart' as opus_flutter;
-import 'package:opus_dart/opus_dart.dart';
 
-import 'presentation/themes/app_theme.dart';
-import 'presentation/pages/home/home_page.dart';
-import 'core/constants/app_constants.dart';
+import 'core/services/app_initializer.dart';
+import 'core/services/app_configuration.dart';
 import 'core/config/app_settings.dart';
-import 'core/utils/app_logger.dart';
-import 'core/utils/loggers.dart';
-import 'presentation/providers/audio_stream_provider.dart';
+import 'presentation/pages/home/home_page.dart';
 
-/// 应用入口点
+/// Lumi Assistant 应用入口点
+/// 
+/// 职责：应用启动和根组件创建
+/// 架构：使用服务化架构，分离关注点
 void main() async {
+  // Flutter框架初始化，必须在所有异步操作前调用
   WidgetsFlutterBinding.ensureInitialized();
   
-  // 初始化日志系统
-  await _initializeLogging();
-  
-  // 性能优化：系统级设置
-  await _applyPerformanceOptimizations();
-  
-  // 性能优化：异步初始化Opus库，不阻塞应用启动
-  _initializeOpusAsync();
-  
-  runApp(
-    const ProviderScope(
-      child: LumiAssistantApp(),
-    ),
-  );
-}
-
-/// 初始化日志系统
-Future<void> _initializeLogging() async {
-  // 从设置中加载日志配置
-  final settings = AppSettings.instance;
-  await settings.loadSettings();
-  
-  // 初始化日志系统，使用设置中的配置
-  AppLogger.initialize(
-    globalLevel: settings.logLevel,
-    moduleConfig: settings.getModuleLogConfig(),
-  );
-  
-  // 记录启动信息
-  Loggers.system.info('🚀 Lumi Assistant 启动中...');
-  Loggers.system.info('📊 日志配置: ${AppLogger.getConfig()}');
-}
-
-/// 应用性能优化设置
-Future<void> _applyPerformanceOptimizations() async {
-  // 设置系统UI样式
-  SystemChrome.setSystemUIOverlayStyle(
-    const SystemUiOverlayStyle(
-      statusBarColor: Colors.transparent,
-      statusBarIconBrightness: Brightness.light,
-      systemNavigationBarColor: Colors.transparent,
-    ),
-  );
-  
-  // 性能优化配置完成
-  Loggers.system.info('⚡ 性能优化配置已应用');
-}
-
-/// 性能优化：异步初始化Opus库
-Future<void> _initializeOpusAsync() async {
   try {
-    initOpus(await opus_flutter.load());
-    Loggers.audio.success('Opus初始化成功: ${getOpusVersion()}');
-  } catch (e) {
-    Loggers.audio.severe('Opus初始化失败', e);
-    // 启动后续的重试机制或降级处理
+    // 执行应用初始化流程（日志、性能优化、Opus库等）
+    await AppInitializer.instance.initialize();
+    
+    // 启动应用
+    runApp(
+      // Riverpod状态管理作用域
+      const ProviderScope(
+        child: LumiAssistantApp(),
+      ),
+    );
+    
+  } catch (error) {
+    // 应用初始化失败，显示错误信息
+    print('❌ 应用启动失败: $error');
+    
+    // 启动一个最小化的错误显示应用
+    runApp(_buildErrorApp(error));
   }
 }
 
-/// Lumi Assistant应用根组件
+/// 构建错误显示应用
+/// 
+/// 用途：当应用初始化失败时，显示用户友好的错误界面
+/// 参数：[error] 错误信息
+Widget _buildErrorApp(Object error) {
+  return MaterialApp(
+    title: 'Lumi Assistant - 启动失败',
+    home: Scaffold(
+      backgroundColor: Colors.red.shade50,
+      body: Center(
+        child: Padding(
+          padding: const EdgeInsets.all(24.0),
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              // 错误图标
+              Icon(
+                Icons.error_outline,
+                size: 64,
+                color: Colors.red.shade600,
+              ),
+              const SizedBox(height: 16),
+              
+              // 错误标题
+              Text(
+                '应用启动失败',
+                style: TextStyle(
+                  fontSize: 24,
+                  fontWeight: FontWeight.bold,
+                  color: Colors.red.shade800,
+                ),
+              ),
+              const SizedBox(height: 12),
+              
+              // 错误详情
+              Text(
+                error.toString(),
+                textAlign: TextAlign.center,
+                style: TextStyle(
+                  fontSize: 14,
+                  color: Colors.red.shade700,
+                ),
+              ),
+              const SizedBox(height: 24),
+              
+              // 重启按钮
+              ElevatedButton(
+                onPressed: () {
+                  // 重置初始化状态并重启应用
+                  AppInitializer.instance.reset();
+                  main();
+                },
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: Colors.red.shade600,
+                  foregroundColor: Colors.white,
+                ),
+                child: const Text('重新启动'),
+              ),
+            ],
+          ),
+        ),
+      ),
+    ),
+  );
+}
+
+/// Lumi Assistant 应用根组件
+/// 
+/// 职责：
+/// - 提供MaterialApp配置
+/// - 管理全局应用状态
+/// - 执行应用预初始化
 class LumiAssistantApp extends ConsumerWidget {
   const LumiAssistantApp({super.key});
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    // 获取应用设置
     final settings = ref.watch(appSettingsProvider);
     
-    // 🎯 核心优化：应用启动时预初始化音频服务，解决长按卡顿问题
-    Future.microtask(() async {
-      try {
-        final audioNotifier = ref.read(audioStreamProvider.notifier);
-        await audioNotifier.initializeStreaming();
-        print('[优化] 音频服务预初始化完成');
-      } catch (e) {
-        print('[优化] 音频服务预初始化失败: $e');
-      }
+    // 执行应用预初始化（异步，不阻塞UI）
+    Future.microtask(() {
+      AppPreInitializer.instance.preInitialize(ref);
     });
     
-    return MaterialApp(
-      title: AppConstants.appName,
-      debugShowCheckedModeBanner: false,
-      
-      // 简化：禁用性能监控（主要配置在动态配置中处理）
-      showPerformanceOverlay: false,
-      checkerboardRasterCacheImages: false,
-      checkerboardOffscreenLayers: false,
-      showSemanticsDebugger: false,
-      
-      // 全局字体缩放：使用配置系统的fontScale
-      builder: (context, child) {
-        return MediaQuery(
-          data: MediaQuery.of(context).copyWith(
-            // 使用配置系统的字体缩放比例
-            textScaler: TextScaler.linear(settings.fontScale),
-          ),
-          child: child!,
-        );
-      },
-      
-      // 主题配置（已优化性能）
-      theme: AppTheme.getLightTheme(),
-      darkTheme: AppTheme.getDarkTheme(),
-      themeMode: ThemeMode.system,
-      
-      // 主页
-      home: const HomePage(),
+    // 使用配置服务构建MaterialApp
+    return AppConfiguration.instance.getMaterialApp(
+      settings: settings,
+      child: const HomePage(),
     );
   }
 }
