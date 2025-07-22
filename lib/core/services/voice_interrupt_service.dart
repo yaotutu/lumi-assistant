@@ -83,7 +83,7 @@ class VoiceInterruptService {
   Future<void> _stopLocalAudio() async {
     try {
       // 停止Android风格音频服务
-      await AudioServiceAndroidStyle().stop();
+      await AudioServiceAndroidStyle.stop();
       print('[$tag] Android风格音频服务已停止');
       
       // 停止跨平台音频服务（如果有）

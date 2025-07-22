@@ -68,7 +68,8 @@ class AudioServiceAndroidStyle {
     try {
       // 1. 确保播放器已初始化
       if (!_isPlayerInitialized || _pcmPlayer == null) {
-        await initPlayer();
+        print('[AudioServiceAndroidStyle] 播放器未初始化，开始初始化...');
+        await AudioServiceAndroidStyle.initPlayer();
       }
 
       // 2. Opus解码为PCM16
@@ -92,7 +93,7 @@ class AudioServiceAndroidStyle {
   }
 
   /// 停止播放 - 与Android客户端方式一致
-  Future<void> stop() async {
+  static Future<void> stop() async {
     try {
       if (_pcmPlayer != null) {
         print('[AudioServiceAndroidStyle] 停止PCM播放器');
@@ -104,7 +105,7 @@ class AudioServiceAndroidStyle {
   }
 
   /// 释放资源 - 与Android客户端方式一致
-  Future<void> dispose() async {
+  static Future<void> dispose() async {
     try {
       if (_pcmPlayer != null) {
         print('[AudioServiceAndroidStyle] 释放PCM播放器资源');
@@ -118,8 +119,8 @@ class AudioServiceAndroidStyle {
   }
 
   /// 获取播放器状态
-  bool get isInitialized => _isPlayerInitialized;
+  static bool get isInitialized => _isPlayerInitialized;
   
   /// 获取播放器实例（用于调试）
-  NativeAudioPlayer? get player => _pcmPlayer;
+  static NativeAudioPlayer? get player => _pcmPlayer;
 }

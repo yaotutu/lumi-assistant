@@ -390,9 +390,17 @@ class WebSocketService extends StateNotifier<WebSocketState> {
         // 捕获opus数据（用于测试和分析）
         OpusDataCaptureService.captureOpusData(data, messageType: 'binary_audio');
         
-        // 性能优化：使用单一的音频服务实例
+        // 性能优化：使用音频服务播放
         if (_activeAudioService != null) {
-          await _activeAudioService.playOpusAudio(data);
+          // 检查是否为静态音频服务
+          if (_activeAudioService == AudioServiceAndroidStyle) {
+            // 使用静态方法播放
+            final audioService = AudioServiceAndroidStyle();
+            await audioService.playOpusAudio(data);
+          } else {
+            // 使用实例方法播放
+            await _activeAudioService.playOpusAudio(data);
+          }
         }
       }
     } catch (error) {
@@ -834,15 +842,16 @@ final webSocketServiceProvider = StateNotifierProvider<WebSocketService, WebSock
     }
   });
   
-  // 性能优化：延迟注入单一音频服务，避免循环依赖和内存浪费
-  Future.microtask(() {
+  // 性能优化：延迟初始化音频服务，避免循环依赖和内存浪费
+  Future.microtask(() async {
     try {
-      // 只使用最稳定的Android风格音频服务
-      final audioServiceAndroidStyle = AudioServiceAndroidStyle();
-      service.setAudioService(audioServiceAndroidStyle, 'android_style');
-      print('[WebSocket] 音频服务注入成功: android_style');
+      // 初始化Android风格音频服务（静态方法）
+      await AudioServiceAndroidStyle.initPlayer();
+      // 将静态音频服务设置给WebSocket服务
+      service.setAudioService(AudioServiceAndroidStyle, 'android_style_static');
+      print('[WebSocket] 音频服务初始化成功: android_style_static');
     } catch (e) {
-      print('[WebSocket] 音频服务注入失败: $e');
+      print('[WebSocket] 音频服务初始化失败: $e');
       // 不再使用fallback，专注使用我们的原生实现
     }
   });
