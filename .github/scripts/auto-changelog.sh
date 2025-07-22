@@ -62,51 +62,74 @@ categorize_commit() {
     
     case "$commit_type" in
         feat|feature)
-            echo "🚀 新功能"
+            echo "🚀 Features"
             ;;
         fix|bug|bugfix)
-            echo "🐛 错误修复"
+            echo "🐛 Bug fixes"
             ;;
         docs|doc)
-            echo "📚 文档更新"
+            echo "📚 Documentation"
             ;;
         style|refactor)
-            echo "♻️ 代码重构"
+            echo "🌟 Enhancements"
             ;;
         perf|performance)
-            echo "⚡ 性能优化"
+            echo "🌟 Enhancements"
             ;;
         test|tests)
-            echo "🧪 测试"
+            echo "🧪 Testing"
             ;;
         build|ci|chore)
-            echo "🔧 构建和CI"
+            echo "🔧 Build & CI"
             ;;
         security|sec)
-            echo "🔒 安全修复"
+            echo "🔒 Security"
             ;;
         deps|dependencies)
-            echo "📦 依赖更新"
+            echo "📦 Dependencies"
             ;;
         remove|deprecated)
-            echo "🗑️ 移除功能"
+            echo "🗑️ Deprecations"
+            ;;
+        i18n|locale|translation)
+            echo "🌐 Translations"
             ;;
         *)
-            echo "🔄 其他更改"
+            echo "🔄 Other Changes"
             ;;
     esac
 }
 
-# 格式化提交信息
+# 格式化提交信息 - 重点突出可点击的更改链接
 format_commit() {
     local commit_hash="$1"
     local commit_msg="$2"
     local short_hash=$(echo "$commit_hash" | cut -c1-7)
     
-    # 移除类型前缀，保留主要信息
-    local clean_msg=$(echo "$commit_msg" | sed 's/^[a-z]*: *//')
+    # 提取作者信息
+    local author=$(git log -1 --pretty=format:'%an' "$commit_hash" 2>/dev/null || echo "Unknown")
+    local author_email=$(git log -1 --pretty=format:'%ae' "$commit_hash" 2>/dev/null || echo "")
     
-    echo "- ${clean_msg} ([${short_hash}](https://github.com/${GITHUB_REPOSITORY}/commit/${commit_hash}))"
+    # 生成GitHub用户名
+    local github_user=""
+    if [[ "$author_email" == *"@users.noreply.github.com" ]]; then
+        github_user=$(echo "$author_email" | sed 's/@users.noreply.github.com//' | sed 's/^[0-9]*+//')
+    else
+        github_user=$(echo "$author" | tr '[:upper:]' '[:lower:]' | sed 's/ //g')
+    fi
+    
+    # 移除类型前缀，保留主要信息
+    local clean_msg=$(echo "$commit_msg" | sed 's/^[a-z]*: *//' | sed 's/^[a-z]*(\([^)]*\)): *//')
+    
+    # 检查是否有scope（括号内容）
+    local scope=""
+    if echo "$commit_msg" | grep -q '^[a-z]*([^)]*):'; then
+        scope=$(echo "$commit_msg" | sed -n 's/^[a-z]*\(([^)]*)\):.*$/\1: /p')
+    fi
+    
+    # 重点：每个改动都可以直接点击查看具体更改
+    # 格式：description by @user → [🔍 查看代码更改 hash]
+    echo "- ${scope}${clean_msg} by [@${github_user}](https://github.com/${github_user}) → [🔍 **查看代码更改** \`${short_hash}\`](https://github.com/${GITHUB_REPOSITORY}/commit/${commit_hash})"
 }
 
 # 生成变更日志
@@ -170,23 +193,25 @@ generate_changelog() {
 
 **${VERSION_DESC} - 包含 $(echo "$commits" | wc -l | tr -d ' ') 个更改**
 
+> 💡 **点击 "查看更改" 链接可以查看每个功能的具体代码更改**
+
 ## What's Changed
 
 EOF
     
-    # 按优先级输出分类
+    # 按Immich风格的优先级输出分类
     local ordered_categories=(
-        "🚀_新功能"
-        "🐛_错误修复"
-        "⚡_性能优化"
-        "♻️_代码重构"
-        "🔒_安全修复"
-        "📚_文档更新"
-        "🧪_测试"
-        "🔧_构建和CI"
-        "📦_依赖更新"
-        "🗑️_移除功能"
-        "🔄_其他更改"
+        "🚀_Features"
+        "🌟_Enhancements"
+        "🐛_Bug_fixes"
+        "📚_Documentation"
+        "🌐_Translations"
+        "🔒_Security"
+        "🧪_Testing"
+        "🔧_Build_&_CI"
+        "📦_Dependencies"
+        "🗑️_Deprecations"
+        "🔄_Other_Changes"
     )
     
     local has_changes=false
@@ -202,11 +227,47 @@ EOF
         fi
     done
     
+    # 收集贡献者信息（参考Immich风格）
+    local contributors_file="${temp_dir}/contributors"
+    while IFS='|' read -r commit_hash commit_msg; do
+        if [ -n "$commit_hash" ] && [ -n "$commit_msg" ]; then
+            local author=$(git log -1 --pretty=format:'%an' "$commit_hash" 2>/dev/null || echo "Unknown")
+            local author_email=$(git log -1 --pretty=format:'%ae' "$commit_hash" 2>/dev/null || echo "")
+            
+            # 生成GitHub用户名
+            local github_user=""
+            if [[ "$author_email" == *"@users.noreply.github.com" ]]; then
+                github_user=$(echo "$author_email" | sed 's/@users.noreply.github.com//' | sed 's/^[0-9]*+//')
+            else
+                github_user=$(echo "$author" | tr '[:upper:]' '[:lower:]' | sed 's/ //g')
+            fi
+            
+            # 记录唯一贡献者
+            echo "$github_user|$author" >> "$contributors_file"
+        fi
+    done <<< "$commits"
+    
+    # 添加贡献者列表（如果有多个贡献者）
+    if [ -f "$contributors_file" ] && [ -s "$contributors_file" ]; then
+        local unique_contributors=$(sort "$contributors_file" | uniq | wc -l | tr -d ' ')
+        if [ "$unique_contributors" -gt 1 ]; then
+            echo "" >> "$output_file"
+            echo "## Contributors" >> "$output_file"
+            echo "" >> "$output_file"
+            
+            # 去重并排序贡献者
+            sort "$contributors_file" | uniq | while IFS='|' read -r github_user author_name; do
+                echo "- [@${github_user}](https://github.com/${github_user})" >> "$output_file"
+            done
+            echo "" >> "$output_file"
+        fi
+    fi
+    
     # 清理临时目录
     rm -rf "$temp_dir"
     
     if [ "$has_changes" = false ]; then
-        echo "### 🔄 其他更改" >> "$output_file"
+        echo "### 🔄 Other Changes" >> "$output_file"
         echo "" >> "$output_file"
         echo "- 常规更新和维护" >> "$output_file"
         echo "" >> "$output_file"
@@ -263,11 +324,26 @@ EOF
 EOF
     fi
     
+    # 添加Full Changelog链接（参考Immich风格）
+    local previous_tag=$(git describe --tags --abbrev=0 HEAD~1 2>/dev/null || echo "")
+    local current_tag="v${VERSION}"
+    
     cat >> "$output_file" << EOF
 ## 🐛 问题反馈
 
 遇到问题请在 [Issues](https://github.com/${GITHUB_REPOSITORY}/issues) 反馈。
 
+EOF
+
+    # 如果有之前的tag，添加Full Changelog链接
+    if [ -n "$previous_tag" ] && [ "$previous_tag" != "$current_tag" ]; then
+        cat >> "$output_file" << EOF
+**Full Changelog**: [${previous_tag}...${current_tag}](https://github.com/${GITHUB_REPOSITORY}/compare/${previous_tag}...${current_tag})
+
+EOF
+    fi
+    
+    cat >> "$output_file" << EOF
 ---
 *🤖 自动生成于 $(date -u +'%Y-%m-%d %H:%M:%S UTC')*
 EOF
