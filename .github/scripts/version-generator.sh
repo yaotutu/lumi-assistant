@@ -86,12 +86,17 @@ generate_build_number() {
     # 使用更短的构建号格式，避免超过Android限制（2100000000）
     # 格式：提交计数 * 1000 + 小时分钟（4位数字）
     local HOUR_MIN=$(date +'%H%M')
+    
+    # 移除前导零避免八进制解释问题
+    HOUR_MIN=$((10#${HOUR_MIN}))
+    
     BUILD_NUMBER=$((COMMIT_COUNT * 1000 + HOUR_MIN))
     
     # 确保不超过Android最大值
     if [ ${BUILD_NUMBER} -gt 2100000000 ]; then
         # 如果超过限制，使用更简单的格式：提交计数 + 日期后2位
         local DAY_HOUR=$(date +'%d%H')
+        DAY_HOUR=$((10#${DAY_HOUR}))
         BUILD_NUMBER=$((COMMIT_COUNT * 100 + DAY_HOUR % 100))
     fi
     
