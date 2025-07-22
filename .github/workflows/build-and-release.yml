@@ -55,15 +55,34 @@ jobs:
         run: flutter test
         continue-on-error: true  # 测试失败不阻断构建，因为是开发阶段
 
-  # Android APK 构建
+  # Android APK 构建 - 多架构支持
   build-android:
     name: Build Android APK
     runs-on: ubuntu-latest
     needs: code-quality
+    strategy:
+      matrix:
+        include:
+          - arch: "arm32"
+            target-platform: "android-arm"
+            abi: "armeabi-v7a"
+            suffix: "arm32"
+          - arch: "arm64"
+            target-platform: "android-arm64"
+            abi: "arm64-v8a"
+            suffix: "arm64"
+          - arch: "x64"
+            target-platform: "android-x64"
+            abi: "x86_64"
+            suffix: "x64"
+          - arch: "universal"
+            target-platform: ""
+            abi: "all"
+            suffix: "universal"
     outputs:
       version: ${{ steps.version.outputs.version }}
       build-number: ${{ steps.version.outputs.build-number }}
-      apk-path: ${{ steps.build.outputs.apk-path }}
+      apk-paths: ${{ steps.build.outputs.apk-paths }}
     
     steps:
       - name: Checkout repository
@@ -103,26 +122,48 @@ jobs:
           echo "📝 更新后的版本信息："
           grep "^version:" pubspec.yaml
 
-      - name: Build Android APK
+      - name: Build Android APK (${{ matrix.arch }})
         id: build
         run: |
-          # 构建 debug APK（开发阶段）
-          flutter build apk --debug --build-number=${{ steps.version.outputs.build-number }}
+          echo "🔨 构建 ${{ matrix.arch }} 架构的APK..."
           
-          # 重命名APK文件
-          APK_NAME="lumi-assistant-${{ steps.version.outputs.version }}-debug.apk"
-          cp build/app/outputs/flutter-apk/app-debug.apk "build/app/outputs/flutter-apk/${APK_NAME}"
+          # 根据架构选择构建命令
+          if [ "${{ matrix.arch }}" = "universal" ]; then
+            # 构建通用版本（包含所有架构）
+            echo "📦 构建通用版本APK（包含所有架构）"
+            flutter build apk --debug --build-number=${{ steps.version.outputs.build-number }}
+            
+            # 重命名通用版本APK
+            APK_NAME="lumi-assistant-${{ steps.version.outputs.version }}-${{ matrix.suffix }}-debug.apk"
+            cp build/app/outputs/flutter-apk/app-debug.apk "build/app/outputs/flutter-apk/${APK_NAME}"
+          else
+            # 构建特定架构版本
+            echo "🎯 构建 ${{ matrix.arch }} 特定架构APK（体积更小）"
+            flutter build apk --debug \
+              --target-platform=${{ matrix.target-platform }} \
+              --build-number=${{ steps.version.outputs.build-number }}
+            
+            # 重命名特定架构APK
+            APK_NAME="lumi-assistant-${{ steps.version.outputs.version }}-${{ matrix.suffix }}-debug.apk"
+            cp build/app/outputs/flutter-apk/app-debug.apk "build/app/outputs/flutter-apk/${APK_NAME}"
+          fi
           
+          # 输出APK信息
+          echo "apk-name=${APK_NAME}" >> $GITHUB_OUTPUT
           echo "apk-path=build/app/outputs/flutter-apk/${APK_NAME}" >> $GITHUB_OUTPUT
+          echo "architecture=${{ matrix.arch }}" >> $GITHUB_OUTPUT
           
-          echo "🚀 构建完成："
+          # 显示构建结果
+          echo "🚀 ${{ matrix.arch }} 架构构建完成："
           echo "APK文件: ${APK_NAME}"
+          echo "架构: ${{ matrix.abi }}"
+          echo "文件大小: $(du -h build/app/outputs/flutter-apk/${APK_NAME} | cut -f1)"
           ls -la build/app/outputs/flutter-apk/
 
-      - name: Upload APK artifact
+      - name: Upload APK artifact (${{ matrix.arch }})
         uses: actions/upload-artifact@v4
         with:
-          name: android-apk-${{ steps.version.outputs.version }}
+          name: android-apk-${{ matrix.arch }}-${{ steps.version.outputs.version }}
           path: ${{ steps.build.outputs.apk-path }}
           retention-days: 30
 
@@ -139,11 +180,12 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v4
 
-      - name: Download APK artifact
+      - name: Download all APK artifacts
         uses: actions/download-artifact@v4
         with:
-          name: android-apk-${{ needs.build-android.outputs.version }}
+          pattern: android-apk-*-${{ needs.build-android.outputs.version }}
           path: ./artifacts
+          merge-multiple: true
 
       - name: Get latest commit info
         id: commit
@@ -194,7 +236,10 @@ jobs:
           prerelease: true  # 标记为预发布版本
           make_latest: false  # 不设为最新正式版本
           files: |
-            ./artifacts/lumi-assistant-${{ needs.build-android.outputs.version }}-debug.apk
+            ./artifacts/lumi-assistant-${{ needs.build-android.outputs.version }}-arm32-debug.apk
+            ./artifacts/lumi-assistant-${{ needs.build-android.outputs.version }}-arm64-debug.apk
+            ./artifacts/lumi-assistant-${{ needs.build-android.outputs.version }}-x64-debug.apk
+            ./artifacts/lumi-assistant-${{ needs.build-android.outputs.version }}-universal-debug.apk
           token: ${{ secrets.GITHUB_TOKEN }}
 
   # 通知工作流结果
