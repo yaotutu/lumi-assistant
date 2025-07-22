@@ -1,0 +1,216 @@
+name: Build and Release Android APK
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+  workflow_dispatch:
+    inputs:
+      force_release:
+        description: 'Force create release even for PR'
+        required: false
+        default: false
+        type: boolean
+
+env:
+  FLUTTER_VERSION: '3.24.3'
+  JAVA_VERSION: '17'
+
+jobs:
+  # 代码质量检查
+  code-quality:
+    name: Code Quality Check
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup Flutter
+        uses: subosito/flutter-action@v2
+        with:
+          flutter-version: ${{ env.FLUTTER_VERSION }}
+          channel: 'stable'
+          cache: true
+
+      - name: Get dependencies
+        run: flutter pub get
+
+      - name: Analyze code
+        run: flutter analyze
+
+      - name: Run tests
+        run: flutter test
+        continue-on-error: true  # 测试失败不阻断构建，因为是开发阶段
+
+  # Android APK 构建
+  build-android:
+    name: Build Android APK
+    runs-on: ubuntu-latest
+    needs: code-quality
+    outputs:
+      version: ${{ steps.version.outputs.version }}
+      build-number: ${{ steps.version.outputs.build-number }}
+      apk-path: ${{ steps.build.outputs.apk-path }}
+    
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0  # 获取完整历史以便计算版本号
+
+      - name: Setup Java
+        uses: actions/setup-java@v4
+        with:
+          distribution: 'zulu'
+          java-version: ${{ env.JAVA_VERSION }}
+
+      - name: Setup Flutter
+        uses: subosito/flutter-action@v2
+        with:
+          flutter-version: ${{ env.FLUTTER_VERSION }}
+          channel: 'stable'
+          cache: true
+
+      - name: Get dependencies
+        run: flutter pub get
+
+      - name: Generate version number
+        id: version
+        run: |
+          # 使用版本生成脚本
+          ./.github/scripts/version-generator.sh
+          
+          echo "📋 版本信息已生成"
+
+      - name: Update version in pubspec.yaml
+        run: |
+          # 更新pubspec.yaml中的版本号
+          sed -i "s/^version: .*/version: ${{ steps.version.outputs.version }}+${{ steps.version.outputs.build-number }}/" pubspec.yaml
+          
+          echo "📝 更新后的版本信息："
+          grep "^version:" pubspec.yaml
+
+      - name: Build Android APK
+        id: build
+        run: |
+          # 构建 debug APK（开发阶段）
+          flutter build apk --debug --build-number=${{ steps.version.outputs.build-number }}
+          
+          # 重命名APK文件
+          APK_NAME="lumi-assistant-${{ steps.version.outputs.version }}-debug.apk"
+          cp build/app/outputs/flutter-apk/app-debug.apk "build/app/outputs/flutter-apk/${APK_NAME}"
+          
+          echo "apk-path=build/app/outputs/flutter-apk/${APK_NAME}" >> $GITHUB_OUTPUT
+          
+          echo "🚀 构建完成："
+          echo "APK文件: ${APK_NAME}"
+          ls -la build/app/outputs/flutter-apk/
+
+      - name: Upload APK artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: android-apk-${{ steps.version.outputs.version }}
+          path: ${{ steps.build.outputs.apk-path }}
+          retention-days: 30
+
+  # 发布Release（仅在main分支）
+  release:
+    name: Create GitHub Release
+    runs-on: ubuntu-latest
+    needs: build-android
+    if: |
+      (github.ref == 'refs/heads/main' && github.event_name == 'push') ||
+      (github.event_name == 'workflow_dispatch' && github.event.inputs.force_release == 'true')
+    
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Download APK artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: android-apk-${{ needs.build-android.outputs.version }}
+          path: ./artifacts
+
+      - name: Get latest commit info
+        id: commit
+        run: |
+          COMMIT_SHA=$(git rev-parse --short HEAD)
+          COMMIT_MSG=$(git log -1 --pretty=format:'%s')
+          COMMIT_AUTHOR=$(git log -1 --pretty=format:'%an')
+          COMMIT_DATE=$(git log -1 --pretty=format:'%ci')
+          
+          echo "sha=${COMMIT_SHA}" >> $GITHUB_OUTPUT
+          echo "message=${COMMIT_MSG}" >> $GITHUB_OUTPUT
+          echo "author=${COMMIT_AUTHOR}" >> $GITHUB_OUTPUT
+          echo "date=${COMMIT_DATE}" >> $GITHUB_OUTPUT
+
+      - name: Generate release notes
+        id: release-notes
+        env:
+          VERSION: ${{ needs.build-android.outputs.version }}
+          BUILD_NUMBER: ${{ needs.build-android.outputs.build-number }}
+          COMMIT_SHA: ${{ steps.commit.outputs.sha }}
+          COMMIT_MESSAGE: ${{ steps.commit.outputs.message }}
+          COMMIT_AUTHOR: ${{ steps.commit.outputs.author }}
+          COMMIT_DATE: ${{ steps.commit.outputs.date }}
+        run: |
+          # 使用Release生成脚本
+          ./.github/scripts/release-generator.sh
+          
+          echo "📋 Release描述已生成"
+
+      - name: Create Release
+        id: create-release
+        uses: actions/create-release@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          tag_name: v${{ needs.build-android.outputs.version }}
+          release_name: 🚀 Lumi Assistant ${{ needs.build-android.outputs.version }}
+          body_path: release_notes.md
+          draft: false
+          prerelease: true  # 标记为预发布版本
+
+      - name: Upload APK to Release
+        uses: actions/upload-release-asset@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          upload_url: ${{ steps.create-release.outputs.upload_url }}
+          asset_path: ./artifacts/lumi-assistant-${{ needs.build-android.outputs.version }}-debug.apk
+          asset_name: lumi-assistant-${{ needs.build-android.outputs.version }}-debug.apk
+          asset_content_type: application/vnd.android.package-archive
+
+  # 通知工作流结果
+  notify:
+    name: Notify Build Result
+    runs-on: ubuntu-latest
+    needs: [code-quality, build-android, release]
+    if: always()
+    
+    steps:
+      - name: Build Success Notification
+        if: needs.build-android.result == 'success'
+        run: |
+          echo "✅ 构建成功！"
+          echo "版本: ${{ needs.build-android.outputs.version }}"
+          echo "构建号: ${{ needs.build-android.outputs.build-number }}"
+          
+      - name: Build Failure Notification
+        if: needs.build-android.result == 'failure'
+        run: |
+          echo "❌ 构建失败！请检查日志。"
+          exit 1
+
+      - name: Release Success Notification
+        if: needs.release.result == 'success'
+        run: |
+          echo "🎉 Release发布成功！"
+          echo "可在GitHub Releases页面下载APK文件"
+          
+      - name: Release Skipped Notification
+        if: needs.release.result == 'skipped'
+        run: |
+          echo "ℹ️ Release被跳过（非main分支推送）"
