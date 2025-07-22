@@ -1,0 +1,32 @@
+# <type>(<scope>): <description>
+# 
+# 提交类型 (type) - 必须选择其中一个:
+# feat     新功能           → 🚀 Features
+# fix      Bug修复          → 🐛 Bug fixes  
+# perf     性能优化         → 🌟 Enhancements
+# refactor 代码重构         → 🌟 Enhancements
+# style    代码格式         → 🌟 Enhancements
+# docs     文档更新         → 📚 Documentation
+# test     测试相关         → 🧪 Testing
+# build    构建相关         → 🔧 Build & CI
+# ci       CI配置          → 🔧 Build & CI
+# chore    杂项任务         → 🔧 Build & CI
+# security 安全修复         → 🔒 Security
+# deps     依赖更新         → 📦 Dependencies
+# i18n     国际化          → 🌐 Translations
+# remove   移除功能         → 🗑️ Deprecations
+#
+# 推荐范围 (scope):
+# ui, audio, network, websocket, voice, chat, settings, animation
+# core, api, storage, security, performance
+# android, ios
+#
+# 描述 (description): 简短清晰的说明 (≤50字符)
+#
+# 详细说明 (可选):
+# - 具体更改内容
+# - 影响范围
+# - 相关链接
+
+# 🤖 Generated with [Claude Code](https://claude.ai/code)
+# Co-Authored-By: Claude <noreply@anthropic.com>
