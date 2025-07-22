@@ -150,11 +150,25 @@ generate_changelog() {
         fi
     done <<< "$commits"
     
+    # 确定当前分支和版本类型
+    CURRENT_BRANCH=$(git rev-parse --abbrev-ref HEAD 2>/dev/null || echo "unknown")
+    
+    if [ "${CURRENT_BRANCH}" = "main" ]; then
+        VERSION_TYPE="🚀 Release"
+        VERSION_DESC="正式版本"
+    elif [ "${CURRENT_BRANCH}" = "dev" ]; then
+        VERSION_TYPE="🧪 Development"
+        VERSION_DESC="开发测试版本"
+    else
+        VERSION_TYPE="🔧 Branch Build"
+        VERSION_DESC="分支构建版本"
+    fi
+    
     # 生成Release notes - 完全基于Git提交记录
     cat > "$output_file" << EOF
-# 🚀 Lumi Assistant ${VERSION}
+# ${VERSION_TYPE} ${VERSION}
 
-**此版本包含 $(echo "$commits" | wc -l | tr -d ' ') 个更改**
+**${VERSION_DESC} - 包含 $(echo "$commits" | wc -l | tr -d ' ') 个更改**
 
 ## What's Changed
 
@@ -223,10 +237,33 @@ EOF
 2. 允许安装未知来源应用
 3. 安装并运行
 
-## ⚠️ 开发版本
+EOF
 
-此为开发测试版本，可能包含未完成功能和已知问题。
+    # 根据分支添加不同的版本说明
+    if [ "${CURRENT_BRANCH}" = "main" ]; then
+        cat >> "$output_file" << EOF
+## ✅ 正式版本
 
+此为正式发布版本，经过完整测试和验证。
+
+EOF
+    elif [ "${CURRENT_BRANCH}" = "dev" ]; then
+        cat >> "$output_file" << EOF
+## ⚠️ 开发测试版本
+
+此为开发测试版本，包含最新功能但可能存在未完成功能和已知问题。
+
+EOF
+    else
+        cat >> "$output_file" << EOF
+## 🔧 分支构建版本
+
+此为特定分支的构建版本，仅用于功能测试和验证。
+
+EOF
+    fi
+    
+    cat >> "$output_file" << EOF
 ## 🐛 问题反馈
 
 遇到问题请在 [Issues](https://github.com/${GITHUB_REPOSITORY}/issues) 反馈。

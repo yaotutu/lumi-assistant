@@ -2,9 +2,9 @@ name: Build and Release Android APK
 
 on:
   push:
-    branches: [ main ]
+    branches: [ main, dev ]
   pull_request:
-    branches: [ main ]
+    branches: [ main, dev ]
   workflow_dispatch:
     inputs:
       force_release:
@@ -127,36 +127,66 @@ jobs:
         run: |
           echo "🔨 构建 ${{ matrix.arch }} 架构的APK..."
           
-          # 根据架构选择构建命令
+          # 确定构建类型和分支后缀
+          BRANCH_NAME="${{ github.ref_name }}"
+          if [ "${BRANCH_NAME}" = "main" ]; then
+            BUILD_TYPE="release"
+            BRANCH_SUFFIX=""
+            echo "📦 构建 Release 版本（main分支）"
+          elif [ "${BRANCH_NAME}" = "dev" ]; then
+            BUILD_TYPE="debug"
+            BRANCH_SUFFIX="-dev"
+            echo "🧪 构建开发测试版本（dev分支）"
+          else
+            BUILD_TYPE="debug"
+            BRANCH_SUFFIX="-${BRANCH_NAME}"
+            echo "🔧 构建分支版本（${BRANCH_NAME}分支）"
+          fi
+          
+          # 根据架构和构建类型选择构建命令
           if [ "${{ matrix.arch }}" = "universal" ]; then
             # 构建通用版本（包含所有架构）
-            echo "📦 构建通用版本APK（包含所有架构）"
-            flutter build apk --debug --build-number=${{ steps.version.outputs.build-number }}
-            
-            # 重命名通用版本APK
-            APK_NAME="lumi-assistant-${{ steps.version.outputs.version }}-${{ matrix.suffix }}-debug.apk"
-            cp build/app/outputs/flutter-apk/app-debug.apk "build/app/outputs/flutter-apk/${APK_NAME}"
+            echo "🌍 构建通用版本APK（包含所有架构）"
+            if [ "${BUILD_TYPE}" = "release" ]; then
+              flutter build apk --release --build-number=${{ steps.version.outputs.build-number }}
+              SOURCE_APK="app-release.apk"
+            else
+              flutter build apk --debug --build-number=${{ steps.version.outputs.build-number }}
+              SOURCE_APK="app-debug.apk"
+            fi
           else
             # 构建特定架构版本
             echo "🎯 构建 ${{ matrix.arch }} 特定架构APK（体积更小）"
-            flutter build apk --debug \
-              --target-platform=${{ matrix.target-platform }} \
-              --build-number=${{ steps.version.outputs.build-number }}
-            
-            # 重命名特定架构APK
-            APK_NAME="lumi-assistant-${{ steps.version.outputs.version }}-${{ matrix.suffix }}-debug.apk"
-            cp build/app/outputs/flutter-apk/app-debug.apk "build/app/outputs/flutter-apk/${APK_NAME}"
+            if [ "${BUILD_TYPE}" = "release" ]; then
+              flutter build apk --release \
+                --target-platform=${{ matrix.target-platform }} \
+                --build-number=${{ steps.version.outputs.build-number }}
+              SOURCE_APK="app-release.apk"
+            else
+              flutter build apk --debug \
+                --target-platform=${{ matrix.target-platform }} \
+                --build-number=${{ steps.version.outputs.build-number }}
+              SOURCE_APK="app-debug.apk"
+            fi
           fi
+          
+          # 生成最终APK文件名
+          APK_NAME="lumi-assistant-${{ steps.version.outputs.version }}-${{ matrix.suffix }}${BRANCH_SUFFIX}.apk"
+          cp "build/app/outputs/flutter-apk/${SOURCE_APK}" "build/app/outputs/flutter-apk/${APK_NAME}"
           
           # 输出APK信息
           echo "apk-name=${APK_NAME}" >> $GITHUB_OUTPUT
           echo "apk-path=build/app/outputs/flutter-apk/${APK_NAME}" >> $GITHUB_OUTPUT
           echo "architecture=${{ matrix.arch }}" >> $GITHUB_OUTPUT
+          echo "build-type=${BUILD_TYPE}" >> $GITHUB_OUTPUT
+          echo "branch-suffix=${BRANCH_SUFFIX}" >> $GITHUB_OUTPUT
           
           # 显示构建结果
           echo "🚀 ${{ matrix.arch }} 架构构建完成："
           echo "APK文件: ${APK_NAME}"
           echo "架构: ${{ matrix.abi }}"
+          echo "构建类型: ${BUILD_TYPE}"
+          echo "分支: ${BRANCH_NAME}${BRANCH_SUFFIX}"
           echo "文件大小: $(du -h build/app/outputs/flutter-apk/${APK_NAME} | cut -f1)"
           ls -la build/app/outputs/flutter-apk/
 
@@ -173,7 +203,7 @@ jobs:
     runs-on: ubuntu-latest
     needs: build-android
     if: |
-      (github.ref == 'refs/heads/main' && github.event_name == 'push') ||
+      ((github.ref == 'refs/heads/main' || github.ref == 'refs/heads/dev') && github.event_name == 'push') ||
       (github.event_name == 'workflow_dispatch' && github.event.inputs.force_release == 'true')
     
     steps:
@@ -225,21 +255,49 @@ jobs:
           
           echo "✅ 清理完成，准备创建新的Release"
 
+      - name: Determine release type and file names
+        id: release-info
+        run: |
+          BRANCH_NAME="${{ github.ref_name }}"
+          VERSION="${{ needs.build-android.outputs.version }}"
+          
+          if [ "${BRANCH_NAME}" = "main" ]; then
+            BRANCH_SUFFIX=""
+            PRERELEASE="false"
+            RELEASE_TYPE="🚀 Release"
+            echo "📦 创建正式Release版本"
+          elif [ "${BRANCH_NAME}" = "dev" ]; then
+            BRANCH_SUFFIX="-dev"
+            PRERELEASE="true"
+            RELEASE_TYPE="🧪 Development"
+            echo "🧪 创建开发测试版本"
+          else
+            BRANCH_SUFFIX="-${BRANCH_NAME}"
+            PRERELEASE="true"
+            RELEASE_TYPE="🔧 Branch Build"
+            echo "🔧 创建分支构建版本"
+          fi
+          
+          echo "branch-suffix=${BRANCH_SUFFIX}" >> $GITHUB_OUTPUT
+          echo "prerelease=${PRERELEASE}" >> $GITHUB_OUTPUT
+          echo "release-type=${RELEASE_TYPE}" >> $GITHUB_OUTPUT
+          echo "version=${VERSION}" >> $GITHUB_OUTPUT
+
       - name: Create Release with Auto Changelog
         id: create-release
         uses: softprops/action-gh-release@v2
         with:
-          tag_name: v${{ needs.build-android.outputs.version }}
-          name: 🚀 Lumi Assistant ${{ needs.build-android.outputs.version }}
+          tag_name: v${{ steps.release-info.outputs.version }}
+          name: ${{ steps.release-info.outputs.release-type }} ${{ steps.release-info.outputs.version }}
           body_path: release_notes.md  # 使用自动生成的变更日志
           draft: false
-          prerelease: true  # 标记为预发布版本
-          make_latest: false  # 不设为最新正式版本
+          prerelease: ${{ steps.release-info.outputs.prerelease }}
+          make_latest: ${{ github.ref_name == 'main' }}  # 只有main分支设为最新版本
           files: |
-            ./artifacts/lumi-assistant-${{ needs.build-android.outputs.version }}-arm32-debug.apk
-            ./artifacts/lumi-assistant-${{ needs.build-android.outputs.version }}-arm64-debug.apk
-            ./artifacts/lumi-assistant-${{ needs.build-android.outputs.version }}-x64-debug.apk
-            ./artifacts/lumi-assistant-${{ needs.build-android.outputs.version }}-universal-debug.apk
+            ./artifacts/lumi-assistant-${{ steps.release-info.outputs.version }}-arm32${{ steps.release-info.outputs.branch-suffix }}.apk
+            ./artifacts/lumi-assistant-${{ steps.release-info.outputs.version }}-arm64${{ steps.release-info.outputs.branch-suffix }}.apk
+            ./artifacts/lumi-assistant-${{ steps.release-info.outputs.version }}-x64${{ steps.release-info.outputs.branch-suffix }}.apk
+            ./artifacts/lumi-assistant-${{ steps.release-info.outputs.version }}-universal${{ steps.release-info.outputs.branch-suffix }}.apk
           token: ${{ secrets.GITHUB_TOKEN }}
 
   # 通知工作流结果

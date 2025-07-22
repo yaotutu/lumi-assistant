@@ -68,7 +68,11 @@ generate_version() {
     
     # 生成完整版本号
     if [ "${CURRENT_BRANCH}" = "main" ]; then
-        # main分支：使用pre前缀表示开发版本
+        # main分支：正式版本，无pre后缀
+        VERSION="${BASE_VERSION}.${PATCH_VERSION}"
+        PRERELEASE=false
+    elif [ "${CURRENT_BRANCH}" = "dev" ]; then
+        # dev分支：开发版本，使用pre后缀
         VERSION="${BASE_VERSION}.${PATCH_VERSION}-pre"
         PRERELEASE=true
     else
