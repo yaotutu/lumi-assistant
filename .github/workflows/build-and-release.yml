@@ -158,30 +158,41 @@ jobs:
           echo "author=${COMMIT_AUTHOR}" >> $GITHUB_OUTPUT
           echo "date=${COMMIT_DATE}" >> $GITHUB_OUTPUT
 
-      - name: Generate release notes
-        id: release-notes
+      - name: Generate Auto Changelog
         env:
           VERSION: ${{ needs.build-android.outputs.version }}
           BUILD_NUMBER: ${{ needs.build-android.outputs.build-number }}
-          COMMIT_SHA: ${{ steps.commit.outputs.sha }}
-          COMMIT_MESSAGE: ${{ steps.commit.outputs.message }}
-          COMMIT_AUTHOR: ${{ steps.commit.outputs.author }}
-          COMMIT_DATE: ${{ steps.commit.outputs.date }}
+          GITHUB_REPOSITORY: ${{ github.repository }}
         run: |
-          # 使用Release生成脚本
-          ./.github/scripts/release-generator.sh
+          # 使用自动化变更日志生成脚本
+          ./.github/scripts/auto-changelog.sh
           
-          echo "📋 Release描述已生成"
+          echo "📋 自动化变更日志已生成"
 
-      - name: Create Release
+      - name: Delete existing tag if exists
+        continue-on-error: true
+        run: |
+          # 删除可能存在的同名tag和release，确保创建新的
+          TAG_NAME="v${{ needs.build-android.outputs.version }}"
+          
+          # 尝试删除远程tag
+          git push --delete origin ${TAG_NAME} 2>/dev/null || echo "Tag ${TAG_NAME} 不存在或已删除"
+          
+          # 尝试删除本地tag
+          git tag -d ${TAG_NAME} 2>/dev/null || echo "本地tag ${TAG_NAME} 不存在"
+          
+          echo "✅ 清理完成，准备创建新的Release"
+
+      - name: Create Release with Auto Changelog
         id: create-release
         uses: softprops/action-gh-release@v2
         with:
           tag_name: v${{ needs.build-android.outputs.version }}
           name: 🚀 Lumi Assistant ${{ needs.build-android.outputs.version }}
-          body_path: release_notes.md
+          body_path: release_notes.md  # 使用自动生成的变更日志
           draft: false
           prerelease: true  # 标记为预发布版本
+          make_latest: false  # 不设为最新正式版本
           files: |
             ./artifacts/lumi-assistant-${{ needs.build-android.outputs.version }}-debug.apk
           token: ${{ secrets.GITHUB_TOKEN }}

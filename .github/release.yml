@@ -1,0 +1,55 @@
+# GitHub Release自动生成配置
+# 基于提交记录自动分类和生成变更日志
+
+changelog:
+  exclude:
+    labels:
+      - ignore-for-release
+    authors:
+      - octocat  # 示例：排除某些作者
+  categories:
+    - title: 🚀 新功能
+      labels:
+        - "feat"
+        - "feature"
+        - "enhancement"
+    - title: 🐛 错误修复
+      labels:
+        - "fix"
+        - "bug"
+        - "bugfix"
+    - title: 📚 文档更新
+      labels:
+        - "docs"
+        - "documentation"
+    - title: 🔧 构建和CI
+      labels:
+        - "build"
+        - "ci"
+        - "chore"
+    - title: ♻️ 代码重构
+      labels:
+        - "refactor"
+        - "style"
+    - title: ⚡ 性能优化
+      labels:
+        - "perf"
+        - "performance"
+    - title: 🧪 测试
+      labels:
+        - "test"
+        - "tests"
+    - title: 🔒 安全修复
+      labels:
+        - "security"
+    - title: 📦 依赖更新
+      labels:
+        - "deps"
+        - "dependencies"
+    - title: 🗑️ 移除功能
+      labels:
+        - "remove"
+        - "deprecated"
+    - title: 🔄 其他更改
+      labels:
+        - "*"

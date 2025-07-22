@@ -49,7 +49,8 @@
       "Bash(./.github/scripts/version-generator.sh:*)",
       "Bash(./.github/scripts/release-generator.sh:*)",
       "Bash(git push:*)",
-      "Bash(VERSION=\"0.1.64-pre\" BUILD_NUMBER=\"64123\" COMMIT_SHA=\"abc1234\" COMMIT_MESSAGE=\"feat: 添加新的音频功能\" GITHUB_REPOSITORY=\"yaotutu/lumi-assistant\" ./.github/scripts/release-generator.sh)"
+      "Bash(VERSION=\"0.1.64-pre\" BUILD_NUMBER=\"64123\" COMMIT_SHA=\"abc1234\" COMMIT_MESSAGE=\"feat: 添加新的音频功能\" GITHUB_REPOSITORY=\"yaotutu/lumi-assistant\" ./.github/scripts/release-generator.sh)",
+      "Bash(VERSION=\"0.1.66-pre\" BUILD_NUMBER=\"66123\" GITHUB_REPOSITORY=\"yaotutu/lumi-assistant\" ./.github/scripts/auto-changelog.sh)"
     ],
     "deny": []
   }
