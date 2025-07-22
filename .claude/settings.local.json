@@ -44,7 +44,10 @@
       "Bash(git stash:*)",
       "Bash(git worktree:*)",
       "Bash(timeout 10s adb:*)",
-      "Bash(git log:*)"
+      "Bash(git log:*)",
+      "Bash(chmod:*)",
+      "Bash(./.github/scripts/version-generator.sh:*)",
+      "Bash(./.github/scripts/release-generator.sh:*)"
     ],
     "deny": []
   }
