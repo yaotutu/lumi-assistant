@@ -1,16 +1,29 @@
 import 'package:flutter/material.dart';
-import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
+import 'package:hooks_riverpod/hooks_riverpod.dart';
 
-import 'widgets/background_layer.dart';
+import '../../../core/services/unified_mcp_manager.dart';
 import '../../widgets/floating_chat/floating_chat_widget.dart';
 import '../../widgets/mcp/mcp_call_status_widget.dart';
 import '../../widgets/mcp/mcp_change_notification.dart';
-import '../settings/settings_main_page.dart';
-import '../test/mcp_test_page.dart';
-import '../../../core/services/unified_mcp_manager.dart';
+import 'widgets/three_layer/three_layer_manager.dart';
+import 'widgets/three_layer/simple_background_layer.dart';
+import 'widgets/three_layer/simple_interactive_layer.dart';
 
-/// 应用主页 - 极简背景设计
+/// 应用主页 - 三层架构设计
+/// 
+/// 核心架构理念：
+/// 1. **纯背景层** - 只负责视觉展示，完全不可点击（渐变、图片、时间显示等）
+/// 2. **交互功能层** - 可点击的功能组件（设置、wifi状态、各种功能按钮等）  
+/// 3. **聊天窗口层** - 浮动聊天界面，始终在最上层
+/// 
+/// 层级关系：背景层 < 交互功能层 < 聊天窗口层
+/// 
+/// 特点：
+/// - 完全分离的三层结构，各层职责清晰
+/// - 背景层使用AbsorbPointer确保不可点击
+/// - 交互层处理所有用户交互操作
+/// - 聊天层独立浮动，不受其他层影响
 class HomePage extends HookConsumerWidget {
   const HomePage({super.key});
 
@@ -24,171 +37,74 @@ class HomePage extends HookConsumerWidget {
       });
       return null;
     }, []);
-    
+
     return Scaffold(
-      body: Stack(
-        fit: StackFit.expand,
-        children: [
-          // 统一背景
-          const BackgroundLayer(),
-          
-          // 顶部状态 - 极简
-          Positioned(
-            top: 50,
-            left: 20,
-            right: 20,
-            child: Row(
-              children: [
-                // 应用名
-                Text(
-                  'Lumi Assistant',
-                  style: TextStyle(
-                    color: Colors.white.withValues(alpha: 0.8),
-                    fontWeight: FontWeight.w500,
-                  ),
-                ),
-                const Spacer(),
-                // 设置按钮
-                IconButton(
-                  onPressed: () {
-                    Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                        builder: (context) => const SettingsMainPage(),
-                      ),
-                    );
-                  },
-                  icon: Icon(
-                    Icons.settings,
-                    color: Colors.white.withValues(alpha: 0.6),
-                    size: 20,
-                  ),
-                ),
-                const SizedBox(width: 8),
-                // MCP测试按钮
-                IconButton(
-                  onPressed: () {
-                    Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                        builder: (context) => const McpTestPage(),
-                      ),
-                    );
-                  },
-                  icon: Icon(
-                    Icons.build_circle,
-                    color: Colors.white.withValues(alpha: 0.6),
-                    size: 20,
-                  ),
-                ),
-                const SizedBox(width: 8),
-                // 连接状态
-                Icon(
-                  Icons.wifi,
-                  color: Colors.white.withValues(alpha: 0.6),
-                  size: 20,
-                ),
-              ],
-            ),
-          ),
-          
-          // 时间 - 直接显示在背景上
-          Positioned(
-            bottom: 160,
-            left: 0,
-            right: 0,
-            child: StreamBuilder<DateTime>(
-              stream: Stream.periodic(const Duration(seconds: 1), (_) => DateTime.now()),
-              initialData: DateTime.now(),
-              builder: (context, snapshot) {
-                final now = snapshot.data ?? DateTime.now();
-                return Column(
-                  children: [
-                    Text(
-                      '${now.hour.toString().padLeft(2, '0')}:${now.minute.toString().padLeft(2, '0')}',
-                      style: TextStyle(
-                        color: Colors.white.withValues(alpha: 0.9),
-                        fontSize: 56,
-                        fontWeight: FontWeight.w100,
-                        letterSpacing: 4.0,
-                      ),
-                    ),
-                    const SizedBox(height: 8),
-                    Text(
-                      _formatDate(now),
-                      style: TextStyle(
-                        color: Colors.white.withValues(alpha: 0.6),
-                        fontSize: 16,
-                        fontWeight: FontWeight.w300,
-                      ),
-                    ),
-                  ],
-                );
-              },
-            ),
-          ),
-          
-          
-          
-          // // 统一测试按钮
-          // Positioned(
-          //   bottom: 80,
-          //   left: 80,
-          //   child: FloatingActionButton.small(
-          //     heroTag: "test_unified",
-          //     onPressed: () => _testUnifiedCharacter(context),
-          //     backgroundColor: Colors.green.withValues(alpha: 0.8),
-          //     foregroundColor: Colors.white,
-          //     child: const Icon(Icons.widgets, size: 16),
-          //   ),
-          // ),
-          
-          // // 简化测试按钮
-          // Positioned(
-          //   bottom: 80,
-          //   left: 136,
-          //   child: FloatingActionButton.small(
-          //     heroTag: "test_simple",
-          //     onPressed: () => _testSimpleCharacter(context),
-          //     backgroundColor: Colors.purple.withValues(alpha: 0.8),
-          //     foregroundColor: Colors.white,
-          //     child: const Icon(Icons.phone_android, size: 16),
-          //   ),
-          // ),
-          
-          // // 直接渲染器测试按钮
-          // Positioned(
-          //   bottom: 80,
-          //   left: 192,
-          //   child: FloatingActionButton.small(
-          //     heroTag: "test_direct",
-          //     onPressed: () => _testDirectRenderer(context),
-          //     backgroundColor: Colors.red.withValues(alpha: 0.8),
-          //     foregroundColor: Colors.white,
-          //     child: const Icon(Icons.build, size: 16),
-          //   ),
-          // ),
-          
-          // 悬浮聊天组件 - 写死配置
-          const FloatingChatWidget(
-            initialState: FloatingChatState.collapsed,
-          ),
-          
-          // MCP调用状态显示（悬浮在底部）
-          const McpCallStatusOverlay(),
-        ],
-      ),
+      body: _buildThreeLayerArchitecture(context, ref),
     );
   }
   
-  /// 格式化日期
-  String _formatDate(DateTime time) {
-    const weekdays = ['周日', '周一', '周二', '周三', '周四', '周五', '周六'];
-    const months = ['1月', '2月', '3月', '4月', '5月', '6月', '7月', '8月', '9月', '10月', '11月', '12月'];
-    return '${time.year}年${months[time.month - 1]}${time.day}日 ${weekdays[time.weekday % 7]}';
+  /// 构建三层架构
+  /// 
+  /// 使用ThreeLayerBuilder来构建清晰分离的三层结构
+  Widget _buildThreeLayerArchitecture(BuildContext context, WidgetRef ref) {
+    return ThreeLayerBuilder()
+        // 第一层：纯背景层 - 只负责视觉展示，完全不可点击
+        .setBackgroundLayer(
+          _buildPureBackground(context),
+        )
+        
+        // 第二层：交互功能层 - 只包含顶部设置区域
+        .setInteractiveLayer(
+          const SimpleInteractiveLayer(),
+        )
+        
+        // 第三层：聊天窗口层 - 浮动聊天界面
+        .setChatLayer(
+          _buildChatLayer(context, ref),
+        )
+        
+        // 启用调试模式（开发环境可以设置为true）
+        .enableDebug(false) // 生产环境设置为false
+        
+        // 构建最终的三层架构管理器
+        .build();
+  }
+  
+  /// 构建纯背景层
+  /// 
+  /// 只包含渐变背景和时间显示
+  Widget _buildPureBackground(BuildContext context) {
+    return const SimpleBackgroundLayer();
+  }
+  
+  /// 构建聊天窗口层
+  /// 
+  /// 只包含聊天窗口和必要的系统组件
+  Widget _buildChatLayer(BuildContext context, WidgetRef ref) {
+    return Stack(
+      fit: StackFit.expand,
+      children: [
+        // 悬浮聊天窗口 - 主要功能
+        const FloatingChatWidget(
+          initialState: FloatingChatState.collapsed,
+        ),
+        
+        // MCP调用状态显示 - 系统必要组件
+        const McpCallStatusOverlay(),
+      ],
+    );
   }
 
-
-
-  // 测试方法已移除，清理主页面界面
+  // 三层架构实现完成
+  // 
+  // 架构总结：
+  // 1. 纯背景层 - 渐变背景 + 时间显示 + 装饰效果（完全不可点击）
+  // 2. 交互功能层 - 状态栏 + 各种功能按钮（可点击交互）
+  // 3. 聊天窗口层 - 聊天界面 + 系统组件（独立浮动）
+  // 
+  // 优势：
+  // - 职责清晰分离，易于维护
+  // - 背景纯展示，交互层专门处理用户操作
+  // - 聊天窗口独立，不受其他层影响
+  // - 支持灵活的功能扩展
 }
