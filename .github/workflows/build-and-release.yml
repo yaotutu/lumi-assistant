@@ -13,6 +13,18 @@ on:
         default: false
         type: boolean
 
+# 添加必要的权限以创建Release
+permissions:
+  contents: write
+  actions: read
+  checks: write
+  issues: read
+  packages: write
+  pull-requests: write
+  repository-projects: read
+  security-events: write
+  statuses: write
+
 env:
   FLUTTER_VERSION: '3.29.3'
   JAVA_VERSION: '17'
@@ -163,25 +175,16 @@ jobs:
 
       - name: Create Release
         id: create-release
-        uses: actions/create-release@v1
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        uses: softprops/action-gh-release@v2
         with:
           tag_name: v${{ needs.build-android.outputs.version }}
-          release_name: 🚀 Lumi Assistant ${{ needs.build-android.outputs.version }}
+          name: 🚀 Lumi Assistant ${{ needs.build-android.outputs.version }}
           body_path: release_notes.md
           draft: false
           prerelease: true  # 标记为预发布版本
-
-      - name: Upload APK to Release
-        uses: actions/upload-release-asset@v1
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        with:
-          upload_url: ${{ steps.create-release.outputs.upload_url }}
-          asset_path: ./artifacts/lumi-assistant-${{ needs.build-android.outputs.version }}-debug.apk
-          asset_name: lumi-assistant-${{ needs.build-android.outputs.version }}-debug.apk
-          asset_content_type: application/vnd.android.package-archive
+          files: |
+            ./artifacts/lumi-assistant-${{ needs.build-android.outputs.version }}-debug.apk
+          token: ${{ secrets.GITHUB_TOKEN }}
 
   # 通知工作流结果
   notify:

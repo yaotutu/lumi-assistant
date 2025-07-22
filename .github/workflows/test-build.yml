@@ -13,6 +13,11 @@ on:
           - build-only
           - full-build
 
+# 添加必要的权限
+permissions:
+  contents: read
+  actions: read
+
 env:
   FLUTTER_VERSION: '3.29.3'
   JAVA_VERSION: '17'
