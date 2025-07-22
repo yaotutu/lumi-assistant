@@ -2,6 +2,7 @@ import 'dart:io';
 import 'dart:async';
 
 import 'exceptions.dart';
+import '../utils/loggers.dart';
 
 /// 统一错误处理器
 /// 
@@ -201,17 +202,12 @@ class ErrorHandler {
       errorInfo.addAll(error.fullErrorInfo);
     }
 
-    // 在调试模式下打印详细信息
-    print('=== Error Log ===');
-    print('Time: $timestamp');
-    print('Error: $error');
-    if (stackTrace != null) {
-      print('StackTrace: $stackTrace');
-    }
+    // 使用统一日志系统记录错误
+    Loggers.error.severe('错误日志: $error', error, stackTrace);
+    
     if (context != null) {
-      print('Context: $context');
+      Loggers.error.fine('错误上下文: $context');
     }
-    print('=================');
 
     // TODO: 实现日志记录逻辑，可以集成crashlytics等
     // 可以集成以下服务：
@@ -247,11 +243,8 @@ class ErrorHandler {
         final shouldRetry = retryIf?.call(error) ?? appException.canRetry;
         
         if (attempt >= maxAttempts || !shouldRetry) {
-          logError(error, StackTrace.current, context: {
-            'maxAttempts': maxAttempts,
-            'attempt': attempt,
-            'retryable': shouldRetry,
-          });
+          Loggers.error.severe('重试操作失败', error, StackTrace.current);
+          Loggers.error.fine('重试上下文: maxAttempts=$maxAttempts, attempt=$attempt, retryable=$shouldRetry');
           rethrow;
         }
         
@@ -277,10 +270,8 @@ class ErrorHandler {
         details: {'timeout': timeout.inMilliseconds},
       );
       
-      logError(timeoutError, StackTrace.current, context: {
-        'originalTimeout': e.duration?.inMilliseconds,
-        'timeoutMessage': timeoutMessage,
-      });
+      Loggers.error.severe('操作超时', timeoutError, StackTrace.current);
+      Loggers.error.fine('超时上下文: originalTimeout=${e.duration?.inMilliseconds}, timeoutMessage=$timeoutMessage');
       
       throw timeoutError;
     }
@@ -297,7 +288,10 @@ class ErrorHandler {
       return await operation();
     } catch (error, stackTrace) {
       if (logErrors) {
-        logError(error, stackTrace, context: context);
+        Loggers.error.warning('安全执行操作异常', error, stackTrace);
+        if (context != null) {
+          Loggers.error.fine('安全执行上下文: $context');
+        }
       }
       return defaultValue;
     }

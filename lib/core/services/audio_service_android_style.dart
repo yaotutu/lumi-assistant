@@ -1,6 +1,7 @@
 import 'dart:typed_data';
 import 'package:opus_dart/opus_dart.dart';
 import 'native_audio_player.dart';
+import '../utils/loggers.dart';
 
 /// 音频服务 - Android原生实现 (简化版本)
 /// 
@@ -54,7 +55,7 @@ class AudioServiceAndroidStyle {
       _isPlayerInitialized = true;
       
     } catch (e) {
-      print('[AudioServiceAndroidStyle] PCM播放器初始化失败: $e');
+      Loggers.audio.severe('PCM播放器初始化失败', e);
       _pcmPlayer = null;
       _isPlayerInitialized = false;
       rethrow;
@@ -86,7 +87,7 @@ class AudioServiceAndroidStyle {
       await _pcmPlayer!.feed(pcmBytes);
       
     } catch (e) {
-      print('[AudioServiceAndroidStyle] 播放失败: $e');
+      Loggers.audio.severe('播放失败', e);
       rethrow;
     }
   }
@@ -95,11 +96,11 @@ class AudioServiceAndroidStyle {
   Future<void> stop() async {
     try {
       if (_pcmPlayer != null) {
-        print('[AudioServiceAndroidStyle] 停止PCM播放器');
+        Loggers.audio.info('停止PCM播放器');
         await _pcmPlayer!.stop();
       }
     } catch (e) {
-      print('[AudioServiceAndroidStyle] 停止播放失败: $e');
+      Loggers.audio.severe('停止播放失败', e);
     }
   }
 
@@ -107,13 +108,13 @@ class AudioServiceAndroidStyle {
   Future<void> dispose() async {
     try {
       if (_pcmPlayer != null) {
-        print('[AudioServiceAndroidStyle] 释放PCM播放器资源');
+        Loggers.audio.info('释放PCM播放器资源');
         await _pcmPlayer!.stop();
         _pcmPlayer = null;
         _isPlayerInitialized = false;
       }
     } catch (e) {
-      print('[AudioServiceAndroidStyle] 释放资源失败: $e');
+      Loggers.audio.severe('释放资源失败', e);
     }
   }
 

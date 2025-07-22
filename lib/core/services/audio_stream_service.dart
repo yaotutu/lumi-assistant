@@ -6,6 +6,7 @@ import '../constants/audio_constants.dart';
 import '../../data/models/exceptions.dart';
 import 'permission_service.dart';
 import 'websocket_service.dart';
+import '../utils/loggers.dart';
 
 /// 音频流传输服务
 /// 负责实时音频流的录制、编码和传输
@@ -52,12 +53,12 @@ class AudioStreamService {
   /// 初始化音频流服务
   Future<void> initialize() async {
     if (_isInitialized) {
-      print('[$tag] 音频流服务已初始化，跳过');
+      Loggers.audio.fine('音频流服务已初始化，跳过');
       return;
     }
 
     try {
-      print('[$tag] 初始化音频流服务');
+      Loggers.audio.info('初始化音频流服务');
       
       // 检查权限
       await _checkPermissions();
@@ -76,9 +77,9 @@ class AudioStreamService {
       _isInitialized = true;
       _currentState = AudioConstants.stateIdle;
       
-      print('[$tag] 音频流服务初始化完成');
+      Loggers.audio.info('音频流服务初始化完成');
     } catch (e) {
-      print('[$tag] 音频流服务初始化失败: $e');
+      Loggers.audio.severe('音频流服务初始化失败', e);
       rethrow;
     }
   }
@@ -91,7 +92,7 @@ class AudioStreamService {
       
       // 如果麦克风权限未授权，则请求权限
       if (!(permissions['microphone'] ?? false)) {
-        print('[$tag] 麦克风权限未授权，尝试请求权限');
+        Loggers.audio.info('麦克风权限未授权，尝试请求权限');
         final granted = await _permissionService.requestMicrophonePermission();
         if (!granted) {
           throw AppException.system(
@@ -103,9 +104,9 @@ class AudioStreamService {
         }
       }
       
-      print('[$tag] 音频权限检查通过');
+      Loggers.audio.info('音频权限检查通过');
     } catch (e) {
-      print('[$tag] 音频权限检查失败: $e');
+      Loggers.audio.severe('音频权限检查失败', e);
       rethrow;
     }
   }
@@ -119,10 +120,10 @@ class AudioStreamService {
         application: Application.voip,
       );
       
-      print('[$tag] Opus编码器初始化完成');
-      print('[$tag] 编码器配置: ${AudioConstants.opusConfig}');
+      Loggers.audio.info('Opus编码器初始化完成');
+      Loggers.audio.fine('编码器配置: ${AudioConstants.opusConfig}');
     } catch (e) {
-      print('[$tag] Opus编码器初始化失败: $e');
+      Loggers.audio.severe('Opus编码器初始化失败', e);
       throw AppException.system(
         message: 'Opus编码器初始化失败',
         code: AudioConstants.errorCodeEncodingFailed.toString(),
@@ -144,8 +145,8 @@ class AudioStreamService {
       noiseSuppress: true,
     );
     
-    print('[$tag] 音频流录制配置设置完成');
-    print('[$tag] 配置详情: 采样率=${AudioConstants.sampleRate}Hz, 声道=${AudioConstants.channels}, 帧大小=$_frameSize');
+    Loggers.audio.info('音频流录制配置设置完成');
+    Loggers.audio.fine('配置详情: 采样率=${AudioConstants.sampleRate}Hz, 声道=${AudioConstants.channels}, 帧大小=$_frameSize');
   }
 
   /// 初始化流控制器
@@ -153,7 +154,7 @@ class AudioStreamService {
     _audioStreamController?.close();
     _audioStreamController = StreamController<Uint8List>.broadcast();
     
-    print('[$tag] 音频流控制器初始化完成');
+    Loggers.audio.info('音频流控制器初始化完成');
   }
 
   /// 开始音频流传输
@@ -163,12 +164,12 @@ class AudioStreamService {
     }
     
     if (_isStreaming) {
-      print('[$tag] 音频流传输已在进行中，忽略重复请求');
+      Loggers.audio.fine('音频流传输已在进行中，忽略重复请求');
       return;
     }
 
     try {
-      print('[$tag] 开始音频流传输');
+      Loggers.audio.info('开始音频流传输');
       _currentState = AudioConstants.stateRecording;
       _notifyStateChanged(_currentState);
       
@@ -185,7 +186,7 @@ class AudioStreamService {
       await _startRecordingStream();
       
       _isStreaming = true;
-      print('[$tag] 音频流传输开始成功');
+      Loggers.audio.info('音频流传输开始成功');
       
       // 启动统计更新
       _startStatsUpdate();
@@ -193,7 +194,7 @@ class AudioStreamService {
     } catch (e) {
       _currentState = AudioConstants.stateError;
       _notifyStateChanged(_currentState);
-      print('[$tag] 开始音频流传输失败: $e');
+      Loggers.audio.severe('开始音频流传输失败', e);
       _notifyError('开始音频流传输失败: $e');
       rethrow;
     }
@@ -202,12 +203,12 @@ class AudioStreamService {
   /// 停止音频流传输
   Future<void> stopStreaming() async {
     if (!_isStreaming) {
-      print('[$tag] 音频流传输未在进行中，忽略停止请求');
+      Loggers.audio.fine('音频流传输未在进行中，忽略停止请求');
       return;
     }
 
     try {
-      print('[$tag] 停止音频流传输');
+      Loggers.audio.info('停止音频流传输');
       
       // 发送Listen停止消息
       await _sendListenControlMessage('stop');
@@ -224,13 +225,13 @@ class AudioStreamService {
           ? DateTime.now().difference(_streamingStartTime!).inMilliseconds 
           : 0;
       
-      print('[$tag] 音频流传输停止成功');
-      print('[$tag] 传输统计: 时长=${duration}ms, 流帧数=$_streamedFrames, 编码帧数=$_encodedFrames');
+      Loggers.audio.info('音频流传输停止成功');
+      Loggers.audio.info('传输统计: 时长=${duration}ms, 流帧数=$_streamedFrames, 编码帧数=$_encodedFrames');
       
     } catch (e) {
       _currentState = AudioConstants.stateError;
       _notifyStateChanged(_currentState);
-      print('[$tag] 停止音频流传输失败: $e');
+      Loggers.audio.severe('停止音频流传输失败', e);
       _notifyError('停止音频流传输失败: $e');
       rethrow;
     }
@@ -252,9 +253,9 @@ class AudioStreamService {
       };
       
       await _webSocketService.sendMessage(message);
-      print('[$tag] 发送Listen控制消息: $state');
+      Loggers.audio.fine('发送Listen控制消息: $state');
     } catch (e) {
-      print('[$tag] 发送Listen控制消息失败: $e');
+      Loggers.audio.severe('发送Listen控制消息失败', e);
       rethrow;
     }
   }
@@ -280,17 +281,17 @@ class AudioStreamService {
       _audioStreamSubscription = stream.listen(
         _processAudioData,
         onError: (error) {
-          print('[$tag] 音频流数据错误: $error');
+          Loggers.audio.severe('音频流数据错误', error);
           _notifyError('音频流数据错误: $error');
         },
         onDone: () {
-          print('[$tag] 音频流数据结束');
+          Loggers.audio.fine('音频流数据结束');
         },
       );
       
-      print('[$tag] 录制流开始成功');
+      Loggers.audio.info('录制流开始成功');
     } catch (e) {
-      print('[$tag] 开始录制流失败: $e');
+      Loggers.audio.severe('开始录制流失败', e);
       rethrow;
     }
   }
@@ -302,9 +303,9 @@ class AudioStreamService {
       await _recorder.stop();
       _audioStreamSubscription = null;
       
-      print('[$tag] 录制流停止成功');
+      Loggers.audio.info('录制流停止成功');
     } catch (e) {
-      print('[$tag] 停止录制流失败: $e');
+      Loggers.audio.severe('停止录制流失败', e);
       rethrow;
     }
   }
@@ -326,7 +327,7 @@ class AudioStreamService {
         _encodeAndSendFrame(Uint8List.fromList(frameData));
       }
     } catch (e) {
-      print('[$tag] 处理音频数据失败: $e');
+      Loggers.audio.severe('处理音频数据失败', e);
       _notifyError('处理音频数据失败: $e');
     }
   }
@@ -335,7 +336,7 @@ class AudioStreamService {
   void _encodeAndSendFrame(Uint8List frameData) {
     try {
       if (_opusEncoder == null) {
-        print('[$tag] Opus编码器未初始化');
+        Loggers.audio.warning('Opus编码器未初始化');
         return;
       }
       
@@ -356,7 +357,7 @@ class AudioStreamService {
       _audioStreamController?.add(encodedData);
       
     } catch (e) {
-      print('[$tag] 编码并发送音频帧失败: $e');
+      Loggers.audio.severe('编码并发送音频帧失败', e);
       _notifyError('编码并发送音频帧失败: $e');
     }
   }
@@ -456,9 +457,9 @@ class AudioStreamService {
       _isInitialized = false;
       _isStreaming = false;
       
-      print('[$tag] 音频流服务资源释放完成');
+      Loggers.audio.info('音频流服务资源释放完成');
     } catch (e) {
-      print('[$tag] 音频流服务资源释放失败: $e');
+      Loggers.audio.severe('音频流服务资源释放失败', e);
     }
   }
 }

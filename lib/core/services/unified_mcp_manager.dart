@@ -10,6 +10,7 @@ import 'package:mcp_server/mcp_server.dart';
 import 'embedded_mcp_server.dart';
 import 'mcp_config.dart';
 import 'mcp_error_handler.dart';
+import '../utils/loggers.dart';
 
 /// 统一的 MCP 管理器
 /// 
@@ -40,12 +41,12 @@ class UnifiedMcpManager {
   /// 加载所有配置并初始化
   Future<void> initialize() async {
     if (_isInitialized) {
-      print('[UnifiedMCP] 管理器已经初始化，跳过');
+      Loggers.mcp.info('管理器已经初始化，跳过');
       return;
     }
 
     try {
-      print('[UnifiedMCP] 开始初始化统一MCP管理器...');
+      Loggers.mcp.info('开始初始化统一MCP管理器...');
       
       // 1. 加载配置文件
       await _loadConfigurations();
@@ -54,9 +55,9 @@ class UnifiedMcpManager {
       await _embeddedServer.initialize();
       
       _isInitialized = true;
-      print('[UnifiedMCP] 统一MCP管理器初始化完成，共加载 ${_configs.length} 个服务器配置');
+      Loggers.mcp.info('统一MCP管理器初始化完成，共加载 ${_configs.length} 个服务器配置');
     } catch (e) {
-      print('[UnifiedMCP] 初始化失败: $e');
+      Loggers.mcp.severe('初始化失败', e);
       rethrow;
     }
   }
@@ -69,7 +70,7 @@ class UnifiedMcpManager {
     // 2. 加载用户配置并覆盖默认配置
     await _loadUserConfig();
     
-    print('[UnifiedMCP] 配置加载完成，共 ${_configs.length} 个服务器');
+    Loggers.mcp.info('配置加载完成，共 ${_configs.length} 个服务器');
   }
 
   /// 加载内置配置
@@ -93,9 +94,9 @@ class UnifiedMcpManager {
       };
       
       _parseConfig(builtinConfig);
-      print('[UnifiedMCP] 内置配置加载完成');
+      Loggers.mcp.info('内置配置加载完成');
     } catch (e) {
-      print('[UnifiedMCP] 加载内置配置失败: $e');
+      Loggers.mcp.severe('加载内置配置失败', e);
     }
   }
 
@@ -109,12 +110,12 @@ class UnifiedMcpManager {
         final content = await configFile.readAsString();
         final json = jsonDecode(content);
         _parseConfig(json, isUserConfig: true);
-        print('[UnifiedMCP] 用户配置加载完成: $userConfigPath');
+        Loggers.mcp.info('用户配置加载完成: $userConfigPath');
       } else {
-        print('[UnifiedMCP] 用户配置文件不存在: $userConfigPath');
+        Loggers.mcp.info('用户配置文件不存在: $userConfigPath');
       }
     } catch (e) {
-      print('[UnifiedMCP] 加载用户配置失败: $e');
+      Loggers.mcp.severe('加载用户配置失败', e);
     }
   }
 
@@ -131,10 +132,10 @@ class UnifiedMcpManager {
         final existing = _configs[id]!;
         final merged = _mergeConfigs(existing.toJson(), configData);
         _configs[id] = McpServerConfig.fromJson(id, merged);
-        print('[UnifiedMCP] 用户配置覆盖: $id');
+        Loggers.mcp.info('用户配置覆盖: $id');
       } else {
         _configs[id] = McpServerConfig.fromJson(id, configData);
-        print('[UnifiedMCP] 添加服务器配置: $id (${configData['type']})');
+        Loggers.mcp.info('添加服务器配置: $id (${configData['type']})');
       }
     }
   }
@@ -152,7 +153,7 @@ class UnifiedMcpManager {
   Future<void> startAutoStartServers() async {
     if (!_isInitialized) await initialize();
     
-    print('[UnifiedMCP] 启动自动启动服务器...');
+    Loggers.mcp.info('启动自动启动服务器...');
     
     // 按优先级排序，优先启动内置服务器
     final autoStartConfigs = _configs.values
@@ -164,7 +165,7 @@ class UnifiedMcpManager {
       await startServer(config.id);
     }
     
-    print('[UnifiedMCP] 自动启动完成');
+    Loggers.mcp.info('自动启动完成');
   }
 
   /// 启动指定服务器
@@ -173,19 +174,19 @@ class UnifiedMcpManager {
     
     final config = _configs[serverId];
     if (config == null) {
-      print('[UnifiedMCP] 服务器配置未找到: $serverId');
+      Loggers.mcp.warning('服务器配置未找到: $serverId');
       return false;
     }
 
     if (!config.enabled) {
-      print('[UnifiedMCP] 服务器已禁用: $serverId');
+      Loggers.mcp.info('服务器已禁用: $serverId');
       return false;
     }
 
     // 检查是否已经在运行
     final status = getServerStatus(serverId);
     if (status == McpServerStatus.running) {
-      print('[UnifiedMCP] 服务器已在运行: $serverId');
+      Loggers.mcp.info('服务器已在运行: $serverId');
       return true;
     }
 
@@ -193,7 +194,7 @@ class UnifiedMcpManager {
       switch (config.type) {
         case McpServerType.embedded:
           // 嵌入式服务器已在初始化时启动
-          print('[UnifiedMCP] 内置服务器 $serverId 已就绪');
+          Loggers.mcp.info('内置服务器 $serverId 已就绪');
           return true;
           
         case McpServerType.external:
@@ -205,14 +206,14 @@ class UnifiedMcpManager {
           return success;
       }
     } catch (e) {
-      print('[UnifiedMCP] 启动服务器失败 $serverId: $e');
+      Loggers.mcp.severe('启动服务器失败 $serverId', e);
       return false;
     }
   }
 
   /// 启动外部服务器
   Future<bool> _startExternalServer(String serverId, McpServerConfig config) async {
-    print('[UnifiedMCP] 启动外部服务器: $serverId, 传输模式: ${config.transport.name}');
+    Loggers.mcp.info('启动外部服务器: $serverId, 传输模式: ${config.transport.name}');
     
     // 根据传输模式决定启动方式
     switch (config.transport) {
@@ -228,7 +229,7 @@ class UnifiedMcpManager {
 
   /// 启动本地进程（Stdio模式）
   Future<bool> _startLocalProcess(String serverId, McpServerConfig config) async {
-    print('[UnifiedMCP] 启动本地进程: $serverId');
+    Loggers.mcp.info('启动本地进程: $serverId');
     
     // 创建并启动进程
     final process = McpServerProcess(config);
@@ -249,13 +250,13 @@ class UnifiedMcpManager {
 
   /// 连接到外部服务器（直连模式）
   Future<bool> _connectToExternalServer(String serverId, McpServerConfig config) async {
-    print('[UnifiedMCP] 连接到外部服务器: $serverId');
+    Loggers.mcp.info('连接到外部服务器: $serverId');
     
     try {
       await _createExternalClient(serverId, config);
       return true;
     } catch (e) {
-      print('[UnifiedMCP] 连接外部服务器失败 $serverId: $e');
+      Loggers.mcp.severe('连接外部服务器失败 $serverId', e);
       return false;
     }
   }
@@ -263,7 +264,7 @@ class UnifiedMcpManager {
   /// 创建外部客户端连接
   Future<void> _createExternalClient(String serverId, McpServerConfig config) async {
     try {
-      print('[UnifiedMCP] 创建外部客户端连接: $serverId, 传输模式: ${config.transport.name}');
+      Loggers.mcp.info('创建外部客户端连接: $serverId, 传输模式: ${config.transport.name}');
       
       McpClient client;
       
@@ -291,12 +292,12 @@ class UnifiedMcpManager {
       
       await client.connect();
       _externalClients[serverId] = client;
-      print('[UnifiedMCP] 外部客户端连接成功: $serverId (${config.transport.name})');
+      Loggers.mcp.info('外部客户端连接成功: $serverId (${config.transport.name})');
       
       // 给服务器一点时间完成初始化
       await Future.delayed(Duration(milliseconds: 500));
     } catch (e) {
-      print('[UnifiedMCP] 连接外部服务器失败 $serverId: $e');
+      Loggers.mcp.severe('连接外部服务器失败 $serverId', e);
     }
   }
 
@@ -307,11 +308,11 @@ class UnifiedMcpManager {
   Future<Map<String, dynamic>> callTool(String toolName, Map<String, dynamic> arguments) async {
     if (!_isInitialized) await initialize();
     
-    print('[UnifiedMCP] ===== 开始工具调用 =====');
-    print('[UnifiedMCP] 时间戳: ${DateTime.now().toIso8601String()}');
-    print('[UnifiedMCP] 工具名称: $toolName');
-    print('[UnifiedMCP] 工具参数: $arguments');
-    print('[UnifiedMCP] 参数类型: ${arguments.runtimeType}');
+    Loggers.mcp.fine('===== 开始工具调用 =====');
+    Loggers.mcp.fine('时间戳: ${DateTime.now().toIso8601String()}');
+    Loggers.mcp.fine('工具名称: $toolName');
+    Loggers.mcp.fine('工具参数: $arguments');
+    Loggers.mcp.fine('参数类型: ${arguments.runtimeType}');
     
     // 查找提供该工具的服务器，按优先级排序
     final availableServers = <MapEntry<String, McpServerConfig>>[];
@@ -338,7 +339,7 @@ class UnifiedMcpManager {
       final config = entry.value;
       
       try {
-        print('[UnifiedMCP] 尝试在服务器 $serverId (${config.type.name}) 上调用工具: $toolName');
+        Loggers.mcp.fine('尝试在服务器 $serverId (${config.type.name}) 上调用工具: $toolName');
         
         switch (config.type) {
           case McpServerType.embedded:
@@ -348,15 +349,15 @@ class UnifiedMcpManager {
                   .timeout(
                     Duration(seconds: 15),
                     onTimeout: () {
-                      print('[UnifiedMCP] 内置服务器调用超时: $toolName (15秒)');
+                      Loggers.mcp.warning('内置服务器调用超时: $toolName (15秒)');
                       throw TimeoutException('内置MCP服务器调用超时', Duration(seconds: 15));
                     },
                   );
               final converted = _convertCallToolResult(result);
-              print('[UnifiedMCP] 内置服务器调用成功: $toolName');
+              Loggers.mcp.info('内置服务器调用成功: $toolName');
               return converted;
             } on TimeoutException catch (e) {
-              print('[UnifiedMCP] 内置服务器超时: $e');
+              Loggers.mcp.warning('内置服务器超时', e);
               
               // 使用统一的错误处理器生成用户友好的通知
               final notification = McpErrorHandler.generateUserNotification(
@@ -365,7 +366,7 @@ class UnifiedMcpManager {
                 serverName: '内置设备服务',
               );
               
-              print('[UnifiedMCP] 用户通知: ${notification['title']} - ${notification['message']}');
+              Loggers.mcp.info('用户通知: ${notification['title']} - ${notification['message']}');
               
               _userNotificationCallback?.call(
                 notification['title']!,
@@ -384,14 +385,14 @@ class UnifiedMcpManager {
                     .timeout(
                       Duration(seconds: 25),
                       onTimeout: () {
-                        print('[UnifiedMCP] 外部服务器调用超时: $serverId/$toolName (25秒)');
+                        Loggers.mcp.warning('外部服务器调用超时: $serverId/$toolName (25秒)');
                         throw TimeoutException('外部MCP服务器调用超时', Duration(seconds: 25));
                       },
                     );
-                print('[UnifiedMCP] 外部服务器调用成功: $toolName');
+                Loggers.mcp.info('外部服务器调用成功: $toolName');
                 return result;
               } on TimeoutException catch (e) {
-                print('[UnifiedMCP] 外部服务器超时: $e');
+                Loggers.mcp.warning('外部服务器超时', e);
                 
                 // 使用统一的错误处理器生成用户友好的通知
                 final notification = McpErrorHandler.generateUserNotification(
@@ -400,7 +401,7 @@ class UnifiedMcpManager {
                   serverName: config.name,
                 );
                 
-                print('[UnifiedMCP] 用户通知: ${notification['title']} - ${notification['message']}');
+                Loggers.mcp.info('用户通知: ${notification['title']} - ${notification['message']}');
                 
                 _userNotificationCallback?.call(
                   notification['title']!,
@@ -410,16 +411,16 @@ class UnifiedMcpManager {
                 throw Exception('外部MCP服务器调用超时(25秒): $serverId/$toolName');
               }
             } else {
-              print('[UnifiedMCP] 外部服务器未连接: $serverId');
+              Loggers.mcp.warning('外部服务器未连接: $serverId');
               continue;
             }
         }
       } catch (e) {
-        print('[UnifiedMCP] 服务器 $serverId 调用失败: $e');
+        Loggers.mcp.warning('服务器 $serverId 调用失败', e);
         
         // 对于超时错误，提供更好的用户提示
         if (e.toString().contains('超时') || e.toString().contains('timeout')) {
-          print('[UnifiedMCP] 检测到超时错误，将提供用户友好提示');
+          Loggers.mcp.info('检测到超时错误，将提供用户友好提示');
           lastError = Exception(McpErrorHandler.generateUserFriendlyMessage(
             error: e,
             operation: 'tool_call',
@@ -440,9 +441,9 @@ class UnifiedMcpManager {
     final finalError = lastError ?? Exception('所有服务器调用都失败了: $toolName');
     
     // 记录最终失败的原因
-    print('[UnifiedMCP] 所有可用服务器都失败，工具: $toolName');
-    print('[UnifiedMCP] 可用服务器数量: ${availableServers.length}');
-    print('[UnifiedMCP] 最后一个错误: $finalError');
+    Loggers.mcp.severe('所有可用服务器都失败，工具: $toolName');
+    Loggers.mcp.severe('可用服务器数量: ${availableServers.length}');
+    Loggers.mcp.severe('最后一个错误', finalError);
     
     // 使用统一的错误处理器生成最终错误通知
     final finalNotification = McpErrorHandler.generateUserNotification(
@@ -465,16 +466,16 @@ class UnifiedMcpManager {
     
     final allTools = <UnifiedMcpTool>[];
     
-    print('[UnifiedMCP] 开始获取所有可用工具，配置的服务器数量: ${_configs.length}');
+    Loggers.mcp.fine('开始获取所有可用工具，配置的服务器数量: ${_configs.length}');
     
     for (final entry in _configs.entries) {
       final serverId = entry.key;
       final config = entry.value;
       
-      print('[UnifiedMCP] 检查服务器: $serverId, 启用状态: ${config.enabled}, 类型: ${config.type.name}');
+      Loggers.mcp.fine('检查服务器: $serverId, 启用状态: ${config.enabled}, 类型: ${config.type.name}');
       
       if (!config.enabled) {
-        print('[UnifiedMCP] 跳过已禁用的服务器: $serverId');
+        Loggers.mcp.fine('跳过已禁用的服务器: $serverId');
         continue;
       }
       
@@ -483,22 +484,22 @@ class UnifiedMcpManager {
         
         switch (config.type) {
           case McpServerType.embedded:
-            print('[UnifiedMCP] 获取内置服务器工具: $serverId');
+            Loggers.mcp.fine('获取内置服务器工具: $serverId');
             tools = await _embeddedServer.listTools();
-            print('[UnifiedMCP] 内置服务器 $serverId 返回工具数量: ${tools.length}');
+            Loggers.mcp.fine('内置服务器 $serverId 返回工具数量: ${tools.length}');
             break;
             
           case McpServerType.external:
             final client = _externalClients[serverId];
-            print('[UnifiedMCP] 检查外部服务器客户端: $serverId');
-            print('[UnifiedMCP] - 客户端存在: ${client != null}');
-            print('[UnifiedMCP] - 客户端已连接: ${client?.isConnected ?? false}');
+            Loggers.mcp.fine('检查外部服务器客户端: $serverId');
+            Loggers.mcp.fine('- 客户端存在: ${client != null}');
+            Loggers.mcp.fine('- 客户端已连接: ${client?.isConnected ?? false}');
             
             if (client != null && client.isConnected) {
-              print('[UnifiedMCP] 获取外部服务器工具列表: $serverId');
+              Loggers.mcp.fine('获取外部服务器工具列表: $serverId');
               final toolsData = await client.listTools();
-              print('[UnifiedMCP] 外部服务器 $serverId 返回工具数量: ${toolsData.length}');
-              print('[UnifiedMCP] 外部服务器 $serverId 返回的原始工具数据: $toolsData');
+              Loggers.mcp.fine('外部服务器 $serverId 返回工具数量: ${toolsData.length}');
+              Loggers.mcp.fine('外部服务器 $serverId 返回的原始工具数据: $toolsData');
               
               // 正确转换工具数据
               tools = toolsData.map<Tool>((toolData) {
@@ -515,11 +516,11 @@ class UnifiedMcpManager {
                 }
               }).toList();
               
-              print('[UnifiedMCP] 外部服务器 $serverId 转换后工具: ${tools.map((t) => t.name).toList()}');
+              Loggers.mcp.fine('外部服务器 $serverId 转换后工具: ${tools.map((t) => t.name).toList()}');
             } else {
-              print('[UnifiedMCP] 外部服务器未连接，跳过工具列表: $serverId');
-              print('[UnifiedMCP] - 客户端存在: ${client != null}');
-              print('[UnifiedMCP] - 客户端已连接: ${client?.isConnected ?? false}');
+              Loggers.mcp.warning('外部服务器未连接，跳过工具列表: $serverId');
+              Loggers.mcp.fine('- 客户端存在: ${client != null}');
+              Loggers.mcp.fine('- 客户端已连接: ${client?.isConnected ?? false}');
               continue;
             }
             break;
@@ -537,20 +538,20 @@ class UnifiedMcpManager {
           ));
         }
       } catch (e) {
-        print('[UnifiedMCP] 获取工具列表失败 $serverId: $e');
+        Loggers.mcp.severe('获取工具列表失败 $serverId', e);
       }
     }
     
     // 按优先级排序
     allTools.sort((a, b) => b.priority.compareTo(a.priority));
     
-    print('[UnifiedMCP] ===== 工具收集完成 =====');
-    print('[UnifiedMCP] 总共获取到 ${allTools.length} 个可用工具:');
+    Loggers.mcp.info('===== 工具收集完成 =====');
+    Loggers.mcp.info('总共获取到 ${allTools.length} 个可用工具:');
     for (int i = 0; i < allTools.length; i++) {
       final tool = allTools[i];
-      print('[UnifiedMCP]   ${i + 1}. ${tool.name} (来自: ${tool.serverId}, 类型: ${tool.serverType.name})');
+      Loggers.mcp.info('  ${i + 1}. ${tool.name} (来自: ${tool.serverId}, 类型: ${tool.serverType.name})');
     }
-    print('[UnifiedMCP] ===========================');
+    Loggers.mcp.info('===========================');
     
     return allTools;
   }
@@ -581,7 +582,7 @@ class UnifiedMcpManager {
             if (client != null && client.isConnected) {
               resources = await client.listResources();
             } else {
-              print('[UnifiedMCP] 外部服务器未连接，跳过资源列表: $serverId');
+              Loggers.mcp.warning('外部服务器未连接，跳过资源列表: $serverId');
               continue;
             }
             break;
@@ -600,11 +601,11 @@ class UnifiedMcpManager {
           }
         }
       } catch (e) {
-        print('[UnifiedMCP] 获取资源列表失败 $serverId: $e');
+        Loggers.mcp.severe('获取资源列表失败 $serverId', e);
       }
     }
     
-    print('[UnifiedMCP] 获取到 ${allResources.length} 个可用资源');
+    Loggers.mcp.info('获取到 ${allResources.length} 个可用资源');
     return allResources;
   }
   
@@ -635,7 +636,7 @@ class UnifiedMcpManager {
           }
       }
     } catch (e) {
-      print('[UnifiedMCP] 读取资源失败 $serverId:$uri: $e');
+      Loggers.mcp.severe('读取资源失败 $serverId:$uri', e);
       rethrow;
     }
   }
@@ -700,7 +701,7 @@ class UnifiedMcpManager {
     
     switch (config.type) {
       case McpServerType.embedded:
-        print('[UnifiedMCP] 内置服务器不能停止: $serverId');
+        Loggers.mcp.info('内置服务器不能停止: $serverId');
         break;
         
       case McpServerType.external:
@@ -710,7 +711,7 @@ class UnifiedMcpManager {
         final process = _externalProcesses.remove(serverId);
         await process?.stop();
         
-        print('[UnifiedMCP] 外部服务器已停止: $serverId');
+        Loggers.mcp.info('外部服务器已停止: $serverId');
         
         // 🔥 关键：外部服务器停止后也要重新生成会话
         await _triggerSessionRegeneration('外部MCP服务器停止', config.name);
@@ -728,14 +729,14 @@ class UnifiedMcpManager {
   /// 添加服务器配置
   void addServerConfig(String id, McpServerConfig config) {
     _configs[id] = config;
-    print('[UnifiedMCP] 添加服务器配置: $id');
+    Loggers.mcp.info('添加服务器配置: $id');
   }
 
   /// 移除服务器配置
   Future<void> removeServerConfig(String id) async {
     await stopServer(id);
     _configs.remove(id);
-    print('[UnifiedMCP] 移除服务器配置: $id');
+    Loggers.mcp.info('移除服务器配置: $id');
   }
 
   /// 更新服务器配置
@@ -746,7 +747,7 @@ class UnifiedMcpManager {
     // 如果服务器正在运行且配置有关键变化，需要重启
     if (oldConfig != null && getServerStatus(id) == McpServerStatus.running) {
       if (_isSignificantChange(oldConfig, newConfig)) {
-        print('[UnifiedMCP] 配置有重大变化，重启服务器: $id');
+        Loggers.mcp.info('配置有重大变化，重启服务器: $id');
         await restartServer(id);
       }
     }
@@ -772,7 +773,7 @@ class UnifiedMcpManager {
   
   /// 触发会话重新生成
   Future<void> _triggerSessionRegeneration(String reason, String serverName) async {
-    print('[UnifiedMCP] 触发会话重新生成: $reason ($serverName)');
+    Loggers.mcp.info('触发会话重新生成: $reason ($serverName)');
     
     // 显示用户通知
     _userNotificationCallback?.call(
@@ -783,9 +784,9 @@ class UnifiedMcpManager {
     // 执行会话重新生成
     try {
       await _sessionRegenerateCallback?.call();
-      print('[UnifiedMCP] 会话重新生成完成');
+      Loggers.mcp.info('会话重新生成完成');
     } catch (e) {
-      print('[UnifiedMCP] 会话重新生成失败: $e');
+      Loggers.mcp.severe('会话重新生成失败', e);
     }
   }
 
@@ -809,9 +810,9 @@ class UnifiedMcpManager {
       await configFile.writeAsString(
         const JsonEncoder.withIndent('  ').convert(userConfig)
       );
-      print('[UnifiedMCP] 用户配置已保存: $configPath');
+      Loggers.mcp.info('用户配置已保存: $configPath');
     } catch (e) {
-      print('[UnifiedMCP] 保存用户配置失败: $e');
+      Loggers.mcp.severe('保存用户配置失败', e);
     }
   }
 
@@ -871,7 +872,7 @@ class UnifiedMcpManager {
 
   /// 清理资源
   Future<void> dispose() async {
-    print('[UnifiedMCP] 开始清理资源...');
+    Loggers.mcp.info('开始清理资源...');
     
     // 断开所有外部客户端
     for (final client in _externalClients.values) {
@@ -891,7 +892,7 @@ class UnifiedMcpManager {
     _configs.clear();
     _isInitialized = false;
     
-    print('[UnifiedMCP] 资源清理完成');
+    Loggers.mcp.info('资源清理完成');
   }
 }
 

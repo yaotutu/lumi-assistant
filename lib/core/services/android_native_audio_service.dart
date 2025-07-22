@@ -3,6 +3,7 @@ import 'package:opus_dart/opus_dart.dart';
 import 'package:opus_flutter/opus_flutter.dart' as opus_flutter;
 import 'audio_playback_service.dart';
 import 'native_audio_player.dart';
+import '../utils/loggers.dart';
 
 /// Android平台原生音频播放服务
 /// 
@@ -47,12 +48,12 @@ class AndroidNativeAudioService implements AudioPlaybackService {
     int bitDepth = 16,
   }) async {
     if (_isInitialized) {
-      print('[$_tag] 服务已初始化，跳过');
+      Loggers.audio.fine('服务已初始化，跳过');
       return;
     }
     
     try {
-      print('[$_tag] 开始初始化Android原生音频服务');
+      Loggers.audio.info('开始初始化Android原生音频服务');
       
       // 1. 初始化Opus库（如果尚未初始化）
       await _initializeOpus();
@@ -62,7 +63,7 @@ class AndroidNativeAudioService implements AudioPlaybackService {
         sampleRate: sampleRate,
         channels: channels,
       );
-      print('[$_tag] Opus解码器创建成功');
+      Loggers.audio.fine('Opus解码器创建成功');
       
       // 3. 创建原生播放器
       _nativePlayer = NativeAudioPlayer();
@@ -71,15 +72,15 @@ class AndroidNativeAudioService implements AudioPlaybackService {
         sampleRate: sampleRate,
         pcmType: PCMType.pcm16,
       );
-      print('[$_tag] 原生播放器初始化成功');
+      Loggers.audio.info('原生播放器初始化成功');
       
       _isInitialized = true;
       _currentState = AudioPlaybackState.initialized;
       
-      print('[$_tag] Android原生音频服务初始化完成');
+      Loggers.audio.info('Android原生音频服务初始化完成');
       
     } catch (e) {
-      print('[$_tag] 初始化失败: $e');
+      Loggers.audio.severe('初始化失败', e);
       _currentState = AudioPlaybackState.error;
       _cleanup();
       rethrow;
@@ -92,7 +93,7 @@ class AndroidNativeAudioService implements AudioPlaybackService {
       // 检查是否已经初始化过
       try {
         getOpusVersion();
-        print('[$_tag] Opus库已初始化');
+        Loggers.audio.fine('Opus库已初始化');
         return;
       } catch (e) {
         // 未初始化，继续初始化流程
@@ -100,10 +101,10 @@ class AndroidNativeAudioService implements AudioPlaybackService {
       
       // 初始化Opus库
       initOpus(await opus_flutter.load());
-      print('[$_tag] Opus库初始化成功: ${getOpusVersion()}');
+      Loggers.audio.info('Opus库初始化成功: ${getOpusVersion()}');
       
     } catch (e) {
-      print('[$_tag] Opus库初始化失败: $e');
+      Loggers.audio.severe('Opus库初始化失败', e);
       throw Exception('Opus库初始化失败: $e');
     }
   }
@@ -121,10 +122,10 @@ class AndroidNativeAudioService implements AudioPlaybackService {
       _currentState = AudioPlaybackState.playing;
       _lastPlayTime = DateTime.now();
       
-      print('[$_tag] 播放已启动');
+      Loggers.audio.info('播放已启动');
       
     } catch (e) {
-      print('[$_tag] 启动播放失败: $e');
+      Loggers.audio.severe('启动播放失败', e);
       _currentState = AudioPlaybackState.error;
       rethrow;
     }
@@ -167,8 +168,11 @@ class AndroidNativeAudioService implements AudioPlaybackService {
       _bytesProcessed += opusData.length;
       _lastPlayTime = DateTime.now();
       
+      // 记录音频数据处理信息
+      Loggers.audio.fine('Opus音频数据处理: 输入${opusData.length}字节, 输出${pcmData.length * 2}字节PCM, 帧数$_framesPlayed');
+      
     } catch (e) {
-      print('[$_tag] 播放Opus音频失败: $e');
+      Loggers.audio.severe('播放Opus音频失败', e);
       _currentState = AudioPlaybackState.error;
       rethrow;
     }
@@ -196,8 +200,11 @@ class AndroidNativeAudioService implements AudioPlaybackService {
       _bytesProcessed += pcmData.length;
       _lastPlayTime = DateTime.now();
       
+      // 记录音频数据处理信息
+      Loggers.audio.fine('PCM音频数据处理: ${pcmData.length}字节, 帧数$_framesPlayed');
+      
     } catch (e) {
-      print('[$_tag] 播放PCM音频失败: $e');
+      Loggers.audio.severe('播放PCM音频失败', e);
       _currentState = AudioPlaybackState.error;
       rethrow;
     }
@@ -215,10 +222,10 @@ class AndroidNativeAudioService implements AudioPlaybackService {
       await _nativePlayer!.pause();
       _currentState = AudioPlaybackState.paused;
       
-      print('[$_tag] 播放已暂停');
+      Loggers.audio.info('播放已暂停');
       
     } catch (e) {
-      print('[$_tag] 暂停播放失败: $e');
+      Loggers.audio.severe('暂停播放失败', e);
       _currentState = AudioPlaybackState.error;
       rethrow;
     }
@@ -236,10 +243,10 @@ class AndroidNativeAudioService implements AudioPlaybackService {
       await _nativePlayer!.resume();
       _currentState = AudioPlaybackState.playing;
       
-      print('[$_tag] 播放已恢复');
+      Loggers.audio.info('播放已恢复');
       
     } catch (e) {
-      print('[$_tag] 恢复播放失败: $e');
+      Loggers.audio.severe('恢复播放失败', e);
       _currentState = AudioPlaybackState.error;
       rethrow;
     }
@@ -257,10 +264,10 @@ class AndroidNativeAudioService implements AudioPlaybackService {
       await _nativePlayer!.stop();
       _currentState = AudioPlaybackState.stopped;
       
-      print('[$_tag] 播放已停止');
+      Loggers.audio.info('播放已停止');
       
     } catch (e) {
-      print('[$_tag] 停止播放失败: $e');
+      Loggers.audio.severe('停止播放失败', e);
       _currentState = AudioPlaybackState.error;
       rethrow;
     }
@@ -277,24 +284,24 @@ class AndroidNativeAudioService implements AudioPlaybackService {
       
       await _nativePlayer!.setVolume(volume);
       
-      print('[$_tag] 音量已设置: $volume');
+      Loggers.audio.info('音量已设置: $volume');
       
     } catch (e) {
-      print('[$_tag] 设置音量失败: $e');
+      Loggers.audio.severe('设置音量失败', e);
       rethrow;
     }
   }
   
   @override
   Future<void> dispose() async {
-    print('[$_tag] 开始释放资源');
+    Loggers.audio.info('开始释放资源');
     
     await _cleanup();
     
     _isInitialized = false;
     _currentState = AudioPlaybackState.uninitialized;
     
-    print('[$_tag] 资源释放完成');
+    Loggers.audio.info('资源释放完成');
   }
   
   /// 清理资源
@@ -306,7 +313,7 @@ class AndroidNativeAudioService implements AudioPlaybackService {
           await _nativePlayer!.stop();
           await _nativePlayer!.release();
         } catch (e) {
-          print('[$_tag] 清理播放器失败: $e');
+          Loggers.audio.severe('清理播放器失败', e);
         }
         _nativePlayer = null;
       }
@@ -320,7 +327,7 @@ class AndroidNativeAudioService implements AudioPlaybackService {
       _lastPlayTime = null;
       
     } catch (e) {
-      print('[$_tag] 资源清理失败: $e');
+      Loggers.audio.severe('资源清理失败', e);
     }
   }
   

@@ -3,6 +3,7 @@ import '../../core/services/audio_stream_service.dart';
 import '../../core/services/websocket_service.dart';
 import '../../core/constants/audio_constants.dart';
 import '../../data/models/exceptions.dart';
+import '../../core/utils/loggers.dart';
 
 /// 音频流状态
 class AudioStreamState {
@@ -132,7 +133,7 @@ class AudioStreamNotifier extends StateNotifier<AudioStreamState> {
       // 暂时跳过，权限检查在实际使用时进行
       state = state.copyWith(hasPermission: true);
     } catch (e) {
-      print('[$tag] 检查权限失败: $e');
+      Loggers.audio.severe('检查权限失败', e);
       state = AudioStreamState.error('检查权限失败');
     }
   }
@@ -146,10 +147,10 @@ class AudioStreamNotifier extends StateNotifier<AudioStreamState> {
       await _streamService.initialize();
       
       state = const AudioStreamState.ready();
-      print('[$tag] 音频流服务初始化成功');
+      Loggers.audio.info('音频流服务初始化成功');
       return true;
     } catch (e) {
-      print('[$tag] 初始化音频流服务失败: $e');
+      Loggers.audio.severe('初始化音频流服务失败', e);
       final errorMessage = e is AppException 
           ? e.userFriendlyMessage 
           : '音频流服务初始化失败';
@@ -170,7 +171,7 @@ class AudioStreamNotifier extends StateNotifier<AudioStreamState> {
       
       // 如果已经在流传输，更新UI状态
       if (_streamService.isStreaming) {
-        print('[$tag] 音频流传输已在进行中，更新UI状态');
+        Loggers.audio.info('音频流传输已在进行中，更新UI状态');
         final stats = _streamService.currentStats;
         state = AudioStreamState.streaming(stats);
         return true;
@@ -181,7 +182,7 @@ class AudioStreamNotifier extends StateNotifier<AudioStreamState> {
       
       return true;
     } catch (e) {
-      print('[$tag] 开始音频流传输失败: $e');
+      Loggers.audio.severe('开始音频流传输失败', e);
       final errorMessage = e is AppException 
           ? e.userFriendlyMessage 
           : '开始音频流传输失败';
@@ -194,7 +195,7 @@ class AudioStreamNotifier extends StateNotifier<AudioStreamState> {
   Future<bool> stopStreaming() async {
     try {
       if (!state.isStreaming) {
-        print('[$tag] 音频流传输未在进行中，无需停止');
+        Loggers.audio.fine('音频流传输未在进行中，无需停止');
         return true;
       }
       
@@ -202,11 +203,11 @@ class AudioStreamNotifier extends StateNotifier<AudioStreamState> {
       await _streamService.stopStreaming();
       
       state = const AudioStreamState.ready();
-      print('[$tag] 音频流传输停止成功');
+      Loggers.audio.info('音频流传输停止成功');
       
       return true;
     } catch (e) {
-      print('[$tag] 停止音频流传输失败: $e');
+      Loggers.audio.severe('停止音频流传输失败', e);
       final errorMessage = e is AppException 
           ? e.userFriendlyMessage 
           : '停止音频流传输失败';
@@ -217,7 +218,7 @@ class AudioStreamNotifier extends StateNotifier<AudioStreamState> {
 
   /// 处理状态变化
   void _handleStateChanged(String newState) {
-    print('[$tag] 音频流状态变化: $newState');
+    Loggers.audio.info('音频流状态变化: $newState');
     
     // 根据服务状态更新UI状态
     switch (newState) {
@@ -247,7 +248,7 @@ class AudioStreamNotifier extends StateNotifier<AudioStreamState> {
 
   /// 处理错误
   void _handleError(String error) {
-    print('[$tag] 音频流错误: $error');
+    Loggers.audio.severe('音频流错误: $error');
     state = AudioStreamState.error(error);
   }
 

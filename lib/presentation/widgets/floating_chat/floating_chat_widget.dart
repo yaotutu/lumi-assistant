@@ -18,6 +18,7 @@ import '../../../core/utils/screen_utils.dart';
 import '../../../core/config/app_settings.dart';
 import 'voice_input_button.dart';
 import '../virtual_character/models/character_enums.dart';
+import '../../../core/utils/loggers.dart';
 
 /// 悬浮聊天状态
 enum FloatingChatState {
@@ -79,7 +80,7 @@ class FloatingChatWidget extends HookConsumerWidget {
         final latestMessage = next.messages.last;
         if (latestMessage.isUser && 
             (latestMessage.metadata?['isVoiceInput'] ?? false)) {
-          print('[FloatingChatWidget] 检测到STT响应，重置语音输入状态');
+          Loggers.ui.info('检测到STT响应，重置语音输入状态');
           voiceInputState.value = VoiceInputState.idle;
           final characterNotifier = ref.read(virtualCharacterProvider.notifier);
           characterNotifier.updateStatus(CharacterStatus.idle);
@@ -121,7 +122,7 @@ class FloatingChatWidget extends HookConsumerWidget {
     final startRecording = useCallback(() async {
       if (voiceInputState.value == VoiceInputState.idle) {
         try {
-          print('[FloatingChatWidget] 开始录音 - 调用AudioStreamService');
+          Loggers.ui.userAction('悬浮窗口开始录音');
           
           // 获取音频流服务
           final audioStreamState = ref.read(audioStreamProvider);
@@ -129,7 +130,7 @@ class FloatingChatWidget extends HookConsumerWidget {
           
           // 如果服务未初始化，先初始化（应用启动时应该已经初始化了）
           if (!audioStreamState.isInitialized) {
-            print('[FloatingChatWidget] 初始化AudioStreamService');
+            Loggers.ui.fine('初始化AudioStreamService');
             await audioStreamNotifier.initializeStreaming();
           }
           
@@ -139,10 +140,10 @@ class FloatingChatWidget extends HookConsumerWidget {
           voiceInputState.value = VoiceInputState.recording;
           final characterNotifier = ref.read(virtualCharacterProvider.notifier);
           characterNotifier.updateStatus(CharacterStatus.listening);
-          print('[FloatingChatWidget] 录音启动成功');
+          Loggers.ui.info('录音启动成功');
           
         } catch (e) {
-          print('[FloatingChatWidget] 录音启动异常: $e');
+          Loggers.ui.severe('录音启动异常', e);
           // 可以在这里添加错误处理
         }
       }
@@ -151,7 +152,7 @@ class FloatingChatWidget extends HookConsumerWidget {
     final stopRecording = useCallback(() async {
       if (voiceInputState.value == VoiceInputState.recording) {
         try {
-          print('[FloatingChatWidget] 停止录音 - 调用AudioStreamService');
+          Loggers.ui.userAction('悬浮窗口停止录音');
           
           voiceInputState.value = VoiceInputState.processing;
           final characterNotifier = ref.read(virtualCharacterProvider.notifier);
@@ -161,7 +162,7 @@ class FloatingChatWidget extends HookConsumerWidget {
           final audioStreamNotifier = ref.read(audioStreamProvider.notifier);
           await audioStreamNotifier.stopStreaming();
           
-          print('[FloatingChatWidget] 录音停止成功，音频流已发送');
+          Loggers.ui.info('录音停止成功，音频流已发送');
           
           // AudioStreamService会自动处理音频数据的发送，无需手动发送
           // 保持processing状态，等待服务器STT响应
@@ -170,14 +171,14 @@ class FloatingChatWidget extends HookConsumerWidget {
           // 设置超时保护，如果5秒内没有STT响应则重置状态
           Future.delayed(const Duration(seconds: 5), () {
             if (voiceInputState.value == VoiceInputState.processing) {
-              print('[FloatingChatWidget] STT处理超时，重置状态');
+              Loggers.ui.info('STT处理超时，重置状态');
               voiceInputState.value = VoiceInputState.idle;
               characterNotifier.updateStatus(CharacterStatus.idle);
             }
           });
           
         } catch (e) {
-          print('[FloatingChatWidget] 录音停止异常: $e');
+          Loggers.ui.severe('录音停止异常', e);
           voiceInputState.value = VoiceInputState.idle;
           final characterNotifier = ref.read(virtualCharacterProvider.notifier);
           characterNotifier.updateStatus(CharacterStatus.idle);
@@ -210,7 +211,7 @@ class FloatingChatWidget extends HookConsumerWidget {
                 child: GestureDetector(
                   onTap: () {
                     // 点击外部区域关闭窗口
-                    print('[FloatingChatWidget] 点击外部区域，关闭悬浮聊天窗口');
+                    Loggers.ui.userAction('点击外部区域，关闭悬浮聊天窗口');
                     toggleChatState();
                   },
                   child: Container(
@@ -484,7 +485,7 @@ class FloatingChatWidget extends HookConsumerWidget {
   ) {
     final characterState = ref.watch(virtualCharacterProvider);
     
-    print('[FloatingChatWidget] 构建虚拟人物区域 - 表情: ${characterState.emotion}, 状态: ${characterState.status}, 语音状态: ${voiceInputState.name}');
+    Loggers.ui.fine('构建虚拟人物区域 - 表情: ${characterState.emotion}, 状态: ${characterState.status}, 语音状态: ${voiceInputState.name}');
     
     // 根据语音输入状态调整显示效果
     final isRecording = voiceInputState == VoiceInputState.recording;
@@ -508,17 +509,17 @@ class FloatingChatWidget extends HookConsumerWidget {
           onTap: onTap,
           // 长按开始：开始录音
           onLongPressStart: (_) {
-            print('[FloatingChatWidget] 长按开始，开始录音');
+            Loggers.ui.userAction('长按开始，开始录音');
             onStartRecording();
           },
           // 长按结束：停止录音
           onLongPressEnd: (_) {
-            print('[FloatingChatWidget] 长按结束，停止录音');
+            Loggers.ui.userAction('长按结束，停止录音');
             onStopRecording();
           },
           // 长按取消：也要停止录音
           onLongPressCancel: () {
-            print('[FloatingChatWidget] 长按取消，停止录音');
+            Loggers.ui.userAction('长按取消，停止录音');
             onStopRecording();
           },
           child: SizedBox(
@@ -645,7 +646,7 @@ class FloatingChatWidget extends HookConsumerWidget {
     try {
       return EmotionMapper.getEmoji(emotion);
     } catch (e) {
-      print('[FloatingChatWidget] 获取表情emoji失败: $e, 使用默认表情');
+      Loggers.ui.severe('获取表情emoji失败，使用默认表情', e);
       return '🙂';
     }
   }

@@ -6,6 +6,7 @@ import '../providers/connection_provider.dart';
 import '../../core/constants/audio_constants.dart';
 import '../../data/models/websocket_state.dart';
 import '../../core/services/voice_interrupt_service.dart';
+import '../../core/utils/loggers.dart';
 
 /// 语音输入组件
 /// 提供按住说话和录制状态可视化功能
@@ -171,7 +172,7 @@ class VoiceInputWidget extends HookConsumerWidget {
     ValueNotifier<bool> isPressed,
     ValueNotifier<DateTime?> pressStartTime,
   ) async {
-    print('[VoiceInput] 按下开始');
+    Loggers.ui.userAction('语音输入按下开始');
     
     isPressed.value = true;
     pressStartTime.value = DateTime.now();
@@ -180,7 +181,7 @@ class VoiceInputWidget extends HookConsumerWidget {
     if (!streamState.isInitialized) {
       final success = await streamNotifier.initializeStreaming();
       if (!success) {
-        print('[VoiceInput] 初始化失败');
+        Loggers.ui.severe('语音输入初始化失败');
         if (context.mounted) {
           _showError(context, '语音功能初始化失败');
         }
@@ -193,18 +194,18 @@ class VoiceInputWidget extends HookConsumerWidget {
     // 🎯 核心功能：语音录制前自动打断正在播放的AI语音
     // 用户开始说话时，立即停止AI正在播放的语音
     try {
-      print('[VoiceInput] 语音录制前执行自动语音打断');
+      Loggers.ui.info('语音录制前执行自动语音打断');
       final voiceInterruptService = ref.read(voiceInterruptServiceProvider);
       await voiceInterruptService.autoInterruptBeforeSend();
     } catch (e) {
-      print('[VoiceInput] 语音录制前的打断失败: $e');
+      Loggers.ui.severe('语音录制前的打断失败', e);
       // 继续录制流程，不因为打断失败而阻止用户录制
     }
 
     // 开始录制
     final success = await streamNotifier.startStreaming();
     if (!success) {
-      print('[VoiceInput] 开始录制失败');
+      Loggers.ui.severe('开始录制失败');
       if (context.mounted) {
         _showError(context, '开始录制失败');
       }
@@ -213,7 +214,7 @@ class VoiceInputWidget extends HookConsumerWidget {
       return;
     }
 
-    print('[VoiceInput] 录制开始成功');
+    Loggers.ui.info('录制开始成功');
     onVoiceStart?.call();
     
     // 触觉反馈
@@ -228,7 +229,7 @@ class VoiceInputWidget extends HookConsumerWidget {
     ValueNotifier<bool> isPressed,
     ValueNotifier<DateTime?> pressStartTime,
   ) async {
-    print('[VoiceInput] 按下结束');
+    Loggers.ui.userAction('语音输入按下结束');
     
     if (!isPressed.value) return;
     
@@ -240,7 +241,7 @@ class VoiceInputWidget extends HookConsumerWidget {
     if (startTime != null) {
       final duration = DateTime.now().difference(startTime);
       if (duration.inMilliseconds < 500) {
-        print('[VoiceInput] 录制时间过短，取消录制');
+        Loggers.ui.info('录制时间过短，取消录制');
         await streamNotifier.stopStreaming();
         
         // 🎯 通知语音打断服务录制已取消（时间过短）
@@ -248,7 +249,7 @@ class VoiceInputWidget extends HookConsumerWidget {
           final voiceInterruptService = ref.read(voiceInterruptServiceProvider);
           await voiceInterruptService.cancelRecording(reason: 'duration_too_short');
         } catch (e) {
-          print('[VoiceInput] 通知语音打断服务失败: $e');
+          Loggers.ui.severe('通知语音打断服务失败', e);
         }
         
         if (context.mounted) {
@@ -262,14 +263,14 @@ class VoiceInputWidget extends HookConsumerWidget {
     // 停止录制
     final success = await streamNotifier.stopStreaming();
     if (!success) {
-      print('[VoiceInput] 停止录制失败');
+      Loggers.ui.severe('停止录制失败');
       if (context.mounted) {
         _showError(context, '停止录制失败');
       }
       return;
     }
 
-    print('[VoiceInput] 录制结束成功');
+    Loggers.ui.info('录制结束成功');
     onVoiceEnd?.call();
   }
 
@@ -281,7 +282,7 @@ class VoiceInputWidget extends HookConsumerWidget {
     ValueNotifier<bool> isPressed,
     ValueNotifier<DateTime?> pressStartTime,
   ) async {
-    print('[VoiceInput] 按下取消');
+    Loggers.ui.userAction('语音输入按下取消');
     
     if (!isPressed.value) return;
     
@@ -296,10 +297,10 @@ class VoiceInputWidget extends HookConsumerWidget {
       final voiceInterruptService = ref.read(voiceInterruptServiceProvider);
       await voiceInterruptService.cancelRecording(reason: 'user_cancel');
     } catch (e) {
-      print('[VoiceInput] 通知语音打断服务失败: $e');
+      Loggers.ui.severe('通知语音打断服务失败', e);
     }
     
-    print('[VoiceInput] 录制已取消');
+    Loggers.ui.info('录制已取消');
     onVoiceCancel?.call();
   }
 

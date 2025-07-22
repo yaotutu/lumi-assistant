@@ -9,6 +9,7 @@ import 'package:web_socket_channel/web_socket_channel.dart';
 
 import '../constants/api_constants.dart';
 import '../errors/exceptions.dart';
+import '../utils/loggers.dart';
 import '../../data/models/websocket_state.dart';
 import 'audio_service_android_style.dart';
 import 'unified_mcp_manager.dart';
@@ -39,42 +40,42 @@ class WebSocketService extends StateNotifier<WebSocketState> {
   void setAudioService(dynamic audioService, String serviceType) {
     _activeAudioService = audioService;
     // _audioServiceType = serviceType; // 已删除字段
-    print('[WebSocket] 音频服务已设置: $serviceType');
+    Loggers.websocket.info('音频服务已设置: $serviceType');
   }
 
   /// 连接到WebSocket服务器
   /// 
   /// [serverUrl] 可选的服务器URL，如果不提供则使用默认URL
   Future<void> connect([String? serverUrl]) async {
-    print('[WebSocket] 开始连接流程');
+    Loggers.websocket.info('开始连接流程');
     
     if (state.isConnected || state.isConnecting) {
-      print('[WebSocket] 连接已存在或正在连接中，跳过连接流程');
+      Loggers.websocket.info('连接已存在或正在连接中，跳过连接流程');
       return;
     }
 
-    print('[WebSocket] 设置连接状态为连接中');
+    Loggers.websocket.info('设置连接状态为连接中');
     state = state.startConnecting();
 
     try {
-      print('[WebSocket] 开始检查网络连接');
+      Loggers.websocket.fine('开始检查网络连接');
       // 检查网络连接
       await _checkNetworkConnection();
-      print('[WebSocket] 网络连接检查通过');
+      Loggers.websocket.info('网络连接检查通过');
       
       // 构建WebSocket URL - 完全按照Android客户端方式
       final deviceId = await _getDeviceId();
       final baseUrl = serverUrl ?? ApiConstants.webSocketBaseUrl;
-      print('[WebSocket] 使用服务器URL: $baseUrl');
+      Loggers.websocket.info('使用服务器URL: $baseUrl');
       
       // Android客户端直接使用原始URL，不添加query parameters
       final uri = Uri.parse(baseUrl);
       
-      print('[WebSocket] 准备连接到: $uri');
-      print('[WebSocket] 连接超时设置: ${ApiConstants.connectionTimeout}ms');
+      Loggers.websocket.fine('准备连接到: $uri');
+      Loggers.websocket.fine('连接超时设置: ${ApiConstants.connectionTimeout}ms');
       
       // 建立WebSocket连接 - 完全按照Android客户端方式
-      print('[WebSocket] 开始创建WebSocket连接...');
+      Loggers.websocket.info('开始创建WebSocket连接...');
       try {
         // 按照Android客户端的headers格式
         final headers = <String, dynamic>{
@@ -84,27 +85,27 @@ class WebSocketService extends StateNotifier<WebSocketState> {
           'Authorization': 'Bearer ${ApiConstants.defaultToken}',
         };
         
-        print('[WebSocket] 连接Headers: $headers');
+        Loggers.websocket.fine('连接Headers: $headers');
         
         _channel = IOWebSocketChannel.connect(
           uri,
           headers: headers,
           connectTimeout: Duration(milliseconds: ApiConstants.connectionTimeout),
         );
-        print('[WebSocket] WebSocket连接对象创建成功');
+        Loggers.websocket.info('WebSocket连接对象创建成功');
       } catch (connectError) {
-        print('[WebSocket] 创建WebSocket连接失败: $connectError');
+        Loggers.websocket.severe('创建WebSocket连接失败', connectError);
         rethrow;
       }
 
-      print('[WebSocket] WebSocket通道已创建，等待连接就绪');
+      Loggers.websocket.fine('WebSocket通道已创建，等待连接就绪');
       // 监听连接状态
       await _channel!.ready;
-      print('[WebSocket] WebSocket连接就绪');
+      Loggers.websocket.info('WebSocket连接就绪');
       
       state = state.connectSuccess();
 
-      print('[WebSocket] 开始监听消息流');
+      Loggers.websocket.fine('开始监听消息流');
       // 开始监听消息
       _startListening();
       
@@ -140,25 +141,25 @@ class WebSocketService extends StateNotifier<WebSocketState> {
       //
       Timer(Duration(milliseconds: 200), () async {
         if (state.isConnected) {
-          print('[WebSocket] 发送HELLO握手消息(延迟200ms - 等待服务端应用层初始化完成)');
+          Loggers.websocket.info('发送HELLO握手消息(延迟200ms - 等待服务端应用层初始化完成)');
           try {
             await _sendHello();
           } catch (error) {
-            print('[WebSocket] 延迟HELLO握手失败: $error');
+            Loggers.websocket.severe('延迟HELLO握手失败', error);
           }
         }
       });
       
       
     } catch (error) {
-      print('[WebSocket] 连接失败，错误详情: $error');
-      print('[WebSocket] 错误类型: ${error.runtimeType}');
+      Loggers.websocket.severe('连接失败，错误详情', error);
+      Loggers.websocket.fine('错误类型: ${error.runtimeType}');
       final errorMsg = _handleConnectionError(error);
-      print('[WebSocket] 处理后的错误消息: $errorMsg');
+      Loggers.websocket.info('处理后的错误消息: $errorMsg');
       
       state = state.connectFailure(errorMessage: errorMsg);
       
-      print('[WebSocket] 启动自动重连机制');
+      Loggers.websocket.info('启动自动重连机制');
       // 启动自动重连
       _scheduleReconnect();
     }
@@ -167,7 +168,7 @@ class WebSocketService extends StateNotifier<WebSocketState> {
 
   /// 断开连接
   Future<void> disconnect() async {
-    print('[WebSocket] 开始断开连接');
+    Loggers.websocket.info('开始断开连接');
     _stopReconnectTimer();
     
     await _messageSubscription?.cancel();
@@ -177,15 +178,15 @@ class WebSocketService extends StateNotifier<WebSocketState> {
     _messageSubscription = null;
     
     state = state.disconnect();
-    print('[WebSocket] 连接已断开');
+    Loggers.websocket.info('连接已断开');
   }
 
   /// 发送消息
   Future<void> sendMessage(Map<String, dynamic> message) async {
-    print('[WebSocket] 准备发送消息: ${message['type']}');
+    Loggers.websocket.info('准备发送消息: ${message['type']}');
     
     if (!state.isConnected) {
-      print('[WebSocket] 发送失败: WebSocket未连接');
+      Loggers.websocket.warning('发送失败: WebSocket未连接');
       throw AppExceptionFactory.createWebSocketException(
         'WebSocket未连接',
         code: 'WEBSOCKET_NOT_CONNECTED',
@@ -195,11 +196,11 @@ class WebSocketService extends StateNotifier<WebSocketState> {
 
     try {
       final jsonMessage = jsonEncode(message);
-      print('[WebSocket] 发送JSON消息: $jsonMessage');
+      Loggers.websocket.fine('发送JSON消息: $jsonMessage');
       _channel!.sink.add(jsonMessage);
-      print('[WebSocket] 消息发送成功');
+      Loggers.websocket.info('消息发送成功');
     } catch (error) {
-      print('[WebSocket] 发送消息失败: $error');
+      Loggers.websocket.severe('发送消息失败', error);
       throw AppExceptionFactory.createWebSocketException(
         '发送消息失败: $error',
         code: 'MESSAGE_SEND_FAILED',
@@ -212,7 +213,7 @@ class WebSocketService extends StateNotifier<WebSocketState> {
   /// 发送二进制数据
   Future<void> sendBinaryData(Uint8List data) async {
     if (!state.isConnected) {
-      print('[WebSocket] 发送二进制数据失败: WebSocket未连接');
+      Loggers.websocket.warning('发送二进制数据失败: WebSocket未连接');
       throw AppExceptionFactory.createWebSocketException(
         'WebSocket未连接',
         code: 'WEBSOCKET_NOT_CONNECTED',
@@ -223,9 +224,9 @@ class WebSocketService extends StateNotifier<WebSocketState> {
     try {
       _channel!.sink.add(data);
       // 不打印详细日志以避免过多输出
-      // print('[WebSocket] 二进制数据发送成功: ${data.length} bytes');
+      // Loggers.websocket.fine('二进制数据发送成功: ${data.length} bytes');
     } catch (error) {
-      print('[WebSocket] 发送二进制数据失败: $error');
+      Loggers.websocket.severe('发送二进制数据失败', error);
       throw AppExceptionFactory.createWebSocketException(
         '发送二进制数据失败: $error',
         code: 'BINARY_SEND_FAILED',
@@ -240,10 +241,10 @@ class WebSocketService extends StateNotifier<WebSocketState> {
   /// 当用户需要打断AI正在播放的语音时调用此方法
   /// 这会立即通知服务器停止当前的TTS输出和相关处理
   Future<void> sendAbortMessage({String reason = 'user_interrupt'}) async {
-    print('[WebSocket] 准备发送语音打断消息');
+    Loggers.websocket.info('准备发送语音打断消息');
     
     if (!state.isConnected) {
-      print('[WebSocket] 发送打断消息失败: WebSocket未连接');
+      Loggers.websocket.warning('发送打断消息失败: WebSocket未连接');
       throw AppExceptionFactory.createWebSocketException(
         'WebSocket未连接',
         code: 'WEBSOCKET_NOT_CONNECTED',
@@ -258,12 +259,12 @@ class WebSocketService extends StateNotifier<WebSocketState> {
         'timestamp': DateTime.now().toIso8601String(),
       };
       
-      print('[WebSocket] 发送语音打断消息: $abortMessage');
+      Loggers.websocket.fine('发送语音打断消息: $abortMessage');
       await sendMessage(abortMessage);
-      print('[WebSocket] 语音打断消息发送成功');
+      Loggers.websocket.info('语音打断消息发送成功');
       
     } catch (error) {
-      print('[WebSocket] 发送语音打断消息失败: $error');
+      Loggers.websocket.severe('发送语音打断消息失败', error);
       throw AppExceptionFactory.createWebSocketException(
         '发送语音打断消息失败: $error',
         code: 'ABORT_MESSAGE_FAILED',
@@ -277,10 +278,10 @@ class WebSocketService extends StateNotifier<WebSocketState> {
   /// 
   /// 用于停止当前的语音识别或音频流处理
   Future<void> sendStopListenMessage() async {
-    print('[WebSocket] 准备发送停止监听消息');
+    Loggers.websocket.info('准备发送停止监听消息');
     
     if (!state.isConnected) {
-      print('[WebSocket] 发送停止监听消息失败: WebSocket未连接');
+      Loggers.websocket.warning('发送停止监听消息失败: WebSocket未连接');
       return;
     }
 
@@ -291,12 +292,12 @@ class WebSocketService extends StateNotifier<WebSocketState> {
         'timestamp': DateTime.now().toIso8601String(),
       };
       
-      print('[WebSocket] 发送停止监听消息: $stopMessage');
+      Loggers.websocket.fine('发送停止监听消息: $stopMessage');
       await sendMessage(stopMessage);
-      print('[WebSocket] 停止监听消息发送成功');
+      Loggers.websocket.info('停止监听消息发送成功');
       
     } catch (error) {
-      print('[WebSocket] 发送停止监听消息失败: $error');
+      Loggers.websocket.warning('发送停止监听消息失败', error);
       // 不抛出异常，因为这不是关键错误
     }
   }
@@ -304,20 +305,20 @@ class WebSocketService extends StateNotifier<WebSocketState> {
   /// 检查网络连接
   Future<void> _checkNetworkConnection() async {
     try {
-      print('[WebSocket] 正在检查网络连接...');
+      Loggers.websocket.info('正在检查网络连接...');
       final result = await InternetAddress.lookup('google.com')
           .timeout(const Duration(seconds: 5));
       
       if (result.isEmpty || result[0].rawAddress.isEmpty) {
-        print('[WebSocket] 网络连接检查失败: 无网络连接');
+        Loggers.websocket.warning('网络连接检查失败: 无网络连接');
         throw AppExceptionFactory.createNetworkException(
           '无网络连接',
           code: 'NO_NETWORK_CONNECTION',
         );
       }
-      print('[WebSocket] 网络连接检查成功');
+      Loggers.websocket.info('网络连接检查成功');
     } catch (error) {
-      print('[WebSocket] 网络连接检查异常: $error');
+      Loggers.websocket.severe('网络连接检查异常', error);
       throw AppExceptionFactory.createNetworkException(
         '网络连接检查失败: $error',
         code: 'NETWORK_CHECK_FAILED',
@@ -328,7 +329,7 @@ class WebSocketService extends StateNotifier<WebSocketState> {
 
   /// 开始监听消息
   void _startListening() {
-    print('[WebSocket] 开始监听消息流');
+    Loggers.websocket.fine('开始监听消息流');
     _messageSubscription = _channel!.stream.listen(
       (data) {
         try {
@@ -338,24 +339,24 @@ class WebSocketService extends StateNotifier<WebSocketState> {
           } else if (data is String) {
             _handleTextMessage(data);
           } else {
-            print('[WebSocket] 未知消息类型: ${data.runtimeType}');
+            Loggers.websocket.warning('未知消息类型: ${data.runtimeType}');
           }
         } catch (error) {
-          print('[WebSocket] 处理消息失败: $error');
+          Loggers.websocket.severe('处理消息失败', error);
         }
       },
       onError: (error) {
-        print('[WebSocket] 消息流错误: $error');
+        Loggers.websocket.severe('消息流错误', error);
         final errorMsg = _handleConnectionError(error);
         state = state.connectFailure(errorMessage: errorMsg);
-        print('[WebSocket] 由于消息流错误，启动重连');
+        Loggers.websocket.info('由于消息流错误，启动重连');
         _scheduleReconnect();
       },
       onDone: () {
-        print('[WebSocket] 消息流已关闭');
+        Loggers.websocket.info('消息流已关闭');
         if (state.isConnected) {
           state = state.disconnect();
-          print('[WebSocket] 由于连接断开，启动重连');
+          Loggers.websocket.info('由于连接断开，启动重连');
           _scheduleReconnect();
         }
       },
@@ -365,20 +366,20 @@ class WebSocketService extends StateNotifier<WebSocketState> {
   /// 处理文本消息
   void _handleTextMessage(String data) {
     try {
-      print('[WebSocket] 收到文本消息: $data');
+      Loggers.websocket.fine('收到文本消息: $data');
       final Map<String, dynamic> message = jsonDecode(data);
-      print('[WebSocket] 解析消息成功: ${message['type']}');
+      Loggers.websocket.fine('解析消息成功: ${message['type']}');
       
       // 检查是否为MCP消息
       if (message['type'] == 'mcp') {
-        print('[WebSocket] 检测到MCP消息，路由到统一MCP管理器');
+        Loggers.websocket.info('检测到MCP消息，路由到统一MCP管理器');
         _handleMcpMessage(message);
       } else {
-        print('[WebSocket] 非MCP消息，添加到消息流: ${message['type']}');
+        Loggers.websocket.fine('非MCP消息，添加到消息流: ${message['type']}');
         _messageController.add(message);
       }
     } catch (error) {
-      print('[WebSocket] 解析文本消息失败: $error');
+      Loggers.websocket.severe('解析文本消息失败', error);
     }
   }
 
@@ -396,7 +397,7 @@ class WebSocketService extends StateNotifier<WebSocketState> {
         }
       }
     } catch (error) {
-      print('[WebSocket] 处理二进制消息失败: $error');
+      Loggers.websocket.severe('处理二进制消息失败', error);
     }
   }
 
@@ -404,10 +405,10 @@ class WebSocketService extends StateNotifier<WebSocketState> {
 
   /// 安排重连
   void _scheduleReconnect() {
-    print('[WebSocket] 准备安排重连，当前重连次数: ${state.reconnectAttempts}');
+    Loggers.websocket.info('准备安排重连，当前重连次数: ${state.reconnectAttempts}');
     
     if (state.shouldStopReconnecting) {
-      print('[WebSocket] 重连次数已达上限 ${ApiConstants.maxReconnectAttempts}，停止重连');
+      Loggers.websocket.warning('重连次数已达上限 ${ApiConstants.maxReconnectAttempts}，停止重连');
       state = state.connectFailure(errorMessage: '重连次数超限，请手动重试');
       return;
     }
@@ -415,9 +416,9 @@ class WebSocketService extends StateNotifier<WebSocketState> {
     _stopReconnectTimer();
     
     final delay = Duration(milliseconds: ApiConstants.reconnectDelay);
-    print('[WebSocket] 将在 ${ApiConstants.reconnectDelay}ms 后重连');
+    Loggers.websocket.info('将在 ${ApiConstants.reconnectDelay}ms 后重连');
     _reconnectTimer = Timer(delay, () {
-      print('[WebSocket] 开始第 ${state.reconnectAttempts + 1} 次重连');
+      Loggers.websocket.info('开始第 ${state.reconnectAttempts + 1} 次重连');
       state = state.startReconnecting();
       connect();
     });
@@ -465,8 +466,8 @@ class WebSocketService extends StateNotifier<WebSocketState> {
 
   /// 处理MCP消息 - 路由到统一MCP管理器
   Future<void> _handleMcpMessage(Map<String, dynamic> message) async {
-    print('[WebSocket] 路由MCP消息到统一管理器');
-    print('[WebSocket] MCP消息内容: $message');
+    Loggers.websocket.info('路由MCP消息到统一管理器');
+    Loggers.websocket.fine('MCP消息内容: $message');
     
     // 在顶层声明method变量，确保在catch块中也能访问
     String? method;
@@ -474,7 +475,7 @@ class WebSocketService extends StateNotifier<WebSocketState> {
     try {
       // 确保统一MCP管理器已初始化
       await _mcpManager.initialize();
-      print('[WebSocket] 统一MCP管理器初始化完成');
+      Loggers.websocket.info('统一MCP管理器初始化完成');
       
       // 解析MCP请求
       final payload = message['payload'] as Map<String, dynamic>?;
@@ -499,20 +500,20 @@ class WebSocketService extends StateNotifier<WebSocketState> {
           final toolName = params['name'] as String;
           final arguments = params['arguments'] as Map<String, dynamic>? ?? {};
           
-          print('[WebSocket] ===== Python后端调用MCP工具 =====');
-          print('[WebSocket] 时间戳: ${DateTime.now().toIso8601String()}');
-          print('[WebSocket] 工具名称: $toolName');
-          print('[WebSocket] 调用参数: $arguments');
-          print('[WebSocket] 会话ID: $sessionId');
-          print('[WebSocket] 请求ID: $id');
-          print('[WebSocket] 原始params: $params');
+          Loggers.websocket.info('===== Python后端调用MCP工具 =====');
+          Loggers.websocket.fine('时间戳: ${DateTime.now().toIso8601String()}');
+          Loggers.websocket.info('工具名称: $toolName');
+          Loggers.websocket.fine('调用参数: $arguments');
+          Loggers.websocket.fine('会话ID: $sessionId');
+          Loggers.websocket.fine('请求ID: $id');
+          Loggers.websocket.fine('原始params: $params');
           
           // 通过统一的MCP管理器调用工具（添加30秒超时）
           final toolResult = await _mcpManager.callTool(toolName, arguments)
               .timeout(
                 Duration(seconds: 30),
                 onTimeout: () {
-                  print('[WebSocket] MCP工具调用超时: $toolName');
+                  Loggers.websocket.warning('MCP工具调用超时: $toolName');
                   
                   // 使用统一的错误处理器生成用户友好的错误信息
                   final errorMessage = McpErrorHandler.generateUserFriendlyMessage(
@@ -530,12 +531,12 @@ class WebSocketService extends StateNotifier<WebSocketState> {
                 },
               );
           
-          print('[WebSocket] ===== 工具调用成功 =====');
-          print('[WebSocket] 工具名称: $toolName');
-          print('[WebSocket] 调用结果类型: ${toolResult.runtimeType}');
-          print('[WebSocket] 调用结果内容: $toolResult');
-          print('[WebSocket] 结果大小: ${toolResult.toString().length} 字符');
-          print('[WebSocket] 是否有错误: ${toolResult['isError'] ?? false}');
+          Loggers.websocket.info('===== 工具调用成功 =====');
+          Loggers.websocket.info('工具名称: $toolName');
+          Loggers.websocket.fine('调用结果类型: ${toolResult.runtimeType}');
+          Loggers.websocket.fine('调用结果内容: $toolResult');
+          Loggers.websocket.fine('结果大小: ${toolResult.toString().length} 字符');
+          Loggers.websocket.info('是否有错误: ${toolResult['isError'] ?? false}');
           
           response = {
             'type': 'mcp',
@@ -555,29 +556,29 @@ class WebSocketService extends StateNotifier<WebSocketState> {
           
         case 'tools/list':
           // 工具列表请求
-          print('[WebSocket] ===== Python后端请求工具列表 =====');
-          print('[WebSocket] 会话ID: $sessionId');
-          print('[WebSocket] 请求ID: $id');
+          Loggers.websocket.info('===== Python后端请求工具列表 =====');
+          Loggers.websocket.fine('会话ID: $sessionId');
+          Loggers.websocket.fine('请求ID: $id');
           
           final tools = await _mcpManager.getAvailableTools();
           
-          print('[WebSocket] 准备发送工具列表给Python后端，工具数量: ${tools.length}');
+          Loggers.websocket.info('准备发送工具列表给Python后端，工具数量: ${tools.length}');
           final toolsResponse = tools.map((tool) => {
             'name': tool.name,
             'description': tool.description,
             'inputSchema': tool.inputSchema,
           }).toList();
           
-          print('[WebSocket] ===== 发送给Python后端的工具列表 =====');
-          print('[WebSocket] 工具数量: ${toolsResponse.length}');
+          Loggers.websocket.info('===== 发送给Python后端的工具列表 =====');
+          Loggers.websocket.info('工具数量: ${toolsResponse.length}');
           for (int i = 0; i < toolsResponse.length; i++) {
             final tool = toolsResponse[i];
-            print('[WebSocket] 工具 ${i + 1}: ${tool['name']}');
-            print('[WebSocket]   描述: ${tool['description']}');
-            print('[WebSocket]   参数结构: ${tool['inputSchema']}');
-            print('[WebSocket]   ---');
+            Loggers.websocket.fine('工具 ${i + 1}: ${tool['name']}');
+            Loggers.websocket.fine('  描述: ${tool['description']}');
+            Loggers.websocket.fine('  参数结构: ${tool['inputSchema']}');
+            Loggers.websocket.fine('  ---');
           }
-          print('[WebSocket] =======================================');
+          Loggers.websocket.info('=======================================');
           
           response = {
             'type': 'mcp',
@@ -590,7 +591,7 @@ class WebSocketService extends StateNotifier<WebSocketState> {
               },
             },
           };
-          print('[WebSocket] ===============================');
+          Loggers.websocket.info('===============================');
           break;
           
         case 'initialize':
@@ -621,21 +622,21 @@ class WebSocketService extends StateNotifier<WebSocketState> {
           throw Exception('不支持的MCP方法: $method');
       }
       
-      print('[WebSocket] ===== MCP响应生成完成 =====');
-      print('[WebSocket] 响应类型: ${response['type']}');
-      print('[WebSocket] 响应ID: ${response['payload']['id']}');
-      print('[WebSocket] 响应结果: ${response['payload']['result']}');
-      print('[WebSocket] 响应大小: ${response.toString().length} 字符');
+      Loggers.websocket.info('===== MCP响应生成完成 =====');
+      Loggers.websocket.fine('响应类型: ${response['type']}');
+      Loggers.websocket.fine('响应ID: ${response['payload']['id']}');
+      Loggers.websocket.fine('响应结果: ${response['payload']['result']}');
+      Loggers.websocket.fine('响应大小: ${response.toString().length} 字符');
       
       // 发送响应
       await sendMessage(response);
-      print('[WebSocket] MCP响应已发送');
+      Loggers.websocket.info('MCP响应已发送');
     } catch (error) {
-      print('[WebSocket] ===== MCP调用失败 =====');
-      print('[WebSocket] 错误详情: $error');
-      print('[WebSocket] 错误类型: ${error.runtimeType}');
-      print('[WebSocket] 方法: $method');
-      print('[WebSocket] 会话ID: ${message['session_id']}');
+      Loggers.websocket.severe('===== MCP调用失败 =====');
+      Loggers.websocket.severe('错误详情', error);
+      Loggers.websocket.fine('错误类型: ${error.runtimeType}');
+      Loggers.websocket.info('方法: $method');
+      Loggers.websocket.fine('会话ID: ${message['session_id']}');
       
       // 使用统一的错误处理器生成用户友好的错误信息
       final userFriendlyError = McpErrorHandler.generateUserFriendlyMessage(
@@ -664,12 +665,12 @@ class WebSocketService extends StateNotifier<WebSocketState> {
       };
       
       await sendMessage(errorResponse);
-      print('[WebSocket] 错误响应已发送');
+      Loggers.websocket.info('错误响应已发送');
       
       // 关键修复：向聊天界面发送错误消息，停止"正在思考"状态
       await _notifyChatInterfaceOfMcpError(userFriendlyError, method ?? 'unknown');
       
-      print('[WebSocket] ===========================');
+      Loggers.websocket.info('===========================');
     }
   }
   
@@ -703,7 +704,7 @@ class WebSocketService extends StateNotifier<WebSocketState> {
         'source': 'mcp_error',
       };
       
-      print('[WebSocket] 向聊天界面发送MCP错误通知: $errorNotification');
+      Loggers.websocket.info('向聊天界面发送MCP错误通知: $errorNotification');
       
       // 直接添加到消息控制器，模拟从服务器收到的消息
       _messageController.add(errorNotification);
@@ -718,11 +719,11 @@ class WebSocketService extends StateNotifier<WebSocketState> {
         'source': 'mcp_error_recovery',
       };
       
-      print('[WebSocket] 发送TTS stop消息停止思考状态: $stopThinkingMessage');
+      Loggers.websocket.info('发送TTS stop消息停止思考状态: $stopThinkingMessage');
       _messageController.add(stopThinkingMessage);
       
     } catch (e) {
-      print('[WebSocket] 通知聊天界面MCP错误失败: $e');
+      Loggers.websocket.severe('通知聊天界面MCP错误失败', e);
     }
   }
   
@@ -766,14 +767,14 @@ class WebSocketService extends StateNotifier<WebSocketState> {
           'frame_duration': 60,
         },
       };
-      print('[WebSocket] 发送HELLO握手消息（支持MCP协议）: $helloMsg');
+      Loggers.websocket.fine('发送HELLO握手消息（支持MCP协议）: $helloMsg');
       await sendMessage(helloMsg);
       
       // MCP协议：服务器会在握手完成后主动发送tools/list请求
       // 我们只需要等待并响应服务器的查询，不需要主动注册
-      print('[WebSocket] Hello握手完成，等待服务器MCP工具查询');
+      Loggers.websocket.info('Hello握手完成，等待服务器MCP工具查询');
     } catch (error) {
-      print('[WebSocket] 发送HELLO握手失败: $error');
+      Loggers.websocket.severe('发送HELLO握手失败', error);
       throw AppExceptionFactory.createWebSocketException(
         'HELLO握手失败: ${error.toString()}',
         code: 'HANDSHAKE_FAILED',
@@ -783,26 +784,26 @@ class WebSocketService extends StateNotifier<WebSocketState> {
 
   /// 强制重新生成会话（用于MCP工具变化后确保工具同步）
   Future<void> regenerateSession() async {
-    print('[WebSocket] 开始强制重新生成会话...');
+    Loggers.websocket.info('开始强制重新生成会话...');
     
     if (!state.isConnected) {
-      print('[WebSocket] 当前未连接，直接建立新连接');
+      Loggers.websocket.info('当前未连接，直接建立新连接');
       await connect();
       return;
     }
     
     // 优雅断开当前连接
-    print('[WebSocket] 断开当前连接');
+    Loggers.websocket.info('断开当前连接');
     await disconnect();
     
     // 短暂延迟确保资源清理完成
     await Future.delayed(Duration(milliseconds: 500));
     
     // 重新建立连接，这会触发新的hello握手和工具列表请求
-    print('[WebSocket] 重新建立连接和会话');
+    Loggers.websocket.info('重新建立连接和会话');
     await connect();
     
-    print('[WebSocket] 会话重新生成完成，Python后端将获得最新的工具列表');
+    Loggers.websocket.info('会话重新生成完成，Python后端将获得最新的工具列表');
   }
 
   @override
@@ -830,7 +831,7 @@ final webSocketServiceProvider = StateNotifierProvider<WebSocketService, WebSock
       await mcpManager.initialize();
       await mcpManager.startAutoStartServers();
     } catch (e) {
-      print('[WebSocket] 统一MCP管理器初始化失败: $e');
+      Loggers.websocket.severe('统一MCP管理器初始化失败', e);
     }
   });
   
@@ -840,9 +841,9 @@ final webSocketServiceProvider = StateNotifierProvider<WebSocketService, WebSock
       // 只使用最稳定的Android风格音频服务
       final audioServiceAndroidStyle = AudioServiceAndroidStyle();
       service.setAudioService(audioServiceAndroidStyle, 'android_style');
-      print('[WebSocket] 音频服务注入成功: android_style');
+      Loggers.websocket.info('音频服务注入成功: android_style');
     } catch (e) {
-      print('[WebSocket] 音频服务注入失败: $e');
+      Loggers.websocket.severe('音频服务注入失败', e);
       // 不再使用fallback，专注使用我们的原生实现
     }
   });

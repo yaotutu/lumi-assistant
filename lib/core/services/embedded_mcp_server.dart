@@ -4,6 +4,7 @@ import 'package:mcp_server/mcp_server.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 
 import 'device_control_service.dart';
+import '../utils/loggers.dart';
 
 /// 嵌入式 MCP 服务器 - 不需要独立进程，但使用标准 MCP 协议
 /// 
@@ -18,12 +19,12 @@ class EmbeddedMcpServer {
   /// 初始化嵌入式服务器
   Future<void> initialize() async {
     if (_isInitialized) {
-      print('[EmbeddedMCP] 服务器已经初始化，跳过重复初始化');
+      Loggers.mcp.info('[EmbeddedMCP] 服务器已经初始化，跳过重复初始化');
       return;
     }
     
     try {
-      print('[EmbeddedMCP] 开始初始化嵌入式MCP服务器...');
+      Loggers.mcp.info('[EmbeddedMCP] 开始初始化嵌入式MCP服务器...');
       
       _server = McpServer.createServer(
         name: 'EmbeddedDeviceControl',
@@ -39,9 +40,9 @@ class EmbeddedMcpServer {
       await _registerBuiltinTools();
       _isInitialized = true;
       
-      print('[EmbeddedMCP] 嵌入式MCP服务器初始化完成，注册了${_registeredTools.length}个工具');
+      Loggers.mcp.info('[EmbeddedMCP] 嵌入式MCP服务器初始化完成，注册了${_registeredTools.length}个工具');
     } catch (e) {
-      print('[EmbeddedMCP] 初始化失败: $e');
+      Loggers.mcp.severe('[EmbeddedMCP] 初始化失败: $e');
       rethrow;
     }
   }
@@ -70,7 +71,7 @@ class EmbeddedMcpServer {
     if (!_registeredTools.contains(toolName)) {
       Future<CallToolResult> setBrightnessHandler(Map<String, dynamic> arguments) async {
         try {
-          print('[EmbeddedMCP] 执行内置亮度设置工具: $arguments');
+          Loggers.mcp.fine('[EmbeddedMCP] 执行内置亮度设置工具: $arguments');
           
           final brightness = arguments['brightness'] as int;
           // 直接调用本地服务，无网络开销，最高性能
@@ -86,7 +87,7 @@ class EmbeddedMcpServer {
             ], isError: true);
           }
         } catch (e) {
-          print('[EmbeddedMCP] 亮度设置工具执行失败: $e');
+          Loggers.mcp.severe('[EmbeddedMCP] 亮度设置工具执行失败: $e');
           return CallToolResult([
             TextContent(text: '设置亮度失败: $e')
           ], isError: true);
@@ -120,7 +121,7 @@ class EmbeddedMcpServer {
     if (!_registeredTools.contains(toolName2)) {
       Future<CallToolResult> getCurrentBrightnessHandler(Map<String, dynamic> arguments) async {
         try {
-          print('[EmbeddedMCP] 执行内置获取亮度工具');
+          Loggers.mcp.fine('[EmbeddedMCP] 执行内置获取亮度工具');
           
           final result = await DeviceControlService.getCurrentBrightness();
           
@@ -135,7 +136,7 @@ class EmbeddedMcpServer {
             ], isError: true);
           }
         } catch (e) {
-          print('[EmbeddedMCP] 获取亮度工具执行失败: $e');
+          Loggers.mcp.severe('[EmbeddedMCP] 获取亮度工具执行失败: $e');
           return CallToolResult([
             TextContent(text: '获取亮度失败: $e')
           ], isError: true);
@@ -166,7 +167,7 @@ class EmbeddedMcpServer {
     if (!_registeredTools.contains(toolName)) {
       Future<CallToolResult> adjustVolumeHandler(Map<String, dynamic> arguments) async {
         try {
-          print('[EmbeddedMCP] 执行内置音量调整工具: $arguments');
+          Loggers.mcp.fine('[EmbeddedMCP] 执行内置音量调整工具: $arguments');
           
           final level = (arguments['level'] as num).toDouble();
           // 直接调用本地服务，最高性能
@@ -182,7 +183,7 @@ class EmbeddedMcpServer {
             ], isError: true);
           }
         } catch (e) {
-          print('[EmbeddedMCP] 音量调整工具执行失败: $e');
+          Loggers.mcp.severe('[EmbeddedMCP] 音量调整工具执行失败: $e');
           return CallToolResult([
             TextContent(text: '调整音量失败: $e')
           ], isError: true);
@@ -216,7 +217,7 @@ class EmbeddedMcpServer {
     if (!_registeredTools.contains(toolName2)) {
       Future<CallToolResult> getCurrentVolumeHandler(Map<String, dynamic> arguments) async {
         try {
-          print('[EmbeddedMCP] 执行内置获取音量工具');
+          Loggers.mcp.fine('[EmbeddedMCP] 执行内置获取音量工具');
           
           final result = await DeviceControlService.getCurrentVolume();
           
@@ -231,7 +232,7 @@ class EmbeddedMcpServer {
             ], isError: true);
           }
         } catch (e) {
-          print('[EmbeddedMCP] 获取音量工具执行失败: $e');
+          Loggers.mcp.severe('[EmbeddedMCP] 获取音量工具执行失败: $e');
           return CallToolResult([
             TextContent(text: '获取音量失败: $e')
           ], isError: true);
@@ -262,7 +263,7 @@ class EmbeddedMcpServer {
     if (!_registeredTools.contains(toolName)) {
       Future<CallToolResult> getSystemInfoHandler(Map<String, dynamic> arguments) async {
         try {
-          print('[EmbeddedMCP] 执行内置系统信息工具: $arguments');
+          Loggers.mcp.fine('[EmbeddedMCP] 执行内置系统信息工具: $arguments');
           
           final detailLevel = arguments['detail_level'] as String? ?? 'basic';
           final result = await DeviceControlService.getSystemInfo(detailLevel);
@@ -277,7 +278,7 @@ class EmbeddedMcpServer {
             ], isError: true);
           }
         } catch (e) {
-          print('[EmbeddedMCP] 系统信息工具执行失败: $e');
+          Loggers.mcp.severe('[EmbeddedMCP] 系统信息工具执行失败: $e');
           return CallToolResult([
             TextContent(text: '获取系统信息失败: $e')
           ], isError: true);
@@ -315,7 +316,7 @@ class EmbeddedMcpServer {
     if (!_registeredTools.contains(toolName)) {
       Future<CallToolResult> getPrinterStatusHandler(Map<String, dynamic> arguments) async {
         try {
-          print('[EmbeddedMCP] 执行打印机状态查询工具: $arguments');
+          Loggers.mcp.fine('[EmbeddedMCP] 执行打印机状态查询工具: $arguments');
           
           // 模拟打印机状态信息
           final printerInfo = {
@@ -347,7 +348,7 @@ class EmbeddedMcpServer {
             TextContent(text: statusMessage.trim())
           ]);
         } catch (e) {
-          print('[EmbeddedMCP] 打印机状态工具执行失败: $e');
+          Loggers.mcp.severe('[EmbeddedMCP] 打印机状态工具执行失败: $e');
           return CallToolResult([
             TextContent(text: '获取打印机状态失败: $e')
           ], isError: true);
@@ -382,12 +383,12 @@ class EmbeddedMcpServer {
     if (!_isInitialized) await initialize();
     
     try {
-      print('[EmbeddedMCP] ===== 内置工具调用 =====');
-      print('[EmbeddedMCP] 时间戳: ${DateTime.now().toIso8601String()}');
-      print('[EmbeddedMCP] 工具名称: $toolName');
-      print('[EmbeddedMCP] 工具参数: $arguments');
-      print('[EmbeddedMCP] 参数类型: ${arguments.runtimeType}');
-      print('[EmbeddedMCP] 可用工具: ${_toolHandlers.keys.toList()}');
+      Loggers.mcp.fine('[EmbeddedMCP] ===== 内置工具调用 =====');
+      Loggers.mcp.fine('[EmbeddedMCP] 时间戳: ${DateTime.now().toIso8601String()}');
+      Loggers.mcp.fine('[EmbeddedMCP] 工具名称: $toolName');
+      Loggers.mcp.fine('[EmbeddedMCP] 工具参数: $arguments');
+      Loggers.mcp.fine('[EmbeddedMCP] 参数类型: ${arguments.runtimeType}');
+      Loggers.mcp.fine('[EmbeddedMCP] 可用工具: ${_toolHandlers.keys.toList()}');
       
       // 直接调用存储的工具处理器，零网络延迟
       final handler = _toolHandlers[toolName];
@@ -396,13 +397,13 @@ class EmbeddedMcpServer {
       }
       
       final result = await handler(arguments);
-      print('[EmbeddedMCP] ===== 工具调用完成 =====');
-      print('[EmbeddedMCP] 工具名称: $toolName');
-      print('[EmbeddedMCP] 执行结果: $result');
-      print('[EmbeddedMCP] 是否有错误: ${result.isError}');
+      Loggers.mcp.fine('[EmbeddedMCP] ===== 工具调用完成 =====');
+      Loggers.mcp.fine('[EmbeddedMCP] 工具名称: $toolName');
+      Loggers.mcp.fine('[EmbeddedMCP] 执行结果: $result');
+      Loggers.mcp.fine('[EmbeddedMCP] 是否有错误: ${result.isError}');
       return result;
     } catch (e) {
-      print('[EmbeddedMCP] 工具调用失败: $toolName, 错误: $e');
+      Loggers.mcp.severe('[EmbeddedMCP] 工具调用失败: $toolName, 错误: $e');
       return CallToolResult([
         TextContent(text: '工具调用失败: $e')
       ], isError: true);
@@ -414,7 +415,7 @@ class EmbeddedMcpServer {
     if (!_isInitialized) await initialize();
     
     final tools = _server!.getTools();
-    print('[EmbeddedMCP] 返回${tools.length}个可用工具');
+    Loggers.mcp.info('[EmbeddedMCP] 返回${tools.length}个可用工具');
     return tools;
   }
   
@@ -433,7 +434,7 @@ class EmbeddedMcpServer {
     _isInitialized = false;
     _registeredTools.clear();
     _server = null;
-    print('[EmbeddedMCP] 嵌入式MCP服务器已清理');
+    Loggers.mcp.info('[EmbeddedMCP] 嵌入式MCP服务器已清理');
   }
 }
 

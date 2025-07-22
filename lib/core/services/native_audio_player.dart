@@ -1,5 +1,6 @@
 import 'dart:async';
 import 'package:flutter/services.dart';
+import '../utils/loggers.dart';
 
 /// PCM格式类型
 enum PCMType {
@@ -59,6 +60,7 @@ class NativeAudioPlayer {
     int sampleRate = 16000,
     PCMType pcmType = PCMType.pcm16,
   }) async {
+    final stopwatch = Stopwatch()..start();
     try {
       // 先释放旧的实例
       await release();
@@ -72,9 +74,15 @@ class NativeAudioPlayer {
       _playState = PlayState.stopped;
       _isInited = true;
       
-      print('[NativeAudioPlayer] 初始化成功: channels=$nChannels, sampleRate=$sampleRate, pcmType=$pcmType');
+      stopwatch.stop();
+      Loggers.audio.performance('音频播放器初始化', stopwatch.elapsed, {
+        'channels': nChannels,
+        'sampleRate': sampleRate,
+        'pcmType': pcmType.toString(),
+      });
     } catch (e) {
-      print('[NativeAudioPlayer] 初始化失败: $e');
+      stopwatch.stop();
+      Loggers.audio.severe('初始化失败', e);
       _isInited = false;
       rethrow;
     }
@@ -91,9 +99,9 @@ class NativeAudioPlayer {
       _playState = PlayState.stopped;
       _isInited = false;
       
-      print('[NativeAudioPlayer] 资源已释放');
+      Loggers.audio.info('资源已释放');
     } catch (e) {
-      print('[NativeAudioPlayer] 释放资源失败: $e');
+      Loggers.audio.severe('释放资源失败', e);
       // 即使失败也要重置状态
       _playState = PlayState.stopped;
       _isInited = false;
@@ -114,9 +122,9 @@ class NativeAudioPlayer {
         throw Exception('播放器启动失败，当前状态: $_playState');
       }
       
-      print('[NativeAudioPlayer] 播放已启动');
+      Loggers.audio.info('播放已启动');
     } catch (e) {
-      print('[NativeAudioPlayer] 启动播放失败: $e');
+      Loggers.audio.severe('启动播放失败', e);
       rethrow;
     }
   }
@@ -135,9 +143,9 @@ class NativeAudioPlayer {
         throw Exception('播放器停止失败，当前状态: $_playState');
       }
       
-      print('[NativeAudioPlayer] 播放已停止');
+      Loggers.audio.info('播放已停止');
     } catch (e) {
-      print('[NativeAudioPlayer] 停止播放失败: $e');
+      Loggers.audio.severe('停止播放失败', e);
       rethrow;
     }
   }
@@ -156,9 +164,9 @@ class NativeAudioPlayer {
         throw Exception('播放器暂停失败，当前状态: $_playState');
       }
       
-      print('[NativeAudioPlayer] 播放已暂停');
+      Loggers.audio.info('播放已暂停');
     } catch (e) {
-      print('[NativeAudioPlayer] 暂停播放失败: $e');
+      Loggers.audio.severe('暂停播放失败', e);
       rethrow;
     }
   }
@@ -177,9 +185,9 @@ class NativeAudioPlayer {
         throw Exception('播放器恢复失败，当前状态: $_playState');
       }
       
-      print('[NativeAudioPlayer] 播放已恢复');
+      Loggers.audio.info('播放已恢复');
     } catch (e) {
-      print('[NativeAudioPlayer] 恢复播放失败: $e');
+      Loggers.audio.severe('恢复播放失败', e);
       rethrow;
     }
   }
@@ -199,7 +207,7 @@ class NativeAudioPlayer {
       
       // 不打印详细日志避免日志过多，只在出错时打印
     } catch (e) {
-      print('[NativeAudioPlayer] 喂入音频数据失败: $e');
+      Loggers.audio.severe('喂入音频数据失败', e);
       rethrow;
     }
   }
@@ -217,9 +225,9 @@ class NativeAudioPlayer {
       });
       _playState = PlayState.values[state];
       
-      print('[NativeAudioPlayer] 音量已设置: $clampedVolume');
+      Loggers.audio.info('音量已设置: $clampedVolume');
     } catch (e) {
-      print('[NativeAudioPlayer] 设置音量失败: $e');
+      Loggers.audio.severe('设置音量失败', e);
       rethrow;
     }
   }

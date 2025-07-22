@@ -6,6 +6,7 @@ import '../../core/services/audio_service_android_style.dart';
 import '../../core/services/permission_service.dart';
 import '../../core/constants/audio_constants.dart';
 import '../../data/models/exceptions.dart';
+import '../../core/utils/loggers.dart';
 
 /// 音频状态管理Provider
 /// 负责管理音频播放状态、权限请求和用户交互
@@ -139,7 +140,7 @@ class AudioNotifier extends StateNotifier<AudioState> {
         );
       }
     } catch (e) {
-      print('[$tag] 检查权限失败: $e');
+      Loggers.audio.severe('检查权限失败', e);
       state = AudioState.error('检查权限失败');
     }
   }
@@ -164,7 +165,7 @@ class AudioNotifier extends StateNotifier<AudioState> {
         return false;
       }
     } catch (e) {
-      print('[$tag] 请求权限失败: $e');
+      Loggers.audio.severe('请求权限失败', e);
       state = AudioState.error('请求权限失败');
       return false;
     }
@@ -187,10 +188,10 @@ class AudioNotifier extends StateNotifier<AudioState> {
       // await _audioService.initialize();
       
       state = const AudioState.ready();
-      print('[$tag] 音频服务初始化成功');
+      Loggers.audio.info('音频服务初始化成功');
       return true;
     } catch (e) {
-      print('[$tag] 初始化音频服务失败: $e');
+      Loggers.audio.severe('初始化音频服务失败', e);
       final errorMessage = e is AppException 
           ? e.userFriendlyMessage 
           : '音频服务初始化失败';
@@ -221,7 +222,7 @@ class AudioNotifier extends StateNotifier<AudioState> {
         status: AudioConstants.stateIdle,
       );
     } catch (e) {
-      print('[$tag] 播放音频失败: $e');
+      Loggers.audio.severe('播放音频失败', e);
       final errorMessage = e is AppException 
           ? e.userFriendlyMessage 
           : '音频播放失败';
@@ -238,7 +239,7 @@ class AudioNotifier extends StateNotifier<AudioState> {
         status: AudioConstants.stateIdle,
       );
     } catch (e) {
-      print('[$tag] 停止音频失败: $e');
+      Loggers.audio.severe('停止音频失败', e);
     }
   }
 

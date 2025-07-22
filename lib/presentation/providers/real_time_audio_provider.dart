@@ -3,6 +3,7 @@ import '../../core/services/real_time_audio_service.dart';
 // import '../../core/services/websocket_service.dart'; // 暂未使用
 import '../../core/constants/audio_constants.dart';
 import '../../data/models/exceptions.dart';
+import '../../core/utils/loggers.dart';
 // import 'audio_stream_provider.dart'; // 暂未使用
 // import 'audio_playback_provider.dart'; // 暂未使用
 
@@ -141,11 +142,11 @@ class RealTimeAudioNotifier extends StateNotifier<RealTimeAudioState> {
       await _audioService.initialize();
       
       state = const RealTimeAudioState.ready();
-      print('[$tag] 实时音频服务初始化成功');
+      Loggers.audio.info('实时音频服务初始化成功');
       return true;
       
     } catch (e) {
-      print('[$tag] 初始化实时音频服务失败: $e');
+      Loggers.audio.severe('初始化实时音频服务失败', e);
       final errorMessage = e is AppException 
           ? e.userFriendlyMessage 
           : '实时音频服务初始化失败';
@@ -166,14 +167,14 @@ class RealTimeAudioNotifier extends StateNotifier<RealTimeAudioState> {
 
       final success = await _audioService.startRealTimeProcessing();
       if (success) {
-        print('[$tag] 开始实时音频流处理成功');
+        Loggers.audio.info('开始实时音频流处理成功');
       } else {
-        print('[$tag] 开始实时音频流处理失败');
+        Loggers.audio.severe('开始实时音频流处理失败');
       }
       return success;
       
     } catch (e) {
-      print('[$tag] 开始实时音频流处理失败: $e');
+      Loggers.audio.severe('开始实时音频流处理失败', e);
       final errorMessage = e is AppException 
           ? e.userFriendlyMessage 
           : '开始处理失败';
@@ -187,14 +188,14 @@ class RealTimeAudioNotifier extends StateNotifier<RealTimeAudioState> {
     try {
       final success = await _audioService.stopRealTimeProcessing();
       if (success) {
-        print('[$tag] 停止实时音频流处理成功');
+        Loggers.audio.info('停止实时音频流处理成功');
       } else {
-        print('[$tag] 停止实时音频流处理失败');
+        Loggers.audio.severe('停止实时音频流处理失败');
       }
       return success;
       
     } catch (e) {
-      print('[$tag] 停止实时音频流处理失败: $e');
+      Loggers.audio.severe('停止实时音频流处理失败', e);
       final errorMessage = e is AppException 
           ? e.userFriendlyMessage 
           : '停止处理失败';
@@ -208,14 +209,14 @@ class RealTimeAudioNotifier extends StateNotifier<RealTimeAudioState> {
     try {
       final success = await _audioService.sendListenCommand(command, text: text);
       if (success) {
-        print('[$tag] 发送Listen命令成功: $command');
+        Loggers.audio.fine('发送Listen命令成功: $command');
       } else {
-        print('[$tag] 发送Listen命令失败: $command');
+        Loggers.audio.severe('发送Listen命令失败: $command');
       }
       return success;
       
     } catch (e) {
-      print('[$tag] 发送Listen命令失败: $e');
+      Loggers.audio.severe('发送Listen命令失败', e);
       final errorMessage = e is AppException 
           ? e.userFriendlyMessage 
           : '发送命令失败';
@@ -227,18 +228,18 @@ class RealTimeAudioNotifier extends StateNotifier<RealTimeAudioState> {
   /// 清空消息列表
   void clearMessages() {
     state = state.copyWith(messages: []);
-    print('[$tag] 消息列表已清空');
+    Loggers.audio.fine('消息列表已清空');
   }
 
   /// 重置状态
   void reset() {
     state = const RealTimeAudioState.initial();
-    print('[$tag] 状态已重置');
+    Loggers.audio.info('状态已重置');
   }
 
   /// 处理状态变化
   void _handleStateChanged(String newState) {
-    print('[$tag] 状态变化: $newState');
+    Loggers.audio.info('状态变化: $newState');
     
     final isProcessing = newState == AudioConstants.stateProcessing || 
                         newState == AudioConstants.stateRecording;
@@ -251,7 +252,7 @@ class RealTimeAudioNotifier extends StateNotifier<RealTimeAudioState> {
 
   /// 处理统计信息更新
   void _handleStatsUpdated(Map<String, dynamic> stats) {
-    print('[$tag] 统计信息更新: $stats');
+    Loggers.audio.fine('统计信息更新: $stats');
     
     state = state.copyWith(
       stats: stats,
@@ -263,7 +264,7 @@ class RealTimeAudioNotifier extends StateNotifier<RealTimeAudioState> {
 
   /// 处理错误
   void _handleError(String error) {
-    print('[$tag] 错误: $error');
+    Loggers.audio.severe('错误: $error');
     
     final newMessages = List<String>.from(state.messages);
     newMessages.add('[错误] $error');
@@ -277,7 +278,7 @@ class RealTimeAudioNotifier extends StateNotifier<RealTimeAudioState> {
 
   /// 处理消息
   void _handleMessage(String message) {
-    print('[$tag] 消息: $message');
+    Loggers.audio.fine('消息: $message');
     
     final newMessages = List<String>.from(state.messages);
     newMessages.add('[${DateTime.now().toString().substring(11, 19)}] $message');

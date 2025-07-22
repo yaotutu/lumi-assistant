@@ -48,6 +48,9 @@ dependencies:
   shared_preferences: ^2.2.2
   path: ^1.8.3
   
+  # 日志系统
+  logging: ^1.2.0
+  
   # 音频处理
   opus_dart: ^3.0.1               # Opus编解码（保留用于解码）
   opus_flutter: ^3.0.3            # Opus原生库加载

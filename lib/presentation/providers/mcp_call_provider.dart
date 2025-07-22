@@ -3,6 +3,7 @@ import 'dart:async';
 
 import '../../data/models/mcp_call_state.dart';
 import '../../core/services/unified_mcp_manager.dart';
+import '../../core/utils/loggers.dart';
 
 /// MCP调用状态管理
 class McpCallNotifier extends StateNotifier<McpCallState> {
@@ -20,7 +21,7 @@ class McpCallNotifier extends StateNotifier<McpCallState> {
     Duration timeout = const Duration(seconds: 30),
     String? userMessage,
   }) async {
-    print('[McpCallProvider] 开始调用工具: $toolName');
+    Loggers.mcp.userAction('开始调用工具: $toolName');
     
     // 设置调用中状态
     state = McpCallState.calling(
@@ -45,6 +46,7 @@ class McpCallNotifier extends StateNotifier<McpCallState> {
             maxRetries: maxRetries,
           );
           
+          Loggers.mcp.info('重试调用工具: $toolName (第$retryCount次重试)');
           // 重试前等待一段时间
           await Future.delayed(Duration(seconds: retryCount * 2));
         }
@@ -60,7 +62,7 @@ class McpCallNotifier extends StateNotifier<McpCallState> {
           userMessage: userMessage,
         );
         
-        print('[McpCallProvider] 工具调用成功: $toolName');
+        Loggers.mcp.info('工具调用成功: $toolName');
         
         // 3秒后自动重置状态
         _autoResetState();
@@ -68,7 +70,7 @@ class McpCallNotifier extends StateNotifier<McpCallState> {
         return result;
         
       } catch (e) {
-        print('[McpCallProvider] 工具调用失败 (尝试 ${retryCount + 1}/${maxRetries + 1}): $e');
+        Loggers.mcp.warning('工具调用失败 (尝试 ${retryCount + 1}/${maxRetries + 1}): $toolName', e);
         
         retryCount++;
         
@@ -83,7 +85,7 @@ class McpCallNotifier extends StateNotifier<McpCallState> {
             userMessage: userMessage,
           );
           
-          print('[McpCallProvider] 工具调用最终失败: $toolName');
+          Loggers.mcp.severe('工具调用最终失败: $toolName', e);
           
           // 显示错误5秒后重置状态
           _autoResetState(delay: Duration(seconds: 5));

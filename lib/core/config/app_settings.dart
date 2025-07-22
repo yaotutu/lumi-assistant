@@ -1,6 +1,9 @@
 import 'package:flutter/foundation.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:logging/logging.dart';
+
+import '../utils/app_logger.dart';
 
 /// 应用设置管理
 /// 
@@ -8,6 +11,16 @@ import 'package:shared_preferences/shared_preferences.dart';
 /// 1. 静态默认值（性能优化，写死在代码中）
 /// 2. 用户动态设置（可在设置页面修改，覆盖默认值）
 class AppSettings extends ChangeNotifier {
+  // ==================== 单例模式 ====================
+  static AppSettings? _instance;
+  
+  AppSettings._internal();
+  
+  static AppSettings get instance {
+    _instance ??= AppSettings._internal();
+    return _instance!;
+  }
+  
   // ==================== 静态默认配置 ====================
   // 这些是写死的默认值，保证性能，减少运行时判断
   
@@ -54,10 +67,24 @@ class AppSettings extends ChangeNotifier {
   bool? _userEnableAnimations;
   bool? _userEnableRipple;
   
-  // 调试设置
-  bool _debugEnableLogging = false;
-  bool _debugEnableNetworkLogging = false;
-  bool _debugEnableAudioLogging = false;
+  // ==================== 日志设置 ====================
+  
+  /// 日志等级配置
+  String? _userLogLevel; // 全局日志等级
+  
+  /// 模块日志开关
+  bool _debugEnableWebSocketLogging = true;
+  bool _debugEnableMcpLogging = true;
+  bool _debugEnableAudioLogging = true;
+  bool _debugEnableChatLogging = true;
+  bool _debugEnableUILogging = false;
+  bool _debugEnableSettingsLogging = false;
+  bool _debugEnableErrorLogging = true;
+  bool _debugEnableSystemLogging = true;
+  
+  /// 日志详细程度
+  bool _debugEnableVerboseLogging = false;  // 是否启用FINE级别日志
+  bool _debugEnablePerformanceLogging = false;  // 是否启用性能日志
   
   // ==================== 公共接口 ====================
   // 这些getter会自动选择用户设置或默认值
@@ -89,10 +116,32 @@ class AppSettings extends ChangeNotifier {
   bool get enableAnimations => _userEnableAnimations ?? _defaultEnableAnimations;
   bool get enableRipple => _userEnableRipple ?? _defaultEnableRipple;
   
-  /// 调试设置
-  bool get debugEnableLogging => _debugEnableLogging;
-  bool get debugEnableNetworkLogging => _debugEnableNetworkLogging;
+  /// 日志设置
+  Level get logLevel {
+    if (_userLogLevel == null) {
+      // 根据构建模式设置默认等级
+      if (kDebugMode) return Level.FINE;
+      if (kProfileMode) return Level.INFO;
+      return Level.WARNING;
+    }
+    return Level.LEVELS.firstWhere(
+      (level) => level.name == _userLogLevel,
+      orElse: () => Level.INFO,
+    );
+  }
+  
+  bool get debugEnableVerboseLogging => _debugEnableVerboseLogging;
+  bool get debugEnablePerformanceLogging => _debugEnablePerformanceLogging;
+  
+  /// 模块日志开关
+  bool get debugEnableWebSocketLogging => _debugEnableWebSocketLogging;
+  bool get debugEnableMcpLogging => _debugEnableMcpLogging;
   bool get debugEnableAudioLogging => _debugEnableAudioLogging;
+  bool get debugEnableChatLogging => _debugEnableChatLogging;
+  bool get debugEnableUILogging => _debugEnableUILogging;
+  bool get debugEnableSettingsLogging => _debugEnableSettingsLogging;
+  bool get debugEnableErrorLogging => _debugEnableErrorLogging;
+  bool get debugEnableSystemLogging => _debugEnableSystemLogging;
   
   // ==================== 用户设置修改接口 ====================
   
@@ -183,24 +232,108 @@ class AppSettings extends ChangeNotifier {
     notifyListeners();
     await _saveSettings();
   }
-  
-  /// 更新调试设置
-  Future<void> updateDebugEnableLogging(bool value) async {
-    _debugEnableLogging = value;
+
+  /// 更新日志设置
+  Future<void> updateLogLevel(Level level) async {
+    _userLogLevel = level.name;
+    notifyListeners();
+    await _saveSettings();
+    // 立即应用新的日志等级
+    AppLogger.setGlobalLevel(level);
+  }
+
+  Future<void> updateDebugEnableVerboseLogging(bool value) async {
+    _debugEnableVerboseLogging = value;
     notifyListeners();
     await _saveSettings();
   }
-  
-  Future<void> updateDebugEnableNetworkLogging(bool value) async {
-    _debugEnableNetworkLogging = value;
+
+  Future<void> updateDebugEnablePerformanceLogging(bool value) async {
+    _debugEnablePerformanceLogging = value;
     notifyListeners();
     await _saveSettings();
   }
-  
+
+  /// 模块日志开关更新方法
+  Future<void> updateDebugEnableWebSocketLogging(bool value) async {
+    _debugEnableWebSocketLogging = value;
+    notifyListeners();
+    await _saveSettings();
+    _applyModuleLogLevel(LoggerModule.websocket, value);
+  }
+
+  Future<void> updateDebugEnableMcpLogging(bool value) async {
+    _debugEnableMcpLogging = value;
+    notifyListeners();
+    await _saveSettings();
+    _applyModuleLogLevel(LoggerModule.mcp, value);
+  }
+
   Future<void> updateDebugEnableAudioLogging(bool value) async {
     _debugEnableAudioLogging = value;
     notifyListeners();
     await _saveSettings();
+    _applyModuleLogLevel(LoggerModule.audio, value);
+  }
+
+  Future<void> updateDebugEnableChatLogging(bool value) async {
+    _debugEnableChatLogging = value;
+    notifyListeners();
+    await _saveSettings();
+    _applyModuleLogLevel(LoggerModule.chat, value);
+  }
+
+  Future<void> updateDebugEnableUILogging(bool value) async {
+    _debugEnableUILogging = value;
+    notifyListeners();
+    await _saveSettings();
+    _applyModuleLogLevel(LoggerModule.ui, value);
+  }
+
+  Future<void> updateDebugEnableSettingsLogging(bool value) async {
+    _debugEnableSettingsLogging = value;
+    notifyListeners();
+    await _saveSettings();
+    _applyModuleLogLevel(LoggerModule.settings, value);
+  }
+
+  Future<void> updateDebugEnableErrorLogging(bool value) async {
+    _debugEnableErrorLogging = value;
+    notifyListeners();
+    await _saveSettings();
+    _applyModuleLogLevel(LoggerModule.error, value);
+  }
+
+  Future<void> updateDebugEnableSystemLogging(bool value) async {
+    _debugEnableSystemLogging = value;
+    notifyListeners();
+    await _saveSettings();
+    _applyModuleLogLevel(LoggerModule.system, value);
+  }
+
+  /// 应用模块日志等级
+  void _applyModuleLogLevel(String module, bool enabled) {
+    if (enabled) {
+      AppLogger.enableModule(module);
+    } else {
+      AppLogger.disableModule(module);
+    }
+  }
+
+  /// 获取模块日志配置映射
+  Map<String, Level> getModuleLogConfig() {
+    final config = <String, Level>{};
+    
+    if (!_debugEnableWebSocketLogging) config[LoggerModule.websocket] = Level.OFF;
+    if (!_debugEnableMcpLogging) config[LoggerModule.mcp] = Level.OFF;
+    if (!_debugEnableAudioLogging) config[LoggerModule.audio] = Level.OFF;
+    if (!_debugEnableChatLogging) config[LoggerModule.chat] = Level.OFF;
+    if (!_debugEnableUILogging) config[LoggerModule.ui] = Level.OFF;
+    if (!_debugEnableSettingsLogging) config[LoggerModule.settings] = Level.OFF;
+    if (!_debugEnableErrorLogging) config[LoggerModule.error] = Level.OFF;
+    if (!_debugEnableSystemLogging) config[LoggerModule.system] = Level.OFF;
+    
+    return config;
   }
   
   // ==================== 工具方法 ====================
@@ -249,9 +382,17 @@ class AppSettings extends ChangeNotifier {
     _userEnableAnimations = null;
     _userEnableRipple = null;
     
-    _debugEnableLogging = false;
-    _debugEnableNetworkLogging = false;
-    _debugEnableAudioLogging = false;
+    _userLogLevel = null;
+    _debugEnableVerboseLogging = false;
+    _debugEnablePerformanceLogging = false;
+    _debugEnableWebSocketLogging = true;
+    _debugEnableMcpLogging = true;
+    _debugEnableAudioLogging = true;
+    _debugEnableChatLogging = true;
+    _debugEnableUILogging = false;
+    _debugEnableSettingsLogging = false;
+    _debugEnableErrorLogging = true;
+    _debugEnableSystemLogging = true;
     
     notifyListeners();
     await _saveSettings();
@@ -285,10 +426,20 @@ class AppSettings extends ChangeNotifier {
     _userEnableAnimations = prefs.getBool('user_enable_animations');
     _userEnableRipple = prefs.getBool('user_enable_ripple');
     
-    // 调试设置
-    _debugEnableLogging = prefs.getBool('debug_enable_logging') ?? false;
-    _debugEnableNetworkLogging = prefs.getBool('debug_enable_network_logging') ?? false;
-    _debugEnableAudioLogging = prefs.getBool('debug_enable_audio_logging') ?? false;
+    // 日志设置
+    _userLogLevel = prefs.getString('user_log_level');
+    _debugEnableVerboseLogging = prefs.getBool('debug_enable_verbose_logging') ?? false;
+    _debugEnablePerformanceLogging = prefs.getBool('debug_enable_performance_logging') ?? false;
+    
+    // 模块日志开关
+    _debugEnableWebSocketLogging = prefs.getBool('debug_enable_websocket_logging') ?? true;
+    _debugEnableMcpLogging = prefs.getBool('debug_enable_mcp_logging') ?? true;
+    _debugEnableAudioLogging = prefs.getBool('debug_enable_audio_logging') ?? true;
+    _debugEnableChatLogging = prefs.getBool('debug_enable_chat_logging') ?? true;
+    _debugEnableUILogging = prefs.getBool('debug_enable_ui_logging') ?? false;
+    _debugEnableSettingsLogging = prefs.getBool('debug_enable_settings_logging') ?? false;
+    _debugEnableErrorLogging = prefs.getBool('debug_enable_error_logging') ?? true;
+    _debugEnableSystemLogging = prefs.getBool('debug_enable_system_logging') ?? true;
     
     notifyListeners();
   }
@@ -385,10 +536,25 @@ class AppSettings extends ChangeNotifier {
       await prefs.remove('user_frame_duration');
     }
     
-    // 调试设置
-    await prefs.setBool('debug_enable_logging', _debugEnableLogging);
-    await prefs.setBool('debug_enable_network_logging', _debugEnableNetworkLogging);
+    // 日志设置
+    if (_userLogLevel != null) {
+      await prefs.setString('user_log_level', _userLogLevel!);
+    } else {
+      await prefs.remove('user_log_level');
+    }
+    
+    await prefs.setBool('debug_enable_verbose_logging', _debugEnableVerboseLogging);
+    await prefs.setBool('debug_enable_performance_logging', _debugEnablePerformanceLogging);
+    
+    // 模块日志开关
+    await prefs.setBool('debug_enable_websocket_logging', _debugEnableWebSocketLogging);
+    await prefs.setBool('debug_enable_mcp_logging', _debugEnableMcpLogging);
     await prefs.setBool('debug_enable_audio_logging', _debugEnableAudioLogging);
+    await prefs.setBool('debug_enable_chat_logging', _debugEnableChatLogging);
+    await prefs.setBool('debug_enable_ui_logging', _debugEnableUILogging);
+    await prefs.setBool('debug_enable_settings_logging', _debugEnableSettingsLogging);
+    await prefs.setBool('debug_enable_error_logging', _debugEnableErrorLogging);
+    await prefs.setBool('debug_enable_system_logging', _debugEnableSystemLogging);
   }
   
   // ==================== 静态配置访问（用于代码中的直接访问） ====================
@@ -407,7 +573,7 @@ class AppSettings extends ChangeNotifier {
 
 /// 应用设置Provider
 final appSettingsProvider = ChangeNotifierProvider<AppSettings>((ref) {
-  final settings = AppSettings();
+  final settings = AppSettings.instance;
   // 异步加载用户设置
   settings.loadSettings();
   return settings;

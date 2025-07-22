@@ -7,6 +7,7 @@ import 'device_info_service.dart';
 import 'websocket_service.dart';
 import '../errors/exceptions.dart';
 import '../errors/error_handler.dart';
+import '../utils/loggers.dart';
 
 /// 握手状态枚举
 enum HandshakeState {
@@ -77,32 +78,32 @@ class HandshakeService extends StateNotifier<HandshakeResult> {
 
   /// 开始握手流程
   Future<void> startHandshake() async {
-    print('[Handshake] 开始握手流程');
+    Loggers.websocket.userAction('开始握手流程');
     
     if (state.isHandshaking) {
-      print('[Handshake] 握手正在进行中，跳过');
+      Loggers.websocket.warning('握手正在进行中，跳过');
       return;
     }
 
-    print('[Handshake] 设置握手状态为进行中');
+    Loggers.websocket.stateChange('idle', 'handshaking', '设置握手状态为进行中');
     // 重置状态
     state = const HandshakeResult(state: HandshakeState.handshaking);
     
     try {
-      print('[Handshake] 开始监听WebSocket消息');
+      Loggers.websocket.fine('开始监听WebSocket消息');
       // 监听WebSocket消息
       _startListening();
       
-      print('[Handshake] 发送Hello握手消息');
+      Loggers.websocket.info('发送Hello握手消息');
       // 发送Hello消息
       await _sendHelloMessage();
       
-      print('[Handshake] 启动握手超时定时器');
+      Loggers.websocket.fine('启动握手超时定时器');
       // 启动超时定时器
       _startTimeoutTimer();
       
     } catch (error) {
-      print('[Handshake] 握手流程异常: $error');
+      Loggers.websocket.severe('握手流程异常', error);
       final errorMessage = ErrorHandler.handleError(error as Exception, StackTrace.current);
       state = HandshakeResult(
         state: HandshakeState.failed,
@@ -137,13 +138,13 @@ class HandshakeService extends StateNotifier<HandshakeResult> {
         },
       };
 
-      print('[Handshake] 发送Hello消息: $helloMessage');
+      Loggers.websocket.fine('发送Hello消息: $helloMessage');
       
       // 发送消息
       await _webSocketService.sendMessage(helloMessage);
       
     } catch (error) {
-      print('[Handshake] 发送Hello消息失败: $error');
+      Loggers.websocket.severe('发送Hello消息失败', error);
       throw AppExceptionFactory.createWebSocketException(
         '发送Hello消息失败: $error',
         code: 'HANDSHAKE_SEND_FAILED',

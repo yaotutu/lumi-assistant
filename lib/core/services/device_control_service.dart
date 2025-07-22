@@ -1,6 +1,7 @@
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:volume_controller/volume_controller.dart';
 import 'package:screen_brightness/screen_brightness.dart';
+import '../utils/loggers.dart';
 
 /// 设备控制服务 - 处理设备级别的操作
 class DeviceControlService {
@@ -63,7 +64,7 @@ class DeviceControlService {
       // 将0-100转换为0.0-1.0，遵循ESP32的百分比制
       final brightnessLevel = brightness / 100.0;
       
-      print('[设备控制] 设置屏幕亮度: $brightness% (${brightnessLevel.toStringAsFixed(2)})');
+      Loggers.mcp.info('设置屏幕亮度: $brightness% (${brightnessLevel.toStringAsFixed(2)})');
       
       // 使用screen_brightness包设置亮度
       await ScreenBrightness().setScreenBrightness(brightnessLevel);
@@ -74,7 +75,7 @@ class DeviceControlService {
         'message': '屏幕亮度已设置为$brightness%'
       };
     } catch (e) {
-      print('[设备控制] 设置屏幕亮度失败: $e');
+      Loggers.mcp.severe('设置屏幕亮度失败', e);
       return {
         'success': false,
         'error': 'BRIGHTNESS_SET_ERROR',
@@ -90,7 +91,7 @@ class DeviceControlService {
       final brightnessLevel = await ScreenBrightness().current;
       final brightnessPercent = (brightnessLevel * 100).round();
       
-      print('[设备控制] 当前屏幕亮度: $brightnessPercent%');
+      Loggers.mcp.info('当前屏幕亮度: $brightnessPercent%');
       
       return {
         'success': true,
@@ -98,7 +99,7 @@ class DeviceControlService {
         'message': '当前屏幕亮度为$brightnessPercent%'
       };
     } catch (e) {
-      print('[设备控制] 获取屏幕亮度失败: $e');
+      Loggers.mcp.severe('获取屏幕亮度失败', e);
       return {
         'success': false,
         'error': 'BRIGHTNESS_GET_ERROR',
@@ -111,7 +112,7 @@ class DeviceControlService {
   /// [detailLevel] 信息详细程度：basic为基础信息，detailed为详细信息
   static Future<Map<String, dynamic>> getSystemInfo([String detailLevel = 'basic']) async {
     try {
-      print('[设备控制] 获取系统信息，详细程度: $detailLevel');
+      Loggers.mcp.fine('获取系统信息，详细程度: $detailLevel');
       
       Map<String, dynamic> systemInfo = {};
       
@@ -158,7 +159,7 @@ class DeviceControlService {
         'message': '系统信息获取成功'
       };
     } catch (e) {
-      print('[设备控制] 获取系统信息失败: $e');
+      Loggers.mcp.severe('获取系统信息失败', e);
       return {
         'success': false,
         'error': 'SYSTEM_INFO_ERROR',

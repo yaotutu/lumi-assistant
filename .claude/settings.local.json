@@ -42,7 +42,9 @@
       "Bash(touch:*)",
       "Bash(git merge:*)",
       "Bash(git stash:*)",
-      "Bash(git worktree:*)"
+      "Bash(git worktree:*)",
+      "Bash(timeout 10s adb:*)",
+      "Bash(git log:*)"
     ],
     "deny": []
   }

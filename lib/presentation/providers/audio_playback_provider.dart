@@ -4,6 +4,7 @@ import 'dart:typed_data';
 import '../../core/services/audio_service_android_style.dart';
 import '../../core/constants/audio_constants.dart';
 import '../../data/models/exceptions.dart';
+import '../../core/utils/loggers.dart';
 
 /// 音频播放状态
 class AudioPlaybackState {
@@ -129,11 +130,11 @@ class AudioPlaybackNotifier extends StateNotifier<AudioPlaybackState> {
       // await _playbackService.initialize();
       
       state = const AudioPlaybackState.ready();
-      print('[$tag] 音频播放服务初始化成功');
+      Loggers.audio.info('音频播放服务初始化成功');
       return true;
       
     } catch (e) {
-      print('[$tag] 初始化音频播放服务失败: $e');
+      Loggers.audio.severe('初始化音频播放服务失败', e);
       final errorMessage = e is AppException 
           ? e.userFriendlyMessage 
           : '音频播放服务初始化失败';
@@ -158,11 +159,11 @@ class AudioPlaybackNotifier extends StateNotifier<AudioPlaybackState> {
       // 直接播放音频数据（Android风格）
       await _playbackService.playOpusAudio(audioData);
       
-      print('[$tag] 接收TTS音频数据成功: ${opusData.length} 字节');
+      Loggers.audio.fine('接收TTS音频数据成功: ${opusData.length} 字节');
       return true;
       
     } catch (e) {
-      print('[$tag] 接收TTS音频数据失败: $e');
+      Loggers.audio.severe('接收TTS音频数据失败', e);
       final errorMessage = e is AppException 
           ? e.userFriendlyMessage 
           : '接收TTS音频数据失败';
@@ -182,11 +183,11 @@ class AudioPlaybackNotifier extends StateNotifier<AudioPlaybackState> {
       }
 
       // Android风格的音频服务不需要单独启动播放
-      print('[$tag] Android风格音频服务自动管理播放');
+      Loggers.audio.fine('Android风格音频服务自动管理播放');
       return true;
       
     } catch (e) {
-      print('[$tag] 开始播放TTS音频失败: $e');
+      Loggers.audio.severe('开始播放TTS音频失败', e);
       final errorMessage = e is AppException 
           ? e.userFriendlyMessage 
           : '开始播放失败';
@@ -199,11 +200,11 @@ class AudioPlaybackNotifier extends StateNotifier<AudioPlaybackState> {
   Future<bool> stopPlayback() async {
     try {
       // Android风格的音频服务自动管理停止
-      print('[$tag] Android风格音频服务自动管理停止');
+      Loggers.audio.fine('Android风格音频服务自动管理停止');
       return true;
       
     } catch (e) {
-      print('[$tag] 停止播放TTS音频失败: $e');
+      Loggers.audio.severe('停止播放TTS音频失败', e);
       final errorMessage = e is AppException 
           ? e.userFriendlyMessage 
           : '停止播放失败';
@@ -216,11 +217,11 @@ class AudioPlaybackNotifier extends StateNotifier<AudioPlaybackState> {
   Future<bool> pausePlayback() async {
     try {
       // Android风格的音频服务不支持暂停操作
-      print('[$tag] Android风格音频服务不支持暂停');
+      Loggers.audio.fine('Android风格音频服务不支持暂停');
       return true;
       
     } catch (e) {
-      print('[$tag] 暂停播放失败: $e');
+      Loggers.audio.severe('暂停播放失败', e);
       return false;
     }
   }
@@ -229,11 +230,11 @@ class AudioPlaybackNotifier extends StateNotifier<AudioPlaybackState> {
   Future<bool> resumePlayback() async {
     try {
       // Android风格的音频服务不支持恢复操作
-      print('[$tag] Android风格音频服务不支持恢复');
+      Loggers.audio.fine('Android风格音频服务不支持恢复');
       return true;
       
     } catch (e) {
-      print('[$tag] 恢复播放失败: $e');
+      Loggers.audio.severe('恢复播放失败', e);
       return false;
     }
   }
@@ -241,14 +242,14 @@ class AudioPlaybackNotifier extends StateNotifier<AudioPlaybackState> {
   /// 清空缓冲区
   void clearBuffer() {
     // Android风格的音频服务不需要手动清理缓冲区
-    print('[$tag] Android风格音频服务自动管理缓冲区');
+    Loggers.audio.fine('Android风格音频服务自动管理缓冲区');
   }
 
   /// 重置播放状态
   void reset() {
     state = const AudioPlaybackState.initial();
     clearBuffer();
-    print('[$tag] 播放状态已重置');
+    Loggers.audio.info('播放状态已重置');
   }
 
   // 已删除未使用的回调处理方法（Android风格音频服务不使用回调）
