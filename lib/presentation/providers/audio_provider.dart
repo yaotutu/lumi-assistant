@@ -233,7 +233,7 @@ class AudioNotifier extends StateNotifier<AudioState> {
   /// 停止音频播放
   Future<void> stopAudio() async {
     try {
-      await _audioService.stop();
+      await AudioServiceAndroidStyle.stop();
       state = state.copyWith(
         isPlaying: false,
         status: AudioConstants.stateIdle,

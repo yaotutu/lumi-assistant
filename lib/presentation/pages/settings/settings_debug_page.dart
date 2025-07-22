@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:logging/logging.dart';
 import '../../../core/config/app_settings.dart';
-import '../../../core/utils/app_logger.dart';
 
 /// 开发者选项设置页面
 /// 

@@ -282,17 +282,17 @@ class SettingsConfigPage extends ConsumerWidget {
       icon: Icons.bug_report,
       children: [
         _buildSwitchSetting(
-          title: '调试日志',
+          title: '详细日志',
           subtitle: '输出详细的调试信息到控制台',
-          value: settings.debugEnableLogging,
-          onChanged: settings.updateDebugEnableLogging,
+          value: settings.debugEnableVerboseLogging,
+          onChanged: settings.updateDebugEnableVerboseLogging,
         ),
         
         _buildSwitchSetting(
-          title: '网络日志',
-          subtitle: '记录所有网络请求和响应',
-          value: settings.debugEnableNetworkLogging,
-          onChanged: settings.updateDebugEnableNetworkLogging,
+          title: 'WebSocket日志',
+          subtitle: '记录所有WebSocket通信和响应',
+          value: settings.debugEnableWebSocketLogging,
+          onChanged: settings.updateDebugEnableWebSocketLogging,
         ),
         
         _buildSwitchSetting(

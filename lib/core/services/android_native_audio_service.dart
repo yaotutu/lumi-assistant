@@ -13,7 +13,6 @@ import '../utils/loggers.dart';
 /// - 支持实时音频流播放
 /// - 完整的状态管理和错误处理
 class AndroidNativeAudioService implements AudioPlaybackService {
-  static const String _tag = 'AndroidNativeAudioService';
   
   // 音频参数配置
   static const int _sampleRate = 16000;     // 采样率16kHz

@@ -279,7 +279,7 @@ class AudioPlaybackNotifier extends StateNotifier<AudioPlaybackState> {
   void dispose() {
     // 使用Future处理dispose的异步操作
     Future.microtask(() async {
-      await _playbackService.dispose();
+      await AudioServiceAndroidStyle.dispose();
     });
     super.dispose();
   }
