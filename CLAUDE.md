@@ -1359,6 +1359,12 @@ Text(message.content, style: TextStyle(color: Colors.black))
 - `websocket` - WebSocket相关
 - `voice` - 语音处理
 - `chat` - 聊天功能
+- `dashboard` - 待机桌面功能
+- `calendar` - 日历功能
+- `weather` - 天气显示
+- `todo` - 待办事项
+- `clock` - 时钟显示
+- `photos` - 电子相册功能
 - `settings` - 设置页面
 - `animation` - 动画效果
 

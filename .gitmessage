@@ -17,7 +17,7 @@
 # remove   移除功能         → 🗑️ Deprecations
 #
 # 推荐范围 (scope):
-# ui, audio, network, websocket, voice, chat, settings, animation
+# ui, audio, network, websocket, voice, chat, dashboard, calendar, weather, todo, clock, photos, settings, animation
 # core, api, storage, security, performance
 # android, ios
 #
