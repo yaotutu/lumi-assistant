@@ -38,6 +38,18 @@ VERSION=${VERSION:-"0.1.0-pre"}
 BUILD_NUMBER=${BUILD_NUMBER:-$(date +'%Y%m%d%H%M')}
 SINCE_TAG=${SINCE_TAG:-""}
 
+# 如果没有设置GITHUB_REPOSITORY，尝试从git remote获取
+if [ -z "${GITHUB_REPOSITORY}" ]; then
+    REMOTE_URL=$(git remote get-url origin 2>/dev/null || echo "")
+    if [[ "$REMOTE_URL" == *"github.com"* ]]; then
+        # 从git remote URL提取仓库名，移除.git后缀
+        GITHUB_REPOSITORY=$(echo "$REMOTE_URL" | sed -E 's/.*github\.com[\/:]([^\/]+\/[^\/]+)(\.git)?$/\1/' | sed 's/\.git$//')
+    else
+        GITHUB_REPOSITORY="your-username/your-repo"
+        log_warning "无法获取GitHub仓库名，使用默认值: ${GITHUB_REPOSITORY}"
+    fi
+fi
+
 # 如果没有指定起始tag，尝试找到最近的tag
 if [ -z "${SINCE_TAG}" ]; then
     SINCE_TAG=$(git describe --tags --abbrev=0 2>/dev/null || echo "")
@@ -138,13 +150,13 @@ generate_changelog() {
         fi
     done <<< "$commits"
     
-    # 生成Release notes
+    # 生成Release notes - 完全基于Git提交记录
     cat > "$output_file" << EOF
 # 🚀 Lumi Assistant ${VERSION}
 
-> **开发版本** ${BUILD_NUMBER} - 自动构建
+**此版本包含 $(echo "$commits" | wc -l | tr -d ' ') 个更改**
 
-## 📝 更改内容
+## What's Changed
 
 EOF
     
