@@ -83,8 +83,22 @@ generate_version() {
 
 # 生成构建号
 generate_build_number() {
-    # 使用时间戳作为构建号
-    BUILD_NUMBER=$(date +'%Y%m%d%H%M')
+    # 使用更短的构建号格式，避免超过Android限制（2100000000）
+    # 格式：提交计数 * 1000 + 小时分钟（4位数字）
+    local HOUR_MIN=$(date +'%H%M')
+    BUILD_NUMBER=$((COMMIT_COUNT * 1000 + HOUR_MIN))
+    
+    # 确保不超过Android最大值
+    if [ ${BUILD_NUMBER} -gt 2100000000 ]; then
+        # 如果超过限制，使用更简单的格式：提交计数 + 日期后2位
+        local DAY_HOUR=$(date +'%d%H')
+        BUILD_NUMBER=$((COMMIT_COUNT * 100 + DAY_HOUR % 100))
+    fi
+    
+    # 最终安全检查，确保不超过Android限制
+    if [ ${BUILD_NUMBER} -gt 2100000000 ]; then
+        BUILD_NUMBER=${COMMIT_COUNT}
+    fi
     
     log_success "生成构建号: ${BUILD_NUMBER}"
 }
