@@ -43,3 +43,13 @@ app.*.map.json
 /android/app/debug
 /android/app/profile
 /android/app/release
+
+# Project specific ignores
+flutter_startup.log
+release_notes.md
+test_*.md
+test_*.dart
+example_*.json
+dev_*.md
+assets/audio/
+lumi_pcm_player/
