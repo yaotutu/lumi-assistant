@@ -8,6 +8,7 @@ import '../../data/models/connection_state.dart';
 import '../../core/services/handshake_service.dart';
 import '../../core/errors/error_handler.dart';
 import '../../core/errors/exceptions.dart';
+import '../../core/utils/loggers.dart';
 import 'connection_provider.dart';
 
 
@@ -28,25 +29,25 @@ class ChatNotifier extends StateNotifier<ChatState> {
 
   /// 初始化聊天
   void _initializeChat() {
-    print('[ChatNotifier] 初始化聊天');
+    Loggers.chat.info('初始化聊天');
     
     // 首先检查当前握手状态
     _checkCurrentHandshakeState();
     
     // 监听连接状态变化
     _ref.listen(connectionManagerProvider, (previous, next) {
-      print('[ChatNotifier] 连接状态变化: ${next.statusDescription}');
+      Loggers.chat.info('连接状态变化: ${next.statusDescription}');
       if (next.handshakeResult.sessionId != null) {
-        print('[ChatNotifier] 设置会话ID: ${next.handshakeResult.sessionId}');
+        Loggers.chat.info('设置会话ID: ${next.handshakeResult.sessionId}');
         state = state.copyWith(sessionId: next.handshakeResult.sessionId);
       }
     });
 
     // 直接监听握手状态变化
     _ref.listen(handshakeServiceProvider, (previous, next) {
-      print('[ChatNotifier] 握手状态变化: ${next.state}, sessionId: ${next.sessionId}');
+      Loggers.chat.info('握手状态变化: ${next.state}, sessionId: ${next.sessionId}');
       if (next.sessionId != null) {
-        print('[ChatNotifier] 从握手服务设置会话ID: ${next.sessionId}');
+        Loggers.chat.info('从握手服务设置会话ID: ${next.sessionId}');
         state = state.copyWith(sessionId: next.sessionId);
       }
     });
@@ -64,29 +65,29 @@ class ChatNotifier extends StateNotifier<ChatState> {
     Future.microtask(() {
       try {
         final handshakeState = _ref.read(handshakeServiceProvider);
-        print('[ChatNotifier] 检查当前握手状态: ${handshakeState.state}, sessionId: ${handshakeState.sessionId}');
+        Loggers.chat.fine('检查当前握手状态: ${handshakeState.state}, sessionId: ${handshakeState.sessionId}');
         
         if (handshakeState.sessionId != null) {
-          print('[ChatNotifier] 发现现有会话ID: ${handshakeState.sessionId}');
+          Loggers.chat.info('发现现有会话ID: ${handshakeState.sessionId}');
           state = state.copyWith(sessionId: handshakeState.sessionId);
         }
         
         final connectionState = _ref.read(connectionManagerProvider);
-        print('[ChatNotifier] 检查连接状态: ${connectionState.statusDescription}');
+        Loggers.chat.fine('检查连接状态: ${connectionState.statusDescription}');
         
         if (connectionState.handshakeResult.sessionId != null) {
-          print('[ChatNotifier] 发现连接管理器中的会话ID: ${connectionState.handshakeResult.sessionId}');
+          Loggers.chat.info('发现连接管理器中的会话ID: ${connectionState.handshakeResult.sessionId}');
           state = state.copyWith(sessionId: connectionState.handshakeResult.sessionId);
         }
       } catch (e) {
-        print('[ChatNotifier] 检查当前状态失败: $e');
+        Loggers.chat.severe('检查当前状态失败', e);
       }
     });
   }
 
   /// 开始监听WebSocket消息
   void _startWebSocketMessageListener() {
-    print('[ChatNotifier] 开始监听WebSocket消息');
+    Loggers.chat.info('开始监听WebSocket消息');
     
     // 获取连接管理器的消息流
     final connectionManager = _ref.read(connectionManagerProvider.notifier);
@@ -94,11 +95,11 @@ class ChatNotifier extends StateNotifier<ChatState> {
     // 监听消息流
     connectionManager.messageStream.listen(
       (message) {
-        print('[ChatNotifier] 收到WebSocket消息: $message');
+        Loggers.chat.fine('收到WebSocket消息: $message');
         _handleWebSocketMessage(message);
       },
       onError: (error) {
-        print('[ChatNotifier] WebSocket消息流错误: $error');
+        Loggers.chat.severe('WebSocket消息流错误', error);
         _handleWebSocketError(error);
       },
     );
@@ -126,7 +127,7 @@ class ChatNotifier extends StateNotifier<ChatState> {
   /// 性能优化：修剪消息列表以避免内存溢出
   void _trimMessagesIfNeeded() {
     if (state.messages.length > _maxMessagesInMemory) {
-      print('[ChatNotifier] 消息数量超过限制 ($_maxMessagesInMemory)，开始修剪旧消息');
+      Loggers.chat.fine('消息数量超过限制 ($_maxMessagesInMemory)，开始修剪旧消息');
       
       // 保留最近的消息，但确保保留欢迎消息
       final messages = state.messages;
@@ -140,7 +141,7 @@ class ChatNotifier extends StateNotifier<ChatState> {
       final trimmedMessages = [welcomeMessage, ...recentMessages];
       
       state = state.copyWith(messages: trimmedMessages);
-      print('[ChatNotifier] 消息修剪完成，当前消息数: ${trimmedMessages.length}');
+      Loggers.chat.fine('消息修剪完成，当前消息数: ${trimmedMessages.length}');
     }
   }
 
@@ -148,7 +149,7 @@ class ChatNotifier extends StateNotifier<ChatState> {
   Future<void> sendMessage(String content) async {
     if (content.trim().isEmpty) return;
     
-    print('[ChatNotifier] 发送消息: $content');
+    Loggers.chat.userAction('发送消息: $content');
     
     // 创建用户消息
     final userMessage = ChatUIMessageConverter.createUserMessage(content);
@@ -188,7 +189,7 @@ class ChatNotifier extends StateNotifier<ChatState> {
       );
 
     } catch (e) {
-      print('[ChatNotifier] 发送消息失败: $e');
+      Loggers.chat.severe('发送消息失败', e);
       
       // 使用错误处理器处理错误
       final appException = ErrorHandler.handleMessageSendError(e, messageId: userMessage.id);
@@ -213,7 +214,7 @@ class ChatNotifier extends StateNotifier<ChatState> {
 
     // 首先尝试获取当前会话ID
     var sessionId = state.sessionId;
-    print('[ChatNotifier] 当前会话ID: $sessionId');
+    Loggers.chat.fine('当前会话ID: $sessionId');
     
     // 如果会话ID为空，尝试重新获取
     if (sessionId == null) {
@@ -224,11 +225,11 @@ class ChatNotifier extends StateNotifier<ChatState> {
         sessionId = handshakeState.sessionId ?? connectionState.handshakeResult.sessionId;
         
         if (sessionId != null) {
-          print('[ChatNotifier] 重新获取到会话ID: $sessionId');
+          Loggers.chat.info('重新获取到会话ID: $sessionId');
           state = state.copyWith(sessionId: sessionId);
         }
       } catch (e) {
-        print('[ChatNotifier] 重新获取会话ID失败: $e');
+        Loggers.chat.warning('重新获取会话ID失败', e);
       }
     }
     
@@ -245,7 +246,7 @@ class ChatNotifier extends StateNotifier<ChatState> {
     };
 
     // 发送listen消息
-    print('[ChatNotifier] 准备发送listen消息: $listenMessage');
+    Loggers.chat.fine('准备发送listen消息: $listenMessage');
     
     // 使用超时机制发送消息
     await ErrorHandler.withTimeout(
@@ -287,7 +288,7 @@ class ChatNotifier extends StateNotifier<ChatState> {
         );
       }
     } catch (e) {
-      print('[ChatNotifier] 重新发送消息失败: $e');
+      Loggers.chat.severe('重新发送消息失败', e);
       
       // 使用错误处理器处理错误
       final appException = ErrorHandler.handleMessageSendError(e, messageId: messageId);
@@ -304,7 +305,7 @@ class ChatNotifier extends StateNotifier<ChatState> {
 
   /// 处理WebSocket消息
   void _handleWebSocketMessage(Map<String, dynamic> message) {
-    print('[ChatNotifier] 收到WebSocket消息: $message');
+    Loggers.chat.fine('收到WebSocket消息: $message');
     
     try {
       final messageType = message['type'] as String?;
@@ -318,7 +319,7 @@ class ChatNotifier extends StateNotifier<ChatState> {
           break;
         case 'hello':
           // Hello消息由HandshakeService处理，这里忽略
-          print('[ChatNotifier] 忽略Hello消息，由HandshakeService处理');
+          Loggers.chat.fine('忽略Hello消息，由HandshakeService处理');
           break;
         case 'stt':
           _handleSttMessage(message);
@@ -330,11 +331,11 @@ class ChatNotifier extends StateNotifier<ChatState> {
           _handleLlmMessage(message);
           break;
         default:
-          print('[ChatNotifier] 收到未知消息类型: $messageType');
-          print('[ChatNotifier] 消息内容: $message');
+          Loggers.chat.warning('收到未知消息类型: $messageType');
+          Loggers.chat.fine('消息内容: $message');
       }
     } catch (e) {
-      print('[ChatNotifier] 处理消息失败: $e');
+      Loggers.chat.severe('处理消息失败', e);
       
       // 使用错误处理器处理消息解析错误
       final appException = ErrorHandler.handleMessageParseError(e, rawMessage: message);
@@ -349,7 +350,7 @@ class ChatNotifier extends StateNotifier<ChatState> {
 
   /// 处理响应消息
   void _handleResponseMessage(Map<String, dynamic> messageData) {
-    print('[ChatNotifier] 处理响应消息: $messageData');
+    Loggers.chat.fine('处理响应消息: $messageData');
     
     try {
       final responseMessage = ResponseMessage.fromJson(messageData);
@@ -362,9 +363,9 @@ class ChatNotifier extends StateNotifier<ChatState> {
         error: null,
       );
       
-      print('[ChatNotifier] 响应消息添加成功: ${chatMessage.content}');
+      Loggers.chat.info('响应消息添加成功: ${chatMessage.content}');
     } catch (e) {
-      print('[ChatNotifier] 解析响应消息失败: $e');
+      Loggers.chat.severe('解析响应消息失败', e);
       
       // 创建一个错误消息显示
       final errorMessage = ChatUIMessageConverter.createSystemMessage(
@@ -381,7 +382,7 @@ class ChatNotifier extends StateNotifier<ChatState> {
 
   /// 处理错误消息
   void _handleErrorMessage(Map<String, dynamic> messageData) {
-    print('[ChatNotifier] 处理错误消息: $messageData');
+    Loggers.chat.fine('处理错误消息: $messageData');
     
     try {
       final errorMessage = ErrorMessage.fromJson(messageData);
@@ -394,9 +395,9 @@ class ChatNotifier extends StateNotifier<ChatState> {
         error: errorMessage.errorMessage,
       );
       
-      print('[ChatNotifier] 错误消息添加成功: ${errorMessage.errorMessage}');
+      Loggers.chat.info('错误消息添加成功: ${errorMessage.errorMessage}');
     } catch (e) {
-      print('[ChatNotifier] 解析错误消息失败: $e');
+      Loggers.chat.severe('解析错误消息失败', e);
       
       // 创建一个通用错误消息
       final fallbackErrorMessage = ChatUIMessageConverter.createSystemMessage(
@@ -413,14 +414,14 @@ class ChatNotifier extends StateNotifier<ChatState> {
 
   /// 处理STT消息（语音转文字结果）
   void _handleSttMessage(Map<String, dynamic> messageData) {
-    print('[ChatNotifier] 处理STT消息: $messageData');
+    Loggers.chat.fine('处理STT消息: $messageData');
     
     try {
       final sttMessage = SttMessage.fromJson(messageData);
       
       // 按照Android客户端的实现：将语音识别结果作为用户消息显示
       if (sttMessage.text.isNotEmpty) {
-        print('[ChatNotifier] STT识别结果: ${sttMessage.text}');
+        Loggers.chat.info('STT识别结果: ${sttMessage.text}');
         
         // 创建用户消息（语音识别结果）
         final userMessage = ChatUIMessageConverter.createUserMessage(sttMessage.text).copyWith(
@@ -435,17 +436,17 @@ class ChatNotifier extends StateNotifier<ChatState> {
           error: null,
         );
         
-        print('[ChatNotifier] 语音识别消息添加成功: ${sttMessage.text}');
+        Loggers.chat.info('语音识别消息添加成功: ${sttMessage.text}');
       }
       
     } catch (e) {
-      print('[ChatNotifier] 解析STT消息失败: $e');
+      Loggers.chat.severe('解析STT消息失败', e);
     }
   }
 
   /// 处理TTS消息（文字转语音）
   void _handleTtsMessage(Map<String, dynamic> messageData) {
-    print('[ChatNotifier] 处理TTS消息: $messageData');
+    Loggers.chat.fine('处理TTS消息: $messageData');
     
     try {
       final ttsMessage = TtsMessage.fromJson(messageData);
@@ -453,7 +454,7 @@ class ChatNotifier extends StateNotifier<ChatState> {
       // 根据TTS状态决定如何处理
       switch (ttsMessage.state) {
         case 'start':
-          print('[ChatNotifier] AI开始回复');
+          Loggers.chat.info('AI开始回复');
           state = state.copyWith(
             isReceiving: true,
             isSending: false,
@@ -466,14 +467,14 @@ class ChatNotifier extends StateNotifier<ChatState> {
           if (ttsMessage.text != null && ttsMessage.text!.isNotEmpty) {
             _handleAiResponse(ttsMessage.text!);
           } else {
-            print('[ChatNotifier] sentence_start状态但无文字内容');
+            Loggers.chat.fine('sentence_start状态但无文字内容');
           }
           break;
         case 'sentence_end':
-          print('[ChatNotifier] AI完成一句话');
+          Loggers.chat.info('AI完成一句话');
           break;
         case 'stop':
-          print('[ChatNotifier] AI回复完成');
+          Loggers.chat.info('AI回复完成');
           state = state.copyWith(
             isReceiving: false,
             isSending: false,
@@ -482,24 +483,24 @@ class ChatNotifier extends StateNotifier<ChatState> {
           _currentAiMessageId = null;
           break;
         default:
-          print('[ChatNotifier] TTS状态: ${ttsMessage.state}');
+          Loggers.chat.fine('TTS状态: ${ttsMessage.state}');
       }
       
     } catch (e) {
-      print('[ChatNotifier] 解析TTS消息失败: $e');
+      Loggers.chat.severe('解析TTS消息失败', e);
     }
   }
 
   /// 处理LLM消息（AI思考和回复）
   void _handleLlmMessage(Map<String, dynamic> messageData) {
-    print('[ChatNotifier] 处理LLM消息: $messageData');
+    Loggers.chat.fine('处理LLM消息: $messageData');
     
     try {
       final llmMessage = LlmMessage.fromJson(messageData);
       
       // 处理AI的思考状态
       if (llmMessage.emotion != null) {
-        print('[ChatNotifier] AI情感状态: ${llmMessage.emotion}');
+        Loggers.chat.fine('AI情感状态: ${llmMessage.emotion}');
         
         // 如果是thinking状态，显示AI正在思考
         if (llmMessage.emotion == 'thinking') {
@@ -507,10 +508,10 @@ class ChatNotifier extends StateNotifier<ChatState> {
             isReceiving: true,
             isSending: false,
           );
-          print('[ChatNotifier] AI正在思考中...');
+          Loggers.chat.info('AI正在思考中...');
         } else if (llmMessage.emotion == 'error') {
           // 如果是error状态，停止思考并显示错误
-          print('[ChatNotifier] AI遇到错误，停止思考状态');
+          Loggers.chat.warning('AI遇到错误，停止思考状态');
           
           // 清除当前AI消息构建状态
           _currentAiMessageId = null;
@@ -539,13 +540,13 @@ class ChatNotifier extends StateNotifier<ChatState> {
       }
       
     } catch (e) {
-      print('[ChatNotifier] 解析LLM消息失败: $e');
+      Loggers.chat.severe('解析LLM消息失败', e);
     }
   }
   
   /// 处理AI回复内容（统一处理来自TTS和LLM的回复）
   void _handleAiResponse(String responseText) {
-    print('[ChatNotifier] 处理AI回复: $responseText');
+    Loggers.chat.info('处理AI回复: $responseText');
     
     // 如果当前没有正在构建的AI消息，创建一个新的
     if (_currentAiMessageId == null) {
@@ -561,7 +562,7 @@ class ChatNotifier extends StateNotifier<ChatState> {
       );
       
       _currentAiMessageId = aiMessage.id;
-      print('[ChatNotifier] 创建新的AI消息: ${aiMessage.id}');
+      Loggers.chat.fine('创建新的AI消息: ${aiMessage.id}');
     } else {
       // 如果有正在构建的AI消息，更新其内容（支持流式回复）
       final updatedMessages = state.messages.map((message) {
@@ -580,13 +581,13 @@ class ChatNotifier extends StateNotifier<ChatState> {
         error: null,
       );
       
-      print('[ChatNotifier] 更新AI消息: $_currentAiMessageId');
+      Loggers.chat.fine('更新AI消息: $_currentAiMessageId');
     }
   }
 
   /// 处理WebSocket错误
   void _handleWebSocketError(dynamic error) {
-    print('[ChatNotifier] WebSocket错误: $error');
+    Loggers.chat.severe('WebSocket错误', error);
     
     // 清除当前AI消息构建状态
     _currentAiMessageId = null;
@@ -633,7 +634,7 @@ class ChatNotifier extends StateNotifier<ChatState> {
 
   /// 手动重连
   Future<void> reconnect() async {
-    print('[ChatNotifier] 手动重连');
+    Loggers.chat.userAction('手动重连');
     
     // 清除错误状态
     state = state.copyWith(error: null);
@@ -678,7 +679,7 @@ class ChatNotifier extends StateNotifier<ChatState> {
 
   @override
   void dispose() {
-    print('[ChatNotifier] 释放资源');
+    Loggers.chat.info('释放资源');
     super.dispose();
   }
 }

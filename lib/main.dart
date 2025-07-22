@@ -8,11 +8,16 @@ import 'presentation/themes/app_theme.dart';
 import 'presentation/pages/home/home_page.dart';
 import 'core/constants/app_constants.dart';
 import 'core/config/app_settings.dart';
+import 'core/utils/app_logger.dart';
+import 'core/utils/loggers.dart';
 import 'presentation/providers/audio_stream_provider.dart';
 
 /// 应用入口点
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
+  
+  // 初始化日志系统
+  await _initializeLogging();
   
   // 性能优化：系统级设置
   await _applyPerformanceOptimizations();
@@ -27,6 +32,23 @@ void main() async {
   );
 }
 
+/// 初始化日志系统
+Future<void> _initializeLogging() async {
+  // 从设置中加载日志配置
+  final settings = AppSettings.instance;
+  await settings.loadSettings();
+  
+  // 初始化日志系统，使用设置中的配置
+  AppLogger.initialize(
+    globalLevel: settings.logLevel,
+    moduleConfig: settings.getModuleLogConfig(),
+  );
+  
+  // 记录启动信息
+  Loggers.system.info('🚀 Lumi Assistant 启动中...');
+  Loggers.system.info('📊 日志配置: ${AppLogger.getConfig()}');
+}
+
 /// 应用性能优化设置
 Future<void> _applyPerformanceOptimizations() async {
   // 设置系统UI样式
@@ -38,17 +60,17 @@ Future<void> _applyPerformanceOptimizations() async {
     ),
   );
   
-  // 简化：直接禁用调试日志（主要配置在动态配置中处理）
-  print('[性能] 调试日志已禁用');
+  // 性能优化配置完成
+  Loggers.system.info('⚡ 性能优化配置已应用');
 }
 
 /// 性能优化：异步初始化Opus库
 Future<void> _initializeOpusAsync() async {
   try {
     initOpus(await opus_flutter.load());
-    print('[主程序] Opus初始化成功: ${getOpusVersion()}');
+    Loggers.audio.success('Opus初始化成功: ${getOpusVersion()}');
   } catch (e) {
-    print('[主程序] Opus初始化失败: $e');
+    Loggers.audio.severe('Opus初始化失败', e);
     // 启动后续的重试机制或降级处理
   }
 }

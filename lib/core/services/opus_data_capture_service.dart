@@ -1,6 +1,7 @@
 import 'dart:typed_data';
 import 'dart:io';
 import 'package:path_provider/path_provider.dart';
+import '../utils/loggers.dart';
 
 /// Opus数据捕获服务
 /// 用于捕获并保存服务端返回的opus音频数据，便于后续测试和分析
@@ -17,13 +18,13 @@ class OpusDataCaptureService {
     _isCapturing = true;
     _currentSessionId = sessionId;
     _capturedData.clear();
-    print('[$tag] 开始捕获opus数据，会话ID: $sessionId');
+    Loggers.audio.info('开始捕获opus数据，会话ID: $sessionId');
   }
   
   /// 停止捕获opus数据
   static void stopCapture() {
     _isCapturing = false;
-    print('[$tag] 停止捕获opus数据，共捕获 ${_capturedData.length} 个数据包');
+    Loggers.audio.info('停止捕获opus数据，共捕获 ${_capturedData.length} 个数据包');
   }
   
   /// 捕获opus数据包
@@ -39,13 +40,13 @@ class OpusDataCaptureService {
     );
     
     _capturedData.add(sample);
-    print('[$tag] 捕获opus数据包 #${sample.sequenceNumber}: ${opusData.length} 字节');
+    Loggers.audio.fine('捕获opus数据包 #${sample.sequenceNumber}: ${opusData.length} 字节');
   }
   
   /// 保存捕获的数据到文件
   static Future<List<String>> saveCapturedData() async {
     if (_capturedData.isEmpty) {
-      print('[$tag] 没有捕获到数据');
+      Loggers.audio.info('没有捕获到数据');
       return [];
     }
     
@@ -68,7 +69,7 @@ class OpusDataCaptureService {
       await file.writeAsBytes(sample.data);
       savedFiles.add(file.path);
       
-      print('[$tag] 保存数据包 ${i + 1}: ${file.path}');
+      Loggers.audio.fine('保存数据包 ${i + 1}: ${file.path}');
     }
     
     // 保存元数据
@@ -86,7 +87,7 @@ class OpusDataCaptureService {
     };
     
     await metadataFile.writeAsString(metadata.toString());
-    print('[$tag] 保存元数据: ${metadataFile.path}');
+    Loggers.audio.info('保存元数据: ${metadataFile.path}');
     
     return savedFiles;
   }
@@ -117,7 +118,7 @@ class OpusDataCaptureService {
   /// 清空捕获的数据
   static void clearCapturedData() {
     _capturedData.clear();
-    print('[$tag] 清空捕获的数据');
+    Loggers.audio.info('清空捕获的数据');
   }
 }
 

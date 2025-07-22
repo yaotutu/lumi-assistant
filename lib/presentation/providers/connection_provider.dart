@@ -5,6 +5,7 @@ import '../../core/services/network_checker.dart';
 import '../../core/services/handshake_service.dart';
 import '../../data/models/connection_state.dart';
 import '../../data/models/websocket_state.dart';
+import '../../core/utils/loggers.dart';
 
 
 /// 连接管理器
@@ -42,42 +43,42 @@ class ConnectionManager extends StateNotifier<ConnectionManagerState> {
 
   /// 处理网络状态变化
   void _handleNetworkStateChange(NetworkState? previous, NetworkState current) {
-    print('[ConnectionManager] 网络状态变化: ${previous?.connectionState} -> ${current.connectionState}');
+    Loggers.websocket.stateChange('${previous?.connectionState ?? 'unknown'}', '${current.connectionState}', '网络状态变化');
     
     // 网络连接可用时，检查WebSocket状态
     if (current.isConnected) {
-      print('[ConnectionManager] 网络可用，检查WebSocket状态');
+      Loggers.websocket.fine('网络可用，检查WebSocket状态');
       if (state.webSocketState.isDisconnected || state.webSocketState.isFailed) {
-        print('[ConnectionManager] WebSocket未连接，启动连接');
+        Loggers.websocket.info('WebSocket未连接，启动连接');
         connectWebSocket();
       }
     }
     
     // 网络断开时，断开WebSocket连接
     if (current.isDisconnected && state.webSocketState.isConnected) {
-      print('[ConnectionManager] 网络断开，断开WebSocket连接');
+      Loggers.websocket.info('网络断开，断开WebSocket连接');
       disconnectWebSocket();
     }
   }
 
   /// 处理WebSocket状态变化
   void _handleWebSocketStateChange(WebSocketState? previous, WebSocketState current) {
-    print('[ConnectionManager] WebSocket状态变化: ${previous?.connectionState} -> ${current.connectionState}');
+    Loggers.websocket.stateChange('${previous?.connectionState ?? 'unknown'}', '${current.connectionState}', 'WebSocket状态变化');
     
     // WebSocket连接成功时，自动开始握手
     if (previous?.isConnected != true && current.isConnected) {
-      print('[ConnectionManager] WebSocket连接成功，检查握手状态');
+      Loggers.websocket.info('WebSocket连接成功，检查握手状态');
       if (state.handshakeResult.state == HandshakeState.idle) {
-        print('[ConnectionManager] 开始自动握手');
+        Loggers.websocket.info('开始自动握手');
         startHandshake();
       } else {
-        print('[ConnectionManager] 握手状态非idle，跳过自动握手: ${state.handshakeResult.state}');
+        Loggers.websocket.fine('握手状态非idle，跳过自动握手: ${state.handshakeResult.state}');
       }
     }
     
     // WebSocket断开时，重置握手状态
     if (current.isDisconnected && state.handshakeResult.isCompleted) {
-      print('[ConnectionManager] WebSocket断开，重置握手状态');
+      Loggers.websocket.info('WebSocket断开，重置握手状态');
       final handshakeService = _ref.read(handshakeServiceProvider.notifier);
       handshakeService.reset();
     }
@@ -85,13 +86,13 @@ class ConnectionManager extends StateNotifier<ConnectionManagerState> {
 
   /// 检查是否需要自动连接
   void _checkAutoConnection() {
-    print('[ConnectionManager] 检查自动连接条件');
+    Loggers.websocket.fine('检查自动连接条件');
     
     // 延迟一点时间，确保所有Provider都初始化完成
     Future.delayed(const Duration(milliseconds: 500), () {
       if (state.networkState.isConnected && 
           (state.webSocketState.isDisconnected || state.webSocketState.isFailed)) {
-        print('[ConnectionManager] 条件满足，启动自动连接');
+        Loggers.websocket.info('条件满足，启动自动连接');
         connectWebSocket();
       }
     });
@@ -101,14 +102,14 @@ class ConnectionManager extends StateNotifier<ConnectionManagerState> {
   /// 
   /// [serverUrl] 可选的服务器URL
   Future<void> connectWebSocket([String? serverUrl]) async {
-    print('[ConnectionManager] 开始连接WebSocket');
+    Loggers.websocket.userAction('开始连接WebSocket');
     
     if (!state.networkState.isConnected) {
-      print('[ConnectionManager] 网络未连接，跳过WebSocket连接');
+      Loggers.websocket.warning('网络未连接，跳过WebSocket连接');
       return;
     }
 
-    print('[ConnectionManager] 调用WebSocket服务进行连接');
+    Loggers.websocket.fine('调用WebSocket服务进行连接');
     final webSocketService = _ref.read(webSocketServiceProvider.notifier);
     
     // 性能优化：音频服务在WebSocketService内部自动设置

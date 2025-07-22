@@ -4,6 +4,7 @@ import '../../core/services/audio_recording_service.dart';
 import '../../core/services/permission_service.dart';
 import '../../core/constants/audio_constants.dart';
 import '../../data/models/exceptions.dart';
+import '../../core/utils/loggers.dart';
 
 /// 音频录制状态
 class AudioRecordingState {
@@ -146,7 +147,7 @@ class AudioRecordingNotifier extends StateNotifier<AudioRecordingState> {
         );
       }
     } catch (e) {
-      print('[$tag] 检查权限失败: $e');
+      Loggers.audio.severe('检查权限失败', e);
       state = AudioRecordingState.error('检查权限失败');
     }
   }
@@ -171,7 +172,7 @@ class AudioRecordingNotifier extends StateNotifier<AudioRecordingState> {
         return false;
       }
     } catch (e) {
-      print('[$tag] 请求权限失败: $e');
+      Loggers.audio.severe('请求权限失败', e);
       state = AudioRecordingState.error('请求权限失败');
       return false;
     }
@@ -194,10 +195,10 @@ class AudioRecordingNotifier extends StateNotifier<AudioRecordingState> {
       await _recordingService.initialize();
       
       state = const AudioRecordingState.ready();
-      print('[$tag] 录制服务初始化成功');
+      Loggers.audio.info('录制服务初始化成功');
       return true;
     } catch (e) {
-      print('[$tag] 初始化录制服务失败: $e');
+      Loggers.audio.severe('初始化录制服务失败', e);
       final errorMessage = e is AppException 
           ? e.userFriendlyMessage 
           : '录制服务初始化失败';
@@ -218,13 +219,13 @@ class AudioRecordingNotifier extends StateNotifier<AudioRecordingState> {
       
       // 如果已经在录制，直接返回成功
       if (_recordingService.isRecording) {
-        print('[$tag] 录制已在进行中，更新UI状态');
-        print('[$tag] 录制服务状态: isRecording=${_recordingService.isRecording}');
+        Loggers.audio.info('录制已在进行中，更新UI状态');
+        Loggers.audio.fine('录制服务状态: isRecording=${_recordingService.isRecording}');
         // 强制更新状态到录制中
         final stats = _recordingService.recordingStats;
-        print('[$tag] 录制统计信息: $stats');
+        Loggers.audio.fine('录制统计信息: $stats');
         state = AudioRecordingState.recording(stats);
-        print('[$tag] UI状态已更新为录制中: ${state.isRecording}');
+        Loggers.audio.fine('UI状态已更新为录制中: ${state.isRecording}');
         _updateRecordingStats();
         return true;
       }
@@ -241,7 +242,7 @@ class AudioRecordingNotifier extends StateNotifier<AudioRecordingState> {
       
       return true;
     } catch (e) {
-      print('[$tag] 开始录制失败: $e');
+      Loggers.audio.severe('开始录制失败', e);
       final errorMessage = e is AppException 
           ? e.userFriendlyMessage 
           : '开始录制失败';
@@ -254,7 +255,7 @@ class AudioRecordingNotifier extends StateNotifier<AudioRecordingState> {
   Future<List<Uint8List>?> stopRecording() async {
     try {
       if (!state.isRecording) {
-        print('[$tag] 录制未在进行中，无需停止');
+        Loggers.audio.fine('录制未在进行中，无需停止');
         return null;
       }
       
@@ -270,11 +271,11 @@ class AudioRecordingNotifier extends StateNotifier<AudioRecordingState> {
       final opusFrames = await _recordingService.processRecordedFile();
       
       state = const AudioRecordingState.ready();
-      print('[$tag] 录制停止成功，获得Opus帧数: ${opusFrames.length}');
+      Loggers.audio.info('录制停止成功，获得Opus帧数: ${opusFrames.length}');
       
       return opusFrames;
     } catch (e) {
-      print('[$tag] 停止录制失败: $e');
+      Loggers.audio.severe('停止录制失败', e);
       final errorMessage = e is AppException 
           ? e.userFriendlyMessage 
           : '停止录制失败';
@@ -287,7 +288,7 @@ class AudioRecordingNotifier extends StateNotifier<AudioRecordingState> {
   void _updateRecordingStats() {
     // 检查录制服务是否真的在录制
     if (!_recordingService.isRecording) {
-      print('[$tag] 录制服务未在录制，停止更新统计信息');
+      Loggers.audio.fine('录制服务未在录制，停止更新统计信息');
       return;
     }
     

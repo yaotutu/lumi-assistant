@@ -5,6 +5,7 @@ import 'websocket_service.dart';
 import 'audio_service_android_style.dart';
 import 'audio_playback_service.dart';
 import '../../data/models/websocket_state.dart';
+import '../utils/loggers.dart';
 
 /// 语音打断服务
 /// 
@@ -36,29 +37,29 @@ class VoiceInterruptService {
   /// 3. 发送停止监听消息
   /// 4. 更新UI状态
   Future<bool> interruptVoice({String reason = 'user_interrupt'}) async {
-    print('[$tag] ===== 开始语音打断流程 =====');
-    print('[$tag] 打断原因: $reason');
+    Loggers.audio.info('===== 开始语音打断流程 =====');
+    Loggers.audio.info('打断原因: $reason');
     
     try {
       // 1. 立即停止本地音频播放
-      print('[$tag] 步骤1: 停止本地音频播放');
+      Loggers.audio.fine('步骤1: 停止本地音频播放');
       await _stopLocalAudio();
       
       // 2. 发送abort消息给服务器
-      print('[$tag] 步骤2: 发送abort消息给服务器');
+      Loggers.audio.fine('步骤2: 发送abort消息给服务器');
       try {
         await _webSocketService.sendAbortMessage(reason: reason);
       } catch (e) {
-        print('[$tag] 发送abort消息失败: $e');
+        Loggers.audio.severe('发送abort消息失败', e);
         // 继续执行，不因为网络问题阻断整个流程
       }
       
       // 3. 发送停止监听消息
-      print('[$tag] 步骤3: 发送停止监听消息');
+      Loggers.audio.fine('步骤3: 发送停止监听消息');
       try {
         await _webSocketService.sendStopListenMessage();
       } catch (e) {
-        print('[$tag] 发送停止监听消息失败: $e');
+        Loggers.audio.severe('发送停止监听消息失败', e);
       }
       
       // 4. 更新状态
@@ -69,11 +70,11 @@ class VoiceInterruptService {
       onAudioStateChanged?.call(false);
       onInterruptMessage?.call('语音已打断');
       
-      print('[$tag] ===== 语音打断流程完成 =====');
+      Loggers.audio.info('===== 语音打断流程完成 =====');
       return true;
       
     } catch (e) {
-      print('[$tag] 语音打断失败: $e');
+      Loggers.audio.severe('语音打断失败', e);
       onInterruptMessage?.call('语音打断失败: $e');
       return false;
     }
@@ -84,22 +85,22 @@ class VoiceInterruptService {
     try {
       // 停止Android风格音频服务
       await AudioServiceAndroidStyle.stop();
-      print('[$tag] Android风格音频服务已停止');
+      Loggers.audio.fine('Android风格音频服务已停止');
       
       // 停止跨平台音频服务（如果有）
       try {
         final audioService = AudioPlaybackServiceFactory.createService();
         if (audioService.isInitialized) {
           await audioService.stopPlayback();
-          print('[$tag] 跨平台音频服务已停止');
+          Loggers.audio.fine('跨平台音频服务已停止');
         }
       } catch (e) {
-        print('[$tag] 停止跨平台音频服务失败: $e');
+        Loggers.audio.severe('停止跨平台音频服务失败', e);
         // 不阻断流程
       }
       
     } catch (e) {
-      print('[$tag] 停止本地音频失败: $e');
+      Loggers.audio.severe('停止本地音频失败', e);
       rethrow;
     }
   }
@@ -108,14 +109,14 @@ class VoiceInterruptService {
   /// 
   /// 用于需要立即响应的场景，如用户开始说话
   Future<void> quickInterrupt() async {
-    print('[$tag] 执行快速打断');
+    Loggers.audio.info('执行快速打断');
     try {
       await _stopLocalAudio();
       _isAudioPlaying = false;
       onAudioStateChanged?.call(false);
       onInterruptMessage?.call('音频已停止');
     } catch (e) {
-      print('[$tag] 快速打断失败: $e');
+      Loggers.audio.severe('快速打断失败', e);
     }
   }
 
@@ -123,7 +124,7 @@ class VoiceInterruptService {
   /// 
   /// 参考Android客户端的上滑取消功能
   Future<void> cancelRecording({String reason = 'user_cancel'}) async {
-    print('[$tag] 取消语音录制，原因: $reason');
+    Loggers.audio.info('取消语音录制，原因: $reason');
     
     try {
       // 发送停止监听消息
@@ -134,7 +135,7 @@ class VoiceInterruptService {
       onInterruptMessage?.call('录制已取消');
       
     } catch (e) {
-      print('[$tag] 取消录制失败: $e');
+      Loggers.audio.severe('取消录制失败', e);
     }
   }
 
@@ -143,7 +144,7 @@ class VoiceInterruptService {
   /// 在用户发送新消息前自动停止当前音频播放
   /// 这是Android客户端的标准行为
   Future<void> autoInterruptBeforeSend() async {
-    print('[$tag] 发送消息前自动打断音频播放');
+    Loggers.audio.info('发送消息前自动打断音频播放');
     
     if (_isAudioPlaying) {
       await interruptVoice(reason: 'new_message_sending');
@@ -154,14 +155,14 @@ class VoiceInterruptService {
   /// 
   /// 确保页面退出时没有音频在后台继续播放
   Future<void> cleanupOnExit() async {
-    print('[$tag] 页面退出清理，停止所有音频播放');
+    Loggers.audio.info('页面退出清理，停止所有音频播放');
     
     try {
       await _stopLocalAudio();
       _isAudioPlaying = false;
       _isRecording = false;
     } catch (e) {
-      print('[$tag] 退出清理失败: $e');
+      Loggers.audio.severe('退出清理失败', e);
     }
   }
 

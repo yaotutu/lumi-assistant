@@ -4,6 +4,7 @@ import '../constants/audio_constants.dart';
 import 'audio_stream_service.dart';
 import 'audio_playback_service.dart';
 import 'websocket_service.dart';
+import '../utils/loggers.dart';
 
 /// 实时音频流处理服务
 /// 集成音频流传输和TTS播放功能，实现全双工音频通信
@@ -49,12 +50,12 @@ class RealTimeAudioService {
   /// 初始化实时音频服务
   Future<void> initialize() async {
     if (_isInitialized) {
-      print('[$tag] 服务已初始化，跳过');
+      Loggers.audio.fine('服务已初始化，跳过');
       return;
     }
 
     try {
-      print('[$tag] 开始初始化实时音频服务');
+      Loggers.audio.info('开始初始化实时音频服务');
       
       // 初始化音频流服务
       await _streamService.initialize();
@@ -65,11 +66,11 @@ class RealTimeAudioService {
       _isInitialized = true;
       _currentState = AudioConstants.stateIdle;
       
-      print('[$tag] 实时音频服务初始化完成');
+      Loggers.audio.info('实时音频服务初始化完成');
       onStateChanged?.call(_currentState);
       
     } catch (e) {
-      print('[$tag] 初始化失败: $e');
+      Loggers.audio.severe('初始化失败', e);
       _currentState = AudioConstants.stateError;
       onStateChanged?.call(_currentState);
       onError?.call('初始化失败: $e');
@@ -85,15 +86,15 @@ class RealTimeAudioService {
       }
 
       if (_isProcessing) {
-        print('[$tag] 实时音频流处理已在进行中');
+        Loggers.audio.info('实时音频流处理已在进行中');
         return true;
       }
 
-      print('[$tag] 开始实时音频流处理');
+      Loggers.audio.info('开始实时音频流处理');
       
       // 启动音频流传输
       await _streamService.startStreaming();
-      print('[$tag] 音频流传输已启动');
+      Loggers.audio.fine('音频流传输已启动');
 
       _isProcessing = true;
       _streamStartTime = DateTime.now();
@@ -105,11 +106,11 @@ class RealTimeAudioService {
       onStateChanged?.call(_currentState);
       onMessage?.call('实时音频流处理已启动');
       
-      print('[$tag] 实时音频流处理启动成功');
+      Loggers.audio.info('实时音频流处理启动成功');
       return true;
       
     } catch (e) {
-      print('[$tag] 启动实时音频流处理失败: $e');
+      Loggers.audio.severe('启动实时音频流处理失败', e);
       _currentState = AudioConstants.stateError;
       onStateChanged?.call(_currentState);
       onError?.call('启动失败: $e');
@@ -121,11 +122,11 @@ class RealTimeAudioService {
   Future<bool> stopRealTimeProcessing() async {
     try {
       if (!_isProcessing) {
-        print('[$tag] 实时音频流处理未在进行中');
+        Loggers.audio.fine('实时音频流处理未在进行中');
         return true;
       }
 
-      print('[$tag] 停止实时音频流处理');
+      Loggers.audio.info('停止实时音频流处理');
       
       // 停止处理循环
       _stopProcessingLoop();
@@ -142,11 +143,11 @@ class RealTimeAudioService {
       onStateChanged?.call(_currentState);
       onMessage?.call('实时音频流处理已停止');
       
-      print('[$tag] 实时音频流处理停止成功');
+      Loggers.audio.info('实时音频流处理停止成功');
       return true;
       
     } catch (e) {
-      print('[$tag] 停止实时音频流处理失败: $e');
+      Loggers.audio.severe('停止实时音频流处理失败', e);
       onError?.call('停止失败: $e');
       return false;
     }
@@ -159,7 +160,7 @@ class RealTimeAudioService {
         _handleWebSocketMessage(message);
       },
       onError: (error) {
-        print('[$tag] WebSocket监听错误: $error');
+        Loggers.audio.severe('WebSocket监听错误: $error');
         onError?.call('WebSocket错误: $error');
       },
     );
@@ -184,10 +185,10 @@ class RealTimeAudioService {
           _handleErrorMessage(message);
           break;
         default:
-          print('[$tag] 未知消息类型: $type');
+          Loggers.audio.fine('未知消息类型: $type');
       }
     } catch (e) {
-      print('[$tag] 处理WebSocket消息失败: $e');
+      Loggers.audio.severe('处理WebSocket消息失败', e);
       onError?.call('消息处理失败: $e');
     }
   }
@@ -198,7 +199,7 @@ class RealTimeAudioService {
       final state = message['state'] as String?;
       final text = message['text'] as String?;
       
-      print('[$tag] 接收TTS消息: state=$state, text=$text');
+      Loggers.audio.fine('接收TTS消息: state=$state, text=$text');
       
       switch (state) {
         case 'start':
@@ -218,7 +219,7 @@ class RealTimeAudioService {
       }
       
     } catch (e) {
-      print('[$tag] 处理TTS消息失败: $e');
+      Loggers.audio.severe('处理TTS消息失败', e);
     }
   }
 
@@ -230,7 +231,7 @@ class RealTimeAudioService {
       final isFinal = message['is_final'] as bool? ?? false;
       
       if (text != null) {
-        print('[$tag] 接收STT消息: text=$text, confidence=$confidence, final=$isFinal');
+        Loggers.audio.fine('接收STT消息: text=$text, confidence=$confidence, final=$isFinal');
         
         if (isFinal) {
           onMessage?.call('识别结果: $text');
@@ -240,7 +241,7 @@ class RealTimeAudioService {
       }
       
     } catch (e) {
-      print('[$tag] 处理STT消息失败: $e');
+      Loggers.audio.severe('处理STT消息失败', e);
     }
   }
 
@@ -249,7 +250,7 @@ class RealTimeAudioService {
     try {
       final state = message['state'] as String?;
       
-      print('[$tag] 接收Listen消息: state=$state');
+      Loggers.audio.fine('接收Listen消息: state=$state');
       
       switch (state) {
         case 'start':
@@ -264,7 +265,7 @@ class RealTimeAudioService {
       }
       
     } catch (e) {
-      print('[$tag] 处理Listen消息失败: $e');
+      Loggers.audio.severe('处理Listen消息失败', e);
     }
   }
 
@@ -274,14 +275,14 @@ class RealTimeAudioService {
       final error = message['message'] as String?;
       final code = message['code'] as int?;
       
-      print('[$tag] 接收错误消息: error=$error, code=$code');
+      Loggers.audio.severe('接收错误消息: error=$error, code=$code');
       
       if (error != null) {
         onError?.call('服务器错误: $error');
       }
       
     } catch (e) {
-      print('[$tag] 处理错误消息失败: $e');
+      Loggers.audio.severe('处理错误消息失败', e);
     }
   }
 
@@ -321,7 +322,7 @@ class RealTimeAudioService {
   Future<void> handleReceivedAudio(Uint8List audioData) async {
     try {
       if (!_isInitialized) {
-        print('[$tag] 服务未初始化，忽略音频数据');
+        Loggers.audio.fine('服务未初始化，忽略音频数据');
         return;
       }
 
@@ -337,7 +338,7 @@ class RealTimeAudioService {
       // }
       
     } catch (e) {
-      print('[$tag] 处理接收音频失败: $e');
+      Loggers.audio.severe('处理接收音频失败', e);
       onError?.call('音频处理失败: $e');
     }
   }
@@ -355,11 +356,11 @@ class RealTimeAudioService {
       };
 
       await _webSocketService.sendMessage(message);
-      print('[$tag] 发送Listen命令: $command');
+      Loggers.audio.fine('发送Listen命令: $command');
       return true;
       
     } catch (e) {
-      print('[$tag] 发送Listen命令失败: $e');
+      Loggers.audio.severe('发送Listen命令失败', e);
       onError?.call('发送命令失败: $e');
       return false;
     }
@@ -390,7 +391,7 @@ class RealTimeAudioService {
 
   /// 销毁服务
   Future<void> dispose() async {
-    print('[$tag] 销毁实时音频服务');
+    Loggers.audio.info('销毁实时音频服务');
     
     // 停止处理
     await stopRealTimeProcessing();
@@ -404,6 +405,6 @@ class RealTimeAudioService {
     
     _isInitialized = false;
     
-    print('[$tag] 实时音频服务已销毁');
+    Loggers.audio.info('实时音频服务已销毁');
   }
 }
