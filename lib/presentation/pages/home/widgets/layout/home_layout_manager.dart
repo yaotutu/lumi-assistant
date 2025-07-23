@@ -3,7 +3,8 @@ import 'package:hooks_riverpod/hooks_riverpod.dart';
 import '../background_system/background_system_manager.dart';
 import '../status_bar/status_bar_widget.dart';
 import '../actions/actions_widget.dart';
-import '../floating_chat/simple_floating_chat.dart';
+import '../floating_chat/floating_chat_widget.dart';
+import '../../../../widgets/mcp/mcp_call_status_widget.dart';
 
 /// 主页布局管理器
 /// 
@@ -95,7 +96,18 @@ class HomeLayoutManager extends ConsumerWidget {
   
   /// 构建浮动聊天层
   Widget _buildFloatingChatLayer() {
-    return const SimpleFloatingChat();
+    return Stack(
+      fit: StackFit.expand,
+      children: [
+        // 主要聊天界面
+        const FloatingChatWidget(
+          initialState: FloatingChatState.collapsed,
+        ),
+        
+        // MCP调用状态显示
+        const McpCallStatusWidget(),
+      ],
+    );
   }
   
   /// 构建调试信息层
