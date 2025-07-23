@@ -30,6 +30,7 @@ class AppSettings extends ChangeNotifier {
   static const _defaultFloatingChatHeightRatio = 0.7;
   static const _defaultFontScale = 1.0;
   static const _defaultAnimationDuration = 200;
+  static const _defaultTopBarDistance = 0.0; // 顶部操作栏距离顶部的距离，默认紧贴顶部
   
   /// 网络默认配置
   static const _defaultServerUrl = 'ws://192.168.110.199:8000';
@@ -54,6 +55,7 @@ class AppSettings extends ChangeNotifier {
   double? _userFloatingChatHeightRatio;
   double? _userFontScale;
   int? _userAnimationDuration;
+  double? _userTopBarDistance; // 用户设置的顶部操作栏距离
   
   String? _userServerUrl;
   String? _userApiUrl;
@@ -95,6 +97,7 @@ class AppSettings extends ChangeNotifier {
   double get floatingChatHeightRatio => _userFloatingChatHeightRatio ?? _defaultFloatingChatHeightRatio;
   double get fontScale => _userFontScale ?? _defaultFontScale;
   int get animationDuration => _userAnimationDuration ?? _defaultAnimationDuration;
+  double get topBarDistance => _userTopBarDistance ?? _defaultTopBarDistance;
   
   // 计算属性
   double get floatingChatCollapsedFontSize => floatingChatSize * 0.5;
@@ -172,6 +175,13 @@ class AppSettings extends ChangeNotifier {
   
   Future<void> updateAnimationDuration(int value) async {
     _userAnimationDuration = value;
+    notifyListeners();
+    await _saveSettings();
+  }
+
+  /// 更新顶部操作栏距离
+  Future<void> updateTopBarDistance(double value) async {
+    _userTopBarDistance = value;
     notifyListeners();
     await _saveSettings();
   }
@@ -342,6 +352,7 @@ class AppSettings extends ChangeNotifier {
   bool isDefaultFloatingChatSize() => _userFloatingChatSize == null;
   bool isDefaultServerUrl() => _userServerUrl == null;
   bool isDefaultFontScale() => _userFontScale == null;
+  bool isDefaultTopBarDistance() => _userTopBarDistance == null;
   
   /// 重置单个设置为默认值
   Future<void> resetFloatingChatSize() async {
@@ -361,6 +372,13 @@ class AppSettings extends ChangeNotifier {
     notifyListeners();
     await _saveSettings();
   }
+
+  /// 重置顶部操作栏距离
+  Future<void> resetTopBarDistance() async {
+    _userTopBarDistance = null;
+    notifyListeners();
+    await _saveSettings();
+  }
   
   /// 重置所有设置为默认值
   Future<void> resetAllSettings() async {
@@ -369,6 +387,7 @@ class AppSettings extends ChangeNotifier {
     _userFloatingChatHeightRatio = null;
     _userFontScale = null;
     _userAnimationDuration = null;
+    _userTopBarDistance = null;
     
     _userServerUrl = null;
     _userApiUrl = null;
@@ -410,6 +429,7 @@ class AppSettings extends ChangeNotifier {
     _userFloatingChatHeightRatio = prefs.getDouble('user_floating_chat_height_ratio');
     _userFontScale = prefs.getDouble('user_font_scale');
     _userAnimationDuration = prefs.getInt('user_animation_duration');
+    _userTopBarDistance = prefs.getDouble('user_top_bar_distance');
     
     // 网络设置
     _userServerUrl = prefs.getString('user_server_url');
@@ -477,6 +497,12 @@ class AppSettings extends ChangeNotifier {
       await prefs.setInt('user_animation_duration', _userAnimationDuration!);
     } else {
       await prefs.remove('user_animation_duration');
+    }
+    
+    if (_userTopBarDistance != null) {
+      await prefs.setDouble('user_top_bar_distance', _userTopBarDistance!);
+    } else {
+      await prefs.remove('user_top_bar_distance');
     }
     
     // 网络设置

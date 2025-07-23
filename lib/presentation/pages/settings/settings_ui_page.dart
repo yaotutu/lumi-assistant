@@ -80,6 +80,18 @@ class SettingsUIPage extends ConsumerWidget {
             valueTransform: (v) => v.round(),
             onChanged: (v) => settings.updateAnimationDuration(v.round()),
           ),
+          
+          _buildSliderSetting(
+            title: '顶部操作栏距离',
+            subtitle: '设置按钮距离屏幕顶部的距离',
+            value: settings.topBarDistance,
+            min: 0.0,
+            max: 100.0,
+            divisions: 20,
+            unit: 'px',
+            onChanged: settings.updateTopBarDistance,
+            onReset: settings.isDefaultTopBarDistance() ? null : settings.resetTopBarDistance,
+          ),
         ],
       ),
     );

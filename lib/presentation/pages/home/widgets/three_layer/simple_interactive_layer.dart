@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:hooks_riverpod/hooks_riverpod.dart';
 import '../../../settings/settings_main_page.dart';
+import '../../../../../core/config/app_settings.dart';
 
 /// 简化的交互功能层组件
 /// 
@@ -11,25 +13,31 @@ import '../../../settings/settings_main_page.dart';
 /// - 极简设计，只保留必要功能
 /// - 透明区域不阻挡下层显示
 /// - 只在顶部显示操作按钮
-class SimpleInteractiveLayer extends StatelessWidget {
+/// - 支持用户自定义顶部距离
+class SimpleInteractiveLayer extends ConsumerWidget {
   /// 构造函数
   const SimpleInteractiveLayer({super.key});
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
+    // 获取配置设置
+    final settings = ref.watch(appSettingsProvider);
+    
     return Stack(
       fit: StackFit.expand,
       children: [
         // 顶部设置区域 - 唯一的交互区域
-        _buildTopSettingsBar(context),
+        SafeArea(
+          child: _buildTopSettingsBar(context, settings),
+        ),
       ],
     );
   }
   
   /// 构建顶部设置栏
-  Widget _buildTopSettingsBar(BuildContext context) {
+  Widget _buildTopSettingsBar(BuildContext context, AppSettings settings) {
     return Positioned(
-      top: 50,
+      top: settings.topBarDistance, // 使用用户配置的距离，默认紧贴顶部
       left: 20,
       right: 20,
       height: 50,
