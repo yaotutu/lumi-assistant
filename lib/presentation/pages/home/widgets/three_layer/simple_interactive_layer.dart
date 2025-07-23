@@ -27,17 +27,19 @@ class SimpleInteractiveLayer extends ConsumerWidget {
       fit: StackFit.expand,
       children: [
         // 顶部设置区域 - 唯一的交互区域
-        SafeArea(
-          child: _buildTopSettingsBar(context, settings),
-        ),
+        _buildTopSettingsBar(context, settings),
       ],
     );
   }
   
   /// 构建顶部设置栏
   Widget _buildTopSettingsBar(BuildContext context, AppSettings settings) {
+    // 获取状态栏高度，确保不被状态栏遮挡
+    final statusBarHeight = MediaQuery.of(context).padding.top;
+    final finalTop = statusBarHeight + settings.topBarDistance;
+    
     return Positioned(
-      top: settings.topBarDistance, // 使用用户配置的距离，默认紧贴顶部
+      top: finalTop, // 状态栏高度 + 用户配置的额外距离
       left: 20,
       right: 20,
       height: 50,

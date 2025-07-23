@@ -30,7 +30,7 @@ class AppSettings extends ChangeNotifier {
   static const _defaultFloatingChatHeightRatio = 0.7;
   static const _defaultFontScale = 1.0;
   static const _defaultAnimationDuration = 200;
-  static const _defaultTopBarDistance = 0.0; // 顶部操作栏距离顶部的距离，默认紧贴顶部
+  static const _defaultTopBarDistance = 0.0; // 顶部操作栏距离状态栏的额外距离，默认紧贴状态栏下方
   
   /// 网络默认配置
   static const _defaultServerUrl = 'ws://192.168.110.199:8000';

@@ -83,7 +83,7 @@ class SettingsUIPage extends ConsumerWidget {
           
           _buildSliderSetting(
             title: '顶部操作栏距离',
-            subtitle: '设置按钮距离屏幕顶部的距离',
+            subtitle: '设置按钮距离状态栏的额外距离',
             value: settings.topBarDistance,
             min: 0.0,
             max: 100.0,
