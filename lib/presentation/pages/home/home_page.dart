@@ -7,8 +7,8 @@ import '../../widgets/floating_chat/floating_chat_widget.dart';
 import '../../widgets/mcp/mcp_call_status_widget.dart';
 import '../../widgets/mcp/mcp_change_notification.dart';
 import 'widgets/three_layer/three_layer_manager.dart';
-import 'widgets/three_layer/simple_background_layer.dart';
 import 'widgets/three_layer/simple_interactive_layer.dart';
+import 'widgets/background_system/background_system_manager.dart';
 
 /// 应用主页 - 三层架构设计
 /// 
@@ -72,9 +72,12 @@ class HomePage extends HookConsumerWidget {
   
   /// 构建纯背景层
   /// 
-  /// 只包含渐变背景和时间显示
+  /// 使用专业的背景系统管理器，支持复杂的背景功能
   Widget _buildPureBackground(BuildContext context) {
-    return const SimpleBackgroundLayer();
+    return const BackgroundSystemManager(
+      mode: BackgroundSystemMode.minimal, // 当前使用极简模式
+      config: BackgroundSystemConfig.defaultConfig,
+    );
   }
   
   /// 构建聊天窗口层
