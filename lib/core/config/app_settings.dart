@@ -1,9 +1,12 @@
+import 'dart:convert';
 import 'package:flutter/foundation.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:logging/logging.dart';
 
 import '../utils/app_logger.dart';
+import 'background_config.dart';
+import 'wallpaper_config.dart';
 
 /// 应用设置管理
 /// 
@@ -47,6 +50,15 @@ class AppSettings extends ChangeNotifier {
   static const _defaultEnableAnimations = false;
   static const _defaultEnableRipple = false;
   
+  /// 背景默认配置
+  static final _defaultBackgroundConfig = BackgroundConfig();
+  
+  /// 壁纸默认配置 - 使用内置壁纸，默认为动态星空
+  static const _defaultWallpaperMode = WallpaperMode.builtinWallpaper;
+  static const _defaultBuiltinWallpaperType = BuiltinWallpaperType.animatedStarfield;
+  static const String? _defaultCustomWallpaperPath = null;
+  static const _defaultEnableWallpaperOverlay = false; // 默认不启用遮罩，保持图片清晰
+  
   // ==================== 用户动态设置 ====================
   // 用户可以在设置页面修改这些值，如果为null则使用默认值
   
@@ -68,6 +80,14 @@ class AppSettings extends ChangeNotifier {
   bool? _userUseMaterial3;
   bool? _userEnableAnimations;
   bool? _userEnableRipple;
+  
+  BackgroundConfig? _userBackgroundConfig;
+  
+  /// 壁纸用户设置
+  WallpaperMode? _userWallpaperMode;
+  BuiltinWallpaperType? _userBuiltinWallpaperType;
+  String? _userCustomWallpaperPath;
+  bool? _userEnableWallpaperOverlay;
   
   // ==================== 日志设置 ====================
   
@@ -118,6 +138,15 @@ class AppSettings extends ChangeNotifier {
   bool get useMaterial3 => _userUseMaterial3 ?? _defaultUseMaterial3;
   bool get enableAnimations => _userEnableAnimations ?? _defaultEnableAnimations;
   bool get enableRipple => _userEnableRipple ?? _defaultEnableRipple;
+  
+  /// 背景设置
+  BackgroundConfig get backgroundConfig => _userBackgroundConfig ?? _defaultBackgroundConfig;
+  
+  /// 壁纸设置
+  WallpaperMode get wallpaperMode => _userWallpaperMode ?? _defaultWallpaperMode;
+  BuiltinWallpaperType get builtinWallpaperType => _userBuiltinWallpaperType ?? _defaultBuiltinWallpaperType;
+  String? get customWallpaperPath => _userCustomWallpaperPath ?? _defaultCustomWallpaperPath;
+  bool get enableWallpaperOverlay => _userEnableWallpaperOverlay ?? _defaultEnableWallpaperOverlay;
   
   /// 日志设置
   Level get logLevel {
@@ -239,6 +268,53 @@ class AppSettings extends ChangeNotifier {
   
   Future<void> updateFrameDuration(int value) async {
     _userFrameDuration = value;
+    notifyListeners();
+    await _saveSettings();
+  }
+
+  /// 更新背景设置
+  Future<void> updateBackgroundConfig(BackgroundConfig config) async {
+    _userBackgroundConfig = config;
+    notifyListeners();
+    await _saveSettings();
+  }
+  
+  Future<void> resetBackgroundConfig() async {
+    _userBackgroundConfig = null;
+    notifyListeners();
+    await _saveSettings();
+  }
+  
+  /// 更新壁纸设置
+  Future<void> updateWallpaperMode(WallpaperMode mode) async {
+    _userWallpaperMode = mode;
+    notifyListeners();
+    await _saveSettings();
+  }
+  
+  Future<void> updateBuiltinWallpaperType(BuiltinWallpaperType type) async {
+    _userBuiltinWallpaperType = type;
+    notifyListeners();
+    await _saveSettings();
+  }
+  
+  Future<void> updateCustomWallpaperPath(String? path) async {
+    _userCustomWallpaperPath = path;
+    notifyListeners();
+    await _saveSettings();
+  }
+  
+  Future<void> updateEnableWallpaperOverlay(bool enable) async {
+    _userEnableWallpaperOverlay = enable;
+    notifyListeners();
+    await _saveSettings();
+  }
+  
+  Future<void> resetWallpaperSettings() async {
+    _userWallpaperMode = null;
+    _userBuiltinWallpaperType = null;
+    _userCustomWallpaperPath = null;
+    _userEnableWallpaperOverlay = null;
     notifyListeners();
     await _saveSettings();
   }
@@ -401,6 +477,12 @@ class AppSettings extends ChangeNotifier {
     _userEnableAnimations = null;
     _userEnableRipple = null;
     
+    _userBackgroundConfig = null;
+    _userWallpaperMode = null;
+    _userBuiltinWallpaperType = null;
+    _userCustomWallpaperPath = null;
+    _userEnableWallpaperOverlay = null;
+    
     _userLogLevel = null;
     _debugEnableVerboseLogging = false;
     _debugEnablePerformanceLogging = false;
@@ -445,6 +527,48 @@ class AppSettings extends ChangeNotifier {
     _userUseMaterial3 = prefs.getBool('user_use_material3');
     _userEnableAnimations = prefs.getBool('user_enable_animations');
     _userEnableRipple = prefs.getBool('user_enable_ripple');
+    
+    // 背景设置
+    final backgroundConfigJson = prefs.getString('user_background_config');
+    if (backgroundConfigJson != null) {
+      try {
+        final Map<String, dynamic> json = Map<String, dynamic>.from(
+          jsonDecode(backgroundConfigJson) as Map
+        );
+        _userBackgroundConfig = BackgroundConfig.fromJson(json);
+      } catch (e) {
+        // 如果解析失败，使用默认配置
+        _userBackgroundConfig = null;
+      }
+    }
+    
+    // 壁纸设置
+    final wallpaperModeString = prefs.getString('user_wallpaper_mode');
+    if (wallpaperModeString != null) {
+      try {
+        _userWallpaperMode = WallpaperMode.values.firstWhere(
+          (mode) => mode.name == wallpaperModeString,
+        );
+      } catch (e) {
+        // 如果解析失败，使用默认模式
+        _userWallpaperMode = null;
+      }
+    }
+    
+    final builtinWallpaperTypeString = prefs.getString('user_builtin_wallpaper_type');
+    if (builtinWallpaperTypeString != null) {
+      try {
+        _userBuiltinWallpaperType = BuiltinWallpaperType.values.firstWhere(
+          (type) => type.name == builtinWallpaperTypeString,
+        );
+      } catch (e) {
+        // 如果解析失败，使用默认类型
+        _userBuiltinWallpaperType = null;
+      }
+    }
+    
+    _userCustomWallpaperPath = prefs.getString('user_custom_wallpaper_path');
+    _userEnableWallpaperOverlay = prefs.getBool('user_enable_wallpaper_overlay');
     
     // 日志设置
     _userLogLevel = prefs.getString('user_log_level');
@@ -541,6 +665,38 @@ class AppSettings extends ChangeNotifier {
       await prefs.setBool('user_enable_ripple', _userEnableRipple!);
     } else {
       await prefs.remove('user_enable_ripple');
+    }
+    
+    // 背景设置
+    if (_userBackgroundConfig != null) {
+      await prefs.setString('user_background_config', jsonEncode(_userBackgroundConfig!.toJson()));
+    } else {
+      await prefs.remove('user_background_config');
+    }
+    
+    // 壁纸设置
+    if (_userWallpaperMode != null) {
+      await prefs.setString('user_wallpaper_mode', _userWallpaperMode!.name);
+    } else {
+      await prefs.remove('user_wallpaper_mode');
+    }
+    
+    if (_userBuiltinWallpaperType != null) {
+      await prefs.setString('user_builtin_wallpaper_type', _userBuiltinWallpaperType!.name);
+    } else {
+      await prefs.remove('user_builtin_wallpaper_type');
+    }
+    
+    if (_userCustomWallpaperPath != null) {
+      await prefs.setString('user_custom_wallpaper_path', _userCustomWallpaperPath!);
+    } else {
+      await prefs.remove('user_custom_wallpaper_path');
+    }
+    
+    if (_userEnableWallpaperOverlay != null) {
+      await prefs.setBool('user_enable_wallpaper_overlay', _userEnableWallpaperOverlay!);
+    } else {
+      await prefs.remove('user_enable_wallpaper_overlay');
     }
     
     // 音频设置

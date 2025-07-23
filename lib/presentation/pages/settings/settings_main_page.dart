@@ -7,6 +7,7 @@ import 'settings_audio_page.dart';
 import 'settings_theme_page.dart';
 import 'settings_debug_page.dart';
 import 'mcp_servers_page.dart';
+import 'pages/settings_wallpaper_page.dart';
 // 已删除的调试页面：
 // import '../debug/opus_capture_debug_page.dart'; // Opus捕获调试页面
 // import '../debug/opus_playback_test_page.dart'; // Opus播放测试页面
@@ -103,6 +104,20 @@ class SettingsMainPage extends ConsumerWidget {
             onTap: () => Navigator.push(
               context,
               MaterialPageRoute(builder: (context) => const SettingsNetworkPage()),
+            ),
+          ),
+          
+          const SizedBox(height: 12),
+          
+          _buildSettingsCategoryCard(
+            context,
+            title: '壁纸设置',
+            subtitle: '默认渐变背景或自定义图片壁纸',
+            icon: Icons.wallpaper,
+            color: Colors.teal,
+            onTap: () => Navigator.push(
+              context,
+              MaterialPageRoute(builder: (context) => const SettingsWallpaperPage()),
             ),
           ),
           

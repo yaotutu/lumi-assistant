@@ -229,18 +229,24 @@ class FloatingChatWidget extends HookConsumerWidget {
                 width: currentSize.width,
                 height: currentSize.height,
                 decoration: BoxDecoration(
-                  borderRadius: BorderRadius.circular(16),
-                  // 简化阴影效果  
+                  // 动态圆角：收缩状态使用圆形，展开状态使用圆角矩形
+                  borderRadius: chatState.value == FloatingChatState.collapsed 
+                      ? BorderRadius.circular(currentSize.width / 2) // 完美圆形
+                      : BorderRadius.circular(16), // 展开状态保持圆角矩形
+                  // 简化阴影效果，收缩状态时减少阴影
                   boxShadow: [
-                    const BoxShadow(
-                      color: Color(0x26000000),
-                      blurRadius: 8,
-                      offset: Offset(0, 4),
+                    BoxShadow(
+                      color: const Color(0x26000000),
+                      blurRadius: chatState.value == FloatingChatState.collapsed ? 6 : 8,
+                      offset: const Offset(0, 4),
                     ),
                   ],
                 ),
                 child: ClipRRect(
-                  borderRadius: BorderRadius.circular(16),
+                  // 动态圆角裁剪，与外层容器保持一致
+                  borderRadius: chatState.value == FloatingChatState.collapsed 
+                      ? BorderRadius.circular(currentSize.width / 2) // 完美圆形
+                      : BorderRadius.circular(16), // 展开状态保持圆角矩形
                   child: chatState.value == FloatingChatState.collapsed
                       ? _buildCollapsedContent(context, ref, onCharacterTap, settings)
                       : _buildExpandedContent(context, ref, onCharacterTap, toggleChatState, isLandscape, layoutParams, voiceInputState.value, startRecording, stopRecording, settings),
@@ -253,42 +259,50 @@ class FloatingChatWidget extends HookConsumerWidget {
     );
   }
   
-  /// 构建收缩状态内容
+  /// 构建收缩状态内容（圆形设计，参考设置按钮风格）
   Widget _buildCollapsedContent(BuildContext context, WidgetRef ref, VoidCallback onTap, AppSettings settings) {
+    // 计算圆形半径，确保按钮是完美的圆形
+    final buttonRadius = settings.floatingChatSize / 2;
     
-    return Container(
-      decoration: BoxDecoration(
-        gradient: LinearGradient(
-          begin: Alignment.topLeft,
-          end: Alignment.bottomRight,
-          colors: [
-            Colors.blue.shade400.withValues(alpha: 0.9),
-            Colors.purple.shade400.withValues(alpha: 0.9),
-          ],
-        ),
-      ),
-      child: Material(
-        color: Colors.transparent,
-        child: InkWell(
-          onTap: onTap,
-          borderRadius: BorderRadius.circular(16),
-          child: Container(
-            // 使用全部可用空间，不设置固定尺寸限制
-            width: double.infinity,
-            height: double.infinity,
-            // 只设置最小边距，确保emoji有足够空间
-            padding: EdgeInsets.all(4),
-            child: Center(
-              child: Text(
-                '🙂',
-                style: TextStyle(
-                  // 使用应用设置的字体大小
-                  fontSize: settings.floatingChatCollapsedFontSize,
-                  color: Colors.white,
-                  height: 1.0,
-                ),
-                textAlign: TextAlign.center,
+    return Material(
+      color: Colors.transparent,
+      child: InkWell(
+        onTap: onTap,
+        // 使用完美圆形的borderRadius
+        borderRadius: BorderRadius.circular(buttonRadius),
+        child: Container(
+          width: double.infinity,
+          height: double.infinity,
+          decoration: BoxDecoration(
+            // 参考设置按钮的圆形设计
+            borderRadius: BorderRadius.circular(buttonRadius),
+            // 参考设置按钮的半透明背景设计
+            color: Colors.white.withValues(alpha: 0.15),
+            // 添加微妙的边框，增加层次感
+            border: Border.all(
+              color: Colors.white.withValues(alpha: 0.2),
+              width: 1,
+            ),
+            // 保持美观的阴影效果
+            boxShadow: [
+              BoxShadow(
+                color: Colors.black.withValues(alpha: 0.1),
+                blurRadius: 8,
+                offset: const Offset(0, 4),
               ),
+            ],
+          ),
+          child: Center(
+            child: Text(
+              '🙂',
+              style: TextStyle(
+                // 使用应用设置的字体大小
+                fontSize: settings.floatingChatCollapsedFontSize,
+                // 使用更柔和的白色，参考设置按钮
+                color: Colors.white.withValues(alpha: 0.9),
+                height: 1.0,
+              ),
+              textAlign: TextAlign.center,
             ),
           ),
         ),

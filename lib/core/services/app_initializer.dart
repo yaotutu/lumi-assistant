@@ -6,6 +6,7 @@ import 'package:opus_dart/opus_dart.dart';
 import '../config/app_settings.dart';
 import '../utils/app_logger.dart';
 import '../utils/loggers.dart';
+// import '../../presentation/services/photo_service.dart'; // 暂时不需要
 
 /// 应用初始化服务
 /// 
@@ -54,7 +55,10 @@ class AppInitializer {
       // 步骤2：应用性能优化设置
       await _applyPerformanceOptimizations();
       
-      // 步骤3：异步初始化Opus库（不等待完成）
+      // 步骤3：初始化照片服务
+      await _initializePhotoService();
+      
+      // 步骤4：异步初始化Opus库（不等待完成）
       _initializeOpusAsync();
       
       // 标记初始化完成
@@ -130,6 +134,34 @@ class AppInitializer {
       // 性能优化设置失败记录警告，但不影响应用启动
       Loggers.system.warning('⚠️ 性能优化配置失败: $error');
     }
+  }
+  
+  /// 初始化照片服务
+  /// 
+  /// 流程：
+  /// 1. 初始化PhotoService单例
+  /// 2. 注册默认的照片源适配器
+  /// 3. 检查适配器健康状态
+  /// 
+  /// 注意：如果初始化失败会记录错误但不影响应用启动
+  Future<void> _initializePhotoService() async {
+    // 照片服务已简化，不再需要网络照片源的复杂初始化
+    // 保留注释以备将来需要时恢复
+    /*
+    try {
+      Loggers.system.info('🖼️ 开始初始化照片服务...');
+      
+      // 初始化照片服务
+      await PhotoService.instance.initialize();
+      
+      Loggers.system.info('✅ 照片服务初始化完成');
+      
+    } catch (error) {
+      // 照片服务初始化失败记录错误，但不阻塞应用启动
+      Loggers.system.severe('❌ 照片服务初始化失败: $error', error);
+      // 不重新抛出异常，让应用继续启动
+    }
+    */
   }
   
   /// 异步初始化Opus音频编解码库

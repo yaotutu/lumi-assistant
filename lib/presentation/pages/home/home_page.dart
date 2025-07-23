@@ -45,6 +45,6 @@ class HomePage extends HookConsumerWidget {
   /// 
   /// 使用HomeLayoutManager管理四个功能区域
   Widget _buildHomeLayout(BuildContext context, WidgetRef ref) {
-    return HomeLayoutManagerExtensions.createDefault();
+    return HomeLayoutManagerExtensions.createPhotoAlbum();
   }
 }

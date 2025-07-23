@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
-import '../background_system/background_system_manager.dart';
+import '../background_system/simple_wallpaper_manager.dart';
 import '../status_bar/status_bar_widget.dart';
 import '../actions/actions_widget.dart';
 import '../floating_chat/floating_chat_widget.dart';
@@ -28,12 +28,6 @@ class HomeLayoutManager extends ConsumerWidget {
   /// 是否显示扩展操作
   final bool showExtendedActions;
   
-  /// 背景模式
-  final BackgroundSystemMode backgroundMode;
-  
-  /// 背景配置
-  final BackgroundSystemConfig backgroundConfig;
-  
   /// 是否启用调试模式
   final bool enableDebug;
   
@@ -43,8 +37,6 @@ class HomeLayoutManager extends ConsumerWidget {
     this.showActions = false,
     this.actionsPosition = ActionsPosition.center,
     this.showExtendedActions = false,
-    this.backgroundMode = BackgroundSystemMode.minimal,
-    this.backgroundConfig = BackgroundSystemConfig.defaultConfig,
     this.enableDebug = false,
   });
 
@@ -73,11 +65,8 @@ class HomeLayoutManager extends ConsumerWidget {
   
   /// 构建背景层
   Widget _buildBackgroundLayer() {
-    return AbsorbPointer(
-      child: BackgroundSystemManager(
-        mode: backgroundMode,
-        config: backgroundConfig,
-      ),
+    return const AbsorbPointer(
+      child: SimpleWallpaperManager(),
     );
   }
   
@@ -139,11 +128,11 @@ class HomeLayoutManager extends ConsumerWidget {
               style: TextStyle(color: Colors.white, fontSize: 10),
             ),
             Text(
-              'Background: ${backgroundMode.displayName}',
+              'Background: Managed by SimpleWallpaperManager',
               style: TextStyle(color: Colors.white, fontSize: 10),
             ),
             Text(
-              'Actions: ${showActions ? actionsPosition.name : 'Hidden'}',
+              'Actions: ${showActions ? 'Shown' : 'Hidden'}',
               style: TextStyle(color: Colors.white, fontSize: 10),
             ),
           ],
@@ -157,24 +146,10 @@ class HomeLayoutManager extends ConsumerWidget {
 /// 
 /// 提供链式调用API，方便配置复杂的布局
 class HomeLayoutBuilder {
-  BackgroundSystemMode _backgroundMode = BackgroundSystemMode.minimal;
-  BackgroundSystemConfig _backgroundConfig = BackgroundSystemConfig.defaultConfig;
   bool _showActions = false;
   ActionsPosition _actionsPosition = ActionsPosition.center;
   bool _showExtendedActions = false;
   bool _enableDebug = false;
-  
-  /// 设置背景模式
-  HomeLayoutBuilder setBackgroundMode(BackgroundSystemMode mode) {
-    _backgroundMode = mode;
-    return this;
-  }
-  
-  /// 设置背景配置
-  HomeLayoutBuilder setBackgroundConfig(BackgroundSystemConfig config) {
-    _backgroundConfig = config;
-    return this;
-  }
   
   /// 启用操作区域
   HomeLayoutBuilder enableActions({
@@ -202,8 +177,6 @@ class HomeLayoutBuilder {
   /// 构建布局管理器
   HomeLayoutManager build() {
     return HomeLayoutManager(
-      backgroundMode: _backgroundMode,
-      backgroundConfig: _backgroundConfig,
       showActions: _showActions,
       actionsPosition: _actionsPosition,
       showExtendedActions: _showExtendedActions,
@@ -217,8 +190,6 @@ extension HomeLayoutManagerExtensions on HomeLayoutManager {
   /// 创建默认布局
   static HomeLayoutManager createDefault() {
     return HomeLayoutBuilder()
-        .setBackgroundMode(BackgroundSystemMode.minimal)
-        .setBackgroundConfig(BackgroundSystemConfig.defaultConfig)
         .disableActions()
         .build();
   }
@@ -229,15 +200,20 @@ extension HomeLayoutManagerExtensions on HomeLayoutManager {
     bool showExtended = false,
   }) {
     return HomeLayoutBuilder()
-        .setBackgroundMode(BackgroundSystemMode.minimal)
         .enableActions(position: position, showExtended: showExtended)
+        .build();
+  }
+  
+  /// 创建电子相册布局（背景由SimpleWallpaperManager统一管理）
+  static HomeLayoutManager createPhotoAlbum() {
+    return HomeLayoutBuilder()
+        .disableActions()
         .build();
   }
   
   /// 创建开发调试布局
   static HomeLayoutManager createDebug() {
     return HomeLayoutBuilder()
-        .setBackgroundMode(BackgroundSystemMode.time)
         .enableActions(position: ActionsPosition.bottom, showExtended: true)
         .enableDebug()
         .build();

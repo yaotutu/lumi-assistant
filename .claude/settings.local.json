@@ -53,7 +53,9 @@
       "Bash(VERSION=\"0.1.66-pre\" BUILD_NUMBER=\"66123\" GITHUB_REPOSITORY=\"yaotutu/lumi-assistant\" ./.github/scripts/auto-changelog.sh)",
       "Bash(git pull:*)",
       "Bash(timeout:*)",
-      "Bash(cp:*)"
+      "Bash(cp:*)",
+      "Bash(curl:*)",
+      "WebFetch(domain:raw.githubusercontent.com)"
     ],
     "deny": []
   }
