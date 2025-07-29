@@ -15,6 +15,7 @@ import 'audio_service_android_style.dart';
 import 'unified_mcp_manager.dart';
 import 'opus_data_capture_service.dart';
 import 'mcp_error_handler.dart';
+import '../config/app_settings.dart';
 
 
 /// WebSocket服务类
@@ -30,8 +31,11 @@ class WebSocketService extends StateNotifier<WebSocketState> {
   
   // 统一MCP管理器
   final UnifiedMcpManager _mcpManager;
+  
+  // 应用设置，用于获取用户配置的服务器URL
+  final AppSettings _appSettings;
 
-  WebSocketService(this._mcpManager) : super(WebSocketStateFactory.disconnected());
+  WebSocketService(this._mcpManager, this._appSettings) : super(WebSocketStateFactory.disconnected());
 
   /// 消息流
   Stream<Map<String, dynamic>> get messageStream => _messageController.stream;
@@ -63,16 +67,17 @@ class WebSocketService extends StateNotifier<WebSocketState> {
       await _checkNetworkConnection();
       Loggers.websocket.info('网络连接检查通过');
       
-      // 构建WebSocket URL - 完全按照Android客户端方式
+      // 构建WebSocket URL - 优先使用参数，然后用户配置，最后用默认值
       final deviceId = await _getDeviceId();
-      final baseUrl = serverUrl ?? ApiConstants.webSocketBaseUrl;
-      Loggers.websocket.info('使用服务器URL: $baseUrl');
+      final baseUrl = serverUrl ?? _appSettings.serverUrl;
+      Loggers.websocket.info('使用服务器URL: $baseUrl (来源: ${serverUrl != null ? '参数' : '用户配置'})');
       
       // Android客户端直接使用原始URL，不添加query parameters
       final uri = Uri.parse(baseUrl);
       
       Loggers.websocket.fine('准备连接到: $uri');
-      Loggers.websocket.fine('连接超时设置: ${ApiConstants.connectionTimeout}ms');
+      final connectionTimeoutMs = _appSettings.connectionTimeout * 1000; // 转换为毫秒
+      Loggers.websocket.fine('连接超时设置: ${connectionTimeoutMs}ms (来源: 用户配置)');
       
       // 建立WebSocket连接 - 完全按照Android客户端方式
       Loggers.websocket.info('开始创建WebSocket连接...');
@@ -90,7 +95,7 @@ class WebSocketService extends StateNotifier<WebSocketState> {
         _channel = IOWebSocketChannel.connect(
           uri,
           headers: headers,
-          connectTimeout: Duration(milliseconds: ApiConstants.connectionTimeout),
+          connectTimeout: Duration(milliseconds: connectionTimeoutMs),
         );
         Loggers.websocket.info('WebSocket连接对象创建成功');
       } catch (connectError) {
@@ -824,9 +829,10 @@ class WebSocketService extends StateNotifier<WebSocketState> {
 
 /// WebSocket服务提供者
 final webSocketServiceProvider = StateNotifierProvider<WebSocketService, WebSocketState>((ref) {
-  // 注入统一MCP管理器
+  // 注入统一MCP管理器和应用设置
   final mcpManager = ref.read(unifiedMcpManagerProvider);
-  final service = WebSocketService(mcpManager);
+  final appSettings = ref.read(appSettingsProvider);
+  final service = WebSocketService(mcpManager, appSettings);
   
   // 初始化统一MCP管理器
   Future.microtask(() async {
