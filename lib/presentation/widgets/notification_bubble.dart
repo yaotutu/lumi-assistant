@@ -205,7 +205,8 @@ class _NotificationBubbleState extends State<NotificationBubble>
             child: GestureDetector(
               onTap: _removeOverlay, // 点击背景关闭面板
               child: Container(
-                color: Colors.black.withValues(alpha: 0.6), // 60% 不透明度的黑色
+                // 使用浅灰色遮罩，创建明亮清爽的背景
+                color: const Color(0xFF000000).withValues(alpha: 0.3), // 轻微半透明遮罩
               ),
             ),
           ),
@@ -430,18 +431,26 @@ class _NotificationPanelState extends State<NotificationPanel>
         child: Container(
           width: 380, // 固定宽度，适合大部分横屏设备
           decoration: BoxDecoration(
-            color: Colors.grey[900],              // 深灰色背景，提高可读性
+            // 使用明亮的白色背景，创建现代清爽的外观
+            color: const Color(0xFFFFFFFF).withValues(alpha: 0.98), // 明亮白色背景
             borderRadius: BorderRadius.circular(16), // 圆角边框
             border: Border.all(
-              color: Colors.grey[800]!,           // 边框颜色
+              color: const Color(0xFFE0E0E0).withValues(alpha: 0.8), // 浅灰色边框
               width: 1,
             ),
             boxShadow: [
-              // 阴影效果，增加层次感
+              // 柔和的外阴影，适合明亮主题
               BoxShadow(
-                color: Colors.black.withValues(alpha: 0.5),
-                blurRadius: 20,
-                offset: const Offset(5, 0), // 向右偏移，模拟光源从左侧照射
+                color: Colors.black.withValues(alpha: 0.15),
+                blurRadius: 15,
+                offset: const Offset(0, 8),
+                spreadRadius: 0,
+              ),
+              // 轻微的边缘阴影
+              BoxShadow(
+                color: Colors.grey.withValues(alpha: 0.1),
+                blurRadius: 5,
+                offset: const Offset(0, 2),
               ),
             ],
           ),
@@ -479,23 +488,24 @@ class _NotificationPanelState extends State<NotificationPanel>
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
       decoration: BoxDecoration(
-        color: Colors.grey[850],
+        // 标题栏使用非常浅的蓝色色调
+        color: const Color(0xFFF8F9FA).withValues(alpha: 0.98),
         borderRadius: const BorderRadius.vertical(top: Radius.circular(16)),
         border: Border(
           bottom: BorderSide(
-            color: Colors.grey[800]!,
+            color: const Color(0xFFE0E0E0).withValues(alpha: 0.6),
             width: 1,
           ),
         ),
       ),
       child: Row(
         children: [
-          Icon(Icons.notifications, color: Colors.blue[400], size: 18),
+          Icon(Icons.notifications, color: const Color(0xFF37474F), size: 18),
           const SizedBox(width: 8),
           Text(
             '通知',
-            style: TextStyle(
-              color: Colors.grey[100],
+            style: const TextStyle(
+              color: Color(0xFF37474F),
               fontSize: 14,
               fontWeight: FontWeight.w600,
             ),
@@ -505,7 +515,7 @@ class _NotificationPanelState extends State<NotificationPanel>
             Container(
               padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 1),
               decoration: BoxDecoration(
-                color: Colors.blue[700],
+                color: const Color(0xFF1976D2),
                 borderRadius: BorderRadius.circular(8),
               ),
               child: Text(
@@ -520,7 +530,7 @@ class _NotificationPanelState extends State<NotificationPanel>
           ],
           const Spacer(),
           IconButton(
-            icon: Icon(Icons.close, color: Colors.grey[400], size: 18),
+            icon: const Icon(Icons.close, color: Color(0xFF37474F), size: 18),
             onPressed: widget.onClose,
             padding: EdgeInsets.zero,
             constraints: const BoxConstraints(
@@ -544,13 +554,13 @@ class _NotificationPanelState extends State<NotificationPanel>
             Icon(
               Icons.notifications_none,
               size: 48,
-              color: Colors.grey[700],
+              color: const Color(0xFF757575),
             ),
             const SizedBox(height: 12),
             Text(
               '暂无通知',
-              style: TextStyle(
-                color: Colors.grey[600],
+              style: const TextStyle(
+                color: Color(0xFF757575),
                 fontSize: 14,
               ),
             ),
@@ -582,11 +592,12 @@ class _NotificationPanelState extends State<NotificationPanel>
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
       decoration: BoxDecoration(
-        color: Colors.grey[850],
+        // 使用浅蓝灰色底部栏，配合明亮主题
+        color: const Color(0xFFF5F5F5).withValues(alpha: 0.98),
         borderRadius: const BorderRadius.vertical(bottom: Radius.circular(16)),
         border: Border(
           top: BorderSide(
-            color: Colors.grey[800]!,
+            color: const Color(0xFFE0E0E0).withValues(alpha: 0.8),
             width: 1,
           ),
         ),
@@ -604,7 +615,7 @@ class _NotificationPanelState extends State<NotificationPanel>
           Container(
             width: 1,
             height: 20,
-            color: Colors.grey[700],
+            color: const Color(0xFFBDBDBD).withValues(alpha: 0.6),
           ),
           _buildCompactActionButton(
             icon: Icons.delete_sweep,
@@ -616,7 +627,7 @@ class _NotificationPanelState extends State<NotificationPanel>
           Container(
             width: 1,
             height: 20,
-            color: Colors.grey[700],
+            color: const Color(0xFFBDBDBD).withValues(alpha: 0.6),
           ),
           _buildCompactActionButton(
             icon: Icons.clear_all,
@@ -640,7 +651,7 @@ class _NotificationPanelState extends State<NotificationPanel>
       icon: Icon(icon, size: 16),
       label: Text(label, style: const TextStyle(fontSize: 12)),
       style: TextButton.styleFrom(
-        foregroundColor: Colors.grey[400],
+        foregroundColor: const Color(0xFF37474F),
         padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 2),
         minimumSize: const Size(0, 28),
       ),
@@ -686,14 +697,15 @@ class _NotificationItemCompact extends StatelessWidget {
             child: Container(
               padding: const EdgeInsets.all(8),
               decoration: BoxDecoration(
+                // 使用明亮主题的通知项背景
                 color: notification.isRead 
-                    ? Colors.grey[850]
-                    : Colors.grey[800],
+                    ? const Color(0xFFF5F5F5).withValues(alpha: 0.9)  // 浅灰色已读背景
+                    : const Color(0xFFE3F2FD).withValues(alpha: 0.95), // 浅蓝色未读背景
                 borderRadius: BorderRadius.circular(8),
                 border: Border.all(
                   color: notification.isRead
-                      ? Colors.grey[800]!
-                      : notification.color.withValues(alpha: 0.5),
+                      ? const Color(0xFFE0E0E0).withValues(alpha: 0.8)  // 浅灰色边框
+                      : const Color(0xFF90CAF9).withValues(alpha: 0.8), // 浅蓝色边框
                   width: 1,
                 ),
               ),
@@ -726,7 +738,7 @@ class _NotificationItemCompact extends StatelessWidget {
                               Text(
                                 notification.title!,
                                 style: TextStyle(
-                                  color: Colors.grey[100],
+                                  color: const Color(0xFF37474F),
                                   fontSize: 13,
                                   fontWeight: notification.isRead 
                                       ? FontWeight.normal 
@@ -737,8 +749,8 @@ class _NotificationItemCompact extends StatelessWidget {
                             ],
                             Text(
                               _formatTime(notification.timestamp),
-                              style: TextStyle(
-                                color: Colors.grey[500],
+                              style: const TextStyle(
+                                color: Color(0xFF757575),
                                 fontSize: 11,
                               ),
                             ),
@@ -747,8 +759,8 @@ class _NotificationItemCompact extends StatelessWidget {
                         const SizedBox(height: 2),
                         Text(
                           notification.message,
-                          style: TextStyle(
-                            color: Colors.grey[300],
+                          style: const TextStyle(
+                            color: Color(0xFF424242),
                             fontSize: 12,
                             height: 1.2,
                           ),
