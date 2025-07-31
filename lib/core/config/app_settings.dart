@@ -40,6 +40,10 @@ class AppSettings extends ChangeNotifier {
   static const _defaultApiUrl = 'http://192.168.110.199:8000/api';
   static const _defaultConnectionTimeout = 10;
   
+  /// Gotify 默认配置
+  static const _defaultGotifyServerUrl = '';
+  static const _defaultGotifyClientToken = '';
+  
   /// 音频默认配置
   static const _defaultSampleRate = 16000;
   static const _defaultChannels = 1;
@@ -72,6 +76,9 @@ class AppSettings extends ChangeNotifier {
   String? _userServerUrl;
   String? _userApiUrl;
   int? _userConnectionTimeout;
+  
+  String? _userGotifyServerUrl;
+  String? _userGotifyClientToken;
   
   int? _userSampleRate;
   int? _userChannels;
@@ -128,6 +135,10 @@ class AppSettings extends ChangeNotifier {
   String get serverUrl => _userServerUrl ?? _defaultServerUrl;
   String get apiUrl => _userApiUrl ?? _defaultApiUrl;
   int get connectionTimeout => _userConnectionTimeout ?? _defaultConnectionTimeout;
+  
+  /// Gotify 设置
+  String get gotifyServerUrl => _userGotifyServerUrl ?? _defaultGotifyServerUrl;
+  String get gotifyClientToken => _userGotifyClientToken ?? _defaultGotifyClientToken;
   
   /// 音频设置
   int get sampleRate => _userSampleRate ?? _defaultSampleRate;
@@ -230,6 +241,19 @@ class AppSettings extends ChangeNotifier {
   
   Future<void> updateConnectionTimeout(int value) async {
     _userConnectionTimeout = value;
+    notifyListeners();
+    await _saveSettings();
+  }
+  
+  /// 更新 Gotify 设置
+  Future<void> updateGotifyServerUrl(String value) async {
+    _userGotifyServerUrl = value;
+    notifyListeners();
+    await _saveSettings();
+  }
+  
+  Future<void> updateGotifyClientToken(String value) async {
+    _userGotifyClientToken = value;
     notifyListeners();
     await _saveSettings();
   }
@@ -518,6 +542,10 @@ class AppSettings extends ChangeNotifier {
     _userApiUrl = prefs.getString('user_api_url');
     _userConnectionTimeout = prefs.getInt('user_connection_timeout');
     
+    // Gotify 设置
+    _userGotifyServerUrl = prefs.getString('user_gotify_server_url');
+    _userGotifyClientToken = prefs.getString('user_gotify_client_token');
+    
     // 音频设置
     _userSampleRate = prefs.getInt('user_sample_rate');
     _userChannels = prefs.getInt('user_channels');
@@ -646,6 +674,19 @@ class AppSettings extends ChangeNotifier {
       await prefs.setInt('user_connection_timeout', _userConnectionTimeout!);
     } else {
       await prefs.remove('user_connection_timeout');
+    }
+    
+    // Gotify 设置
+    if (_userGotifyServerUrl != null) {
+      await prefs.setString('user_gotify_server_url', _userGotifyServerUrl!);
+    } else {
+      await prefs.remove('user_gotify_server_url');
+    }
+    
+    if (_userGotifyClientToken != null) {
+      await prefs.setString('user_gotify_client_token', _userGotifyClientToken!);
+    } else {
+      await prefs.remove('user_gotify_client_token');
     }
     
     // 主题设置

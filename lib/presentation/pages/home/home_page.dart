@@ -5,6 +5,7 @@ import 'package:hooks_riverpod/hooks_riverpod.dart';
 import '../../../core/services/unified_mcp_manager.dart';
 import '../../widgets/mcp/mcp_change_notification.dart';
 import 'widgets/layout/home_layout_manager.dart';
+import '../../providers/gotify_provider.dart';
 
 /// 应用主页 - 四区域架构设计
 /// 
@@ -34,6 +35,21 @@ class HomePage extends HookConsumerWidget {
         McpChangeNotification.show(context, title, message);
       });
       return null;
+    }, []);
+
+    // 初始化 Gotify 服务
+    // 当 gotifyEnabledProvider 为 true 时自动启动服务
+    useEffect(() {
+      final isEnabled = ref.read(gotifyEnabledProvider);
+      if (isEnabled) {
+        // 异步启动 Gotify 服务，不阻塞 UI
+        ref.read(gotifyServiceProvider).start();
+      }
+      
+      // 清理函数：组件卸载时执行
+      return () {
+        // 服务会在 provider 销毁时自动停止
+      };
     }, []);
 
     return Scaffold(

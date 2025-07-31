@@ -5,6 +5,7 @@ import '../status_bar/status_bar_widget.dart';
 import '../actions/actions_widget.dart';
 import '../floating_chat/floating_chat_widget.dart';
 import '../../../../widgets/mcp/mcp_call_status_widget.dart';
+import '../../../../widgets/notification_bubble.dart';
 
 /// 主页布局管理器
 /// 
@@ -57,6 +58,9 @@ class HomeLayoutManager extends ConsumerWidget {
         // 第四层：浮动聊天区域（最顶层）
         _buildFloatingChatLayer(),
         
+        // 通知气泡层
+        _buildNotificationLayer(),
+        
         // 调试信息层（开发时使用）
         if (enableDebug) _buildDebugInfoLayer(),
       ],
@@ -96,6 +100,20 @@ class HomeLayoutManager extends ConsumerWidget {
         // MCP调用状态显示
         const McpCallStatusWidget(),
       ],
+    );
+  }
+  
+  /// 构建通知气泡层
+  Widget _buildNotificationLayer() {
+    return ListenableBuilder(
+      listenable: NotificationBubbleManager.instance,
+      builder: (context, child) {
+        return const NotificationBubble(
+          alignment: Alignment.centerLeft,
+          size: 60,
+          margin: EdgeInsets.only(left: 16),
+        );
+      },
     );
   }
   
