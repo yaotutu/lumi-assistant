@@ -97,14 +97,14 @@ flutter clean && flutter pub get && flutter run -d 1W11833968
 ## Backend Integration
 
 **Python Backend Server**: `/Users/yaotutu/Desktop/code/xiaozhi-esp32-server/main/xiaozhi-server`
-**WebSocket**: `ws://192.168.110.199:8000/` (固定使用Python服务器)
-**HTTP API**: `http://192.168.110.199:8000/api`
+**WebSocket**: `ws://YOUR_SERVER_IP:8000/` (固定使用Python服务器)
+**HTTP API**: `http://YOUR_SERVER_IP:8000/api`
 **Authentication**: Bearer Token + Device-ID headers
 
 Message types: `hello` (handshake), `chat` (text), `listen` (voice), `image` (vision)
 
 **服务器配置说明**：
-- 开发环境：使用局域网IP `192.168.110.199` (Python服务器)
+- 开发环境：使用局域网IP `YOUR_SERVER_IP` (Python服务器)
 - 不支持服务器切换功能，统一使用Python后端
 - 配置位置：`lib/core/constants/api_constants.dart`
 

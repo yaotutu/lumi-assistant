@@ -36,8 +36,8 @@ class AppSettings extends ChangeNotifier {
   static const _defaultTopBarDistance = 0.0; // 顶部操作栏距离状态栏的额外距离，默认紧贴状态栏下方
   
   /// 网络默认配置
-  static const _defaultServerUrl = 'ws://192.168.110.199:8000';
-  static const _defaultApiUrl = 'http://192.168.110.199:8000/api';
+  static const _defaultServerUrl = 'ws://YOUR_SERVER_IP:8000';
+  static const _defaultApiUrl = 'http://YOUR_SERVER_IP:8000/api';
   static const _defaultConnectionTimeout = 10;
   
   /// Gotify 默认配置

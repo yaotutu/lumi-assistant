@@ -1,14 +1,14 @@
 /// API相关常量
 class ApiConstants {
   /// WebSocket服务器基础地址
-  /// 使用Python服务器：ws://192.168.110.199:8000/xiaozhi/v1
+  /// 使用Python服务器：ws://YOUR_SERVER_IP:8000/xiaozhi/v1
   /// 生产环境需要根据实际服务器IP调整
-  static const String webSocketBaseUrl = 'ws://192.168.110.199:8000/xiaozhi/v1';
+  static const String webSocketBaseUrl = 'ws://YOUR_SERVER_IP:8000/xiaozhi/v1';
 
   /// HTTP API基础地址
-  /// 使用Python服务器：http://192.168.110.199:8000/api
+  /// 使用Python服务器：http://YOUR_SERVER_IP:8000/api
   /// 生产环境需要根据实际服务器IP调整
-  static const String httpBaseUrl = 'http://192.168.110.199:8000/api';
+  static const String httpBaseUrl = 'http://YOUR_SERVER_IP:8000/api';
 
   /// 默认认证Token
   static const String defaultToken = 'your-token1';

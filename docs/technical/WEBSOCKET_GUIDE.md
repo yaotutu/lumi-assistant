@@ -24,7 +24,7 @@ Flutter客户端                    Python后端服务器
     └── ConnectionManager          └── Response Generator
               │                               │
               └──── WebSocket Connection ─────┘
-                   ws://192.168.110.199:8000/
+                   ws://YOUR_SERVER_IP:8000/
 ```
 
 ### 核心组件

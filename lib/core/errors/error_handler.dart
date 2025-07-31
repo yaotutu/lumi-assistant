@@ -87,7 +87,7 @@ class ErrorHandler {
       );
     } else if (error.toString().contains('Connection refused')) {
       return AppExceptionFactory.createWebSocketException(
-        'WebSocket服务器拒绝连接，请确认服务器运行在 ws://192.168.110.199:8000/',
+        'WebSocket服务器拒绝连接，请确认服务器运行在 ws://YOUR_SERVER_IP:8000/',
         code: 'WEBSOCKET_REFUSED',
         reconnectAttempts: reconnectAttempts,
       );

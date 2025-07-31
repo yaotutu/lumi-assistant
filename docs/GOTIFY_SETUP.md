@@ -2,8 +2,8 @@
 
 ## 步骤 1：获取客户端令牌
 
-1. 打开浏览器访问：http://43.139.248.238:8088
-2. 登录（用户名：yaotutu，密码：redhat）
+1. 打开浏览器访问：http://YOUR_GOTIFY_SERVER
+2. 登录（用户名：YOUR_USERNAME，密码：YOUR_PASSWORD）
 3. 点击左侧菜单 "**Clients**"
 4. 点击右上角 "**CREATE CLIENT**" 按钮
 5. 输入客户端名称（例如：Lumi Assistant）
@@ -17,7 +17,7 @@
 1. 打开应用设置
 2. 进入 "Gotify 通知配置"
 3. 输入：
-   - 服务器地址：`http://43.139.248.238:8088`
+   - 服务器地址：`http://YOUR_GOTIFY_SERVER`
    - 客户端令牌：（粘贴步骤1获得的令牌）
 4. 点击"测试连接"
 5. 启用 Gotify 服务
@@ -42,13 +42,13 @@ final url = '$wsUrl/stream?token=$_tempToken';
 
 ```bash
 # 使用"动态域名解析"应用
-curl "http://43.139.248.238:8088/message?token=Ahw0duy05PwdA_q" \
+curl "http://YOUR_GOTIFY_SERVER/message?token=YOUR_APP_TOKEN" \
   -F "title=测试通知" \
   -F "message=Hello from Gotify!" \
   -F "priority=5"
 
 # 或使用"test"应用
-curl "http://43.139.248.238:8088/message?token=AsLXhA0ZDcZGwAL" \
+curl "http://YOUR_GOTIFY_SERVER/message?token=YOUR_TEST_TOKEN" \
   -F "title=测试通知" \
   -F "message=这是一条测试消息" \
   -F "priority=8"

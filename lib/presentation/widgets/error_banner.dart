@@ -293,7 +293,7 @@ class ErrorBanner extends HookConsumerWidget {
     return exception.when(
       network: (message, code, statusCode, url, details) {
         if (code == 'CONNECTION_REFUSED') {
-          return '请检查服务器是否运行在 ws://192.168.110.199:8000/，或联系系统管理员';
+          return '请检查服务器是否运行在 ws://YOUR_SERVER_IP:8000/，或联系系统管理员';
         } else if (code == 'CONNECTION_TIMEOUT') {
           return '请检查网络连接，或尝试连接到更稳定的网络';
         } else if (code == 'HOST_UNREACHABLE') {

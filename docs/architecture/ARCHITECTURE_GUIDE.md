@@ -150,7 +150,7 @@ class WebSocketService extends BaseService {
 // 双层配置架构
 class AppSettings extends ChangeNotifier {
   // 静态默认值
-  static const _defaultServerUrl = 'ws://192.168.110.199:8000';
+  static const _defaultServerUrl = 'ws://YOUR_SERVER_IP:8000';
   
   // 用户动态设置
   String? _userServerUrl;

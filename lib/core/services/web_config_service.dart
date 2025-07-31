@@ -250,7 +250,7 @@ class WebConfigService {
                 </div>
                 <div class="form-group">
                     <label for="gotifyClientToken">Gotify 客户端令牌</label>
-                    <input type="text" id="gotifyClientToken" name="gotifyClientToken" placeholder="C6pGmf3Dz5t3SZc">
+                    <input type="text" id="gotifyClientToken" name="gotifyClientToken" placeholder="YOUR_CLIENT_TOKEN">
                 </div>
             </div>
 

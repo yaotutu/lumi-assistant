@@ -53,3 +53,8 @@ example_*.json
 dev_*.md
 assets/audio/
 lumi_pcm_player/
+
+# Environment files
+.env
+.env.local
+.env.*.local
