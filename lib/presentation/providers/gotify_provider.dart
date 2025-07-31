@@ -1,5 +1,6 @@
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import '../../core/services/notification/gotify_service.dart';
+import '../../core/config/app_settings.dart';
 
 /// Gotify 服务提供者
 /// 
@@ -114,7 +115,11 @@ final gotifyUnreadCountProvider = StateProvider<int>((ref) {
 /// )
 /// ```
 final gotifyEnabledProvider = StateProvider<bool>((ref) {
-  // 临时启用以便测试
-  // TODO: 后期从持久化存储中读取用户配置
-  return true;
+  // 检查 Gotify 是否已配置
+  final settings = AppSettings.instance;
+  final serverUrl = settings.gotifyServerUrl;
+  final clientToken = settings.gotifyClientToken;
+  
+  // 只有当服务器地址和令牌都配置了才启用
+  return serverUrl.isNotEmpty && clientToken.isNotEmpty;
 });

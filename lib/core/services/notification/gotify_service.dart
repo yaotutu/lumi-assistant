@@ -8,6 +8,7 @@ import '../../../data/models/notification/gotify_models.dart';
 import '../../../presentation/widgets/notification_bubble.dart';
 import 'unified_notification_service.dart';
 import '../../../data/sources/gotify_notification_source.dart';
+import '../../../data/sources/system_notification_source.dart';
 import '../../../data/models/notification/notification_source.dart';
 
 /// Gotify 推送通知服务
@@ -87,7 +88,9 @@ class GotifyService {
       final clientToken = _appSettings.gotifyClientToken;
       
       if (serverUrl.isEmpty || clientToken.isEmpty) {
-        AppLogger.getLogger('Gotify').warning('⚠️ Gotify 未配置，跳过启动');
+        AppLogger.getLogger('Gotify').info('ℹ️ Gotify 未配置，服务已禁用');
+        // 未配置时标记为未运行状态
+        _isRunning = false;
         return;
       }
       
@@ -110,6 +113,12 @@ class GotifyService {
     } catch (e, stackTrace) {
       // 启动失败记录错误
       AppLogger.getLogger('Gotify').severe('❌ Gotify 服务启动失败', e, stackTrace);
+      
+      // 通过应用内通知系统提示用户
+      _showErrorNotification(
+        '连接 Gotify 服务器失败',
+        '请检查网络连接和服务器配置',
+      );
       
       // 启动失败后尝试重连
       _scheduleReconnect();
@@ -206,6 +215,25 @@ class GotifyService {
       // 连接失败记录错误
       AppLogger.getLogger('Gotify').severe('❌ Gotify WebSocket 连接失败', e, stackTrace);
       
+      // 检查错误类型并提供具体的错误提示
+      if (e.toString().contains('401') || e.toString().contains('Unauthorized')) {
+        _showErrorNotification(
+          'Gotify 认证失败',
+          '客户端令牌无效，请检查配置',
+        );
+      } else if (e.toString().contains('404')) {
+        _showErrorNotification(
+          'Gotify 服务器错误',
+          '服务器地址或路径不正确',
+        );
+      } else if (e.toString().contains('Connection refused') || 
+                 e.toString().contains('Failed host lookup')) {
+        _showErrorNotification(
+          'Gotify 连接失败',
+          '无法连接到服务器，请检查地址',
+        );
+      }
+      
       // 尝试重连
       _scheduleReconnect();
     }
@@ -300,6 +328,13 @@ class GotifyService {
         '❌ 达到最大重连次数 ($_maxReconnectAttempts)，停止重连。'
         '请检查服务器地址和令牌配置是否正确。'
       );
+      
+      // 通知用户连接彻底失败
+      _showErrorNotification(
+        'Gotify 服务不可用',
+        '多次重连失败，请检查服务器状态',
+      );
+      
       return;
     }
     
@@ -356,7 +391,11 @@ class GotifyService {
       final response = await _httpClient.get(Uri.parse(url));
       
       // 检查响应状态
-      if (response.statusCode != 200) {
+      if (response.statusCode == 401) {
+        throw Exception('认证失败：客户端令牌无效');
+      } else if (response.statusCode == 404) {
+        throw Exception('服务器路径错误：找不到消息接口');
+      } else if (response.statusCode != 200) {
         throw Exception('获取消息失败: ${response.statusCode} ${response.reasonPhrase}');
       }
       
@@ -378,6 +417,19 @@ class GotifyService {
     } catch (e, stackTrace) {
       // 获取失败不影响服务运行
       AppLogger.getLogger('Gotify').warning('⚠️ 获取历史消息失败', e, stackTrace);
+      
+      // 根据错误类型显示具体提示
+      if (e.toString().contains('认证失败')) {
+        _showErrorNotification(
+          'Gotify 认证失败',
+          '客户端令牌无效，请检查配置',
+        );
+      } else if (e.toString().contains('服务器路径错误')) {
+        _showErrorNotification(
+          'Gotify 配置错误',
+          '服务器地址不正确，请检查配置',
+        );
+      }
     }
   }
   
@@ -419,6 +471,41 @@ class GotifyService {
       // 删除失败
       AppLogger.getLogger('Gotify').severe('❌ 删除消息失败', e, stackTrace);
       return false;
+    }
+  }
+  
+  /// 显示错误通知
+  /// 
+  /// 通过应用内通知系统向用户展示错误信息
+  void _showErrorNotification(String title, String message) {
+    try {
+      // 创建一个系统通知源
+      final systemSource = SystemNotificationSource();
+      
+      // 注册系统源（如果已注册会被覆盖，这是安全的）
+      UnifiedNotificationService.instance.registerSource(systemSource);
+      
+      // 创建错误通知
+      final notification = SystemNotificationSource.createNotification(
+        title: title,
+        message: message,
+        priority: 8, // 高优先级
+        extras: {
+          'error_type': 'gotify_connection',
+          'icon': 'error',
+        },
+      );
+      
+      // 添加到通知服务
+      UnifiedNotificationService.instance.addNotification(notification);
+      
+      // 触发新通知动画
+      NotificationBubbleManager.instance.setNewNotificationFlag();
+      
+      AppLogger.getLogger('Gotify').warning('⚠️ 显示错误通知: $title - $message');
+    } catch (e) {
+      // 如果通知系统本身出错，至少记录日志
+      AppLogger.getLogger('Gotify').severe('❌ 无法显示错误通知: $e');
     }
   }
   
