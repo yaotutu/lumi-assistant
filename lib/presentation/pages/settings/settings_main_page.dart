@@ -9,7 +9,6 @@ import 'settings_debug_page.dart';
 import 'mcp_servers_page.dart';
 import 'pages/settings_wallpaper_page.dart';
 import 'settings_gotify_page.dart';
-import '../test/gotify_auto_test_page.dart';
 // 已删除的调试页面：
 // import '../debug/opus_capture_debug_page.dart'; // Opus捕获调试页面
 // import '../debug/opus_playback_test_page.dart'; // Opus播放测试页面
@@ -190,20 +189,6 @@ class SettingsMainPage extends ConsumerWidget {
             onTap: () => Navigator.push(
               context,
               MaterialPageRoute(builder: (context) => const SettingsGotifyPage()),
-            ),
-          ),
-          
-          const SizedBox(height: 12),
-          
-          _buildSettingsCategoryCard(
-            context,
-            title: 'Gotify 快速测试',
-            subtitle: '自动配置并测试 Gotify 服务',
-            icon: Icons.flash_on,
-            color: Colors.orange,
-            onTap: () => Navigator.push(
-              context,
-              MaterialPageRoute(builder: (context) => const GotifyAutoTestPage()),
             ),
           ),
           
