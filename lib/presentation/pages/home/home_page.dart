@@ -6,6 +6,7 @@ import '../../../core/services/mcp/unified_mcp_manager.dart';
 import '../../widgets/mcp/mcp_change_notification.dart';
 import 'widgets/layout/home_layout_manager.dart';
 import '../../providers/gotify_provider.dart';
+import '../../providers/health_check_provider.dart';
 
 /// 应用主页 - 四区域架构设计
 /// 
@@ -50,6 +51,13 @@ class HomePage extends HookConsumerWidget {
       return () {
         // 服务会在 provider 销毁时自动停止
       };
+    }, []);
+    
+    // 初始化健康检查
+    useEffect(() {
+      // 确保健康检查器已注册
+      ref.read(healthCheckInitializerProvider);
+      return null;
     }, []);
 
     return Scaffold(

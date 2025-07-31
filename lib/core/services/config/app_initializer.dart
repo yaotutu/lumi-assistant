@@ -7,6 +7,7 @@ import '../../config/app_settings.dart';
 import '../../utils/app_logger.dart';
 import '../../utils/loggers.dart';
 import 'web_config_service.dart';
+import '../health/service_health_checker.dart';
 // import '../../../presentation/services/photo_service.dart'; // 暂时不需要
 
 /// 应用初始化服务
@@ -64,6 +65,9 @@ class AppInitializer {
       
       // 步骤5：异步初始化Opus库（不等待完成）
       _initializeOpusAsync();
+      
+      // 步骤6：异步执行服务健康检查（不阻塞启动）
+      _performHealthCheckAsync();
       
       // 标记初始化完成
       _isInitialized = true;
@@ -223,6 +227,33 @@ class AppInitializer {
         
         // TODO: 可以在这里实现降级处理或重试机制
         // 例如：使用平台默认音频处理，或延迟重试初始化
+      }
+    });
+  }
+  
+  /// 异步执行服务健康检查
+  /// 
+  /// 设计思路：
+  /// - 在应用启动后延迟执行，不影响启动速度
+  /// - 检查所有核心服务的健康状态
+  /// - 通过通知系统展示结果
+  /// 
+  /// 注意：这是一个Fire-and-forget操作
+  void _performHealthCheckAsync() {
+    // 延迟2秒执行，确保所有服务都已启动
+    Future.delayed(const Duration(seconds: 2), () async {
+      try {
+        Loggers.system.info('🏥 开始执行服务健康检查...');
+        
+        // 执行健康检查
+        final healthManager = ServiceHealthManager();
+        await healthManager.performHealthCheck();
+        
+        Loggers.system.info('✅ 服务健康检查完成');
+        
+      } catch (error, stackTrace) {
+        // 健康检查失败不影响应用运行
+        Loggers.system.severe('❌ 服务健康检查失败: $error', error, stackTrace);
       }
     });
   }

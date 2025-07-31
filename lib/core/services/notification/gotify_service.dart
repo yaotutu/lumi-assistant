@@ -69,6 +69,15 @@ class GotifyService {
   /// Gotify 通知源
   GotifyNotificationSource? _notificationSource;
   
+  /// 获取服务是否正在运行
+  bool get isRunning => _isRunning;
+  
+  /// 获取是否已连接
+  bool get isConnected => _webSocketChannel != null && _isRunning && !_isReconnecting;
+  
+  /// 获取是否正在重连
+  bool get isReconnecting => _isReconnecting;
+  
   /// 启动 Gotify 服务
   /// 
   /// 执行步骤：
