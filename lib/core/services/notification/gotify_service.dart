@@ -117,7 +117,13 @@ class GotifyService {
       
       // 获取最近的历史消息（可选）
       // 这里获取最近 10 条消息，避免初次启动时错过重要通知
-      await _fetchRecentMessages(limit: 10);
+      // 使用独立的try-catch，避免历史消息获取失败影响WebSocket连接
+      try {
+        await _fetchRecentMessages(limit: 10);
+      } catch (e) {
+        // 历史消息获取失败不影响服务启动
+        AppLogger.getLogger('Gotify').info('ℹ️ 跳过历史消息获取: $e');
+      }
       
     } catch (e, stackTrace) {
       // 启动失败记录错误
@@ -427,18 +433,21 @@ class GotifyService {
       // 获取失败不影响服务运行
       AppLogger.getLogger('Gotify').warning('⚠️ 获取历史消息失败', e, stackTrace);
       
-      // 根据错误类型显示具体提示
+      // 只有在严重错误时才显示给用户
+      // 404错误可能是因为没有历史消息或者某些服务器不支持此API
       if (e.toString().contains('认证失败')) {
         _showErrorNotification(
           'Gotify 认证失败',
           '客户端令牌无效，请检查配置',
         );
-      } else if (e.toString().contains('服务器路径错误')) {
-        _showErrorNotification(
-          'Gotify 配置错误',
-          '服务器地址不正确，请检查配置',
-        );
       }
+      // 注释掉404错误的通知，因为这可能只是服务器不支持或没有消息
+      // else if (e.toString().contains('服务器路径错误')) {
+      //   _showErrorNotification(
+      //     'Gotify 配置错误',
+      //     '服务器地址不正确，请检查配置',
+      //   );
+      // }
     }
   }
   
