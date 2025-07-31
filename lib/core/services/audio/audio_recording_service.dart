@@ -4,10 +4,10 @@ import 'package:record/record.dart';
 import 'package:opus_dart/opus_dart.dart';
 import 'package:path_provider/path_provider.dart';
 import 'dart:io';
-import '../constants/audio_constants.dart';
-import '../../data/models/exceptions.dart';
-import 'permission_service.dart';
-import '../utils/loggers.dart';
+import '../../constants/audio_constants.dart';
+import '../../../data/models/exceptions.dart';
+import '../device/permission_service.dart';
+import '../../utils/loggers.dart';
 
 /// 音频录制服务
 /// 负责处理音频录制、PCM数据获取和Opus编码

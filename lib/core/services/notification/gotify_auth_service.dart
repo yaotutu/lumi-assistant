@@ -1,6 +1,6 @@
 import 'dart:convert';
 import 'package:http/http.dart' as http;
-import '../utils/app_logger.dart';
+import '../../utils/app_logger.dart';
 
 /// Gotify 认证服务
 /// 

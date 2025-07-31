@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 
-import 'core/services/app_initializer.dart';
-import 'core/services/app_configuration.dart';
+import 'core/services/config/app_initializer.dart';
+import 'core/services/config/app_configuration.dart';
 import 'core/config/app_settings.dart';
 import 'presentation/pages/home/home_page.dart';
 

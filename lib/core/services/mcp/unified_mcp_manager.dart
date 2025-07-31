@@ -10,7 +10,7 @@ import 'package:mcp_server/mcp_server.dart';
 import 'embedded_mcp_server.dart';
 import 'mcp_config.dart';
 import 'mcp_error_handler.dart';
-import '../utils/loggers.dart';
+import '../../utils/loggers.dart';
 
 /// 统一的 MCP 管理器
 /// 

@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 
-import '../../../core/services/unified_mcp_manager.dart';
+import '../../../core/services/mcp/unified_mcp_manager.dart';
 import '../../widgets/mcp/mcp_change_notification.dart';
 import 'widgets/layout/home_layout_manager.dart';
 import '../../providers/gotify_provider.dart';

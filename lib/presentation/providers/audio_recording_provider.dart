@@ -1,7 +1,7 @@
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'dart:typed_data';
-import '../../core/services/audio_recording_service.dart';
-import '../../core/services/permission_service.dart';
+import '../../core/services/audio/audio_recording_service.dart';
+import '../../core/services/device/permission_service.dart';
 import '../../core/constants/audio_constants.dart';
 import '../../data/models/exceptions.dart';
 import '../../core/utils/loggers.dart';

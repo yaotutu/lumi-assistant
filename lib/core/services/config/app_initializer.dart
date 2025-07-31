@@ -3,10 +3,10 @@ import 'package:flutter/services.dart';
 import 'package:opus_flutter/opus_flutter.dart' as opus_flutter;
 import 'package:opus_dart/opus_dart.dart';
 
-import '../config/app_settings.dart';
-import '../utils/app_logger.dart';
-import '../utils/loggers.dart';
-// import '../../presentation/services/photo_service.dart'; // 暂时不需要
+import '../../config/app_settings.dart';
+import '../../utils/app_logger.dart';
+import '../../utils/loggers.dart';
+// import '../../../presentation/services/photo_service.dart'; // 暂时不需要
 
 /// 应用初始化服务
 /// 

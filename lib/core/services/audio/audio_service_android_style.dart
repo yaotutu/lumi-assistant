@@ -1,7 +1,7 @@
 import 'dart:typed_data';
 import 'package:opus_dart/opus_dart.dart';
 import 'native_audio_player.dart';
-import '../utils/loggers.dart';
+import '../../utils/loggers.dart';
 
 /// 音频服务 - Android原生实现 (简化版本)
 /// 

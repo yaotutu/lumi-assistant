@@ -2,7 +2,7 @@ import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'dart:async';
 
 import '../../data/models/mcp_call_state.dart';
-import '../../core/services/unified_mcp_manager.dart';
+import '../../core/services/mcp/unified_mcp_manager.dart';
 import '../../core/utils/loggers.dart';
 
 /// MCP调用状态管理

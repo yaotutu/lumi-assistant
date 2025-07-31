@@ -3,8 +3,8 @@ import 'dart:io';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/services.dart';
 
-import '../constants/app_constants.dart';
-import '../../data/models/message_model.dart';
+import '../../constants/app_constants.dart';
+import '../../../data/models/message_model.dart';
 
 /// 设备信息服务
 class DeviceInfoService {

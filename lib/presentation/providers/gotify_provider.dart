@@ -1,5 +1,5 @@
 import 'package:hooks_riverpod/hooks_riverpod.dart';
-import '../../core/services/gotify_service.dart';
+import '../../core/services/notification/gotify_service.dart';
 
 /// Gotify 服务提供者
 /// 

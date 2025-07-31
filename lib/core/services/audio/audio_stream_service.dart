@@ -2,11 +2,11 @@ import 'dart:async';
 import 'dart:typed_data';
 import 'package:record/record.dart';
 import 'package:opus_dart/opus_dart.dart';
-import '../constants/audio_constants.dart';
-import '../../data/models/exceptions.dart';
-import 'permission_service.dart';
-import 'websocket_service.dart';
-import '../utils/loggers.dart';
+import '../../constants/audio_constants.dart';
+import '../../../data/models/exceptions.dart';
+import '../device/permission_service.dart';
+import '../websocket/websocket_service.dart';
+import '../../utils/loggers.dart';
 
 /// 音频流传输服务
 /// 负责实时音频流的录制、编码和传输

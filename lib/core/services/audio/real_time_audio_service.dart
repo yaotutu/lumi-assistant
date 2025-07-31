@@ -1,10 +1,10 @@
 import 'dart:async';
 import 'dart:typed_data';
-import '../constants/audio_constants.dart';
+import '../../constants/audio_constants.dart';
 import 'audio_stream_service.dart';
 import 'audio_playback_service.dart';
-import 'websocket_service.dart';
-import '../utils/loggers.dart';
+import '../websocket/websocket_service.dart';
+import '../../utils/loggers.dart';
 
 /// 实时音频流处理服务
 /// 集成音频流传输和TTS播放功能，实现全双工音频通信

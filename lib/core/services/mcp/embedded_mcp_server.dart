@@ -3,8 +3,8 @@ import 'dart:async';
 import 'package:mcp_server/mcp_server.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 
-import 'device_control_service.dart';
-import '../utils/loggers.dart';
+import '../device/device_control_service.dart';
+import '../../utils/loggers.dart';
 
 /// 嵌入式 MCP 服务器 - 不需要独立进程，但使用标准 MCP 协议
 /// 

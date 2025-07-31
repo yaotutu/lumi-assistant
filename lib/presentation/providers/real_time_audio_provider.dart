@@ -1,5 +1,5 @@
 import 'package:hooks_riverpod/hooks_riverpod.dart';
-import '../../core/services/real_time_audio_service.dart';
+import '../../core/services/audio/real_time_audio_service.dart';
 // import '../../core/services/websocket_service.dart'; // 暂未使用
 import '../../core/constants/audio_constants.dart';
 import '../../data/models/exceptions.dart';

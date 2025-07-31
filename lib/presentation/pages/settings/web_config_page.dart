@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:qr_flutter/qr_flutter.dart';
-import '../../../core/services/web_config_service.dart';
+import '../../../core/services/config/web_config_service.dart';
 
 /// Web配置页面
 /// 显示Web配置服务的地址和二维码

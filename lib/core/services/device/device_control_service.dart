@@ -1,7 +1,7 @@
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:volume_controller/volume_controller.dart';
 import 'package:screen_brightness/screen_brightness.dart';
-import '../utils/loggers.dart';
+import '../../utils/loggers.dart';
 
 /// 设备控制服务 - 处理设备级别的操作
 class DeviceControlService {

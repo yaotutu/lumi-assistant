@@ -2,8 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
 
-import '../../../core/services/mcp_config.dart';
-import '../../../core/services/unified_mcp_manager.dart';
+import '../../../core/services/mcp/mcp_config.dart';
+import '../../../core/services/mcp/unified_mcp_manager.dart';
 import '../../widgets/settings/settings_card.dart';
 
 /// MCP服务器配置管理页面

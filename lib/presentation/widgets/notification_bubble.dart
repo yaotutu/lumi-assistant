@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import '../../domain/models/notification_types.dart';
-import '../../core/services/unified_notification_service.dart';
+import '../../core/services/notification/unified_notification_service.dart';
 
 /// 通知气泡组件
 /// 

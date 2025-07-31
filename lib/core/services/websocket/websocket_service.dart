@@ -7,15 +7,16 @@ import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:web_socket_channel/io.dart';
 import 'package:web_socket_channel/web_socket_channel.dart';
 
-import '../constants/api_constants.dart';
-import '../errors/exceptions.dart';
-import '../utils/loggers.dart';
-import '../../data/models/websocket_state.dart';
-import 'audio_service_android_style.dart';
-import 'unified_mcp_manager.dart';
-import 'opus_data_capture_service.dart';
-import 'mcp_error_handler.dart';
-import '../config/app_settings.dart';
+import '../../constants/api_constants.dart';
+import '../../errors/exceptions.dart';
+import '../../../data/models/exceptions.dart';
+import '../../utils/loggers.dart';
+import '../../../data/models/websocket_state.dart';
+import '../audio/audio_service_android_style.dart';
+import '../mcp/unified_mcp_manager.dart';
+import '../audio/opus_data_capture_service.dart';
+import '../mcp/mcp_error_handler.dart';
+import '../../config/app_settings.dart';
 
 
 /// WebSocket服务类

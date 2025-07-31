@@ -2,12 +2,12 @@ import 'dart:async';
 
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 
-import '../../data/models/message_model.dart';
-import 'device_info_service.dart';
-import 'websocket_service.dart';
-import '../errors/exceptions.dart';
-import '../errors/error_handler.dart';
-import '../utils/loggers.dart';
+import '../../../data/models/message_model.dart';
+import '../device/device_info_service.dart';
+import '../websocket/websocket_service.dart';
+import '../../errors/exceptions.dart';
+import '../../errors/error_handler.dart';
+import '../../utils/loggers.dart';
 
 /// 握手状态枚举
 enum HandshakeState {

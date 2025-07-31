@@ -6,7 +6,7 @@ import '../../providers/chat_provider.dart';
 import '../../providers/virtual_character_provider.dart';
 import '../../../data/models/chat_state.dart';
 import '../../../core/constants/device_constants.dart';
-import '../../../core/services/voice_interrupt_service.dart';
+import '../../../core/services/audio/voice_interrupt_service.dart';
 import '../virtual_character/models/character_enums.dart';
 import '../connection_status_widget.dart';
 import '../handshake_status_widget.dart';

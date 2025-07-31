@@ -1,8 +1,8 @@
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 
-import '../../core/services/websocket_service.dart';
-import '../../core/services/network_checker.dart';
-import '../../core/services/handshake_service.dart';
+import '../../core/services/websocket/websocket_service.dart';
+import '../../core/services/network/network_checker.dart';
+import '../../core/services/network/handshake_service.dart';
 import '../../data/models/connection_state.dart';
 import '../../data/models/websocket_state.dart';
 import '../../core/utils/loggers.dart';

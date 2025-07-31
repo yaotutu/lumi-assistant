@@ -1,7 +1,7 @@
 import 'package:flutter_test/flutter_test.dart';
-import 'package:lumi_assistant/core/services/mcp_config.dart';
-import 'package:lumi_assistant/core/services/unified_mcp_manager.dart';
-import 'package:lumi_assistant/core/services/embedded_mcp_server.dart';
+import 'package:lumi_assistant/core/services/mcp/mcp_config.dart';
+import 'package:lumi_assistant/core/services/mcp/unified_mcp_manager.dart';
+import 'package:lumi_assistant/core/services/mcp/embedded_mcp_server.dart';
 
 void main() {
   group('MCP Configuration Tests', () {

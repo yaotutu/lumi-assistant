@@ -2,8 +2,8 @@ import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'dart:typed_data';
 // 使用Android风格的音频服务实现
 // import '../../core/services/audio_service.dart';
-import '../../core/services/audio_service_android_style.dart';
-import '../../core/services/permission_service.dart';
+import '../../core/services/audio/audio_service_android_style.dart';
+import '../../core/services/device/permission_service.dart';
 import '../../core/constants/audio_constants.dart';
 import '../../data/models/exceptions.dart';
 import '../../core/utils/loggers.dart';
