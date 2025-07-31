@@ -8,8 +8,8 @@ import '../../../data/models/chat/chat_state.dart';
 import '../../../core/constants/device_constants.dart';
 import '../../../core/services/audio/voice_interrupt_service.dart';
 import '../virtual_character/models/character_enums.dart';
-import '../connection_status_widget.dart';
-import '../handshake_status_widget.dart';
+import '../status/connection_status_widget.dart';
+import '../status/handshake_status_widget.dart';
 import 'chat_message_item.dart';
 import 'chat_input_section.dart';
 

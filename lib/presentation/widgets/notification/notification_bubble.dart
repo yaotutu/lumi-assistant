@@ -1,7 +1,8 @@
 import 'package:flutter/material.dart';
-import '../../data/models/notification/notification_types.dart';
-import '../../data/models/notification/notification_icon_config.dart';
-import '../../core/services/notification/unified_notification_service.dart';
+import '../../../data/models/notification/notification_types.dart';
+import '../../../data/models/notification/notification_icon_config.dart';
+import '../../../core/services/notification/unified_notification_service.dart';
+import 'notification_detail_dialog.dart';
 
 /// 通知气泡组件
 /// 
@@ -577,7 +578,11 @@ class _NotificationPanelState extends State<NotificationPanel>
         return _NotificationItemCompact(
           notification: notification,
           onTap: () {
+            // 显示通知详情对话框
+            NotificationDetailDialog.show(context, notification);
+            // 标记为已读
             NotificationBubbleManager.instance.markAsRead(notification.id);
+            // 如果有自定义点击回调，也执行它
             notification.onTap?.call();
           },
           onDismiss: () {

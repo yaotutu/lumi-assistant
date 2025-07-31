@@ -2,7 +2,7 @@ import 'dart:async';
 import '../../utils/app_logger.dart';
 import '../notification/unified_notification_service.dart';
 import '../../../data/sources/system_notification_source.dart';
-import '../../../presentation/widgets/notification_bubble.dart';
+import '../../../presentation/widgets/notification/notification_bubble.dart';
 
 /// 服务健康检查结果
 class ServiceHealthResult {

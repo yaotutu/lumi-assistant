@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'notification_bubble.dart';
-import '../../data/models/notification/notification_types.dart';
+import '../../../data/models/notification/notification_types.dart';
 
 /// 通知气泡使用示例
 /// 

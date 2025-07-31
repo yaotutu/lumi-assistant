@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 
-import '../../core/services/network/handshake_service.dart';
-import '../providers/connection_provider.dart';
+import '../../../core/services/network/handshake_service.dart';
+import '../../providers/connection_provider.dart';
 
 /// 握手状态组件
 class HandshakeStatusWidget extends ConsumerWidget {

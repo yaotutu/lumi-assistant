@@ -3,7 +3,7 @@ import 'package:flutter_hooks/flutter_hooks.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 
 import '../../../core/constants/device_constants.dart';
-import '../voice_input_widget.dart';
+import '../voice/voice_input_widget.dart';
 
 /// 聊天输入组件
 /// 

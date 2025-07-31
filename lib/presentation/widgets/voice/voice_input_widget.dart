@@ -1,12 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
-import '../providers/audio_stream_provider.dart';
-import '../providers/connection_provider.dart';
-import '../../core/constants/audio_constants.dart';
-import '../../data/models/connection/websocket_state.dart';
-import '../../core/services/audio/voice_interrupt_service.dart';
-import '../../core/utils/loggers.dart';
+import '../../providers/audio_stream_provider.dart';
+import '../../providers/connection_provider.dart';
+import '../../../core/constants/audio_constants.dart';
+import '../../../data/models/connection/websocket_state.dart';
+import '../../../core/services/audio/voice_interrupt_service.dart';
+import '../../../core/utils/loggers.dart';
 
 /// 语音输入组件
 /// 提供按住说话和录制状态可视化功能

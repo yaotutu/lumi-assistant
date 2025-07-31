@@ -5,7 +5,7 @@ import 'package:http/http.dart' as http;
 import '../../utils/app_logger.dart';
 import '../../config/app_settings.dart';
 import '../../../data/models/notification/gotify_models.dart';
-import '../../../presentation/widgets/notification_bubble.dart';
+import '../../../presentation/widgets/notification/notification_bubble.dart';
 import 'unified_notification_service.dart';
 import '../../../data/sources/gotify_notification_source.dart';
 import '../../../data/sources/system_notification_source.dart';

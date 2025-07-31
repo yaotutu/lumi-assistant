@@ -3,15 +3,15 @@ import '../service_health_checker.dart';
 import '../../../config/app_settings.dart';
 import '../../websocket/websocket_service.dart';
 import '../../../../data/models/connection/websocket_state.dart';
-import '../../../utils/app_logger.dart';
+import 'package:hooks_riverpod/hooks_riverpod.dart';
 
 /// WebSocket 服务健康检查器
 /// 
 /// 检查与小智后端的WebSocket连接状态
 class WebSocketHealthChecker implements IServiceHealthChecker {
-  final WebSocketService _webSocketService;
+  final Ref _ref;
   
-  WebSocketHealthChecker(this._webSocketService);
+  WebSocketHealthChecker(this._ref);
   
   @override
   String get serviceName => '小智后端连接';
@@ -37,7 +37,7 @@ class WebSocketHealthChecker implements IServiceHealthChecker {
       }
       
       // 检查连接状态
-      final state = _webSocketService.state;
+      final state = _ref.read(webSocketServiceProvider);
       
       switch (state.connectionState) {
         case WebSocketConnectionState.connected:

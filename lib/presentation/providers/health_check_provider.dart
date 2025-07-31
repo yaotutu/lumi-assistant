@@ -3,7 +3,6 @@ import '../../core/services/health/service_health_checker.dart';
 import '../../core/services/health/checkers/websocket_health_checker.dart';
 import '../../core/services/health/checkers/gotify_health_checker.dart';
 import '../../core/services/health/checkers/mcp_health_checker.dart';
-import '../../core/services/websocket/websocket_service.dart';
 import 'gotify_provider.dart';
 import '../../core/services/mcp/unified_mcp_manager.dart';
 
@@ -14,9 +13,8 @@ final healthCheckInitializerProvider = Provider<void>((ref) {
   final healthManager = ServiceHealthManager();
   
   // 注册 WebSocket 健康检查器
-  final webSocketService = ref.watch(webSocketServiceProvider.notifier);
   healthManager.registerChecker(
-    WebSocketHealthChecker(webSocketService),
+    WebSocketHealthChecker(ref),
   );
   
   // 注册 Gotify 健康检查器

@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
-import '../../core/services/device/permission_service.dart';
+import '../../../core/services/device/permission_service.dart';
 // import '../../core/constants/audio_constants.dart'; // 暂未使用
 
 /// 权限请求对话框

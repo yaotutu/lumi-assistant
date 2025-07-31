@@ -5,7 +5,7 @@ import '../status_bar/status_bar_widget.dart';
 import '../actions/actions_widget.dart';
 import '../floating_chat/floating_chat_widget.dart';
 import '../../../../widgets/mcp/mcp_call_status_widget.dart';
-import '../../../../widgets/notification_bubble.dart';
+import '../../../../widgets/notification/notification_bubble.dart';
 
 /// 主页布局管理器
 /// 

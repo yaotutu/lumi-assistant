@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 
-import '../../widgets/error_banner.dart';
+import '../../widgets/common/error_banner.dart';
 import '../../providers/chat_provider.dart';
 import '../../../core/constants/device_constants.dart';
 import '../../../data/models/chat/chat_state.dart';
