@@ -9,6 +9,7 @@ import 'settings_debug_page.dart';
 import 'mcp_servers_page.dart';
 import 'pages/settings_wallpaper_page.dart';
 import 'settings_gotify_page.dart';
+import 'web_config_page.dart';
 // 已删除的调试页面：
 // import '../debug/opus_capture_debug_page.dart'; // Opus捕获调试页面
 // import '../debug/opus_playback_test_page.dart'; // Opus播放测试页面
@@ -175,6 +176,20 @@ class SettingsMainPage extends ConsumerWidget {
             onTap: () => Navigator.push(
               context,
               MaterialPageRoute(builder: (context) => const SettingsDebugPage()),
+            ),
+          ),
+          
+          const SizedBox(height: 12),
+          
+          _buildSettingsCategoryCard(
+            context,
+            title: 'Web 配置',
+            subtitle: '通过浏览器配置应用设置',
+            icon: Icons.computer,
+            color: Colors.blue,
+            onTap: () => Navigator.push(
+              context,
+              MaterialPageRoute(builder: (context) => const WebConfigPage()),
             ),
           ),
           

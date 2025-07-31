@@ -57,6 +57,10 @@ class GotifyService {
   /// false 时停止自动重连
   bool _isRunning = false;
   
+  /// 是否正在处理重连
+  /// 防止重复触发重连
+  bool _isReconnecting = false;
+  
   /// HTTP 客户端
   /// 用于 REST API 调用
   final http.Client _httpClient = http.Client();
@@ -122,6 +126,7 @@ class GotifyService {
   Future<void> stop() async {
     // 标记服务已停止，防止自动重连
     _isRunning = false;
+    _isReconnecting = false;
     
     // 记录停止日志
     AppLogger.getLogger('Gotify').info('🛑 停止 Gotify 服务');
@@ -129,6 +134,10 @@ class GotifyService {
     // 取消重连定时器
     _reconnectTimer?.cancel();
     _reconnectTimer = null;
+    
+    // 重置重连相关状态
+    _reconnectDelay = 1000;
+    _reconnectAttempts = 0;
     
     // 断开 WebSocket 连接
     await _disconnectWebSocket();
@@ -159,13 +168,18 @@ class GotifyService {
         throw Exception('Gotify 未配置');
       }
       
-      final wsUrl = serverUrl
+      // 确保URL末尾没有斜杠
+      final cleanServerUrl = serverUrl.endsWith('/') 
+          ? serverUrl.substring(0, serverUrl.length - 1) 
+          : serverUrl;
+      
+      final wsUrl = cleanServerUrl
           .replaceFirst('http://', 'ws://')
           .replaceFirst('https://', 'wss://');
       final url = '$wsUrl/stream?token=$clientToken';
       
       // 记录连接日志
-      AppLogger.getLogger('Gotify').info('🔌 连接 Gotify WebSocket: $wsUrl/stream');
+      AppLogger.getLogger('Gotify').info('🔌 连接 Gotify WebSocket: $url');
       
       // 创建 WebSocket 连接
       _webSocketChannel = WebSocketChannel.connect(Uri.parse(url));
@@ -175,9 +189,14 @@ class GotifyService {
         _handleWebSocketMessage,
         onError: _handleWebSocketError,
         onDone: _handleWebSocketDone,
+        cancelOnError: false, // 错误时不自动取消订阅
       );
       
-      // 连接成功，重置重连延迟和次数
+      // 等待一小段时间确认连接真的成功了
+      // 因为有些错误是在连接建立后才抛出的
+      await Future.delayed(const Duration(milliseconds: 100));
+      
+      // 如果没有抛出异常，说明连接成功，重置重连延迟和次数
       _reconnectDelay = 1000;
       _reconnectAttempts = 0;
       
@@ -270,8 +289,8 @@ class GotifyService {
       return;
     }
     
-    // 如果已有重连定时器，不重复创建
-    if (_reconnectTimer != null) {
+    // 如果已有重连定时器或正在重连，不重复创建
+    if (_reconnectTimer != null || _isReconnecting) {
       return;
     }
     
@@ -293,6 +312,9 @@ class GotifyService {
       '(第 $_reconnectAttempts/$_maxReconnectAttempts 次尝试)'
     );
     
+    // 标记正在处理重连
+    _isReconnecting = true;
+    
     // 创建重连定时器
     _reconnectTimer = Timer(Duration(milliseconds: _reconnectDelay), () async {
       _reconnectTimer = null;
@@ -302,6 +324,9 @@ class GotifyService {
       
       // 尝试重连
       await _connectWebSocket();
+      
+      // 重连完成，清除标记
+      _isReconnecting = false;
     });
   }
   
