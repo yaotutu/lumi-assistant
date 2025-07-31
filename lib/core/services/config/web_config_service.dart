@@ -8,7 +8,9 @@ import '../../config/app_settings.dart';
 import '../../utils/app_logger.dart';
 
 /// Web配置服务
-/// 提供局域网Web界面配置功能
+/// 
+/// 提供与应用内设置页面完全一致的Web配置界面
+/// 默认启动，支持局域网访问配置
 class WebConfigService {
   static final WebConfigService _instance = WebConfigService._internal();
   factory WebConfigService() => _instance;
@@ -24,7 +26,7 @@ class WebConfigService {
   /// 服务器地址
   String? get serverUrl => _serverUrl;
 
-  /// 启动Web配置服务
+  /// 启动Web配置服务（默认启动）
   Future<String?> start() async {
     if (_isRunning) {
       return _serverUrl;
@@ -34,12 +36,13 @@ class WebConfigService {
       // 创建路由
       final router = Router();
       
-      // 主页
+      // 主页 - 配置界面
       router.get('/', _handleHomePage);
       
-      // API端点
-      router.get('/api/config', _handleGetConfig);
-      router.post('/api/config', _handleSaveConfig);
+      // API端点 - 与AppSettings完全对应
+      router.get('/api/settings', _handleGetAllSettings);
+      router.post('/api/settings', _handleSaveAllSettings);
+      router.post('/api/settings/reset', _handleResetSettings);
       
       // 创建处理器
       final handler = Pipeline()
@@ -112,7 +115,7 @@ class WebConfigService {
     };
   }
 
-  /// 处理主页请求
+  /// 处理主页请求 - 完整的设置界面
   Response _handleHomePage(Request request) {
     final html = '''
 <!DOCTYPE html>
@@ -120,257 +123,430 @@ class WebConfigService {
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Lumi Assistant 配置</title>
+    <title>Lumi Assistant 配置中心</title>
     <style>
-        body {
-            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+        * {
+            box-sizing: border-box;
             margin: 0;
+            padding: 0;
+        }
+        
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
             padding: 20px;
-            background: #f5f5f5;
             color: #333;
         }
+        
         .container {
-            max-width: 800px;
+            max-width: 1200px;
             margin: 0 auto;
-            background: white;
-            padding: 30px;
-            border-radius: 10px;
-            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            border-radius: 20px;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+            overflow: hidden;
         }
-        h1 {
-            color: #2196F3;
-            margin-bottom: 30px;
+        
+        .header {
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            color: white;
+            padding: 30px;
             text-align: center;
         }
-        .section {
-            margin-bottom: 30px;
-            padding: 20px;
-            background: #f9f9f9;
-            border-radius: 8px;
+        
+        .header h1 {
+            font-size: 2.5em;
+            margin-bottom: 10px;
+            font-weight: 600;
         }
-        .section h2 {
-            margin-top: 0;
-            color: #666;
-            font-size: 18px;
+        
+        .header p {
+            opacity: 0.9;
+            font-size: 1.1em;
+        }
+        
+        .content {
+            padding: 40px;
+        }
+        
+        .intro-section {
+            text-align: center;
+            margin-bottom: 40px;
+            padding: 30px;
+            background: rgba(255, 255, 255, 0.8);
+            border-radius: 15px;
+            border: 1px solid #e9ecef;
+        }
+        
+        .intro-section h2 {
+            color: #2c3e50;
             margin-bottom: 15px;
         }
-        .form-group {
-            margin-bottom: 15px;
+        
+        .intro-section p {
+            color: #6c757d;
+            font-size: 1.1em;
         }
-        label {
-            display: block;
-            margin-bottom: 5px;
-            font-weight: 500;
-            color: #555;
+        
+        .settings-container {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(400px, 1fr));
+            gap: 30px;
+            margin-bottom: 40px;
         }
-        input[type="text"],
-        input[type="number"],
-        select {
-            width: 100%;
-            padding: 10px;
-            border: 1px solid #ddd;
-            border-radius: 5px;
-            font-size: 16px;
-            box-sizing: border-box;
+        
+        .setting-section {
+            background: #f8f9fa;
+            border-radius: 15px;
+            padding: 25px;
+            border: 1px solid #e9ecef;
+            transition: all 0.3s ease;
         }
-        input[type="checkbox"] {
-            margin-right: 8px;
-            transform: scale(1.2);
+        
+        .setting-section:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 20px rgba(0, 0, 0, 0.1);
         }
-        .checkbox-label {
+        
+        .section-header {
             display: flex;
             align-items: center;
-            margin-top: 5px;
+            margin-bottom: 20px;
+            padding-bottom: 15px;
+            border-bottom: 2px solid #e9ecef;
         }
-        button {
-            background: #2196F3;
+        
+        .section-icon {
+            font-size: 1.5em;
+            margin-right: 12px;
+            width: 40px;
+            height: 40px;
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
             color: white;
-            border: none;
-            padding: 12px 30px;
-            border-radius: 5px;
-            font-size: 16px;
-            cursor: pointer;
+        }
+        
+        .section-title {
+            font-size: 1.3em;
+            font-weight: 600;
+            color: #2c3e50;
+        }
+        
+        .form-group {
+            margin-bottom: 20px;
+        }
+        
+        .form-label {
             display: block;
-            margin: 30px auto 0;
-            min-width: 200px;
+            margin-bottom: 8px;
+            font-weight: 500;
+            color: #495057;
+            font-size: 0.95em;
         }
-        button:hover {
-            background: #1976D2;
+        
+        .form-input {
+            width: 100%;
+            padding: 12px 16px;
+            border: 2px solid #e9ecef;
+            border-radius: 10px;
+            font-size: 1em;
+            transition: all 0.3s ease;
+            background: white;
         }
-        button:active {
-            background: #0D47A1;
+        
+        .form-input:focus {
+            outline: none;
+            border-color: #667eea;
+            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
         }
-        .message {
+        
+        .form-checkbox {
+            display: flex;
+            align-items: center;
+            margin-top: 10px;
+        }
+        
+        .form-help {
+            display: block;
+            color: #6c757d;
+            font-size: 0.85em;
+            margin-top: 5px;
+            font-style: italic;
+        }
+        
+        .actions {
+            text-align: center;
+            padding-top: 30px;
+            border-top: 2px solid #e9ecef;
+        }
+        
+        .btn {
+            display: inline-block;
+            padding: 15px 30px;
+            margin: 0 10px;
+            border: none;
+            border-radius: 10px;
+            font-size: 1em;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-decoration: none;
+            min-width: 150px;
+        }
+        
+        .btn-primary {
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            color: white;
+        }
+        
+        .btn-secondary {
+            background: #6c757d;
+            color: white;
+        }
+        
+        .btn-danger {
+            background: #dc3545;
+            color: white;
+        }
+        
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+        }
+        
+        .status-message {
             position: fixed;
             top: 20px;
             right: 20px;
             padding: 15px 20px;
-            border-radius: 5px;
+            border-radius: 10px;
             color: white;
             font-weight: 500;
-            display: none;
+            opacity: 0;
+            transform: translateX(100%);
+            transition: all 0.3s ease;
+            z-index: 1000;
         }
-        .message.success {
-            background: #4CAF50;
+        
+        .status-message.show {
+            opacity: 1;
+            transform: translateX(0);
         }
-        .message.error {
-            background: #f44336;
+        
+        .status-success {
+            background: #28a745;
         }
-        .loading {
-            text-align: center;
-            padding: 50px;
-            color: #666;
+        
+        .status-error {
+            background: #dc3545;
         }
+        
+        /* 主题色彩 */
+        .network-theme { background: linear-gradient(135deg, #56ab2f, #a8e6cf); }
+        .gotify-theme { background: linear-gradient(135deg, #667eea, #764ba2); }
     </style>
 </head>
 <body>
     <div class="container">
-        <h1>Lumi Assistant 配置</h1>
-        <div id="loading" class="loading">加载配置中...</div>
-        <form id="configForm" style="display: none;">
-            <!-- 网络设置 -->
-            <div class="section">
-                <h2>🌐 网络设置</h2>
-                <div class="form-group">
-                    <label for="serverUrl">服务器地址</label>
-                    <input type="text" id="serverUrl" name="serverUrl" placeholder="ws://192.168.1.100:8000">
+        <div class="header">
+            <h1>🌟 Lumi Assistant</h1>
+            <p>智能语音助手 - 配置中心</p>
+        </div>
+        
+        <div class="content">
+            <div class="intro-section">
+                <h2>🌐 网络配置中心</h2>
+                <p>专为闲置设备设计，无需手动输入繁琐的服务器地址和令牌</p>
+            </div>
+            
+            <div class="settings-container">
+                <!-- 网络连接设置 -->
+                <div class="setting-section">
+                    <div class="section-header">
+                        <div class="section-icon network-theme">🌐</div>
+                        <div class="section-title">网络连接设置</div>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label class="form-label" for="serverUrl">服务器地址</label>
+                        <input type="text" class="form-input" id="serverUrl" placeholder="ws://192.168.1.100:8000">
+                        <small class="form-help">语音助手后端服务器的WebSocket地址</small>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label class="form-label" for="connectionTimeout">连接超时（秒）</label>
+                        <input type="number" class="form-input" id="connectionTimeout" min="5" max="30" value="10">
+                        <small class="form-help">网络连接的超时时间</small>
+                    </div>
                 </div>
-                <div class="form-group">
-                    <label for="connectionTimeout">连接超时（毫秒）</label>
-                    <input type="number" id="connectionTimeout" name="connectionTimeout" value="10000">
+                
+                <!-- Gotify通知设置 -->
+                <div class="setting-section">
+                    <div class="section-header">
+                        <div class="section-icon gotify-theme">🔔</div>
+                        <div class="section-title">Gotify 通知设置</div>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label class="form-label" for="gotifyServerUrl">Gotify 服务器地址</label>
+                        <input type="text" class="form-input" id="gotifyServerUrl" placeholder="http://192.168.1.100:8088">
+                        <small class="form-help">Gotify 推送服务的HTTP地址</small>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label class="form-label" for="gotifyClientToken">Gotify 客户端令牌</label>
+                        <input type="text" class="form-input" id="gotifyClientToken" placeholder="输入您的Client Token">
+                        <small class="form-help">用于接收通知的客户端令牌</small>
+                    </div>
                 </div>
             </div>
-
-            <!-- Gotify设置 -->
-            <div class="section">
-                <h2>🔔 Gotify 通知设置</h2>
-                <div class="form-group">
-                    <label for="gotifyServerUrl">Gotify 服务器地址</label>
-                    <input type="text" id="gotifyServerUrl" name="gotifyServerUrl" placeholder="http://192.168.1.100:8088">
-                </div>
-                <div class="form-group">
-                    <label for="gotifyClientToken">Gotify 客户端令牌</label>
-                    <input type="text" id="gotifyClientToken" name="gotifyClientToken" placeholder="YOUR_CLIENT_TOKEN">
-                </div>
+            
+            <div class="actions">
+                <button class="btn btn-primary" onclick="saveSettings()">💾 保存设置</button>
+                <button class="btn btn-secondary" onclick="loadSettings()">🔄 重新加载</button>
+                <button class="btn btn-danger" onclick="resetSettings()">🚨 重置全部</button>
             </div>
-
-            <!-- UI设置 -->
-            <div class="section">
-                <h2>🎨 界面设置</h2>
-                <div class="form-group">
-                    <label for="floatingChatSize">浮动聊天窗口大小</label>
-                    <input type="number" id="floatingChatSize" name="floatingChatSize" value="80" min="60" max="120">
-                </div>
-                <div class="form-group">
-                    <label for="fontScale">字体缩放比例</label>
-                    <input type="number" id="fontScale" name="fontScale" value="1.0" min="0.8" max="1.5" step="0.1">
-                </div>
-                <div class="form-group">
-                    <label for="animationDuration">动画时长（毫秒）</label>
-                    <input type="number" id="animationDuration" name="animationDuration" value="300" min="0" max="1000">
-                </div>
-            </div>
-
-            <button type="submit">保存配置</button>
-        </form>
+        </div>
     </div>
-
-    <div id="message" class="message"></div>
-
+    
+    <div id="statusMessage" class="status-message"></div>
+    
     <script>
-        // 显示消息
-        function showMessage(text, type) {
-            const msg = document.getElementById('message');
-            msg.textContent = text;
-            msg.className = 'message ' + type;
-            msg.style.display = 'block';
-            setTimeout(() => {
-                msg.style.display = 'none';
-            }, 3000);
+        // 初始化页面
+        document.addEventListener('DOMContentLoaded', function() {
+            loadSettings();
+            initInputValidation();
+        });
+        
+        // 初始化输入框验证
+        function initInputValidation() {
+            // 服务器地址验证
+            const serverUrlInput = document.getElementById('serverUrl');
+            serverUrlInput.addEventListener('blur', () => {
+                const value = serverUrlInput.value;
+                if (value && !value.startsWith('ws://') && !value.startsWith('wss://')) {
+                    showMessage('服务器地址应以 ws:// 或 wss:// 开头', 'error');
+                }
+            });
+            
+            // Gotify服务器地址验证
+            const gotifyUrlInput = document.getElementById('gotifyServerUrl');
+            gotifyUrlInput.addEventListener('blur', () => {
+                const value = gotifyUrlInput.value;
+                if (value && !value.startsWith('http://') && !value.startsWith('https://')) {
+                    showMessage('Gotify服务器地址应以 http:// 或 https:// 开头', 'error');
+                }
+            });
         }
-
-        // 加载配置
-        async function loadConfig() {
+        
+        // 加载设置
+        async function loadSettings() {
             try {
-                const response = await fetch('/api/config');
-                const config = await response.json();
+                const response = await fetch('/api/settings');
+                const settings = await response.json();
                 
                 // 填充表单
-                for (const [key, value] of Object.entries(config)) {
-                    const input = document.getElementById(key);
-                    if (input) {
-                        if (input.type === 'checkbox') {
-                            input.checked = value;
+                Object.keys(settings).forEach(key => {
+                    const element = document.getElementById(key);
+                    if (element) {
+                        if (element.type === 'checkbox') {
+                            element.checked = settings[key];
                         } else {
-                            input.value = value;
+                            element.value = settings[key];
                         }
+                        
+                        // 不需要滑块显示更新
                     }
-                }
+                });
                 
-                document.getElementById('loading').style.display = 'none';
-                document.getElementById('configForm').style.display = 'block';
+                showMessage('设置加载成功', 'success');
             } catch (error) {
-                showMessage('加载配置失败: ' + error.message, 'error');
+                showMessage('加载设置失败: ' + error.message, 'error');
             }
         }
-
-        // 保存配置
-        document.getElementById('configForm').addEventListener('submit', async (e) => {
-            e.preventDefault();
-            
-            const formData = new FormData(e.target);
-            const config = {};
-            
-            // 收集所有输入值
-            for (const input of e.target.elements) {
-                if (input.name) {
-                    if (input.type === 'checkbox') {
-                        config[input.name] = input.checked;
-                    } else if (input.type === 'number') {
-                        config[input.name] = parseFloat(input.value);
-                    } else {
-                        config[input.name] = input.value;
-                    }
-                }
-            }
-            
+        
+        // 保存设置
+        async function saveSettings() {
             try {
-                const response = await fetch('/api/config', {
+                const settings = {};
+                const inputs = document.querySelectorAll('.form-input');
+                
+                inputs.forEach(input => {
+                    if (input.type === 'number') {
+                        settings[input.id] = parseInt(input.value);
+                    } else {
+                        settings[input.id] = input.value;
+                    }
+                });
+                
+                const response = await fetch('/api/settings', {
                     method: 'POST',
                     headers: {
-                        'Content-Type': 'application/json',
+                        'Content-Type': 'application/json'
                     },
-                    body: JSON.stringify(config)
+                    body: JSON.stringify(settings)
                 });
                 
                 if (response.ok) {
-                    showMessage('配置已保存！', 'success');
+                    showMessage('设置保存成功', 'success');
                 } else {
                     throw new Error('保存失败');
                 }
             } catch (error) {
-                showMessage('保存配置失败: ' + error.message, 'error');
+                showMessage('保存设置失败: ' + error.message, 'error');
             }
-        });
-
-        // 页面加载时获取配置
-        loadConfig();
+        }
+        
+        // 重置设置
+        async function resetSettings() {
+            if (confirm('确定要重置所有设置吗？此操作不可撤销。')) {
+                try {
+                    const response = await fetch('/api/settings/reset', {
+                        method: 'POST'
+                    });
+                    
+                    if (response.ok) {
+                        showMessage('设置重置成功', 'success');
+                        setTimeout(loadSettings, 1000);
+                    } else {
+                        throw new Error('重置失败');
+                    }
+                } catch (error) {
+                    showMessage('重置设置失败: ' + error.message, 'error');
+                }
+            }
+        }
+        
+        // 显示消息
+        function showMessage(message, type) {
+            const messageEl = document.getElementById('statusMessage');
+            messageEl.textContent = message;
+            messageEl.className = 'status-message status-' + type + ' show';
+            
+            setTimeout(() => {
+                messageEl.classList.remove('show');
+            }, 3000);
+        }
     </script>
 </body>
 </html>
-''';
-    
+    ''';
+
     return Response.ok(
       html,
       headers: {'Content-Type': 'text/html; charset=utf-8'},
     );
   }
 
-  /// 处理获取配置请求
-  Response _handleGetConfig(Request request) {
+  /// 获取网络和通知相关设置
+  Response _handleGetAllSettings(Request request) {
     final settings = AppSettings.instance;
     
-    final config = {
+    final allSettings = {
       // 网络设置
       'serverUrl': settings.serverUrl,
       'connectionTimeout': settings.connectionTimeout,
@@ -378,89 +554,80 @@ class WebConfigService {
       // Gotify设置
       'gotifyServerUrl': settings.gotifyServerUrl,
       'gotifyClientToken': settings.gotifyClientToken,
-      
-      // UI设置
-      'floatingChatSize': settings.floatingChatSize,
-      'fontScale': settings.fontScale,
-      'animationDuration': settings.animationDuration,
-      
-      // 背景设置
-      'wallpaperMode': settings.wallpaperMode.toString(),
     };
     
     return Response.ok(
-      jsonEncode(config),
+      jsonEncode(allSettings),
       headers: {'Content-Type': 'application/json'},
     );
   }
 
-  /// 处理保存配置请求
-  Future<Response> _handleSaveConfig(Request request) async {
+  /// 保存网络和通知设置
+  Future<Response> _handleSaveAllSettings(Request request) async {
     try {
       final body = await request.readAsString();
-      final config = jsonDecode(body) as Map<String, dynamic>;
+      final settings = jsonDecode(body) as Map<String, dynamic>;
       
-      AppLogger.getLogger('WebConfig').info('📝 收到配置更新请求: $config');
+      AppLogger.getLogger('WebConfig').info('📝 收到网络配置更新: ${settings.keys.toList()}');
       
-      final settings = AppSettings.instance;
+      final appSettings = AppSettings.instance;
       
-      // 更新配置
-      if (config.containsKey('serverUrl') && config['serverUrl'] != null) {
-        await settings.updateServerUrl(config['serverUrl'] as String);
+      // 网络设置
+      if (settings.containsKey('serverUrl')) {
+        await appSettings.updateServerUrl(settings['serverUrl'].toString());
       }
-      if (config.containsKey('connectionTimeout') && config['connectionTimeout'] != null) {
-        final timeout = config['connectionTimeout'];
-        if (timeout is int) {
-          await settings.updateConnectionTimeout(timeout);
-        } else if (timeout is String) {
-          await settings.updateConnectionTimeout(int.parse(timeout));
-        }
-      }
-      if (config.containsKey('gotifyServerUrl') && config['gotifyServerUrl'] != null) {
-        await settings.updateGotifyServerUrl(config['gotifyServerUrl'] as String);
-      }
-      if (config.containsKey('gotifyClientToken') && config['gotifyClientToken'] != null) {
-        await settings.updateGotifyClientToken(config['gotifyClientToken'] as String);
-      }
-      if (config.containsKey('floatingChatSize') && config['floatingChatSize'] != null) {
-        final size = config['floatingChatSize'];
-        if (size is double) {
-          await settings.updateFloatingChatSize(size);
-        } else if (size is int) {
-          await settings.updateFloatingChatSize(size.toDouble());
-        } else if (size is String) {
-          await settings.updateFloatingChatSize(double.parse(size));
-        }
-      }
-      if (config.containsKey('fontScale') && config['fontScale'] != null) {
-        final scale = config['fontScale'];
-        if (scale is double) {
-          await settings.updateFontScale(scale);
-        } else if (scale is String) {
-          await settings.updateFontScale(double.parse(scale));
-        }
-      }
-      if (config.containsKey('animationDuration') && config['animationDuration'] != null) {
-        final duration = config['animationDuration'];
-        if (duration is int) {
-          await settings.updateAnimationDuration(duration);
-        } else if (duration is String) {
-          await settings.updateAnimationDuration(int.parse(duration));
-        }
+      if (settings.containsKey('connectionTimeout')) {
+        await appSettings.updateConnectionTimeout(_parseInt(settings['connectionTimeout']));
       }
       
-      AppLogger.getLogger('WebConfig').info('✅ 配置更新成功');
+      // Gotify设置
+      if (settings.containsKey('gotifyServerUrl')) {
+        await appSettings.updateGotifyServerUrl(settings['gotifyServerUrl'].toString());
+      }
+      if (settings.containsKey('gotifyClientToken')) {
+        await appSettings.updateGotifyClientToken(settings['gotifyClientToken'].toString());
+      }
+      
+      AppLogger.getLogger('WebConfig').info('✅ 设置更新完成');
       
       return Response.ok(
-        jsonEncode({'success': true}),
+        jsonEncode({'success': true, 'message': '设置保存成功'}),
         headers: {'Content-Type': 'application/json'},
       );
     } catch (e, stackTrace) {
-      AppLogger.getLogger('WebConfig').severe('❌ 保存配置失败', e, stackTrace);
+      AppLogger.getLogger('WebConfig').severe('❌ 保存设置失败', e, stackTrace);
       return Response.internalServerError(
-        body: jsonEncode({'error': e.toString()}),
+        body: jsonEncode({'success': false, 'message': '保存设置失败: $e'}),
         headers: {'Content-Type': 'application/json'},
       );
     }
+  }
+
+  /// 重置所有设置
+  Future<Response> _handleResetSettings(Request request) async {
+    try {
+      await AppSettings.instance.resetAllSettings();
+      
+      AppLogger.getLogger('WebConfig').info('🔄 所有设置已重置');
+      
+      return Response.ok(
+        jsonEncode({'success': true, 'message': '设置重置成功'}),
+        headers: {'Content-Type': 'application/json'},
+      );
+    } catch (e, stackTrace) {
+      AppLogger.getLogger('WebConfig').severe('❌ 重置设置失败', e, stackTrace);
+      return Response.internalServerError(
+        body: jsonEncode({'success': false, 'message': '重置设置失败: $e'}),
+        headers: {'Content-Type': 'application/json'},
+      );
+    }
+  }
+
+  // 辅助方法：解析数据类型
+  int _parseInt(dynamic value) {
+    if (value is int) return value;
+    if (value is double) return value.round();
+    if (value is String) return int.parse(value);
+    return 0;
   }
 }

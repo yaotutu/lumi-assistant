@@ -6,6 +6,7 @@ import 'package:opus_dart/opus_dart.dart';
 import '../../config/app_settings.dart';
 import '../../utils/app_logger.dart';
 import '../../utils/loggers.dart';
+import 'web_config_service.dart';
 // import '../../../presentation/services/photo_service.dart'; // 暂时不需要
 
 /// 应用初始化服务
@@ -58,7 +59,10 @@ class AppInitializer {
       // 步骤3：初始化照片服务
       await _initializePhotoService();
       
-      // 步骤4：异步初始化Opus库（不等待完成）
+      // 步骤4：启动Web配置服务（默认启动）
+      await _initializeWebConfigService();
+      
+      // 步骤5：异步初始化Opus库（不等待完成）
       _initializeOpusAsync();
       
       // 标记初始化完成
@@ -162,6 +166,33 @@ class AppInitializer {
       // 不重新抛出异常，让应用继续启动
     }
     */
+  }
+  
+  /// 初始化Web配置服务
+  /// 
+  /// 流程：
+  /// 1. 启动Web配置服务器
+  /// 2. 记录服务地址
+  /// 3. 失败时记录错误但不阻塞应用启动
+  Future<void> _initializeWebConfigService() async {
+    try {
+      Loggers.system.info('🌐 正在启动Web配置服务...');
+      
+      // 启动Web配置服务
+      final webConfigService = WebConfigService();
+      final serverUrl = await webConfigService.start();
+      
+      if (serverUrl != null) {
+        Loggers.system.info('✅ Web配置服务已启动: $serverUrl');
+      } else {
+        Loggers.system.warning('⚠️ Web配置服务启动失败');
+      }
+      
+    } catch (error, stackTrace) {
+      // Web配置服务初始化失败记录错误，但不阻塞应用启动
+      Loggers.system.severe('❌ Web配置服务初始化失败: $error', error, stackTrace);
+      // 不重新抛出异常，让应用继续启动
+    }
   }
   
   /// 异步初始化Opus音频编解码库
