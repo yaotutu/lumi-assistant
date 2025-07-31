@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 
 import '../providers/connection_provider.dart';
-import '../../data/models/websocket_state.dart';
+import '../../data/models/connection/websocket_state.dart';
 
 /// 连接状态显示组件
 class ConnectionStatusWidget extends ConsumerWidget {

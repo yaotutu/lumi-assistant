@@ -4,7 +4,7 @@ import 'package:flutter_hooks/flutter_hooks.dart';
 import '../providers/audio_stream_provider.dart';
 import '../providers/connection_provider.dart';
 import '../../core/constants/audio_constants.dart';
-import '../../data/models/websocket_state.dart';
+import '../../data/models/connection/websocket_state.dart';
 import '../../core/services/audio/voice_interrupt_service.dart';
 import '../../core/utils/loggers.dart';
 

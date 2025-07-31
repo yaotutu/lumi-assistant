@@ -1,10 +1,10 @@
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 // import 'package:uuid/uuid.dart'; // 暂未使用
 
-import '../../data/models/chat_ui_model.dart';
-import '../../data/models/message_model.dart';
-import '../../data/models/chat_state.dart';
-import '../../data/models/connection_state.dart';
+import '../../data/models/chat/chat_ui_model.dart';
+import '../../data/models/chat/message_model.dart';
+import '../../data/models/chat/chat_state.dart';
+import '../../data/models/connection/connection_state.dart';
 import '../../core/services/network/handshake_service.dart';
 import '../../core/errors/error_handler.dart';
 import '../../core/errors/exceptions.dart';

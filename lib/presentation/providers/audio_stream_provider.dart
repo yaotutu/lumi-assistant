@@ -2,7 +2,7 @@ import 'package:hooks_riverpod/hooks_riverpod.dart';
 import '../../core/services/audio/audio_stream_service.dart';
 import '../../core/services/websocket/websocket_service.dart';
 import '../../core/constants/audio_constants.dart';
-import '../../data/models/exceptions.dart';
+import '../../data/models/common/exceptions.dart';
 import '../../core/utils/loggers.dart';
 
 /// 音频流状态

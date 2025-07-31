@@ -4,7 +4,7 @@ import 'package:hooks_riverpod/hooks_riverpod.dart';
 
 import '../../providers/chat_provider.dart';
 import '../../providers/virtual_character_provider.dart';
-import '../../../data/models/chat_state.dart';
+import '../../../data/models/chat/chat_state.dart';
 import '../../../core/constants/device_constants.dart';
 import '../../../core/services/audio/voice_interrupt_service.dart';
 import '../virtual_character/models/character_enums.dart';

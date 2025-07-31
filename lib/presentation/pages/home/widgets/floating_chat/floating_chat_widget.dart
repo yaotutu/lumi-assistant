@@ -11,7 +11,7 @@ import 'package:hooks_riverpod/hooks_riverpod.dart';
 import '../../../../providers/virtual_character_provider.dart';
 import '../../../../providers/audio_stream_provider.dart';
 import '../../../../providers/chat_provider.dart';
-import '../../../../../data/models/chat_ui_model.dart';
+import '../../../../../data/models/chat/chat_ui_model.dart';
 import '../../../../widgets/chat/chat_interface.dart';
 import '../../../../../core/utils/emotion_mapper.dart';
 import '../../../../../core/utils/screen_utils.dart';

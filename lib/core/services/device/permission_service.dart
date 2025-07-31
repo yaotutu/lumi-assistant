@@ -1,5 +1,5 @@
 import 'package:permission_handler/permission_handler.dart';
-import '../../../data/models/exceptions.dart';
+import '../../../data/models/common/exceptions.dart';
 import '../../constants/audio_constants.dart';
 
 /// 权限管理服务

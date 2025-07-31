@@ -4,7 +4,7 @@ import 'package:hooks_riverpod/hooks_riverpod.dart';
 import '../../widgets/error_banner.dart';
 import '../../providers/chat_provider.dart';
 import '../../../core/constants/device_constants.dart';
-import '../../../data/models/chat_state.dart';
+import '../../../data/models/chat/chat_state.dart';
 import '../../widgets/chat/chat_interface.dart';
 import 'widgets/chat_background.dart';
 

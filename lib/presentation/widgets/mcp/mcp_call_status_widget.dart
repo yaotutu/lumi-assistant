@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 
-import '../../../data/models/mcp_call_state.dart';
+import '../../../data/models/mcp/mcp_call_state.dart';
 import '../../providers/mcp_call_provider.dart';
 
 /// MCP调用状态显示组件

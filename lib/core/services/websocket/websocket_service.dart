@@ -9,9 +9,9 @@ import 'package:web_socket_channel/web_socket_channel.dart';
 
 import '../../constants/api_constants.dart';
 import '../../errors/exceptions.dart';
-import '../../../data/models/exceptions.dart';
+import '../../../data/models/common/exceptions.dart';
 import '../../utils/loggers.dart';
-import '../../../data/models/websocket_state.dart';
+import '../../../data/models/connection/websocket_state.dart';
 import '../audio/audio_service_android_style.dart';
 import '../mcp/unified_mcp_manager.dart';
 import '../audio/opus_data_capture_service.dart';

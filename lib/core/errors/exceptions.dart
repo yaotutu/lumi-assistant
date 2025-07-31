@@ -1,2 +1,2 @@
 // 导出新的Freezed异常模型
-export '../../data/models/exceptions.dart';
+export '../../data/models/common/exceptions.dart';

@@ -3,7 +3,7 @@ import 'dart:typed_data';
 import 'package:record/record.dart';
 import 'package:opus_dart/opus_dart.dart';
 import '../../constants/audio_constants.dart';
-import '../../../data/models/exceptions.dart';
+import '../../../data/models/common/exceptions.dart';
 import '../device/permission_service.dart';
 import '../websocket/websocket_service.dart';
 import '../../utils/loggers.dart';

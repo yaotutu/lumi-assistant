@@ -3,7 +3,7 @@ import 'dart:typed_data';
 // import '../../core/services/audio_playback_service.dart'; // 使用Android风格实现
 import '../../core/services/audio/audio_service_android_style.dart';
 import '../../core/constants/audio_constants.dart';
-import '../../data/models/exceptions.dart';
+import '../../data/models/common/exceptions.dart';
 import '../../core/utils/loggers.dart';
 
 /// 音频播放状态

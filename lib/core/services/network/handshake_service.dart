@@ -2,7 +2,7 @@ import 'dart:async';
 
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 
-import '../../../data/models/message_model.dart';
+import '../../../data/models/chat/message_model.dart';
 import '../device/device_info_service.dart';
 import '../websocket/websocket_service.dart';
 import '../../errors/exceptions.dart';

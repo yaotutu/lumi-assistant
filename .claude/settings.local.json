@@ -55,7 +55,8 @@
       "Bash(timeout:*)",
       "Bash(cp:*)",
       "Bash(curl:*)",
-      "WebFetch(domain:raw.githubusercontent.com)"
+      "WebFetch(domain:raw.githubusercontent.com)",
+      "Bash(tree:*)"
     ],
     "deny": []
   }

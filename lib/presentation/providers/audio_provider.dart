@@ -5,7 +5,7 @@ import 'dart:typed_data';
 import '../../core/services/audio/audio_service_android_style.dart';
 import '../../core/services/device/permission_service.dart';
 import '../../core/constants/audio_constants.dart';
-import '../../data/models/exceptions.dart';
+import '../../data/models/common/exceptions.dart';
 import '../../core/utils/loggers.dart';
 
 /// 音频状态管理Provider

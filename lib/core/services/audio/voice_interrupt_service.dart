@@ -4,7 +4,7 @@ import 'package:hooks_riverpod/hooks_riverpod.dart';
 import '../websocket/websocket_service.dart' show WebSocketService, webSocketServiceProvider;
 import 'audio_service_android_style.dart';
 import 'audio_playback_service.dart';
-import '../../../data/models/websocket_state.dart';
+import '../../../data/models/connection/websocket_state.dart';
 import '../../utils/loggers.dart';
 
 /// 语音打断服务

@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import '../../../data/models/chat_ui_model.dart';
+import '../../../data/models/chat/chat_ui_model.dart';
 
 /// 聊天消息项组件
 /// 

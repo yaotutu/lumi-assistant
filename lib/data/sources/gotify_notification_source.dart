@@ -2,7 +2,7 @@ import 'dart:convert';
 import 'package:http/http.dart' as http;
 import '../../domain/interfaces/notification_source.dart';
 import '../../core/utils/app_logger.dart';
-import '../models/gotify_models.dart';
+import '../models/notification/gotify_models.dart';
 
 /// Gotify 通知源实现
 /// 
