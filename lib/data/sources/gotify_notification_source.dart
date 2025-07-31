@@ -1,6 +1,6 @@
 import 'dart:convert';
 import 'package:http/http.dart' as http;
-import '../../domain/interfaces/notification_source.dart';
+import '../models/notification/notification_source.dart';
 import '../../core/utils/app_logger.dart';
 import '../models/notification/gotify_models.dart';
 

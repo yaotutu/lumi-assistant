@@ -23,7 +23,7 @@ test/
 ├── unit/                    # 单元测试
 │   ├── core/               # 核心功能测试
 │   ├── data/               # 数据层测试
-│   └── domain/             # 业务逻辑测试
+│   └── models/             # 模型测试
 ├── widget/                 # Widget测试
 │   ├── pages/              # 页面组件测试
 │   └── widgets/            # 通用组件测试

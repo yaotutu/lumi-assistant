@@ -28,7 +28,6 @@ Key architectural principles:
 lib/
 ├── core/                    # Core utilities, constants, services
 ├── data/                   # Data layer (models, repositories, datasources)
-├── domain/                 # Business layer (entities, repository interfaces, use cases)
 └── presentation/           # UI layer (providers, pages, widgets)
     ├── pages/               # Page-oriented organization
     │   └── home/            # Home page and its components

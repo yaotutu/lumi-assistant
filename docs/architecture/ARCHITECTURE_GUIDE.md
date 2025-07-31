@@ -209,22 +209,22 @@ class ChatState with _$ChatState {
 }
 ```
 
-### 4. Domain Layer (领域层)
+### 4. Data Layer (数据层)
 
-**职责**：业务实体、仓库接口、用例定义
+**职责**：数据模型、数据源、仓库实现
 
 ```
-domain/
-├── entities/        # 业务实体
-├── repositories/    # 仓库接口
-└── usecases/       # 用例
+data/
+├── models/         # 数据模型
+├── sources/        # 数据源
+└── repositories/   # 仓库实现
 ```
 
-#### 仓库接口模式
+#### 仓库模式
 
 ```dart
-// 抽象仓库接口
-abstract class ChatRepository {
+// 仓库实现
+class ChatRepositoryImpl implements ChatRepository {
   Stream<ChatMessage> get messageStream;
   Future<void> sendMessage(ChatMessage message);
   Future<List<ChatMessage>> getMessageHistory();
@@ -280,7 +280,7 @@ lib/
 │   │   └── websocket_state.dart
 │   ├── repositories/           # 数据仓库实现
 │   └── datasources/           # 数据源
-├── domain/                     # 领域层
+├── data/                       # 数据层
 │   ├── entities/              # 业务实体
 │   ├── repositories/          # 仓库接口
 │   └── usecases/             # 用例

@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
-import '../../domain/models/notification_types.dart';
+import '../../data/models/notification/notification_types.dart';
+import '../../data/models/notification/notification_icon_config.dart';
 import '../../core/services/notification/unified_notification_service.dart';
 
 /// 通知气泡组件
@@ -283,19 +284,19 @@ class _NotificationBubbleState extends State<NotificationBubble>
               height: widget.size, // 气泡高度（正圆形）
               decoration: BoxDecoration(
                 shape: BoxShape.circle, // 圆形气泡
-                color: latestNotification.color, // 使用最新通知的颜色
+                // 与右侧语音助手按钮保持一致的半透明背景
+                color: Colors.white.withValues(alpha: 0.15),
+                // 添加微妙的边框，增加层次感
+                border: Border.all(
+                  color: Colors.white.withValues(alpha: 0.2),
+                  width: 1,
+                ),
+                // 柔和的阴影效果
                 boxShadow: [
-                  // 主阴影：使用通知颜色，创建光晕效果
                   BoxShadow(
-                    color: latestNotification.color.withValues(alpha: 0.5),
-                    blurRadius: 16,     // 模糊半径
-                    spreadRadius: 2,    // 扩散半径
-                  ),
-                  // 次阴影：黑色阴影，增加立体感
-                  BoxShadow(
-                    color: Colors.black.withValues(alpha: 0.3),
+                    color: Colors.black.withValues(alpha: 0.2),
                     blurRadius: 8,
-                    offset: const Offset(0, 4), // 向下偏移4像素
+                    offset: const Offset(0, 2),
                   ),
                 ],
               ),
@@ -305,11 +306,16 @@ class _NotificationBubbleState extends State<NotificationBubble>
                   // 主图标显示逻辑：
                   // - 面板打开时：显示关闭图标
                   // - 面板关闭时：显示最新通知的图标
-                  Icon(
-                    _isPanelOpen ? Icons.close : latestNotification.icon,
-                    color: Colors.white,
-                    size: widget.size * 0.5, // 图标大小为气泡直径的50%
-                  ),
+                  _isPanelOpen 
+                    ? Icon(
+                        Icons.close,
+                        color: Colors.white.withValues(alpha: 0.9),
+                        size: widget.size * 0.5,
+                      )
+                    : latestNotification.iconConfig.build(
+                        widget.size * 0.5,
+                        color: Colors.white.withValues(alpha: 0.9),
+                      ),
                   
                   // 未读数量角标
                   // 显示条件：1. 有未读通知 2. 面板未打开
@@ -320,8 +326,8 @@ class _NotificationBubbleState extends State<NotificationBubble>
                       child: Container(
                         padding: const EdgeInsets.all(2), // 内边距
                         decoration: BoxDecoration(
-                          color: Colors.red,              // 红色背景
-                          shape: BoxShape.circle,         // 圆形
+                          color: Colors.red.withValues(alpha: 0.9),  // 红色背景
+                          shape: BoxShape.circle,                    // 圆形
                           border: Border.all(color: Colors.white, width: 2), // 白色边框
                         ),
                         constraints: const BoxConstraints(
@@ -701,10 +707,9 @@ class _NotificationItemCompact extends StatelessWidget {
                       color: notification.color.withValues(alpha: 0.2),
                       shape: BoxShape.circle,
                     ),
-                    child: Icon(
-                      notification.icon,
+                    child: notification.iconConfig.build(
+                      16,
                       color: notification.color,
-                      size: 16,
                     ),
                   ),
                   
@@ -814,8 +819,8 @@ class BubbleNotification {
   /// 可选的通知标题
   final String? title;
   
-  /// 通知图标，显示在气泡和列表项中
-  final IconData icon;
+  /// 通知图标配置，支持 IconData 和自定义 Widget
+  final NotificationIconConfig iconConfig;
   
   /// 通知的主题颜色，用于气泡和强调色
   final Color color;
@@ -842,7 +847,7 @@ class BubbleNotification {
     required this.id,
     required this.message,
     this.title,
-    required this.icon,
+    required this.iconConfig,
     required this.color,
     required this.timestamp,
     required this.type,
@@ -914,7 +919,7 @@ class NotificationBubbleManager extends ChangeNotifier {
         id: un.id,
         message: un.message,
         title: un.title,
-        icon: config.icon,
+        iconConfig: config.iconConfig,
         color: NotificationTypeConfig.getLevelAdjustedColor(
           config.color, 
           _mapPriorityToLevel(un.priority)
@@ -989,7 +994,9 @@ class NotificationBubbleManager extends ChangeNotifier {
     final config = NotificationTypeConfig.getConfig(type);
     
     // 使用指定值或默认值
-    final finalIcon = icon ?? config.icon;
+    final finalIconConfig = icon != null 
+        ? NotificationIconConfig.icon(icon) 
+        : config.iconConfig;
     final finalColor = color ?? config.color;
     final finalTitle = title ?? config.defaultTitle;
     
@@ -1002,7 +1009,7 @@ class NotificationBubbleManager extends ChangeNotifier {
       id: DateTime.now().millisecondsSinceEpoch.toString(),
       message: message,
       title: finalTitle,
-      icon: finalIcon,
+      iconConfig: finalIconConfig,
       color: adjustedColor,
       timestamp: DateTime.now(),
       type: type,

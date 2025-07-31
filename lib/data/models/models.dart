@@ -14,6 +14,9 @@ export 'connection/websocket_state.dart';
 
 // 通知相关模型
 export 'notification/gotify_models.dart';
+export 'notification/notification_source.dart';
+export 'notification/notification_types.dart';
+export 'notification/notification_icon_config.dart';
 
 // MCP相关模型
 export 'mcp/mcp_call_state.dart';

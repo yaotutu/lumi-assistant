@@ -108,10 +108,20 @@ class HomeLayoutManager extends ConsumerWidget {
     return ListenableBuilder(
       listenable: NotificationBubbleManager.instance,
       builder: (context, child) {
-        return const NotificationBubble(
-          alignment: Alignment.centerLeft,
-          size: 60,
-          margin: EdgeInsets.only(left: 16),
+        // 计算与右侧聊天气泡对称的位置
+        final screenSize = MediaQuery.of(context).size;
+        final bubbleSize = 80.0;
+        final bottomMargin = 80.0; // 与右侧保持一致
+        final verticalPosition = screenSize.height - bubbleSize - bottomMargin;
+        
+        return Positioned(
+          left: 16,  // 距离左边 16 像素
+          top: verticalPosition,
+          child: const NotificationBubble(
+            alignment: Alignment.topLeft,  // 使用 Positioned，所以改为 topLeft
+            size: 80,  // 与右侧语音助手按钮保持一致
+            margin: EdgeInsets.zero,  // 使用 Positioned 定位，不需要 margin
+          ),
         );
       },
     );

@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'notification_icon_config.dart';
 
 /// 通知类型枚举
 /// 
@@ -71,7 +72,7 @@ class NotificationTypeConfig {
   static NotificationConfig getConfig(NotificationType type) {
     switch (type) {
       case NotificationType.system:
-        return NotificationConfig(
+        return NotificationConfig.fromIcon(
           icon: Icons.settings,
           color: Colors.blue,
           defaultTitle: '系统',
@@ -80,14 +81,14 @@ class NotificationTypeConfig {
         
       case NotificationType.gotify:
         return NotificationConfig(
-          icon: Icons.cloud,
+          iconConfig: NotificationIconConfig.gotifyLogo(),
           color: Colors.teal,
           defaultTitle: 'Gotify',
           category: '推送服务',
         );
         
       case NotificationType.weather:
-        return NotificationConfig(
+        return NotificationConfig.fromIcon(
           icon: Icons.wb_sunny,
           color: Colors.orange,
           defaultTitle: '天气',
@@ -95,7 +96,7 @@ class NotificationTypeConfig {
         );
         
       case NotificationType.iot:
-        return NotificationConfig(
+        return NotificationConfig.fromIcon(
           icon: Icons.devices,
           color: Colors.green,
           defaultTitle: 'IoT设备',
@@ -103,7 +104,7 @@ class NotificationTypeConfig {
         );
         
       case NotificationType.security:
-        return NotificationConfig(
+        return NotificationConfig.fromIcon(
           icon: Icons.security,
           color: Colors.red,
           defaultTitle: '安全警告',
@@ -111,7 +112,7 @@ class NotificationTypeConfig {
         );
         
       case NotificationType.download:
-        return NotificationConfig(
+        return NotificationConfig.fromIcon(
           icon: Icons.download_done,
           color: Colors.purple,
           defaultTitle: '下载',
@@ -119,7 +120,7 @@ class NotificationTypeConfig {
         );
         
       case NotificationType.message:
-        return NotificationConfig(
+        return NotificationConfig.fromIcon(
           icon: Icons.message,
           color: Colors.indigo,
           defaultTitle: '消息',
@@ -127,7 +128,7 @@ class NotificationTypeConfig {
         );
         
       case NotificationType.calendar:
-        return NotificationConfig(
+        return NotificationConfig.fromIcon(
           icon: Icons.calendar_today,
           color: Colors.amber,
           defaultTitle: '日程',
@@ -135,7 +136,7 @@ class NotificationTypeConfig {
         );
         
       case NotificationType.media:
-        return NotificationConfig(
+        return NotificationConfig.fromIcon(
           icon: Icons.play_circle,
           color: Colors.pink,
           defaultTitle: '媒体',
@@ -143,7 +144,7 @@ class NotificationTypeConfig {
         );
         
       case NotificationType.network:
-        return NotificationConfig(
+        return NotificationConfig.fromIcon(
           icon: Icons.wifi,
           color: Colors.cyan,
           defaultTitle: '网络',
@@ -151,7 +152,7 @@ class NotificationTypeConfig {
         );
         
       case NotificationType.battery:
-        return NotificationConfig(
+        return NotificationConfig.fromIcon(
           icon: Icons.battery_alert,
           color: Colors.lime,
           defaultTitle: '电池',
@@ -159,7 +160,7 @@ class NotificationTypeConfig {
         );
         
       case NotificationType.storage:
-        return NotificationConfig(
+        return NotificationConfig.fromIcon(
           icon: Icons.storage,
           color: Colors.brown,
           defaultTitle: '存储',
@@ -167,7 +168,7 @@ class NotificationTypeConfig {
         );
         
       case NotificationType.custom:
-        return NotificationConfig(
+        return NotificationConfig.fromIcon(
           icon: Icons.notifications,
           color: Colors.grey,
           defaultTitle: '通知',
@@ -218,8 +219,8 @@ class NotificationTypeConfig {
 /// 
 /// 包含通知类型的默认视觉配置
 class NotificationConfig {
-  /// 默认图标
-  final IconData icon;
+  /// 图标配置（支持 IconData 和自定义 Widget）
+  final NotificationIconConfig iconConfig;
   
   /// 默认颜色
   final Color color;
@@ -231,11 +232,19 @@ class NotificationConfig {
   final String category;
   
   const NotificationConfig({
-    required this.icon,
+    required this.iconConfig,
     required this.color,
     required this.defaultTitle,
     required this.category,
   });
+  
+  /// 兼容旧代码的构造函数
+  NotificationConfig.fromIcon({
+    required IconData icon,
+    required this.color,
+    required this.defaultTitle,
+    required this.category,
+  }) : iconConfig = NotificationIconConfig.icon(icon);
 }
 
 /// 通知源信息

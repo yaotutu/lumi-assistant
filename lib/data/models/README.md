@@ -30,6 +30,8 @@ models/
 ### 🔔 notification/ - 通知模型
 通知系统的数据模型：
 - `gotify_models.dart` - Gotify通知模型
+- `notification_source.dart` - 通知源接口和统一通知模型
+- `notification_types.dart` - 通知类型定义和配置
 
 ### 🔌 mcp/ - MCP模型
 Model Context Protocol相关：

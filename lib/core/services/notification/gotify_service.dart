@@ -8,7 +8,7 @@ import '../../../data/models/notification/gotify_models.dart';
 import '../../../presentation/widgets/notification_bubble.dart';
 import 'unified_notification_service.dart';
 import '../../../data/sources/gotify_notification_source.dart';
-import '../../../domain/interfaces/notification_source.dart';
+import '../../../data/models/notification/notification_source.dart';
 
 /// Gotify 推送通知服务
 /// 
