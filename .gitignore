@@ -58,3 +58,8 @@ lumi_pcm_player/
 .env
 .env.local
 .env.*.local
+
+# Security cleanup files
+replacements.txt
+clean_git_history.sh
+SECURITY_NOTICE.md
