@@ -44,15 +44,6 @@ class AppSettings extends ChangeNotifier {
   static const _defaultGotifyServerUrl = '';
   static const _defaultGotifyClientToken = '';
   
-  /// 音频默认配置
-  static const _defaultSampleRate = 16000;
-  static const _defaultChannels = 1;
-  static const _defaultFrameDuration = 60;
-  
-  /// 主题默认配置
-  static const _defaultUseMaterial3 = false;
-  static const _defaultEnableAnimations = false;
-  static const _defaultEnableRipple = false;
   
   /// 背景默认配置
   static final _defaultBackgroundConfig = BackgroundConfig();
@@ -62,6 +53,14 @@ class AppSettings extends ChangeNotifier {
   static const _defaultBuiltinWallpaperType = BuiltinWallpaperType.animatedStarfield;
   static const String? _defaultCustomWallpaperPath = null;
   static const _defaultEnableWallpaperOverlay = false; // 默认不启用遮罩，保持图片清晰
+  
+  /// 天气默认配置
+  static const _defaultWeatherEnabled = true;
+  static const _defaultWeatherServiceType = 'mock'; // 默认使用模拟数据
+  static const _defaultWeatherLocation = '101010100'; // 北京的城市ID
+  static const _defaultWeatherUpdateInterval = 30; // 分钟
+  static const _defaultQweatherApiKey = '';
+  static const _defaultOpenweatherApiKey = '';
   
   // ==================== 用户动态设置 ====================
   // 用户可以在设置页面修改这些值，如果为null则使用默认值
@@ -80,13 +79,6 @@ class AppSettings extends ChangeNotifier {
   String? _userGotifyServerUrl;
   String? _userGotifyClientToken;
   
-  int? _userSampleRate;
-  int? _userChannels;
-  int? _userFrameDuration;
-  
-  bool? _userUseMaterial3;
-  bool? _userEnableAnimations;
-  bool? _userEnableRipple;
   
   BackgroundConfig? _userBackgroundConfig;
   
@@ -95,6 +87,14 @@ class AppSettings extends ChangeNotifier {
   BuiltinWallpaperType? _userBuiltinWallpaperType;
   String? _userCustomWallpaperPath;
   bool? _userEnableWallpaperOverlay;
+  
+  /// 天气用户设置
+  bool? _userWeatherEnabled;
+  String? _userWeatherServiceType;
+  String? _userWeatherLocation;
+  int? _userWeatherUpdateInterval;
+  String? _userQweatherApiKey;
+  String? _userOpenweatherApiKey;
   
   // ==================== 日志设置 ====================
   
@@ -140,15 +140,6 @@ class AppSettings extends ChangeNotifier {
   String get gotifyServerUrl => _userGotifyServerUrl ?? _defaultGotifyServerUrl;
   String get gotifyClientToken => _userGotifyClientToken ?? _defaultGotifyClientToken;
   
-  /// 音频设置
-  int get sampleRate => _userSampleRate ?? _defaultSampleRate;
-  int get channels => _userChannels ?? _defaultChannels;
-  int get frameDuration => _userFrameDuration ?? _defaultFrameDuration;
-  
-  /// 主题设置
-  bool get useMaterial3 => _userUseMaterial3 ?? _defaultUseMaterial3;
-  bool get enableAnimations => _userEnableAnimations ?? _defaultEnableAnimations;
-  bool get enableRipple => _userEnableRipple ?? _defaultEnableRipple;
   
   /// 背景设置
   BackgroundConfig get backgroundConfig => _userBackgroundConfig ?? _defaultBackgroundConfig;
@@ -158,6 +149,14 @@ class AppSettings extends ChangeNotifier {
   BuiltinWallpaperType get builtinWallpaperType => _userBuiltinWallpaperType ?? _defaultBuiltinWallpaperType;
   String? get customWallpaperPath => _userCustomWallpaperPath ?? _defaultCustomWallpaperPath;
   bool get enableWallpaperOverlay => _userEnableWallpaperOverlay ?? _defaultEnableWallpaperOverlay;
+  
+  /// 天气设置
+  bool get weatherEnabled => _userWeatherEnabled ?? _defaultWeatherEnabled;
+  String get weatherServiceType => _userWeatherServiceType ?? _defaultWeatherServiceType;
+  String get weatherLocation => _userWeatherLocation ?? _defaultWeatherLocation;
+  int get weatherUpdateInterval => _userWeatherUpdateInterval ?? _defaultWeatherUpdateInterval;
+  String get qweatherApiKey => _userQweatherApiKey ?? _defaultQweatherApiKey;
+  String get openweatherApiKey => _userOpenweatherApiKey ?? _defaultOpenweatherApiKey;
   
   /// 日志设置
   Level get logLevel {
@@ -258,43 +257,6 @@ class AppSettings extends ChangeNotifier {
     await _saveSettings();
   }
   
-  /// 更新主题设置
-  Future<void> updateUseMaterial3(bool value) async {
-    _userUseMaterial3 = value;
-    notifyListeners();
-    await _saveSettings();
-  }
-  
-  Future<void> updateEnableAnimations(bool value) async {
-    _userEnableAnimations = value;
-    notifyListeners();
-    await _saveSettings();
-  }
-  
-  Future<void> updateEnableRipple(bool value) async {
-    _userEnableRipple = value;
-    notifyListeners();
-    await _saveSettings();
-  }
-  
-  /// 更新音频设置
-  Future<void> updateSampleRate(int value) async {
-    _userSampleRate = value;
-    notifyListeners();
-    await _saveSettings();
-  }
-  
-  Future<void> updateChannels(int value) async {
-    _userChannels = value;
-    notifyListeners();
-    await _saveSettings();
-  }
-  
-  Future<void> updateFrameDuration(int value) async {
-    _userFrameDuration = value;
-    notifyListeners();
-    await _saveSettings();
-  }
 
   /// 更新背景设置
   Future<void> updateBackgroundConfig(BackgroundConfig config) async {
@@ -339,6 +301,43 @@ class AppSettings extends ChangeNotifier {
     _userBuiltinWallpaperType = null;
     _userCustomWallpaperPath = null;
     _userEnableWallpaperOverlay = null;
+    notifyListeners();
+    await _saveSettings();
+  }
+  
+  /// 更新天气设置
+  Future<void> updateWeatherEnabled(bool value) async {
+    _userWeatherEnabled = value;
+    notifyListeners();
+    await _saveSettings();
+  }
+  
+  Future<void> updateWeatherServiceType(String value) async {
+    _userWeatherServiceType = value;
+    notifyListeners();
+    await _saveSettings();
+  }
+  
+  Future<void> updateWeatherLocation(String value) async {
+    _userWeatherLocation = value;
+    notifyListeners();
+    await _saveSettings();
+  }
+  
+  Future<void> updateWeatherUpdateInterval(int value) async {
+    _userWeatherUpdateInterval = value;
+    notifyListeners();
+    await _saveSettings();
+  }
+  
+  Future<void> updateQweatherApiKey(String value) async {
+    _userQweatherApiKey = value;
+    notifyListeners();
+    await _saveSettings();
+  }
+  
+  Future<void> updateOpenweatherApiKey(String value) async {
+    _userOpenweatherApiKey = value;
     notifyListeners();
     await _saveSettings();
   }
@@ -493,19 +492,19 @@ class AppSettings extends ChangeNotifier {
     _userApiUrl = null;
     _userConnectionTimeout = null;
     
-    _userSampleRate = null;
-    _userChannels = null;
-    _userFrameDuration = null;
-    
-    _userUseMaterial3 = null;
-    _userEnableAnimations = null;
-    _userEnableRipple = null;
     
     _userBackgroundConfig = null;
     _userWallpaperMode = null;
     _userBuiltinWallpaperType = null;
     _userCustomWallpaperPath = null;
     _userEnableWallpaperOverlay = null;
+    
+    _userWeatherEnabled = null;
+    _userWeatherServiceType = null;
+    _userWeatherLocation = null;
+    _userWeatherUpdateInterval = null;
+    _userQweatherApiKey = null;
+    _userOpenweatherApiKey = null;
     
     _userLogLevel = null;
     _debugEnableVerboseLogging = false;
@@ -546,15 +545,6 @@ class AppSettings extends ChangeNotifier {
     _userGotifyServerUrl = prefs.getString('user_gotify_server_url');
     _userGotifyClientToken = prefs.getString('user_gotify_client_token');
     
-    // 音频设置
-    _userSampleRate = prefs.getInt('user_sample_rate');
-    _userChannels = prefs.getInt('user_channels');
-    _userFrameDuration = prefs.getInt('user_frame_duration');
-    
-    // 主题设置
-    _userUseMaterial3 = prefs.getBool('user_use_material3');
-    _userEnableAnimations = prefs.getBool('user_enable_animations');
-    _userEnableRipple = prefs.getBool('user_enable_ripple');
     
     // 背景设置
     final backgroundConfigJson = prefs.getString('user_background_config');
@@ -597,6 +587,14 @@ class AppSettings extends ChangeNotifier {
     
     _userCustomWallpaperPath = prefs.getString('user_custom_wallpaper_path');
     _userEnableWallpaperOverlay = prefs.getBool('user_enable_wallpaper_overlay');
+    
+    // 天气设置
+    _userWeatherEnabled = prefs.getBool('user_weather_enabled');
+    _userWeatherServiceType = prefs.getString('user_weather_service_type');
+    _userWeatherLocation = prefs.getString('user_weather_location');
+    _userWeatherUpdateInterval = prefs.getInt('user_weather_update_interval');
+    _userQweatherApiKey = prefs.getString('user_qweather_api_key');
+    _userOpenweatherApiKey = prefs.getString('user_openweather_api_key');
     
     // 日志设置
     _userLogLevel = prefs.getString('user_log_level');
@@ -689,24 +687,6 @@ class AppSettings extends ChangeNotifier {
       await prefs.remove('user_gotify_client_token');
     }
     
-    // 主题设置
-    if (_userUseMaterial3 != null) {
-      await prefs.setBool('user_use_material3', _userUseMaterial3!);
-    } else {
-      await prefs.remove('user_use_material3');
-    }
-    
-    if (_userEnableAnimations != null) {
-      await prefs.setBool('user_enable_animations', _userEnableAnimations!);
-    } else {
-      await prefs.remove('user_enable_animations');
-    }
-    
-    if (_userEnableRipple != null) {
-      await prefs.setBool('user_enable_ripple', _userEnableRipple!);
-    } else {
-      await prefs.remove('user_enable_ripple');
-    }
     
     // 背景设置
     if (_userBackgroundConfig != null) {
@@ -740,24 +720,43 @@ class AppSettings extends ChangeNotifier {
       await prefs.remove('user_enable_wallpaper_overlay');
     }
     
-    // 音频设置
-    if (_userSampleRate != null) {
-      await prefs.setInt('user_sample_rate', _userSampleRate!);
+    // 天气设置
+    if (_userWeatherEnabled != null) {
+      await prefs.setBool('user_weather_enabled', _userWeatherEnabled!);
     } else {
-      await prefs.remove('user_sample_rate');
+      await prefs.remove('user_weather_enabled');
     }
     
-    if (_userChannels != null) {
-      await prefs.setInt('user_channels', _userChannels!);
+    if (_userWeatherServiceType != null) {
+      await prefs.setString('user_weather_service_type', _userWeatherServiceType!);
     } else {
-      await prefs.remove('user_channels');
+      await prefs.remove('user_weather_service_type');
     }
     
-    if (_userFrameDuration != null) {
-      await prefs.setInt('user_frame_duration', _userFrameDuration!);
+    if (_userWeatherLocation != null) {
+      await prefs.setString('user_weather_location', _userWeatherLocation!);
     } else {
-      await prefs.remove('user_frame_duration');
+      await prefs.remove('user_weather_location');
     }
+    
+    if (_userWeatherUpdateInterval != null) {
+      await prefs.setInt('user_weather_update_interval', _userWeatherUpdateInterval!);
+    } else {
+      await prefs.remove('user_weather_update_interval');
+    }
+    
+    if (_userQweatherApiKey != null) {
+      await prefs.setString('user_qweather_api_key', _userQweatherApiKey!);
+    } else {
+      await prefs.remove('user_qweather_api_key');
+    }
+    
+    if (_userOpenweatherApiKey != null) {
+      await prefs.setString('user_openweather_api_key', _userOpenweatherApiKey!);
+    } else {
+      await prefs.remove('user_openweather_api_key');
+    }
+    
     
     // 日志设置
     if (_userLogLevel != null) {
@@ -788,9 +787,6 @@ class AppSettings extends ChangeNotifier {
   static double get defaultFloatingChatHeightRatio => _defaultFloatingChatHeightRatio;
   static String get defaultServerUrl => _defaultServerUrl;
   static String get defaultApiUrl => _defaultApiUrl;
-  static bool get defaultUseMaterial3 => _defaultUseMaterial3;
-  static bool get defaultEnableAnimations => _defaultEnableAnimations;
-  static bool get defaultEnableRipple => _defaultEnableRipple;
   static int get defaultAnimationDuration => _defaultAnimationDuration;
 }
 

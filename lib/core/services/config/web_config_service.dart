@@ -348,6 +348,7 @@ class WebConfigService {
         /* 主题色彩 */
         .network-theme { background: linear-gradient(135deg, #56ab2f, #a8e6cf); }
         .gotify-theme { background: linear-gradient(135deg, #667eea, #764ba2); }
+        .weather-theme { background: linear-gradient(135deg, #3498db, #5dade2); }
     </style>
 </head>
 <body>
@@ -405,6 +406,54 @@ class WebConfigService {
                 </div>
             </div>
             
+            <!-- 天气设置 -->
+            <div class="setting-section">
+                <div class="section-header">
+                    <div class="section-icon weather-theme">🌤️</div>
+                    <div class="section-title">天气服务设置</div>
+                </div>
+                
+                <div class="form-group">
+                    <label class="form-label" for="weatherEnabled">启用天气服务</label>
+                    <select class="form-input" id="weatherEnabled">
+                        <option value="true">启用</option>
+                        <option value="false">禁用</option>
+                    </select>
+                    <small class="form-help">是否在主界面显示天气信息</small>
+                </div>
+                
+                <div class="form-group">
+                    <label class="form-label" for="weatherServiceType">天气服务类型</label>
+                    <select class="form-input" id="weatherServiceType">
+                        <option value="mock">模拟数据</option>
+                        <option value="qweather">和风天气</option>
+                        <option value="openweather">OpenWeather（即将支持）</option>
+                    </select>
+                    <small class="form-help">选择天气数据来源</small>
+                </div>
+                
+                <div class="form-group">
+                    <label class="form-label" for="weatherLocation">位置</label>
+                    <input type="text" class="form-input" id="weatherLocation" placeholder="101010100 或 116.41,39.92">
+                    <small class="form-help">
+                        请使用城市ID（如：101010100）或经纬度坐标（如：116.41,39.92）<br>
+                        <a href="https://github.com/qwd/LocationList" target="_blank" style="color: #667eea;">查询城市ID</a>
+                    </small>
+                </div>
+                
+                <div class="form-group">
+                    <label class="form-label" for="weatherUpdateInterval">更新间隔（分钟）</label>
+                    <input type="number" class="form-input" id="weatherUpdateInterval" min="10" max="120" value="30">
+                    <small class="form-help">天气信息刷新频率</small>
+                </div>
+                
+                <div class="form-group">
+                    <label class="form-label" for="qweatherApiKey">和风天气 API Key</label>
+                    <input type="text" class="form-input" id="qweatherApiKey" placeholder="输入您的API密钥">
+                    <small class="form-help">前往 <a href="https://console.qweather.com/" target="_blank" style="color: #667eea;">console.qweather.com</a> 申请</small>
+                </div>
+            </div>
+            
             <div class="actions">
                 <button class="btn btn-primary" onclick="saveSettings()">💾 保存设置</button>
                 <button class="btn btn-secondary" onclick="loadSettings()">🔄 重新加载</button>
@@ -455,11 +504,12 @@ class WebConfigService {
                     if (element) {
                         if (element.type === 'checkbox') {
                             element.checked = settings[key];
+                        } else if (element.tagName === 'SELECT') {
+                            // 处理select元素
+                            element.value = settings[key]?.toString() || '';
                         } else {
-                            element.value = settings[key];
+                            element.value = settings[key] || '';
                         }
-                        
-                        // 不需要滑块显示更新
                     }
                 });
                 
@@ -478,6 +528,13 @@ class WebConfigService {
                 inputs.forEach(input => {
                     if (input.type === 'number') {
                         settings[input.id] = parseInt(input.value);
+                    } else if (input.tagName === 'SELECT') {
+                        // 处理select元素
+                        if (input.id === 'weatherEnabled') {
+                            settings[input.id] = input.value === 'true';
+                        } else {
+                            settings[input.id] = input.value;
+                        }
                     } else {
                         settings[input.id] = input.value;
                     }
@@ -554,6 +611,13 @@ class WebConfigService {
       // Gotify设置
       'gotifyServerUrl': settings.gotifyServerUrl,
       'gotifyClientToken': settings.gotifyClientToken,
+      
+      // 天气设置
+      'weatherEnabled': settings.weatherEnabled,
+      'weatherServiceType': settings.weatherServiceType,
+      'weatherLocation': settings.weatherLocation,
+      'weatherUpdateInterval': settings.weatherUpdateInterval,
+      'qweatherApiKey': settings.qweatherApiKey,
     };
     
     return Response.ok(
@@ -586,6 +650,23 @@ class WebConfigService {
       }
       if (settings.containsKey('gotifyClientToken')) {
         await appSettings.updateGotifyClientToken(settings['gotifyClientToken'].toString());
+      }
+      
+      // 天气设置
+      if (settings.containsKey('weatherEnabled')) {
+        await appSettings.updateWeatherEnabled(settings['weatherEnabled'] as bool);
+      }
+      if (settings.containsKey('weatherServiceType')) {
+        await appSettings.updateWeatherServiceType(settings['weatherServiceType'].toString());
+      }
+      if (settings.containsKey('weatherLocation')) {
+        await appSettings.updateWeatherLocation(settings['weatherLocation'].toString());
+      }
+      if (settings.containsKey('weatherUpdateInterval')) {
+        await appSettings.updateWeatherUpdateInterval(_parseInt(settings['weatherUpdateInterval']));
+      }
+      if (settings.containsKey('qweatherApiKey')) {
+        await appSettings.updateQweatherApiKey(settings['qweatherApiKey'].toString());
       }
       
       AppLogger.getLogger('WebConfig').info('✅ 设置更新完成');

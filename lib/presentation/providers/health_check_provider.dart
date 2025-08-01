@@ -3,6 +3,7 @@ import '../../core/services/health/service_health_checker.dart';
 import '../../core/services/health/checkers/websocket_health_checker.dart';
 import '../../core/services/health/checkers/gotify_health_checker.dart';
 import '../../core/services/health/checkers/mcp_health_checker.dart';
+import '../../core/services/health/checkers/weather_health_checker.dart';
 import 'gotify_provider.dart';
 import '../../core/services/mcp/unified_mcp_manager.dart';
 
@@ -27,6 +28,11 @@ final healthCheckInitializerProvider = Provider<void>((ref) {
   final mcpManager = ref.watch(unifiedMcpManagerProvider);
   healthManager.registerChecker(
     McpHealthChecker(mcpManager),
+  );
+  
+  // 注册天气健康检查器
+  healthManager.registerChecker(
+    WeatherHealthChecker(ref),
   );
   
   // 未来可以在这里添加更多健康检查器

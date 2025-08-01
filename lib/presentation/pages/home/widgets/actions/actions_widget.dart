@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
+import 'weather_clock_widget.dart';
 
 /// 操作区域组件
 /// 
@@ -29,6 +30,16 @@ class ActionsWidget extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    // 居中位置时使用特殊处理，确保完全居中
+    if (position == ActionsPosition.center) {
+      return Positioned.fill(
+        child: Center(
+          child: _buildCenterActions(context),
+        ),
+      );
+    }
+    
+    // 其他位置使用原有的定位逻辑
     return Positioned(
       top: _getTopPosition(context),
       left: _getLeftPosition(context),
@@ -52,12 +63,20 @@ class ActionsWidget extends ConsumerWidget {
   
   /// 获取左侧位置
   double? _getLeftPosition(BuildContext context) {
-    return 20; // 统一左边距
+    // 居中位置时不设置左右边距，让内容自由居中
+    if (position == ActionsPosition.center) {
+      return 0;
+    }
+    return 20; // 其他位置使用20px边距
   }
   
   /// 获取右侧位置
   double? _getRightPosition(BuildContext context) {
-    return 20; // 统一右边距
+    // 居中位置时不设置左右边距，让内容自由居中
+    if (position == ActionsPosition.center) {
+      return 0;
+    }
+    return 20; // 其他位置使用20px边距
   }
   
   /// 获取底部位置
@@ -92,32 +111,8 @@ class ActionsWidget extends ConsumerWidget {
   
   /// 构建居中操作区域
   Widget _buildCenterActions(BuildContext context) {
-    return Container(
-      padding: const EdgeInsets.all(16),
-      decoration: BoxDecoration(
-        color: Colors.white.withValues(alpha: 0.05),
-        borderRadius: BorderRadius.circular(20),
-        border: Border.all(
-          color: Colors.white.withValues(alpha: 0.1),
-          width: 1,
-        ),
-      ),
-      child: Column(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          Text(
-            '快捷操作',
-            style: TextStyle(
-              color: Colors.white.withValues(alpha: 0.8),
-              fontSize: 16,
-              fontWeight: FontWeight.w500,
-            ),
-          ),
-          const SizedBox(height: 16),
-          _buildActionButtonsGrid(context),
-        ],
-      ),
-    );
+    // 在中央位置显示天气时钟组件
+    return const WeatherClockWidget();
   }
   
   /// 构建主要操作
@@ -174,25 +169,6 @@ class ActionsWidget extends ConsumerWidget {
     );
   }
   
-  /// 构建操作按钮网格
-  Widget _buildActionButtonsGrid(BuildContext context) {
-    return Row(
-      mainAxisSize: MainAxisSize.min,
-      children: [
-        _buildActionButton(
-          icon: Icons.mic,
-          label: '语音输入',
-          onTap: () => _handleVoiceAction(context),
-        ),
-        const SizedBox(width: 16),
-        _buildActionButton(
-          icon: Icons.keyboard,
-          label: '文字输入',
-          onTap: () => _handleTextAction(context),
-        ),
-      ],
-    );
-  }
   
   /// 构建操作按钮
   Widget _buildActionButton({
@@ -284,13 +260,6 @@ class ActionsWidget extends ConsumerWidget {
     );
   }
   
-  /// 处理文字操作
-  void _handleTextAction(BuildContext context) {
-    // TODO: 实现文字输入功能
-    ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(content: Text('⌨️ 文字输入功能（待实现）')),
-    );
-  }
   
   /// 处理相机操作
   void _handleCameraAction(BuildContext context) {

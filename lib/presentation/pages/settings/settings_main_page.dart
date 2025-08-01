@@ -3,8 +3,6 @@ import 'package:hooks_riverpod/hooks_riverpod.dart';
 import '../../../core/config/app_settings.dart';
 import 'settings_ui_page.dart';
 import 'settings_network_page.dart';
-import 'settings_audio_page.dart';
-import 'settings_theme_page.dart';
 import 'settings_debug_page.dart';
 import 'mcp_servers_page.dart';
 import 'pages/settings_wallpaper_page.dart';
@@ -127,20 +125,6 @@ class SettingsMainPage extends ConsumerWidget {
           
           _buildSettingsCategoryCard(
             context,
-            title: '音频设置',
-            subtitle: '音频采样率、声道数、音频帧时长等语音相关设置',
-            icon: Icons.mic,
-            color: Colors.orange,
-            onTap: () => Navigator.push(
-              context,
-              MaterialPageRoute(builder: (context) => const SettingsAudioPage()),
-            ),
-          ),
-          
-          const SizedBox(height: 12),
-          
-          _buildSettingsCategoryCard(
-            context,
             title: 'MCP服务器配置',
             subtitle: '管理内置和外部MCP服务器，配置设备控制功能',
             icon: Icons.settings_remote,
@@ -148,20 +132,6 @@ class SettingsMainPage extends ConsumerWidget {
             onTap: () => Navigator.push(
               context,
               MaterialPageRoute(builder: (context) => const McpServersPage()),
-            ),
-          ),
-          
-          const SizedBox(height: 12),
-          
-          _buildSettingsCategoryCard(
-            context,
-            title: '主题样式',
-            subtitle: 'Material设计、动画效果、波纹点击效果等外观设置',
-            icon: Icons.palette,
-            color: Colors.purple,
-            onTap: () => Navigator.push(
-              context,
-              MaterialPageRoute(builder: (context) => const SettingsThemePage()),
             ),
           ),
           

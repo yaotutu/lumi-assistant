@@ -5,6 +5,7 @@ import 'package:hooks_riverpod/hooks_riverpod.dart';
 import '../../../core/services/mcp/unified_mcp_manager.dart';
 import '../../widgets/mcp/mcp_change_notification.dart';
 import 'widgets/layout/home_layout_manager.dart';
+import 'widgets/actions/actions_widget.dart';
 import '../../providers/gotify_provider.dart';
 import '../../providers/health_check_provider.dart';
 
@@ -69,6 +70,10 @@ class HomePage extends HookConsumerWidget {
   /// 
   /// 使用HomeLayoutManager管理四个功能区域
   Widget _buildHomeLayout(BuildContext context, WidgetRef ref) {
-    return HomeLayoutManagerExtensions.createPhotoAlbum();
+    // 创建带有中央天气时钟的布局
+    return HomeLayoutManagerExtensions.createWithActions(
+      position: ActionsPosition.center,
+      showExtended: false,
+    );
   }
 }

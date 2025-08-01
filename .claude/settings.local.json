@@ -56,7 +56,8 @@
       "Bash(cp:*)",
       "Bash(curl:*)",
       "WebFetch(domain:raw.githubusercontent.com)",
-      "Bash(tree:*)"
+      "Bash(tree:*)",
+      "WebFetch(domain:dev.qweather.com)"
     ],
     "deny": []
   }
