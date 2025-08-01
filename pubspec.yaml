@@ -48,6 +48,7 @@ dependencies:
   uuid: ^4.2.1
   shared_preferences: ^2.2.2
   path: ^1.8.3
+  wakelock_plus: ^1.2.5
   image_picker: ^1.0.4
   
   # 日志系统

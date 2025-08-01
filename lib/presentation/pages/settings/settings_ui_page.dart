@@ -92,6 +92,13 @@ class SettingsUIPage extends ConsumerWidget {
             onChanged: settings.updateTopBarDistance,
             onReset: settings.isDefaultTopBarDistance() ? null : settings.resetTopBarDistance,
           ),
+          
+          _buildSwitchSetting(
+            title: '屏幕常亮',
+            subtitle: '保持屏幕常亮，适合桌面信息展示使用',
+            value: settings.keepScreenOn,
+            onChanged: settings.updateKeepScreenOn,
+          ),
         ],
       ),
     );
@@ -167,6 +174,52 @@ class SettingsUIPage extends ConsumerWidget {
               min: min,
               max: max,
               divisions: divisions,
+              onChanged: onChanged,
+              activeColor: Colors.blue,
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  /// 开关设置项
+  Widget _buildSwitchSetting({
+    required String title,
+    required String subtitle,
+    required bool value,
+    required Function(bool) onChanged,
+  }) {
+    return Card(
+      margin: const EdgeInsets.only(bottom: 16),
+      child: Padding(
+        padding: const EdgeInsets.all(16),
+        child: Row(
+          children: [
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    title,
+                    style: const TextStyle(
+                      fontWeight: FontWeight.w600,
+                      fontSize: 16,
+                    ),
+                  ),
+                  const SizedBox(height: 4),
+                  Text(
+                    subtitle,
+                    style: const TextStyle(
+                      color: Colors.grey,
+                      fontSize: 14,
+                    ),
+                  ),
+                ],
+              ),
+            ),
+            Switch(
+              value: value,
               onChanged: onChanged,
               activeColor: Colors.blue,
             ),

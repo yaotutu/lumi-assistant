@@ -62,6 +62,9 @@ class AppSettings extends ChangeNotifier {
   static const _defaultQweatherApiKey = '';
   static const _defaultOpenweatherApiKey = '';
   
+  /// 屏幕常亮默认配置
+  static const _defaultKeepScreenOn = true; // 默认启用屏幕常亮，适合桌面信息展示
+  
   // ==================== 用户动态设置 ====================
   // 用户可以在设置页面修改这些值，如果为null则使用默认值
   
@@ -95,6 +98,9 @@ class AppSettings extends ChangeNotifier {
   int? _userWeatherUpdateInterval;
   String? _userQweatherApiKey;
   String? _userOpenweatherApiKey;
+  
+  /// 屏幕常亮用户设置
+  bool? _userKeepScreenOn;
   
   // ==================== 日志设置 ====================
   
@@ -157,6 +163,9 @@ class AppSettings extends ChangeNotifier {
   int get weatherUpdateInterval => _userWeatherUpdateInterval ?? _defaultWeatherUpdateInterval;
   String get qweatherApiKey => _userQweatherApiKey ?? _defaultQweatherApiKey;
   String get openweatherApiKey => _userOpenweatherApiKey ?? _defaultOpenweatherApiKey;
+  
+  /// 屏幕常亮设置
+  bool get keepScreenOn => _userKeepScreenOn ?? _defaultKeepScreenOn;
   
   /// 日志设置
   Level get logLevel {
@@ -341,6 +350,13 @@ class AppSettings extends ChangeNotifier {
     notifyListeners();
     await _saveSettings();
   }
+  
+  /// 更新屏幕常亮设置
+  Future<void> updateKeepScreenOn(bool value) async {
+    _userKeepScreenOn = value;
+    notifyListeners();
+    await _saveSettings();
+  }
 
   /// 更新日志设置
   Future<void> updateLogLevel(Level level) async {
@@ -506,6 +522,8 @@ class AppSettings extends ChangeNotifier {
     _userQweatherApiKey = null;
     _userOpenweatherApiKey = null;
     
+    _userKeepScreenOn = null;
+    
     _userLogLevel = null;
     _debugEnableVerboseLogging = false;
     _debugEnablePerformanceLogging = false;
@@ -595,6 +613,9 @@ class AppSettings extends ChangeNotifier {
     _userWeatherUpdateInterval = prefs.getInt('user_weather_update_interval');
     _userQweatherApiKey = prefs.getString('user_qweather_api_key');
     _userOpenweatherApiKey = prefs.getString('user_openweather_api_key');
+    
+    // 屏幕常亮设置
+    _userKeepScreenOn = prefs.getBool('user_keep_screen_on');
     
     // 日志设置
     _userLogLevel = prefs.getString('user_log_level');
@@ -757,6 +778,12 @@ class AppSettings extends ChangeNotifier {
       await prefs.remove('user_openweather_api_key');
     }
     
+    // 屏幕常亮设置
+    if (_userKeepScreenOn != null) {
+      await prefs.setBool('user_keep_screen_on', _userKeepScreenOn!);
+    } else {
+      await prefs.remove('user_keep_screen_on');
+    }
     
     // 日志设置
     if (_userLogLevel != null) {

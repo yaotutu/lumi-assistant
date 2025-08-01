@@ -8,6 +8,8 @@ import '../../utils/app_logger.dart';
 import '../../utils/loggers.dart';
 import 'web_config_service.dart';
 import '../health/service_health_checker.dart';
+import '../wakelock_service.dart';
+import '../app_lifecycle_manager.dart';
 // import '../../../presentation/services/photo_service.dart'; // 暂时不需要
 
 /// 应用初始化服务
@@ -63,7 +65,13 @@ class AppInitializer {
       // 步骤4：启动Web配置服务（默认启动）
       await _initializeWebConfigService();
       
-      // 步骤5：异步初始化Opus库（不等待完成）
+      // 步骤5：初始化屏幕常亮服务
+      await _initializeWakelockService();
+      
+      // 步骤6：初始化应用生命周期管理器
+      _initializeLifecycleManager();
+      
+      // 步骤7：异步初始化Opus库（不等待完成）
       _initializeOpusAsync();
       
       // 步骤6：异步执行服务健康检查（不阻塞启动）
@@ -170,6 +178,50 @@ class AppInitializer {
       // 不重新抛出异常，让应用继续启动
     }
     */
+  }
+  
+  /// 初始化屏幕常亮服务
+  /// 
+  /// 流程：
+  /// 1. 初始化屏幕常亮服务
+  /// 2. 启用屏幕常亮（适合桌面信息展示场景）
+  /// 3. 失败时记录错误但不阻塞应用启动
+  Future<void> _initializeWakelockService() async {
+    try {
+      Loggers.system.info('🔆 正在初始化屏幕常亮服务...');
+      
+      // 初始化屏幕常亮服务
+      await WakelockService().initialize();
+      
+      Loggers.system.info('✅ 屏幕常亮服务初始化完成');
+      
+    } catch (error, stackTrace) {
+      // 屏幕常亮服务初始化失败记录错误，但不阻塞应用启动
+      Loggers.system.severe('❌ 屏幕常亮服务初始化失败: $error', error, stackTrace);
+      // 不重新抛出异常，让应用继续启动
+    }
+  }
+  
+  /// 初始化应用生命周期管理器
+  /// 
+  /// 功能：
+  /// 1. 初始化生命周期监听器
+  /// 2. 自动管理屏幕常亮状态
+  /// 3. 处理应用前台/后台切换
+  void _initializeLifecycleManager() {
+    try {
+      Loggers.system.info('🔄 正在初始化应用生命周期管理器...');
+      
+      // 初始化生命周期管理器
+      AppLifecycleManager().initialize();
+      
+      Loggers.system.info('✅ 应用生命周期管理器初始化完成');
+      
+    } catch (error, stackTrace) {
+      // 生命周期管理器初始化失败记录错误，但不阻塞应用启动
+      Loggers.system.severe('❌ 应用生命周期管理器初始化失败: $error', error, stackTrace);
+      // 不重新抛出异常，让应用继续启动
+    }
   }
   
   /// 初始化Web配置服务
