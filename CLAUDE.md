@@ -190,12 +190,21 @@ curl http://YOUR_DEVICE_IP:8888/api/settings
 - ✅ **Unified Notification System**: Multiple notification sources
 - ✅ **Virtual Character System**: Extensible character renderer
 - ✅ **Four-Layer UI Architecture**: Background, status, actions, floating chat
+- ✅ **Weather Service Integration**: Real-time weather with QWeather API
+- ✅ **Screen Wake Lock**: Smart screen management for desktop display mode
 
 **Notification System**:
 - ✅ **Gotify Integration**: WebSocket + HTTP API support
 - ✅ **Unified Management**: Multiple sources with consistent UI
 - ✅ **Read Status Sync**: Local and server-side read state management
 - ✅ **Notification Detail Dialog**: Full message viewing with overlay positioning
+
+**Screen Wake Lock System**:
+- ✅ **WakelockService**: Centralized screen wake lock management
+- ✅ **AppLifecycleManager**: Automatic management based on app state
+- ✅ **User Control**: Settings in UI configuration page
+- ✅ **Smart Power Management**: Enable in foreground, disable in background
+- ✅ **Default Behavior**: Enabled by default for desktop display scenarios
 
 **MCP Integration**:
 - ✅ **Embedded Tools**: Brightness and volume control
