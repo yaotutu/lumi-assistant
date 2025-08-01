@@ -342,6 +342,62 @@ builder: (context, child) {
 },
 ```
 
+## Code Documentation Standards
+
+**核心原则**: 代码注释要极其详细，宁可过多不可过少
+
+### 注释详细度要求
+- **每个关键行都要有注释** - 解释这一行在做什么
+- **每个函数都要有文档注释** - 说明功能、参数、返回值
+- **每个类都要有详细说明** - 职责、使用场景、依赖关系
+- **复杂逻辑必须逐行注释** - 帮助后续维护者理解思路
+- **业务逻辑要解释"为什么"** - 不仅说做什么，还要说为什么这样做
+
+### 注释示例标准
+
+```dart
+/// WebSocket服务类
+/// 
+/// 职责：管理与Python后端服务器的实时双向通信
+/// 依赖：NetworkChecker（网络状态检查）、AppLogger（日志记录）
+/// 使用场景：聊天消息发送、音频流传输、IoT设备控制
+class WebSocketService extends BaseService {
+  // WebSocket连接实例，null表示未连接
+  WebSocket? _webSocket;
+  
+  /// 连接到WebSocket服务器
+  /// 
+  /// 参数：
+  /// - [url] 服务器WebSocket地址，格式：ws://host:port
+  /// - [headers] 可选的HTTP头，用于认证和设备标识
+  /// 
+  /// 返回：Future<void> 连接完成时resolve，失败时抛出WebSocketException
+  /// 
+  /// 抛出：
+  /// - NetworkException：网络不可用
+  /// - WebSocketException：连接失败或协议错误
+  Future<void> connect(String url, {Map<String, String>? headers}) async {
+    try {
+      // 记录连接开始日志，便于调试连接问题
+      AppLogger.webSocket.info('🔄 开始连接WebSocket: $url');
+      
+      // 使用dart:io的WebSocket.connect方法建立连接
+      // 这是一个异步操作，可能因网络问题、服务器不可达等原因失败
+      _webSocket = await WebSocket.connect(url, headers: headers);
+      
+      // 连接成功后，通过状态流通知外部监听者
+      _connectionController.add(ConnectionState.connected());
+      
+      // ... 更多注释
+    } catch (error, stackTrace) {
+      // 连接失败时，记录详细的错误信息和堆栈跟踪
+      AppLogger.error.severe('❌ WebSocket连接失败: $error', error, stackTrace);
+      throw WebSocketException('连接失败: $error');
+    }
+  }
+}
+```
+
 ## Quality Standards
 
 - **All code must compile without warnings** - 零警告原则
@@ -421,4 +477,26 @@ flutter analyze
 
 **重要**: Git提交规范已独立提取到 `docs/git-commit-convention.md`
 
-在需要Git提交时，请参考该文件中的详细规范。所有提交必须遵循Conventional Commits格式。
+### 🚨 Git提交前的强制要求
+
+**在执行任何 git commit 命令之前，必须始终询问用户确认**：
+
+1. **显示即将提交的内容**：
+   ```bash
+   git status
+   git diff --cached  # 显示暂存的更改
+   ```
+
+2. **向用户确认**：
+   - "我准备提交以下更改，请确认是否继续？"
+   - 显示提交信息预览
+   - 等待用户明确同意后再执行
+
+3. **提交流程**：
+   - 用户确认后才执行 `git commit`
+   - 如果用户拒绝，询问是否需要修改提交内容
+   - 永远不要在未经用户确认的情况下提交代码
+
+### 提交信息格式
+
+在需要Git提交时，请参考 `docs/git-commit-convention.md` 文件中的详细规范。所有提交必须遵循Conventional Commits格式。
