@@ -8,6 +8,7 @@ import 'widgets/layout/home_layout_manager.dart';
 import 'widgets/actions/actions_widget.dart';
 import '../../providers/gotify_provider.dart';
 import '../../providers/health_check_provider.dart';
+import '../../providers/weather_provider.dart';
 
 /// 应用主页 - 四区域架构设计
 /// 
@@ -58,6 +59,13 @@ class HomePage extends HookConsumerWidget {
     useEffect(() {
       // 确保健康检查器已注册
       ref.read(healthCheckInitializerProvider);
+      return null;
+    }, []);
+    
+    // 初始化天气预警自动更新
+    useEffect(() {
+      // 启动天气预警自动更新
+      ref.read(weatherWarningAutoUpdateProvider);
       return null;
     }, []);
 

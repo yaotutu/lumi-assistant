@@ -8,6 +8,8 @@ import '../../core/config/weather_config.dart';
 import '../../core/config/app_settings.dart';
 import '../../core/utils/app_logger.dart';
 import '../widgets/notification/notification_bubble.dart';
+import '../../data/models/weather_warning.dart';
+import '../../data/models/notification/notification_types.dart';
 
 /// 天气配置Provider
 /// 从AppSettings同步配置
@@ -146,4 +148,74 @@ class WeatherServiceState {
 /// 天气服务状态Provider
 final weatherServiceStateProvider = StateProvider<WeatherServiceState>((ref) {
   return const WeatherServiceState();
+});
+
+/// 天气预警Provider
+/// 获取当前位置的天气预警信息
+final weatherWarningsProvider = FutureProvider<List<WeatherWarning>>((ref) async {
+  final config = ref.watch(weatherConfigProvider);
+  
+  // 如果天气功能未启用，返回空列表
+  if (!config.enabled) {
+    return [];
+  }
+  
+  // 只有和风天气支持预警功能
+  if (config.serviceType != WeatherServiceType.qweather) {
+    return [];
+  }
+  
+  try {
+    final repository = ref.watch(weatherRepositoryProvider);
+    
+    // 检查是否是QWeatherRepository
+    if (repository is! QWeatherRepository) {
+      return [];
+    }
+    
+    final warnings = await repository.getWeatherWarnings(config.defaultLocation);
+    
+    if (warnings.isNotEmpty) {
+      AppLogger.getLogger('Weather').info('⚠️ 获取到 ${warnings.length} 条天气预警');
+      
+      // 显示最高级别的预警通知
+      final highestWarning = warnings.reduce((a, b) {
+        final aLevel = WarningSeverity.fromString(a.severity).level;
+        final bLevel = WarningSeverity.fromString(b.severity).level;
+        return aLevel >= bLevel ? a : b;
+      });
+      
+      // 使用通知系统显示预警
+      NotificationBubbleManager.instance.addWeatherNotification(
+        highestWarning.title,
+        title: '天气预警',
+        level: NotificationLevel.urgent, // 预警使用紧急级别
+      );
+    }
+    
+    return warnings;
+  } catch (e) {
+    AppLogger.getLogger('Weather').severe('❌ 获取天气预警失败: $e');
+    // 预警获取失败不影响主要功能，返回空列表
+    return [];
+  }
+});
+
+/// 天气预警自动更新Provider
+/// 定期刷新预警数据（比天气更新更频繁）
+final weatherWarningAutoUpdateProvider = Provider<void>((ref) {
+  final config = ref.watch(weatherConfigProvider);
+  
+  if (!config.enabled || config.serviceType != WeatherServiceType.qweather) return;
+  
+  // 预警信息每10分钟更新一次（比天气更新更频繁）
+  final timer = Stream.periodic(
+    const Duration(minutes: 10),
+    (_) => ref.invalidate(weatherWarningsProvider),
+  ).listen((_) {});
+  
+  // 清理定时器
+  ref.onDispose(() {
+    timer.cancel();
+  });
 });

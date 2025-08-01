@@ -12,8 +12,7 @@ part of 'message_model.dart';
 T _$identity<T>(T value) => value;
 
 final _privateConstructorUsedError = UnsupportedError(
-  'It seems like you constructed your class using `MyClass._()`. This constructor is only meant to be used by freezed and you are not supposed to need it nor use it.\nPlease check the documentation here for more information: https://github.com/rrousselGit/freezed#adding-getters-and-methods-to-our-models',
-);
+    'It seems like you constructed your class using `MyClass._()`. This constructor is only meant to be used by freezed and you are not supposed to need it nor use it.\nPlease check the documentation here for more information: https://github.com/rrousselGit/freezed#adding-getters-and-methods-to-our-models');
 
 MessageModel _$MessageModelFromJson(Map<String, dynamic> json) {
   return _MessageModel.fromJson(json);
@@ -69,22 +68,20 @@ mixin _$MessageModel {
 /// @nodoc
 abstract class $MessageModelCopyWith<$Res> {
   factory $MessageModelCopyWith(
-    MessageModel value,
-    $Res Function(MessageModel) then,
-  ) = _$MessageModelCopyWithImpl<$Res, MessageModel>;
+          MessageModel value, $Res Function(MessageModel) then) =
+      _$MessageModelCopyWithImpl<$Res, MessageModel>;
   @useResult
-  $Res call({
-    String id,
-    MessageType type,
-    String? content,
-    MessageStatus status,
-    int timestamp,
-    @JsonKey(name: 'device_id') String? deviceId,
-    @JsonKey(name: 'session_id') String? sessionId,
-    @JsonKey(name: 'metadata') Map<String, dynamic>? metadata,
-    @JsonKey(name: 'error_message') String? errorMessage,
-    @JsonKey(name: 'error_code') String? errorCode,
-  });
+  $Res call(
+      {String id,
+      MessageType type,
+      String? content,
+      MessageStatus status,
+      int timestamp,
+      @JsonKey(name: 'device_id') String? deviceId,
+      @JsonKey(name: 'session_id') String? sessionId,
+      @JsonKey(name: 'metadata') Map<String, dynamic>? metadata,
+      @JsonKey(name: 'error_message') String? errorMessage,
+      @JsonKey(name: 'error_code') String? errorCode});
 }
 
 /// @nodoc
@@ -113,61 +110,48 @@ class _$MessageModelCopyWithImpl<$Res, $Val extends MessageModel>
     Object? errorMessage = freezed,
     Object? errorCode = freezed,
   }) {
-    return _then(
-      _value.copyWith(
-            id:
-                null == id
-                    ? _value.id
-                    : id // ignore: cast_nullable_to_non_nullable
-                        as String,
-            type:
-                null == type
-                    ? _value.type
-                    : type // ignore: cast_nullable_to_non_nullable
-                        as MessageType,
-            content:
-                freezed == content
-                    ? _value.content
-                    : content // ignore: cast_nullable_to_non_nullable
-                        as String?,
-            status:
-                null == status
-                    ? _value.status
-                    : status // ignore: cast_nullable_to_non_nullable
-                        as MessageStatus,
-            timestamp:
-                null == timestamp
-                    ? _value.timestamp
-                    : timestamp // ignore: cast_nullable_to_non_nullable
-                        as int,
-            deviceId:
-                freezed == deviceId
-                    ? _value.deviceId
-                    : deviceId // ignore: cast_nullable_to_non_nullable
-                        as String?,
-            sessionId:
-                freezed == sessionId
-                    ? _value.sessionId
-                    : sessionId // ignore: cast_nullable_to_non_nullable
-                        as String?,
-            metadata:
-                freezed == metadata
-                    ? _value.metadata
-                    : metadata // ignore: cast_nullable_to_non_nullable
-                        as Map<String, dynamic>?,
-            errorMessage:
-                freezed == errorMessage
-                    ? _value.errorMessage
-                    : errorMessage // ignore: cast_nullable_to_non_nullable
-                        as String?,
-            errorCode:
-                freezed == errorCode
-                    ? _value.errorCode
-                    : errorCode // ignore: cast_nullable_to_non_nullable
-                        as String?,
-          )
-          as $Val,
-    );
+    return _then(_value.copyWith(
+      id: null == id
+          ? _value.id
+          : id // ignore: cast_nullable_to_non_nullable
+              as String,
+      type: null == type
+          ? _value.type
+          : type // ignore: cast_nullable_to_non_nullable
+              as MessageType,
+      content: freezed == content
+          ? _value.content
+          : content // ignore: cast_nullable_to_non_nullable
+              as String?,
+      status: null == status
+          ? _value.status
+          : status // ignore: cast_nullable_to_non_nullable
+              as MessageStatus,
+      timestamp: null == timestamp
+          ? _value.timestamp
+          : timestamp // ignore: cast_nullable_to_non_nullable
+              as int,
+      deviceId: freezed == deviceId
+          ? _value.deviceId
+          : deviceId // ignore: cast_nullable_to_non_nullable
+              as String?,
+      sessionId: freezed == sessionId
+          ? _value.sessionId
+          : sessionId // ignore: cast_nullable_to_non_nullable
+              as String?,
+      metadata: freezed == metadata
+          ? _value.metadata
+          : metadata // ignore: cast_nullable_to_non_nullable
+              as Map<String, dynamic>?,
+      errorMessage: freezed == errorMessage
+          ? _value.errorMessage
+          : errorMessage // ignore: cast_nullable_to_non_nullable
+              as String?,
+      errorCode: freezed == errorCode
+          ? _value.errorCode
+          : errorCode // ignore: cast_nullable_to_non_nullable
+              as String?,
+    ) as $Val);
   }
 }
 
@@ -175,23 +159,21 @@ class _$MessageModelCopyWithImpl<$Res, $Val extends MessageModel>
 abstract class _$$MessageModelImplCopyWith<$Res>
     implements $MessageModelCopyWith<$Res> {
   factory _$$MessageModelImplCopyWith(
-    _$MessageModelImpl value,
-    $Res Function(_$MessageModelImpl) then,
-  ) = __$$MessageModelImplCopyWithImpl<$Res>;
+          _$MessageModelImpl value, $Res Function(_$MessageModelImpl) then) =
+      __$$MessageModelImplCopyWithImpl<$Res>;
   @override
   @useResult
-  $Res call({
-    String id,
-    MessageType type,
-    String? content,
-    MessageStatus status,
-    int timestamp,
-    @JsonKey(name: 'device_id') String? deviceId,
-    @JsonKey(name: 'session_id') String? sessionId,
-    @JsonKey(name: 'metadata') Map<String, dynamic>? metadata,
-    @JsonKey(name: 'error_message') String? errorMessage,
-    @JsonKey(name: 'error_code') String? errorCode,
-  });
+  $Res call(
+      {String id,
+      MessageType type,
+      String? content,
+      MessageStatus status,
+      int timestamp,
+      @JsonKey(name: 'device_id') String? deviceId,
+      @JsonKey(name: 'session_id') String? sessionId,
+      @JsonKey(name: 'metadata') Map<String, dynamic>? metadata,
+      @JsonKey(name: 'error_message') String? errorMessage,
+      @JsonKey(name: 'error_code') String? errorCode});
 }
 
 /// @nodoc
@@ -199,9 +181,8 @@ class __$$MessageModelImplCopyWithImpl<$Res>
     extends _$MessageModelCopyWithImpl<$Res, _$MessageModelImpl>
     implements _$$MessageModelImplCopyWith<$Res> {
   __$$MessageModelImplCopyWithImpl(
-    _$MessageModelImpl _value,
-    $Res Function(_$MessageModelImpl) _then,
-  ) : super(_value, _then);
+      _$MessageModelImpl _value, $Res Function(_$MessageModelImpl) _then)
+      : super(_value, _then);
 
   /// Create a copy of MessageModel
   /// with the given fields replaced by the non-null parameter values.
@@ -219,78 +200,66 @@ class __$$MessageModelImplCopyWithImpl<$Res>
     Object? errorMessage = freezed,
     Object? errorCode = freezed,
   }) {
-    return _then(
-      _$MessageModelImpl(
-        id:
-            null == id
-                ? _value.id
-                : id // ignore: cast_nullable_to_non_nullable
-                    as String,
-        type:
-            null == type
-                ? _value.type
-                : type // ignore: cast_nullable_to_non_nullable
-                    as MessageType,
-        content:
-            freezed == content
-                ? _value.content
-                : content // ignore: cast_nullable_to_non_nullable
-                    as String?,
-        status:
-            null == status
-                ? _value.status
-                : status // ignore: cast_nullable_to_non_nullable
-                    as MessageStatus,
-        timestamp:
-            null == timestamp
-                ? _value.timestamp
-                : timestamp // ignore: cast_nullable_to_non_nullable
-                    as int,
-        deviceId:
-            freezed == deviceId
-                ? _value.deviceId
-                : deviceId // ignore: cast_nullable_to_non_nullable
-                    as String?,
-        sessionId:
-            freezed == sessionId
-                ? _value.sessionId
-                : sessionId // ignore: cast_nullable_to_non_nullable
-                    as String?,
-        metadata:
-            freezed == metadata
-                ? _value._metadata
-                : metadata // ignore: cast_nullable_to_non_nullable
-                    as Map<String, dynamic>?,
-        errorMessage:
-            freezed == errorMessage
-                ? _value.errorMessage
-                : errorMessage // ignore: cast_nullable_to_non_nullable
-                    as String?,
-        errorCode:
-            freezed == errorCode
-                ? _value.errorCode
-                : errorCode // ignore: cast_nullable_to_non_nullable
-                    as String?,
-      ),
-    );
+    return _then(_$MessageModelImpl(
+      id: null == id
+          ? _value.id
+          : id // ignore: cast_nullable_to_non_nullable
+              as String,
+      type: null == type
+          ? _value.type
+          : type // ignore: cast_nullable_to_non_nullable
+              as MessageType,
+      content: freezed == content
+          ? _value.content
+          : content // ignore: cast_nullable_to_non_nullable
+              as String?,
+      status: null == status
+          ? _value.status
+          : status // ignore: cast_nullable_to_non_nullable
+              as MessageStatus,
+      timestamp: null == timestamp
+          ? _value.timestamp
+          : timestamp // ignore: cast_nullable_to_non_nullable
+              as int,
+      deviceId: freezed == deviceId
+          ? _value.deviceId
+          : deviceId // ignore: cast_nullable_to_non_nullable
+              as String?,
+      sessionId: freezed == sessionId
+          ? _value.sessionId
+          : sessionId // ignore: cast_nullable_to_non_nullable
+              as String?,
+      metadata: freezed == metadata
+          ? _value._metadata
+          : metadata // ignore: cast_nullable_to_non_nullable
+              as Map<String, dynamic>?,
+      errorMessage: freezed == errorMessage
+          ? _value.errorMessage
+          : errorMessage // ignore: cast_nullable_to_non_nullable
+              as String?,
+      errorCode: freezed == errorCode
+          ? _value.errorCode
+          : errorCode // ignore: cast_nullable_to_non_nullable
+              as String?,
+    ));
   }
 }
 
 /// @nodoc
 @JsonSerializable()
 class _$MessageModelImpl implements _MessageModel {
-  const _$MessageModelImpl({
-    required this.id,
-    required this.type,
-    this.content,
-    this.status = MessageStatus.pending,
-    required this.timestamp,
-    @JsonKey(name: 'device_id') this.deviceId,
-    @JsonKey(name: 'session_id') this.sessionId,
-    @JsonKey(name: 'metadata') final Map<String, dynamic>? metadata,
-    @JsonKey(name: 'error_message') this.errorMessage,
-    @JsonKey(name: 'error_code') this.errorCode,
-  }) : _metadata = metadata;
+  const _$MessageModelImpl(
+      {required this.id,
+      required this.type,
+      this.content,
+      this.status = MessageStatus.pending,
+      required this.timestamp,
+      @JsonKey(name: 'device_id') this.deviceId,
+      @JsonKey(name: 'session_id') this.sessionId,
+      @JsonKey(name: 'metadata') final Map<String, dynamic>? metadata,
+      @JsonKey(name: 'error_message') this.errorMessage,
+      @JsonKey(name: 'error_code') this.errorCode})
+      : _metadata = metadata;
 
   factory _$MessageModelImpl.fromJson(Map<String, dynamic> json) =>
       _$$MessageModelImplFromJson(json);
@@ -380,18 +349,17 @@ class _$MessageModelImpl implements _MessageModel {
   @JsonKey(includeFromJson: false, includeToJson: false)
   @override
   int get hashCode => Object.hash(
-    runtimeType,
-    id,
-    type,
-    content,
-    status,
-    timestamp,
-    deviceId,
-    sessionId,
-    const DeepCollectionEquality().hash(_metadata),
-    errorMessage,
-    errorCode,
-  );
+      runtimeType,
+      id,
+      type,
+      content,
+      status,
+      timestamp,
+      deviceId,
+      sessionId,
+      const DeepCollectionEquality().hash(_metadata),
+      errorMessage,
+      errorCode);
 
   /// Create a copy of MessageModel
   /// with the given fields replaced by the non-null parameter values.
@@ -403,23 +371,25 @@ class _$MessageModelImpl implements _MessageModel {
 
   @override
   Map<String, dynamic> toJson() {
-    return _$$MessageModelImplToJson(this);
+    return _$$MessageModelImplToJson(
+      this,
+    );
   }
 }
 
 abstract class _MessageModel implements MessageModel {
-  const factory _MessageModel({
-    required final String id,
-    required final MessageType type,
-    final String? content,
-    final MessageStatus status,
-    required final int timestamp,
-    @JsonKey(name: 'device_id') final String? deviceId,
-    @JsonKey(name: 'session_id') final String? sessionId,
-    @JsonKey(name: 'metadata') final Map<String, dynamic>? metadata,
-    @JsonKey(name: 'error_message') final String? errorMessage,
-    @JsonKey(name: 'error_code') final String? errorCode,
-  }) = _$MessageModelImpl;
+  const factory _MessageModel(
+          {required final String id,
+          required final MessageType type,
+          final String? content,
+          final MessageStatus status,
+          required final int timestamp,
+          @JsonKey(name: 'device_id') final String? deviceId,
+          @JsonKey(name: 'session_id') final String? sessionId,
+          @JsonKey(name: 'metadata') final Map<String, dynamic>? metadata,
+          @JsonKey(name: 'error_message') final String? errorMessage,
+          @JsonKey(name: 'error_code') final String? errorCode}) =
+      _$MessageModelImpl;
 
   factory _MessageModel.fromJson(Map<String, dynamic> json) =
       _$MessageModelImpl.fromJson;
@@ -519,19 +489,17 @@ mixin _$HelloMessage {
 /// @nodoc
 abstract class $HelloMessageCopyWith<$Res> {
   factory $HelloMessageCopyWith(
-    HelloMessage value,
-    $Res Function(HelloMessage) then,
-  ) = _$HelloMessageCopyWithImpl<$Res, HelloMessage>;
+          HelloMessage value, $Res Function(HelloMessage) then) =
+      _$HelloMessageCopyWithImpl<$Res, HelloMessage>;
   @useResult
-  $Res call({
-    String id,
-    MessageType type,
-    String version,
-    @JsonKey(name: 'device_id') String deviceId,
-    @JsonKey(name: 'device_info') DeviceInfo deviceInfo,
-    List<String> capabilities,
-    int timestamp,
-  });
+  $Res call(
+      {String id,
+      MessageType type,
+      String version,
+      @JsonKey(name: 'device_id') String deviceId,
+      @JsonKey(name: 'device_info') DeviceInfo deviceInfo,
+      List<String> capabilities,
+      int timestamp});
 
   $DeviceInfoCopyWith<$Res> get deviceInfo;
 }
@@ -559,46 +527,36 @@ class _$HelloMessageCopyWithImpl<$Res, $Val extends HelloMessage>
     Object? capabilities = null,
     Object? timestamp = null,
   }) {
-    return _then(
-      _value.copyWith(
-            id:
-                null == id
-                    ? _value.id
-                    : id // ignore: cast_nullable_to_non_nullable
-                        as String,
-            type:
-                null == type
-                    ? _value.type
-                    : type // ignore: cast_nullable_to_non_nullable
-                        as MessageType,
-            version:
-                null == version
-                    ? _value.version
-                    : version // ignore: cast_nullable_to_non_nullable
-                        as String,
-            deviceId:
-                null == deviceId
-                    ? _value.deviceId
-                    : deviceId // ignore: cast_nullable_to_non_nullable
-                        as String,
-            deviceInfo:
-                null == deviceInfo
-                    ? _value.deviceInfo
-                    : deviceInfo // ignore: cast_nullable_to_non_nullable
-                        as DeviceInfo,
-            capabilities:
-                null == capabilities
-                    ? _value.capabilities
-                    : capabilities // ignore: cast_nullable_to_non_nullable
-                        as List<String>,
-            timestamp:
-                null == timestamp
-                    ? _value.timestamp
-                    : timestamp // ignore: cast_nullable_to_non_nullable
-                        as int,
-          )
-          as $Val,
-    );
+    return _then(_value.copyWith(
+      id: null == id
+          ? _value.id
+          : id // ignore: cast_nullable_to_non_nullable
+              as String,
+      type: null == type
+          ? _value.type
+          : type // ignore: cast_nullable_to_non_nullable
+              as MessageType,
+      version: null == version
+          ? _value.version
+          : version // ignore: cast_nullable_to_non_nullable
+              as String,
+      deviceId: null == deviceId
+          ? _value.deviceId
+          : deviceId // ignore: cast_nullable_to_non_nullable
+              as String,
+      deviceInfo: null == deviceInfo
+          ? _value.deviceInfo
+          : deviceInfo // ignore: cast_nullable_to_non_nullable
+              as DeviceInfo,
+      capabilities: null == capabilities
+          ? _value.capabilities
+          : capabilities // ignore: cast_nullable_to_non_nullable
+              as List<String>,
+      timestamp: null == timestamp
+          ? _value.timestamp
+          : timestamp // ignore: cast_nullable_to_non_nullable
+              as int,
+    ) as $Val);
   }
 
   /// Create a copy of HelloMessage
@@ -616,20 +574,18 @@ class _$HelloMessageCopyWithImpl<$Res, $Val extends HelloMessage>
 abstract class _$$HelloMessageImplCopyWith<$Res>
     implements $HelloMessageCopyWith<$Res> {
   factory _$$HelloMessageImplCopyWith(
-    _$HelloMessageImpl value,
-    $Res Function(_$HelloMessageImpl) then,
-  ) = __$$HelloMessageImplCopyWithImpl<$Res>;
+          _$HelloMessageImpl value, $Res Function(_$HelloMessageImpl) then) =
+      __$$HelloMessageImplCopyWithImpl<$Res>;
   @override
   @useResult
-  $Res call({
-    String id,
-    MessageType type,
-    String version,
-    @JsonKey(name: 'device_id') String deviceId,
-    @JsonKey(name: 'device_info') DeviceInfo deviceInfo,
-    List<String> capabilities,
-    int timestamp,
-  });
+  $Res call(
+      {String id,
+      MessageType type,
+      String version,
+      @JsonKey(name: 'device_id') String deviceId,
+      @JsonKey(name: 'device_info') DeviceInfo deviceInfo,
+      List<String> capabilities,
+      int timestamp});
 
   @override
   $DeviceInfoCopyWith<$Res> get deviceInfo;
@@ -640,9 +596,8 @@ class __$$HelloMessageImplCopyWithImpl<$Res>
     extends _$HelloMessageCopyWithImpl<$Res, _$HelloMessageImpl>
     implements _$$HelloMessageImplCopyWith<$Res> {
   __$$HelloMessageImplCopyWithImpl(
-    _$HelloMessageImpl _value,
-    $Res Function(_$HelloMessageImpl) _then,
-  ) : super(_value, _then);
+      _$HelloMessageImpl _value, $Res Function(_$HelloMessageImpl) _then)
+      : super(_value, _then);
 
   /// Create a copy of HelloMessage
   /// with the given fields replaced by the non-null parameter values.
@@ -657,60 +612,51 @@ class __$$HelloMessageImplCopyWithImpl<$Res>
     Object? capabilities = null,
     Object? timestamp = null,
   }) {
-    return _then(
-      _$HelloMessageImpl(
-        id:
-            null == id
-                ? _value.id
-                : id // ignore: cast_nullable_to_non_nullable
-                    as String,
-        type:
-            null == type
-                ? _value.type
-                : type // ignore: cast_nullable_to_non_nullable
-                    as MessageType,
-        version:
-            null == version
-                ? _value.version
-                : version // ignore: cast_nullable_to_non_nullable
-                    as String,
-        deviceId:
-            null == deviceId
-                ? _value.deviceId
-                : deviceId // ignore: cast_nullable_to_non_nullable
-                    as String,
-        deviceInfo:
-            null == deviceInfo
-                ? _value.deviceInfo
-                : deviceInfo // ignore: cast_nullable_to_non_nullable
-                    as DeviceInfo,
-        capabilities:
-            null == capabilities
-                ? _value._capabilities
-                : capabilities // ignore: cast_nullable_to_non_nullable
-                    as List<String>,
-        timestamp:
-            null == timestamp
-                ? _value.timestamp
-                : timestamp // ignore: cast_nullable_to_non_nullable
-                    as int,
-      ),
-    );
+    return _then(_$HelloMessageImpl(
+      id: null == id
+          ? _value.id
+          : id // ignore: cast_nullable_to_non_nullable
+              as String,
+      type: null == type
+          ? _value.type
+          : type // ignore: cast_nullable_to_non_nullable
+              as MessageType,
+      version: null == version
+          ? _value.version
+          : version // ignore: cast_nullable_to_non_nullable
+              as String,
+      deviceId: null == deviceId
+          ? _value.deviceId
+          : deviceId // ignore: cast_nullable_to_non_nullable
+              as String,
+      deviceInfo: null == deviceInfo
+          ? _value.deviceInfo
+          : deviceInfo // ignore: cast_nullable_to_non_nullable
+              as DeviceInfo,
+      capabilities: null == capabilities
+          ? _value._capabilities
+          : capabilities // ignore: cast_nullable_to_non_nullable
+              as List<String>,
+      timestamp: null == timestamp
+          ? _value.timestamp
+          : timestamp // ignore: cast_nullable_to_non_nullable
+              as int,
+    ));
   }
 }
 
 /// @nodoc
 @JsonSerializable()
 class _$HelloMessageImpl implements _HelloMessage {
-  const _$HelloMessageImpl({
-    required this.id,
-    this.type = MessageType.hello,
-    required this.version,
-    @JsonKey(name: 'device_id') required this.deviceId,
-    @JsonKey(name: 'device_info') required this.deviceInfo,
-    required final List<String> capabilities,
-    required this.timestamp,
-  }) : _capabilities = capabilities;
+  const _$HelloMessageImpl(
+      {required this.id,
+      this.type = MessageType.hello,
+      required this.version,
+      @JsonKey(name: 'device_id') required this.deviceId,
+      @JsonKey(name: 'device_info') required this.deviceInfo,
+      required final List<String> capabilities,
+      required this.timestamp})
+      : _capabilities = capabilities;
 
   factory _$HelloMessageImpl.fromJson(Map<String, dynamic> json) =>
       _$$HelloMessageImplFromJson(json);
@@ -770,10 +716,8 @@ class _$HelloMessageImpl implements _HelloMessage {
                 other.deviceId == deviceId) &&
             (identical(other.deviceInfo, deviceInfo) ||
                 other.deviceInfo == deviceInfo) &&
-            const DeepCollectionEquality().equals(
-              other._capabilities,
-              _capabilities,
-            ) &&
+            const DeepCollectionEquality()
+                .equals(other._capabilities, _capabilities) &&
             (identical(other.timestamp, timestamp) ||
                 other.timestamp == timestamp));
   }
@@ -781,15 +725,14 @@ class _$HelloMessageImpl implements _HelloMessage {
   @JsonKey(includeFromJson: false, includeToJson: false)
   @override
   int get hashCode => Object.hash(
-    runtimeType,
-    id,
-    type,
-    version,
-    deviceId,
-    deviceInfo,
-    const DeepCollectionEquality().hash(_capabilities),
-    timestamp,
-  );
+      runtimeType,
+      id,
+      type,
+      version,
+      deviceId,
+      deviceInfo,
+      const DeepCollectionEquality().hash(_capabilities),
+      timestamp);
 
   /// Create a copy of HelloMessage
   /// with the given fields replaced by the non-null parameter values.
@@ -801,20 +744,21 @@ class _$HelloMessageImpl implements _HelloMessage {
 
   @override
   Map<String, dynamic> toJson() {
-    return _$$HelloMessageImplToJson(this);
+    return _$$HelloMessageImplToJson(
+      this,
+    );
   }
 }
 
 abstract class _HelloMessage implements HelloMessage {
-  const factory _HelloMessage({
-    required final String id,
-    final MessageType type,
-    required final String version,
-    @JsonKey(name: 'device_id') required final String deviceId,
-    @JsonKey(name: 'device_info') required final DeviceInfo deviceInfo,
-    required final List<String> capabilities,
-    required final int timestamp,
-  }) = _$HelloMessageImpl;
+  const factory _HelloMessage(
+      {required final String id,
+      final MessageType type,
+      required final String version,
+      @JsonKey(name: 'device_id') required final String deviceId,
+      @JsonKey(name: 'device_info') required final DeviceInfo deviceInfo,
+      required final List<String> capabilities,
+      required final int timestamp}) = _$HelloMessageImpl;
 
   factory _HelloMessage.fromJson(Map<String, dynamic> json) =
       _$HelloMessageImpl.fromJson;
@@ -904,20 +848,18 @@ mixin _$DeviceInfo {
 /// @nodoc
 abstract class $DeviceInfoCopyWith<$Res> {
   factory $DeviceInfoCopyWith(
-    DeviceInfo value,
-    $Res Function(DeviceInfo) then,
-  ) = _$DeviceInfoCopyWithImpl<$Res, DeviceInfo>;
+          DeviceInfo value, $Res Function(DeviceInfo) then) =
+      _$DeviceInfoCopyWithImpl<$Res, DeviceInfo>;
   @useResult
-  $Res call({
-    String platform,
-    String model,
-    @JsonKey(name: 'os_version') String osVersion,
-    @JsonKey(name: 'app_version') String appVersion,
-    @JsonKey(name: 'screen_size') String? screenSize,
-    @JsonKey(name: 'device_name') String? deviceName,
-    String? timezone,
-    String? locale,
-  });
+  $Res call(
+      {String platform,
+      String model,
+      @JsonKey(name: 'os_version') String osVersion,
+      @JsonKey(name: 'app_version') String appVersion,
+      @JsonKey(name: 'screen_size') String? screenSize,
+      @JsonKey(name: 'device_name') String? deviceName,
+      String? timezone,
+      String? locale});
 }
 
 /// @nodoc
@@ -944,51 +886,40 @@ class _$DeviceInfoCopyWithImpl<$Res, $Val extends DeviceInfo>
     Object? timezone = freezed,
     Object? locale = freezed,
   }) {
-    return _then(
-      _value.copyWith(
-            platform:
-                null == platform
-                    ? _value.platform
-                    : platform // ignore: cast_nullable_to_non_nullable
-                        as String,
-            model:
-                null == model
-                    ? _value.model
-                    : model // ignore: cast_nullable_to_non_nullable
-                        as String,
-            osVersion:
-                null == osVersion
-                    ? _value.osVersion
-                    : osVersion // ignore: cast_nullable_to_non_nullable
-                        as String,
-            appVersion:
-                null == appVersion
-                    ? _value.appVersion
-                    : appVersion // ignore: cast_nullable_to_non_nullable
-                        as String,
-            screenSize:
-                freezed == screenSize
-                    ? _value.screenSize
-                    : screenSize // ignore: cast_nullable_to_non_nullable
-                        as String?,
-            deviceName:
-                freezed == deviceName
-                    ? _value.deviceName
-                    : deviceName // ignore: cast_nullable_to_non_nullable
-                        as String?,
-            timezone:
-                freezed == timezone
-                    ? _value.timezone
-                    : timezone // ignore: cast_nullable_to_non_nullable
-                        as String?,
-            locale:
-                freezed == locale
-                    ? _value.locale
-                    : locale // ignore: cast_nullable_to_non_nullable
-                        as String?,
-          )
-          as $Val,
-    );
+    return _then(_value.copyWith(
+      platform: null == platform
+          ? _value.platform
+          : platform // ignore: cast_nullable_to_non_nullable
+              as String,
+      model: null == model
+          ? _value.model
+          : model // ignore: cast_nullable_to_non_nullable
+              as String,
+      osVersion: null == osVersion
+          ? _value.osVersion
+          : osVersion // ignore: cast_nullable_to_non_nullable
+              as String,
+      appVersion: null == appVersion
+          ? _value.appVersion
+          : appVersion // ignore: cast_nullable_to_non_nullable
+              as String,
+      screenSize: freezed == screenSize
+          ? _value.screenSize
+          : screenSize // ignore: cast_nullable_to_non_nullable
+              as String?,
+      deviceName: freezed == deviceName
+          ? _value.deviceName
+          : deviceName // ignore: cast_nullable_to_non_nullable
+              as String?,
+      timezone: freezed == timezone
+          ? _value.timezone
+          : timezone // ignore: cast_nullable_to_non_nullable
+              as String?,
+      locale: freezed == locale
+          ? _value.locale
+          : locale // ignore: cast_nullable_to_non_nullable
+              as String?,
+    ) as $Val);
   }
 }
 
@@ -996,21 +927,19 @@ class _$DeviceInfoCopyWithImpl<$Res, $Val extends DeviceInfo>
 abstract class _$$DeviceInfoImplCopyWith<$Res>
     implements $DeviceInfoCopyWith<$Res> {
   factory _$$DeviceInfoImplCopyWith(
-    _$DeviceInfoImpl value,
-    $Res Function(_$DeviceInfoImpl) then,
-  ) = __$$DeviceInfoImplCopyWithImpl<$Res>;
+          _$DeviceInfoImpl value, $Res Function(_$DeviceInfoImpl) then) =
+      __$$DeviceInfoImplCopyWithImpl<$Res>;
   @override
   @useResult
-  $Res call({
-    String platform,
-    String model,
-    @JsonKey(name: 'os_version') String osVersion,
-    @JsonKey(name: 'app_version') String appVersion,
-    @JsonKey(name: 'screen_size') String? screenSize,
-    @JsonKey(name: 'device_name') String? deviceName,
-    String? timezone,
-    String? locale,
-  });
+  $Res call(
+      {String platform,
+      String model,
+      @JsonKey(name: 'os_version') String osVersion,
+      @JsonKey(name: 'app_version') String appVersion,
+      @JsonKey(name: 'screen_size') String? screenSize,
+      @JsonKey(name: 'device_name') String? deviceName,
+      String? timezone,
+      String? locale});
 }
 
 /// @nodoc
@@ -1018,9 +947,8 @@ class __$$DeviceInfoImplCopyWithImpl<$Res>
     extends _$DeviceInfoCopyWithImpl<$Res, _$DeviceInfoImpl>
     implements _$$DeviceInfoImplCopyWith<$Res> {
   __$$DeviceInfoImplCopyWithImpl(
-    _$DeviceInfoImpl _value,
-    $Res Function(_$DeviceInfoImpl) _then,
-  ) : super(_value, _then);
+      _$DeviceInfoImpl _value, $Res Function(_$DeviceInfoImpl) _then)
+      : super(_value, _then);
 
   /// Create a copy of DeviceInfo
   /// with the given fields replaced by the non-null parameter values.
@@ -1036,66 +964,55 @@ class __$$DeviceInfoImplCopyWithImpl<$Res>
     Object? timezone = freezed,
     Object? locale = freezed,
   }) {
-    return _then(
-      _$DeviceInfoImpl(
-        platform:
-            null == platform
-                ? _value.platform
-                : platform // ignore: cast_nullable_to_non_nullable
-                    as String,
-        model:
-            null == model
-                ? _value.model
-                : model // ignore: cast_nullable_to_non_nullable
-                    as String,
-        osVersion:
-            null == osVersion
-                ? _value.osVersion
-                : osVersion // ignore: cast_nullable_to_non_nullable
-                    as String,
-        appVersion:
-            null == appVersion
-                ? _value.appVersion
-                : appVersion // ignore: cast_nullable_to_non_nullable
-                    as String,
-        screenSize:
-            freezed == screenSize
-                ? _value.screenSize
-                : screenSize // ignore: cast_nullable_to_non_nullable
-                    as String?,
-        deviceName:
-            freezed == deviceName
-                ? _value.deviceName
-                : deviceName // ignore: cast_nullable_to_non_nullable
-                    as String?,
-        timezone:
-            freezed == timezone
-                ? _value.timezone
-                : timezone // ignore: cast_nullable_to_non_nullable
-                    as String?,
-        locale:
-            freezed == locale
-                ? _value.locale
-                : locale // ignore: cast_nullable_to_non_nullable
-                    as String?,
-      ),
-    );
+    return _then(_$DeviceInfoImpl(
+      platform: null == platform
+          ? _value.platform
+          : platform // ignore: cast_nullable_to_non_nullable
+              as String,
+      model: null == model
+          ? _value.model
+          : model // ignore: cast_nullable_to_non_nullable
+              as String,
+      osVersion: null == osVersion
+          ? _value.osVersion
+          : osVersion // ignore: cast_nullable_to_non_nullable
+              as String,
+      appVersion: null == appVersion
+          ? _value.appVersion
+          : appVersion // ignore: cast_nullable_to_non_nullable
+              as String,
+      screenSize: freezed == screenSize
+          ? _value.screenSize
+          : screenSize // ignore: cast_nullable_to_non_nullable
+              as String?,
+      deviceName: freezed == deviceName
+          ? _value.deviceName
+          : deviceName // ignore: cast_nullable_to_non_nullable
+              as String?,
+      timezone: freezed == timezone
+          ? _value.timezone
+          : timezone // ignore: cast_nullable_to_non_nullable
+              as String?,
+      locale: freezed == locale
+          ? _value.locale
+          : locale // ignore: cast_nullable_to_non_nullable
+              as String?,
+    ));
   }
 }
 
 /// @nodoc
 @JsonSerializable()
 class _$DeviceInfoImpl implements _DeviceInfo {
-  const _$DeviceInfoImpl({
-    required this.platform,
-    required this.model,
-    @JsonKey(name: 'os_version') required this.osVersion,
-    @JsonKey(name: 'app_version') required this.appVersion,
-    @JsonKey(name: 'screen_size') this.screenSize,
-    @JsonKey(name: 'device_name') this.deviceName,
-    this.timezone,
-    this.locale,
-  });
+  const _$DeviceInfoImpl(
+      {required this.platform,
+      required this.model,
+      @JsonKey(name: 'os_version') required this.osVersion,
+      @JsonKey(name: 'app_version') required this.appVersion,
+      @JsonKey(name: 'screen_size') this.screenSize,
+      @JsonKey(name: 'device_name') this.deviceName,
+      this.timezone,
+      this.locale});
 
   factory _$DeviceInfoImpl.fromJson(Map<String, dynamic> json) =>
       _$$DeviceInfoImplFromJson(json);
@@ -1164,17 +1081,8 @@ class _$DeviceInfoImpl implements _DeviceInfo {
 
   @JsonKey(includeFromJson: false, includeToJson: false)
   @override
-  int get hashCode => Object.hash(
-    runtimeType,
-    platform,
-    model,
-    osVersion,
-    appVersion,
-    screenSize,
-    deviceName,
-    timezone,
-    locale,
-  );
+  int get hashCode => Object.hash(runtimeType, platform, model, osVersion,
+      appVersion, screenSize, deviceName, timezone, locale);
 
   /// Create a copy of DeviceInfo
   /// with the given fields replaced by the non-null parameter values.
@@ -1186,21 +1094,22 @@ class _$DeviceInfoImpl implements _DeviceInfo {
 
   @override
   Map<String, dynamic> toJson() {
-    return _$$DeviceInfoImplToJson(this);
+    return _$$DeviceInfoImplToJson(
+      this,
+    );
   }
 }
 
 abstract class _DeviceInfo implements DeviceInfo {
-  const factory _DeviceInfo({
-    required final String platform,
-    required final String model,
-    @JsonKey(name: 'os_version') required final String osVersion,
-    @JsonKey(name: 'app_version') required final String appVersion,
-    @JsonKey(name: 'screen_size') final String? screenSize,
-    @JsonKey(name: 'device_name') final String? deviceName,
-    final String? timezone,
-    final String? locale,
-  }) = _$DeviceInfoImpl;
+  const factory _DeviceInfo(
+      {required final String platform,
+      required final String model,
+      @JsonKey(name: 'os_version') required final String osVersion,
+      @JsonKey(name: 'app_version') required final String appVersion,
+      @JsonKey(name: 'screen_size') final String? screenSize,
+      @JsonKey(name: 'device_name') final String? deviceName,
+      final String? timezone,
+      final String? locale}) = _$DeviceInfoImpl;
 
   factory _DeviceInfo.fromJson(Map<String, dynamic> json) =
       _$DeviceInfoImpl.fromJson;
@@ -1292,19 +1201,17 @@ mixin _$ChatMessage {
 /// @nodoc
 abstract class $ChatMessageCopyWith<$Res> {
   factory $ChatMessageCopyWith(
-    ChatMessage value,
-    $Res Function(ChatMessage) then,
-  ) = _$ChatMessageCopyWithImpl<$Res, ChatMessage>;
+          ChatMessage value, $Res Function(ChatMessage) then) =
+      _$ChatMessageCopyWithImpl<$Res, ChatMessage>;
   @useResult
-  $Res call({
-    String id,
-    MessageType type,
-    String content,
-    @JsonKey(name: 'session_id') String sessionId,
-    @JsonKey(name: 'device_id') String deviceId,
-    int timestamp,
-    @JsonKey(name: 'expect_reply') bool expectReply,
-  });
+  $Res call(
+      {String id,
+      MessageType type,
+      String content,
+      @JsonKey(name: 'session_id') String sessionId,
+      @JsonKey(name: 'device_id') String deviceId,
+      int timestamp,
+      @JsonKey(name: 'expect_reply') bool expectReply});
 }
 
 /// @nodoc
@@ -1330,46 +1237,36 @@ class _$ChatMessageCopyWithImpl<$Res, $Val extends ChatMessage>
     Object? timestamp = null,
     Object? expectReply = null,
   }) {
-    return _then(
-      _value.copyWith(
-            id:
-                null == id
-                    ? _value.id
-                    : id // ignore: cast_nullable_to_non_nullable
-                        as String,
-            type:
-                null == type
-                    ? _value.type
-                    : type // ignore: cast_nullable_to_non_nullable
-                        as MessageType,
-            content:
-                null == content
-                    ? _value.content
-                    : content // ignore: cast_nullable_to_non_nullable
-                        as String,
-            sessionId:
-                null == sessionId
-                    ? _value.sessionId
-                    : sessionId // ignore: cast_nullable_to_non_nullable
-                        as String,
-            deviceId:
-                null == deviceId
-                    ? _value.deviceId
-                    : deviceId // ignore: cast_nullable_to_non_nullable
-                        as String,
-            timestamp:
-                null == timestamp
-                    ? _value.timestamp
-                    : timestamp // ignore: cast_nullable_to_non_nullable
-                        as int,
-            expectReply:
-                null == expectReply
-                    ? _value.expectReply
-                    : expectReply // ignore: cast_nullable_to_non_nullable
-                        as bool,
-          )
-          as $Val,
-    );
+    return _then(_value.copyWith(
+      id: null == id
+          ? _value.id
+          : id // ignore: cast_nullable_to_non_nullable
+              as String,
+      type: null == type
+          ? _value.type
+          : type // ignore: cast_nullable_to_non_nullable
+              as MessageType,
+      content: null == content
+          ? _value.content
+          : content // ignore: cast_nullable_to_non_nullable
+              as String,
+      sessionId: null == sessionId
+          ? _value.sessionId
+          : sessionId // ignore: cast_nullable_to_non_nullable
+              as String,
+      deviceId: null == deviceId
+          ? _value.deviceId
+          : deviceId // ignore: cast_nullable_to_non_nullable
+              as String,
+      timestamp: null == timestamp
+          ? _value.timestamp
+          : timestamp // ignore: cast_nullable_to_non_nullable
+              as int,
+      expectReply: null == expectReply
+          ? _value.expectReply
+          : expectReply // ignore: cast_nullable_to_non_nullable
+              as bool,
+    ) as $Val);
   }
 }
 
@@ -1377,20 +1274,18 @@ class _$ChatMessageCopyWithImpl<$Res, $Val extends ChatMessage>
 abstract class _$$ChatMessageImplCopyWith<$Res>
     implements $ChatMessageCopyWith<$Res> {
   factory _$$ChatMessageImplCopyWith(
-    _$ChatMessageImpl value,
-    $Res Function(_$ChatMessageImpl) then,
-  ) = __$$ChatMessageImplCopyWithImpl<$Res>;
+          _$ChatMessageImpl value, $Res Function(_$ChatMessageImpl) then) =
+      __$$ChatMessageImplCopyWithImpl<$Res>;
   @override
   @useResult
-  $Res call({
-    String id,
-    MessageType type,
-    String content,
-    @JsonKey(name: 'session_id') String sessionId,
-    @JsonKey(name: 'device_id') String deviceId,
-    int timestamp,
-    @JsonKey(name: 'expect_reply') bool expectReply,
-  });
+  $Res call(
+      {String id,
+      MessageType type,
+      String content,
+      @JsonKey(name: 'session_id') String sessionId,
+      @JsonKey(name: 'device_id') String deviceId,
+      int timestamp,
+      @JsonKey(name: 'expect_reply') bool expectReply});
 }
 
 /// @nodoc
@@ -1398,9 +1293,8 @@ class __$$ChatMessageImplCopyWithImpl<$Res>
     extends _$ChatMessageCopyWithImpl<$Res, _$ChatMessageImpl>
     implements _$$ChatMessageImplCopyWith<$Res> {
   __$$ChatMessageImplCopyWithImpl(
-    _$ChatMessageImpl _value,
-    $Res Function(_$ChatMessageImpl) _then,
-  ) : super(_value, _then);
+      _$ChatMessageImpl _value, $Res Function(_$ChatMessageImpl) _then)
+      : super(_value, _then);
 
   /// Create a copy of ChatMessage
   /// with the given fields replaced by the non-null parameter values.
@@ -1415,60 +1309,50 @@ class __$$ChatMessageImplCopyWithImpl<$Res>
     Object? timestamp = null,
     Object? expectReply = null,
   }) {
-    return _then(
-      _$ChatMessageImpl(
-        id:
-            null == id
-                ? _value.id
-                : id // ignore: cast_nullable_to_non_nullable
-                    as String,
-        type:
-            null == type
-                ? _value.type
-                : type // ignore: cast_nullable_to_non_nullable
-                    as MessageType,
-        content:
-            null == content
-                ? _value.content
-                : content // ignore: cast_nullable_to_non_nullable
-                    as String,
-        sessionId:
-            null == sessionId
-                ? _value.sessionId
-                : sessionId // ignore: cast_nullable_to_non_nullable
-                    as String,
-        deviceId:
-            null == deviceId
-                ? _value.deviceId
-                : deviceId // ignore: cast_nullable_to_non_nullable
-                    as String,
-        timestamp:
-            null == timestamp
-                ? _value.timestamp
-                : timestamp // ignore: cast_nullable_to_non_nullable
-                    as int,
-        expectReply:
-            null == expectReply
-                ? _value.expectReply
-                : expectReply // ignore: cast_nullable_to_non_nullable
-                    as bool,
-      ),
-    );
+    return _then(_$ChatMessageImpl(
+      id: null == id
+          ? _value.id
+          : id // ignore: cast_nullable_to_non_nullable
+              as String,
+      type: null == type
+          ? _value.type
+          : type // ignore: cast_nullable_to_non_nullable
+              as MessageType,
+      content: null == content
+          ? _value.content
+          : content // ignore: cast_nullable_to_non_nullable
+              as String,
+      sessionId: null == sessionId
+          ? _value.sessionId
+          : sessionId // ignore: cast_nullable_to_non_nullable
+              as String,
+      deviceId: null == deviceId
+          ? _value.deviceId
+          : deviceId // ignore: cast_nullable_to_non_nullable
+              as String,
+      timestamp: null == timestamp
+          ? _value.timestamp
+          : timestamp // ignore: cast_nullable_to_non_nullable
+              as int,
+      expectReply: null == expectReply
+          ? _value.expectReply
+          : expectReply // ignore: cast_nullable_to_non_nullable
+              as bool,
+    ));
   }
 }
 
 /// @nodoc
 @JsonSerializable()
 class _$ChatMessageImpl implements _ChatMessage {
-  const _$ChatMessageImpl({
-    required this.id,
-    this.type = MessageType.chat,
-    required this.content,
-    @JsonKey(name: 'session_id') required this.sessionId,
-    @JsonKey(name: 'device_id') required this.deviceId,
-    required this.timestamp,
-    @JsonKey(name: 'expect_reply') this.expectReply = true,
-  });
+  const _$ChatMessageImpl(
+      {required this.id,
+      this.type = MessageType.chat,
+      required this.content,
+      @JsonKey(name: 'session_id') required this.sessionId,
+      @JsonKey(name: 'device_id') required this.deviceId,
+      required this.timestamp,
+      @JsonKey(name: 'expect_reply') this.expectReply = true});
 
   factory _$ChatMessageImpl.fromJson(Map<String, dynamic> json) =>
       _$$ChatMessageImplFromJson(json);
@@ -1530,16 +1414,8 @@ class _$ChatMessageImpl implements _ChatMessage {
 
   @JsonKey(includeFromJson: false, includeToJson: false)
   @override
-  int get hashCode => Object.hash(
-    runtimeType,
-    id,
-    type,
-    content,
-    sessionId,
-    deviceId,
-    timestamp,
-    expectReply,
-  );
+  int get hashCode => Object.hash(runtimeType, id, type, content, sessionId,
+      deviceId, timestamp, expectReply);
 
   /// Create a copy of ChatMessage
   /// with the given fields replaced by the non-null parameter values.
@@ -1551,20 +1427,22 @@ class _$ChatMessageImpl implements _ChatMessage {
 
   @override
   Map<String, dynamic> toJson() {
-    return _$$ChatMessageImplToJson(this);
+    return _$$ChatMessageImplToJson(
+      this,
+    );
   }
 }
 
 abstract class _ChatMessage implements ChatMessage {
-  const factory _ChatMessage({
-    required final String id,
-    final MessageType type,
-    required final String content,
-    @JsonKey(name: 'session_id') required final String sessionId,
-    @JsonKey(name: 'device_id') required final String deviceId,
-    required final int timestamp,
-    @JsonKey(name: 'expect_reply') final bool expectReply,
-  }) = _$ChatMessageImpl;
+  const factory _ChatMessage(
+          {required final String id,
+          final MessageType type,
+          required final String content,
+          @JsonKey(name: 'session_id') required final String sessionId,
+          @JsonKey(name: 'device_id') required final String deviceId,
+          required final int timestamp,
+          @JsonKey(name: 'expect_reply') final bool expectReply}) =
+      _$ChatMessageImpl;
 
   factory _ChatMessage.fromJson(Map<String, dynamic> json) =
       _$ChatMessageImpl.fromJson;
@@ -1653,20 +1531,18 @@ mixin _$ResponseMessage {
 /// @nodoc
 abstract class $ResponseMessageCopyWith<$Res> {
   factory $ResponseMessageCopyWith(
-    ResponseMessage value,
-    $Res Function(ResponseMessage) then,
-  ) = _$ResponseMessageCopyWithImpl<$Res, ResponseMessage>;
+          ResponseMessage value, $Res Function(ResponseMessage) then) =
+      _$ResponseMessageCopyWithImpl<$Res, ResponseMessage>;
   @useResult
-  $Res call({
-    String id,
-    MessageType type,
-    String content,
-    @JsonKey(name: 'request_id') String requestId,
-    @JsonKey(name: 'session_id') String sessionId,
-    int timestamp,
-    bool completed,
-    Map<String, dynamic>? metadata,
-  });
+  $Res call(
+      {String id,
+      MessageType type,
+      String content,
+      @JsonKey(name: 'request_id') String requestId,
+      @JsonKey(name: 'session_id') String sessionId,
+      int timestamp,
+      bool completed,
+      Map<String, dynamic>? metadata});
 }
 
 /// @nodoc
@@ -1693,73 +1569,60 @@ class _$ResponseMessageCopyWithImpl<$Res, $Val extends ResponseMessage>
     Object? completed = null,
     Object? metadata = freezed,
   }) {
-    return _then(
-      _value.copyWith(
-            id:
-                null == id
-                    ? _value.id
-                    : id // ignore: cast_nullable_to_non_nullable
-                        as String,
-            type:
-                null == type
-                    ? _value.type
-                    : type // ignore: cast_nullable_to_non_nullable
-                        as MessageType,
-            content:
-                null == content
-                    ? _value.content
-                    : content // ignore: cast_nullable_to_non_nullable
-                        as String,
-            requestId:
-                null == requestId
-                    ? _value.requestId
-                    : requestId // ignore: cast_nullable_to_non_nullable
-                        as String,
-            sessionId:
-                null == sessionId
-                    ? _value.sessionId
-                    : sessionId // ignore: cast_nullable_to_non_nullable
-                        as String,
-            timestamp:
-                null == timestamp
-                    ? _value.timestamp
-                    : timestamp // ignore: cast_nullable_to_non_nullable
-                        as int,
-            completed:
-                null == completed
-                    ? _value.completed
-                    : completed // ignore: cast_nullable_to_non_nullable
-                        as bool,
-            metadata:
-                freezed == metadata
-                    ? _value.metadata
-                    : metadata // ignore: cast_nullable_to_non_nullable
-                        as Map<String, dynamic>?,
-          )
-          as $Val,
-    );
+    return _then(_value.copyWith(
+      id: null == id
+          ? _value.id
+          : id // ignore: cast_nullable_to_non_nullable
+              as String,
+      type: null == type
+          ? _value.type
+          : type // ignore: cast_nullable_to_non_nullable
+              as MessageType,
+      content: null == content
+          ? _value.content
+          : content // ignore: cast_nullable_to_non_nullable
+              as String,
+      requestId: null == requestId
+          ? _value.requestId
+          : requestId // ignore: cast_nullable_to_non_nullable
+              as String,
+      sessionId: null == sessionId
+          ? _value.sessionId
+          : sessionId // ignore: cast_nullable_to_non_nullable
+              as String,
+      timestamp: null == timestamp
+          ? _value.timestamp
+          : timestamp // ignore: cast_nullable_to_non_nullable
+              as int,
+      completed: null == completed
+          ? _value.completed
+          : completed // ignore: cast_nullable_to_non_nullable
+              as bool,
+      metadata: freezed == metadata
+          ? _value.metadata
+          : metadata // ignore: cast_nullable_to_non_nullable
+              as Map<String, dynamic>?,
+    ) as $Val);
   }
 }
 
 /// @nodoc
 abstract class _$$ResponseMessageImplCopyWith<$Res>
     implements $ResponseMessageCopyWith<$Res> {
-  factory _$$ResponseMessageImplCopyWith(
-    _$ResponseMessageImpl value,
-    $Res Function(_$ResponseMessageImpl) then,
-  ) = __$$ResponseMessageImplCopyWithImpl<$Res>;
+  factory _$$ResponseMessageImplCopyWith(_$ResponseMessageImpl value,
+          $Res Function(_$ResponseMessageImpl) then) =
+      __$$ResponseMessageImplCopyWithImpl<$Res>;
   @override
   @useResult
-  $Res call({
-    String id,
-    MessageType type,
-    String content,
-    @JsonKey(name: 'request_id') String requestId,
-    @JsonKey(name: 'session_id') String sessionId,
-    int timestamp,
-    bool completed,
-    Map<String, dynamic>? metadata,
-  });
+  $Res call(
+      {String id,
+      MessageType type,
+      String content,
+      @JsonKey(name: 'request_id') String requestId,
+      @JsonKey(name: 'session_id') String sessionId,
+      int timestamp,
+      bool completed,
+      Map<String, dynamic>? metadata});
 }
 
 /// @nodoc
@@ -1767,9 +1630,8 @@ class __$$ResponseMessageImplCopyWithImpl<$Res>
     extends _$ResponseMessageCopyWithImpl<$Res, _$ResponseMessageImpl>
     implements _$$ResponseMessageImplCopyWith<$Res> {
   __$$ResponseMessageImplCopyWithImpl(
-    _$ResponseMessageImpl _value,
-    $Res Function(_$ResponseMessageImpl) _then,
-  ) : super(_value, _then);
+      _$ResponseMessageImpl _value, $Res Function(_$ResponseMessageImpl) _then)
+      : super(_value, _then);
 
   /// Create a copy of ResponseMessage
   /// with the given fields replaced by the non-null parameter values.
@@ -1785,66 +1647,56 @@ class __$$ResponseMessageImplCopyWithImpl<$Res>
     Object? completed = null,
     Object? metadata = freezed,
   }) {
-    return _then(
-      _$ResponseMessageImpl(
-        id:
-            null == id
-                ? _value.id
-                : id // ignore: cast_nullable_to_non_nullable
-                    as String,
-        type:
-            null == type
-                ? _value.type
-                : type // ignore: cast_nullable_to_non_nullable
-                    as MessageType,
-        content:
-            null == content
-                ? _value.content
-                : content // ignore: cast_nullable_to_non_nullable
-                    as String,
-        requestId:
-            null == requestId
-                ? _value.requestId
-                : requestId // ignore: cast_nullable_to_non_nullable
-                    as String,
-        sessionId:
-            null == sessionId
-                ? _value.sessionId
-                : sessionId // ignore: cast_nullable_to_non_nullable
-                    as String,
-        timestamp:
-            null == timestamp
-                ? _value.timestamp
-                : timestamp // ignore: cast_nullable_to_non_nullable
-                    as int,
-        completed:
-            null == completed
-                ? _value.completed
-                : completed // ignore: cast_nullable_to_non_nullable
-                    as bool,
-        metadata:
-            freezed == metadata
-                ? _value._metadata
-                : metadata // ignore: cast_nullable_to_non_nullable
-                    as Map<String, dynamic>?,
-      ),
-    );
+    return _then(_$ResponseMessageImpl(
+      id: null == id
+          ? _value.id
+          : id // ignore: cast_nullable_to_non_nullable
+              as String,
+      type: null == type
+          ? _value.type
+          : type // ignore: cast_nullable_to_non_nullable
+              as MessageType,
+      content: null == content
+          ? _value.content
+          : content // ignore: cast_nullable_to_non_nullable
+              as String,
+      requestId: null == requestId
+          ? _value.requestId
+          : requestId // ignore: cast_nullable_to_non_nullable
+              as String,
+      sessionId: null == sessionId
+          ? _value.sessionId
+          : sessionId // ignore: cast_nullable_to_non_nullable
+              as String,
+      timestamp: null == timestamp
+          ? _value.timestamp
+          : timestamp // ignore: cast_nullable_to_non_nullable
+              as int,
+      completed: null == completed
+          ? _value.completed
+          : completed // ignore: cast_nullable_to_non_nullable
+              as bool,
+      metadata: freezed == metadata
+          ? _value._metadata
+          : metadata // ignore: cast_nullable_to_non_nullable
+              as Map<String, dynamic>?,
+    ));
   }
 }
 
 /// @nodoc
 @JsonSerializable()
 class _$ResponseMessageImpl implements _ResponseMessage {
-  const _$ResponseMessageImpl({
-    required this.id,
-    this.type = MessageType.response,
-    required this.content,
-    @JsonKey(name: 'request_id') required this.requestId,
-    @JsonKey(name: 'session_id') required this.sessionId,
-    required this.timestamp,
-    this.completed = true,
-    final Map<String, dynamic>? metadata,
-  }) : _metadata = metadata;
+  const _$ResponseMessageImpl(
+      {required this.id,
+      this.type = MessageType.response,
+      required this.content,
+      @JsonKey(name: 'request_id') required this.requestId,
+      @JsonKey(name: 'session_id') required this.sessionId,
+      required this.timestamp,
+      this.completed = true,
+      final Map<String, dynamic>? metadata})
+      : _metadata = metadata;
 
   factory _$ResponseMessageImpl.fromJson(Map<String, dynamic> json) =>
       _$$ResponseMessageImplFromJson(json);
@@ -1921,16 +1773,15 @@ class _$ResponseMessageImpl implements _ResponseMessage {
   @JsonKey(includeFromJson: false, includeToJson: false)
   @override
   int get hashCode => Object.hash(
-    runtimeType,
-    id,
-    type,
-    content,
-    requestId,
-    sessionId,
-    timestamp,
-    completed,
-    const DeepCollectionEquality().hash(_metadata),
-  );
+      runtimeType,
+      id,
+      type,
+      content,
+      requestId,
+      sessionId,
+      timestamp,
+      completed,
+      const DeepCollectionEquality().hash(_metadata));
 
   /// Create a copy of ResponseMessage
   /// with the given fields replaced by the non-null parameter values.
@@ -1939,27 +1790,26 @@ class _$ResponseMessageImpl implements _ResponseMessage {
   @pragma('vm:prefer-inline')
   _$$ResponseMessageImplCopyWith<_$ResponseMessageImpl> get copyWith =>
       __$$ResponseMessageImplCopyWithImpl<_$ResponseMessageImpl>(
-        this,
-        _$identity,
-      );
+          this, _$identity);
 
   @override
   Map<String, dynamic> toJson() {
-    return _$$ResponseMessageImplToJson(this);
+    return _$$ResponseMessageImplToJson(
+      this,
+    );
   }
 }
 
 abstract class _ResponseMessage implements ResponseMessage {
-  const factory _ResponseMessage({
-    required final String id,
-    final MessageType type,
-    required final String content,
-    @JsonKey(name: 'request_id') required final String requestId,
-    @JsonKey(name: 'session_id') required final String sessionId,
-    required final int timestamp,
-    final bool completed,
-    final Map<String, dynamic>? metadata,
-  }) = _$ResponseMessageImpl;
+  const factory _ResponseMessage(
+      {required final String id,
+      final MessageType type,
+      required final String content,
+      @JsonKey(name: 'request_id') required final String requestId,
+      @JsonKey(name: 'session_id') required final String sessionId,
+      required final int timestamp,
+      final bool completed,
+      final Map<String, dynamic>? metadata}) = _$ResponseMessageImpl;
 
   factory _ResponseMessage.fromJson(Map<String, dynamic> json) =
       _$ResponseMessageImpl.fromJson;
@@ -2050,19 +1900,17 @@ mixin _$ErrorMessage {
 /// @nodoc
 abstract class $ErrorMessageCopyWith<$Res> {
   factory $ErrorMessageCopyWith(
-    ErrorMessage value,
-    $Res Function(ErrorMessage) then,
-  ) = _$ErrorMessageCopyWithImpl<$Res, ErrorMessage>;
+          ErrorMessage value, $Res Function(ErrorMessage) then) =
+      _$ErrorMessageCopyWithImpl<$Res, ErrorMessage>;
   @useResult
-  $Res call({
-    String id,
-    MessageType type,
-    @JsonKey(name: 'error_message') String errorMessage,
-    @JsonKey(name: 'error_code') String errorCode,
-    @JsonKey(name: 'request_id') String? requestId,
-    int timestamp,
-    @JsonKey(name: 'error_details') Map<String, dynamic>? errorDetails,
-  });
+  $Res call(
+      {String id,
+      MessageType type,
+      @JsonKey(name: 'error_message') String errorMessage,
+      @JsonKey(name: 'error_code') String errorCode,
+      @JsonKey(name: 'request_id') String? requestId,
+      int timestamp,
+      @JsonKey(name: 'error_details') Map<String, dynamic>? errorDetails});
 }
 
 /// @nodoc
@@ -2088,46 +1936,36 @@ class _$ErrorMessageCopyWithImpl<$Res, $Val extends ErrorMessage>
     Object? timestamp = null,
     Object? errorDetails = freezed,
   }) {
-    return _then(
-      _value.copyWith(
-            id:
-                null == id
-                    ? _value.id
-                    : id // ignore: cast_nullable_to_non_nullable
-                        as String,
-            type:
-                null == type
-                    ? _value.type
-                    : type // ignore: cast_nullable_to_non_nullable
-                        as MessageType,
-            errorMessage:
-                null == errorMessage
-                    ? _value.errorMessage
-                    : errorMessage // ignore: cast_nullable_to_non_nullable
-                        as String,
-            errorCode:
-                null == errorCode
-                    ? _value.errorCode
-                    : errorCode // ignore: cast_nullable_to_non_nullable
-                        as String,
-            requestId:
-                freezed == requestId
-                    ? _value.requestId
-                    : requestId // ignore: cast_nullable_to_non_nullable
-                        as String?,
-            timestamp:
-                null == timestamp
-                    ? _value.timestamp
-                    : timestamp // ignore: cast_nullable_to_non_nullable
-                        as int,
-            errorDetails:
-                freezed == errorDetails
-                    ? _value.errorDetails
-                    : errorDetails // ignore: cast_nullable_to_non_nullable
-                        as Map<String, dynamic>?,
-          )
-          as $Val,
-    );
+    return _then(_value.copyWith(
+      id: null == id
+          ? _value.id
+          : id // ignore: cast_nullable_to_non_nullable
+              as String,
+      type: null == type
+          ? _value.type
+          : type // ignore: cast_nullable_to_non_nullable
+              as MessageType,
+      errorMessage: null == errorMessage
+          ? _value.errorMessage
+          : errorMessage // ignore: cast_nullable_to_non_nullable
+              as String,
+      errorCode: null == errorCode
+          ? _value.errorCode
+          : errorCode // ignore: cast_nullable_to_non_nullable
+              as String,
+      requestId: freezed == requestId
+          ? _value.requestId
+          : requestId // ignore: cast_nullable_to_non_nullable
+              as String?,
+      timestamp: null == timestamp
+          ? _value.timestamp
+          : timestamp // ignore: cast_nullable_to_non_nullable
+              as int,
+      errorDetails: freezed == errorDetails
+          ? _value.errorDetails
+          : errorDetails // ignore: cast_nullable_to_non_nullable
+              as Map<String, dynamic>?,
+    ) as $Val);
   }
 }
 
@@ -2135,20 +1973,18 @@ class _$ErrorMessageCopyWithImpl<$Res, $Val extends ErrorMessage>
 abstract class _$$ErrorMessageImplCopyWith<$Res>
     implements $ErrorMessageCopyWith<$Res> {
   factory _$$ErrorMessageImplCopyWith(
-    _$ErrorMessageImpl value,
-    $Res Function(_$ErrorMessageImpl) then,
-  ) = __$$ErrorMessageImplCopyWithImpl<$Res>;
+          _$ErrorMessageImpl value, $Res Function(_$ErrorMessageImpl) then) =
+      __$$ErrorMessageImplCopyWithImpl<$Res>;
   @override
   @useResult
-  $Res call({
-    String id,
-    MessageType type,
-    @JsonKey(name: 'error_message') String errorMessage,
-    @JsonKey(name: 'error_code') String errorCode,
-    @JsonKey(name: 'request_id') String? requestId,
-    int timestamp,
-    @JsonKey(name: 'error_details') Map<String, dynamic>? errorDetails,
-  });
+  $Res call(
+      {String id,
+      MessageType type,
+      @JsonKey(name: 'error_message') String errorMessage,
+      @JsonKey(name: 'error_code') String errorCode,
+      @JsonKey(name: 'request_id') String? requestId,
+      int timestamp,
+      @JsonKey(name: 'error_details') Map<String, dynamic>? errorDetails});
 }
 
 /// @nodoc
@@ -2156,9 +1992,8 @@ class __$$ErrorMessageImplCopyWithImpl<$Res>
     extends _$ErrorMessageCopyWithImpl<$Res, _$ErrorMessageImpl>
     implements _$$ErrorMessageImplCopyWith<$Res> {
   __$$ErrorMessageImplCopyWithImpl(
-    _$ErrorMessageImpl _value,
-    $Res Function(_$ErrorMessageImpl) _then,
-  ) : super(_value, _then);
+      _$ErrorMessageImpl _value, $Res Function(_$ErrorMessageImpl) _then)
+      : super(_value, _then);
 
   /// Create a copy of ErrorMessage
   /// with the given fields replaced by the non-null parameter values.
@@ -2173,60 +2008,51 @@ class __$$ErrorMessageImplCopyWithImpl<$Res>
     Object? timestamp = null,
     Object? errorDetails = freezed,
   }) {
-    return _then(
-      _$ErrorMessageImpl(
-        id:
-            null == id
-                ? _value.id
-                : id // ignore: cast_nullable_to_non_nullable
-                    as String,
-        type:
-            null == type
-                ? _value.type
-                : type // ignore: cast_nullable_to_non_nullable
-                    as MessageType,
-        errorMessage:
-            null == errorMessage
-                ? _value.errorMessage
-                : errorMessage // ignore: cast_nullable_to_non_nullable
-                    as String,
-        errorCode:
-            null == errorCode
-                ? _value.errorCode
-                : errorCode // ignore: cast_nullable_to_non_nullable
-                    as String,
-        requestId:
-            freezed == requestId
-                ? _value.requestId
-                : requestId // ignore: cast_nullable_to_non_nullable
-                    as String?,
-        timestamp:
-            null == timestamp
-                ? _value.timestamp
-                : timestamp // ignore: cast_nullable_to_non_nullable
-                    as int,
-        errorDetails:
-            freezed == errorDetails
-                ? _value._errorDetails
-                : errorDetails // ignore: cast_nullable_to_non_nullable
-                    as Map<String, dynamic>?,
-      ),
-    );
+    return _then(_$ErrorMessageImpl(
+      id: null == id
+          ? _value.id
+          : id // ignore: cast_nullable_to_non_nullable
+              as String,
+      type: null == type
+          ? _value.type
+          : type // ignore: cast_nullable_to_non_nullable
+              as MessageType,
+      errorMessage: null == errorMessage
+          ? _value.errorMessage
+          : errorMessage // ignore: cast_nullable_to_non_nullable
+              as String,
+      errorCode: null == errorCode
+          ? _value.errorCode
+          : errorCode // ignore: cast_nullable_to_non_nullable
+              as String,
+      requestId: freezed == requestId
+          ? _value.requestId
+          : requestId // ignore: cast_nullable_to_non_nullable
+              as String?,
+      timestamp: null == timestamp
+          ? _value.timestamp
+          : timestamp // ignore: cast_nullable_to_non_nullable
+              as int,
+      errorDetails: freezed == errorDetails
+          ? _value._errorDetails
+          : errorDetails // ignore: cast_nullable_to_non_nullable
+              as Map<String, dynamic>?,
+    ));
   }
 }
 
 /// @nodoc
 @JsonSerializable()
 class _$ErrorMessageImpl implements _ErrorMessage {
-  const _$ErrorMessageImpl({
-    required this.id,
-    this.type = MessageType.error,
-    @JsonKey(name: 'error_message') required this.errorMessage,
-    @JsonKey(name: 'error_code') required this.errorCode,
-    @JsonKey(name: 'request_id') this.requestId,
-    required this.timestamp,
-    @JsonKey(name: 'error_details') final Map<String, dynamic>? errorDetails,
-  }) : _errorDetails = errorDetails;
+  const _$ErrorMessageImpl(
+      {required this.id,
+      this.type = MessageType.error,
+      @JsonKey(name: 'error_message') required this.errorMessage,
+      @JsonKey(name: 'error_code') required this.errorCode,
+      @JsonKey(name: 'request_id') this.requestId,
+      required this.timestamp,
+      @JsonKey(name: 'error_details') final Map<String, dynamic>? errorDetails})
+      : _errorDetails = errorDetails;
 
   factory _$ErrorMessageImpl.fromJson(Map<String, dynamic> json) =>
       _$$ErrorMessageImplFromJson(json);
@@ -2293,24 +2119,21 @@ class _$ErrorMessageImpl implements _ErrorMessage {
                 other.requestId == requestId) &&
             (identical(other.timestamp, timestamp) ||
                 other.timestamp == timestamp) &&
-            const DeepCollectionEquality().equals(
-              other._errorDetails,
-              _errorDetails,
-            ));
+            const DeepCollectionEquality()
+                .equals(other._errorDetails, _errorDetails));
   }
 
   @JsonKey(includeFromJson: false, includeToJson: false)
   @override
   int get hashCode => Object.hash(
-    runtimeType,
-    id,
-    type,
-    errorMessage,
-    errorCode,
-    requestId,
-    timestamp,
-    const DeepCollectionEquality().hash(_errorDetails),
-  );
+      runtimeType,
+      id,
+      type,
+      errorMessage,
+      errorCode,
+      requestId,
+      timestamp,
+      const DeepCollectionEquality().hash(_errorDetails));
 
   /// Create a copy of ErrorMessage
   /// with the given fields replaced by the non-null parameter values.
@@ -2322,20 +2145,22 @@ class _$ErrorMessageImpl implements _ErrorMessage {
 
   @override
   Map<String, dynamic> toJson() {
-    return _$$ErrorMessageImplToJson(this);
+    return _$$ErrorMessageImplToJson(
+      this,
+    );
   }
 }
 
 abstract class _ErrorMessage implements ErrorMessage {
-  const factory _ErrorMessage({
-    required final String id,
-    final MessageType type,
-    @JsonKey(name: 'error_message') required final String errorMessage,
-    @JsonKey(name: 'error_code') required final String errorCode,
-    @JsonKey(name: 'request_id') final String? requestId,
-    required final int timestamp,
-    @JsonKey(name: 'error_details') final Map<String, dynamic>? errorDetails,
-  }) = _$ErrorMessageImpl;
+  const factory _ErrorMessage(
+      {required final String id,
+      final MessageType type,
+      @JsonKey(name: 'error_message') required final String errorMessage,
+      @JsonKey(name: 'error_code') required final String errorCode,
+      @JsonKey(name: 'request_id') final String? requestId,
+      required final int timestamp,
+      @JsonKey(name: 'error_details')
+      final Map<String, dynamic>? errorDetails}) = _$ErrorMessageImpl;
 
   factory _ErrorMessage.fromJson(Map<String, dynamic> json) =
       _$ErrorMessageImpl.fromJson;
@@ -2411,9 +2236,8 @@ mixin _$ListenMessage {
 /// @nodoc
 abstract class $ListenMessageCopyWith<$Res> {
   factory $ListenMessageCopyWith(
-    ListenMessage value,
-    $Res Function(ListenMessage) then,
-  ) = _$ListenMessageCopyWithImpl<$Res, ListenMessage>;
+          ListenMessage value, $Res Function(ListenMessage) then) =
+      _$ListenMessageCopyWithImpl<$Res, ListenMessage>;
   @useResult
   $Res call({MessageType type, String mode, String state, String text});
 }
@@ -2438,31 +2262,24 @@ class _$ListenMessageCopyWithImpl<$Res, $Val extends ListenMessage>
     Object? state = null,
     Object? text = null,
   }) {
-    return _then(
-      _value.copyWith(
-            type:
-                null == type
-                    ? _value.type
-                    : type // ignore: cast_nullable_to_non_nullable
-                        as MessageType,
-            mode:
-                null == mode
-                    ? _value.mode
-                    : mode // ignore: cast_nullable_to_non_nullable
-                        as String,
-            state:
-                null == state
-                    ? _value.state
-                    : state // ignore: cast_nullable_to_non_nullable
-                        as String,
-            text:
-                null == text
-                    ? _value.text
-                    : text // ignore: cast_nullable_to_non_nullable
-                        as String,
-          )
-          as $Val,
-    );
+    return _then(_value.copyWith(
+      type: null == type
+          ? _value.type
+          : type // ignore: cast_nullable_to_non_nullable
+              as MessageType,
+      mode: null == mode
+          ? _value.mode
+          : mode // ignore: cast_nullable_to_non_nullable
+              as String,
+      state: null == state
+          ? _value.state
+          : state // ignore: cast_nullable_to_non_nullable
+              as String,
+      text: null == text
+          ? _value.text
+          : text // ignore: cast_nullable_to_non_nullable
+              as String,
+    ) as $Val);
   }
 }
 
@@ -2470,9 +2287,8 @@ class _$ListenMessageCopyWithImpl<$Res, $Val extends ListenMessage>
 abstract class _$$ListenMessageImplCopyWith<$Res>
     implements $ListenMessageCopyWith<$Res> {
   factory _$$ListenMessageImplCopyWith(
-    _$ListenMessageImpl value,
-    $Res Function(_$ListenMessageImpl) then,
-  ) = __$$ListenMessageImplCopyWithImpl<$Res>;
+          _$ListenMessageImpl value, $Res Function(_$ListenMessageImpl) then) =
+      __$$ListenMessageImplCopyWithImpl<$Res>;
   @override
   @useResult
   $Res call({MessageType type, String mode, String state, String text});
@@ -2483,9 +2299,8 @@ class __$$ListenMessageImplCopyWithImpl<$Res>
     extends _$ListenMessageCopyWithImpl<$Res, _$ListenMessageImpl>
     implements _$$ListenMessageImplCopyWith<$Res> {
   __$$ListenMessageImplCopyWithImpl(
-    _$ListenMessageImpl _value,
-    $Res Function(_$ListenMessageImpl) _then,
-  ) : super(_value, _then);
+      _$ListenMessageImpl _value, $Res Function(_$ListenMessageImpl) _then)
+      : super(_value, _then);
 
   /// Create a copy of ListenMessage
   /// with the given fields replaced by the non-null parameter values.
@@ -2497,42 +2312,35 @@ class __$$ListenMessageImplCopyWithImpl<$Res>
     Object? state = null,
     Object? text = null,
   }) {
-    return _then(
-      _$ListenMessageImpl(
-        type:
-            null == type
-                ? _value.type
-                : type // ignore: cast_nullable_to_non_nullable
-                    as MessageType,
-        mode:
-            null == mode
-                ? _value.mode
-                : mode // ignore: cast_nullable_to_non_nullable
-                    as String,
-        state:
-            null == state
-                ? _value.state
-                : state // ignore: cast_nullable_to_non_nullable
-                    as String,
-        text:
-            null == text
-                ? _value.text
-                : text // ignore: cast_nullable_to_non_nullable
-                    as String,
-      ),
-    );
+    return _then(_$ListenMessageImpl(
+      type: null == type
+          ? _value.type
+          : type // ignore: cast_nullable_to_non_nullable
+              as MessageType,
+      mode: null == mode
+          ? _value.mode
+          : mode // ignore: cast_nullable_to_non_nullable
+              as String,
+      state: null == state
+          ? _value.state
+          : state // ignore: cast_nullable_to_non_nullable
+              as String,
+      text: null == text
+          ? _value.text
+          : text // ignore: cast_nullable_to_non_nullable
+              as String,
+    ));
   }
 }
 
 /// @nodoc
 @JsonSerializable()
 class _$ListenMessageImpl implements _ListenMessage {
-  const _$ListenMessageImpl({
-    this.type = MessageType.listen,
-    this.mode = 'manual',
-    this.state = 'detect',
-    required this.text,
-  });
+  const _$ListenMessageImpl(
+      {this.type = MessageType.listen,
+      this.mode = 'manual',
+      this.state = 'detect',
+      required this.text});
 
   factory _$ListenMessageImpl.fromJson(Map<String, dynamic> json) =>
       _$$ListenMessageImplFromJson(json);
@@ -2586,17 +2394,18 @@ class _$ListenMessageImpl implements _ListenMessage {
 
   @override
   Map<String, dynamic> toJson() {
-    return _$$ListenMessageImplToJson(this);
+    return _$$ListenMessageImplToJson(
+      this,
+    );
   }
 }
 
 abstract class _ListenMessage implements ListenMessage {
-  const factory _ListenMessage({
-    final MessageType type,
-    final String mode,
-    final String state,
-    required final String text,
-  }) = _$ListenMessageImpl;
+  const factory _ListenMessage(
+      {final MessageType type,
+      final String mode,
+      final String state,
+      required final String text}) = _$ListenMessageImpl;
 
   factory _ListenMessage.fromJson(Map<String, dynamic> json) =
       _$ListenMessageImpl.fromJson;
@@ -2654,15 +2463,13 @@ mixin _$SttMessage {
 /// @nodoc
 abstract class $SttMessageCopyWith<$Res> {
   factory $SttMessageCopyWith(
-    SttMessage value,
-    $Res Function(SttMessage) then,
-  ) = _$SttMessageCopyWithImpl<$Res, SttMessage>;
+          SttMessage value, $Res Function(SttMessage) then) =
+      _$SttMessageCopyWithImpl<$Res, SttMessage>;
   @useResult
-  $Res call({
-    MessageType type,
-    @JsonKey(name: 'session_id') String sessionId,
-    String text,
-  });
+  $Res call(
+      {MessageType type,
+      @JsonKey(name: 'session_id') String sessionId,
+      String text});
 }
 
 /// @nodoc
@@ -2684,26 +2491,20 @@ class _$SttMessageCopyWithImpl<$Res, $Val extends SttMessage>
     Object? sessionId = null,
     Object? text = null,
   }) {
-    return _then(
-      _value.copyWith(
-            type:
-                null == type
-                    ? _value.type
-                    : type // ignore: cast_nullable_to_non_nullable
-                        as MessageType,
-            sessionId:
-                null == sessionId
-                    ? _value.sessionId
-                    : sessionId // ignore: cast_nullable_to_non_nullable
-                        as String,
-            text:
-                null == text
-                    ? _value.text
-                    : text // ignore: cast_nullable_to_non_nullable
-                        as String,
-          )
-          as $Val,
-    );
+    return _then(_value.copyWith(
+      type: null == type
+          ? _value.type
+          : type // ignore: cast_nullable_to_non_nullable
+              as MessageType,
+      sessionId: null == sessionId
+          ? _value.sessionId
+          : sessionId // ignore: cast_nullable_to_non_nullable
+              as String,
+      text: null == text
+          ? _value.text
+          : text // ignore: cast_nullable_to_non_nullable
+              as String,
+    ) as $Val);
   }
 }
 
@@ -2711,16 +2512,14 @@ class _$SttMessageCopyWithImpl<$Res, $Val extends SttMessage>
 abstract class _$$SttMessageImplCopyWith<$Res>
     implements $SttMessageCopyWith<$Res> {
   factory _$$SttMessageImplCopyWith(
-    _$SttMessageImpl value,
-    $Res Function(_$SttMessageImpl) then,
-  ) = __$$SttMessageImplCopyWithImpl<$Res>;
+          _$SttMessageImpl value, $Res Function(_$SttMessageImpl) then) =
+      __$$SttMessageImplCopyWithImpl<$Res>;
   @override
   @useResult
-  $Res call({
-    MessageType type,
-    @JsonKey(name: 'session_id') String sessionId,
-    String text,
-  });
+  $Res call(
+      {MessageType type,
+      @JsonKey(name: 'session_id') String sessionId,
+      String text});
 }
 
 /// @nodoc
@@ -2728,9 +2527,8 @@ class __$$SttMessageImplCopyWithImpl<$Res>
     extends _$SttMessageCopyWithImpl<$Res, _$SttMessageImpl>
     implements _$$SttMessageImplCopyWith<$Res> {
   __$$SttMessageImplCopyWithImpl(
-    _$SttMessageImpl _value,
-    $Res Function(_$SttMessageImpl) _then,
-  ) : super(_value, _then);
+      _$SttMessageImpl _value, $Res Function(_$SttMessageImpl) _then)
+      : super(_value, _then);
 
   /// Create a copy of SttMessage
   /// with the given fields replaced by the non-null parameter values.
@@ -2741,36 +2539,30 @@ class __$$SttMessageImplCopyWithImpl<$Res>
     Object? sessionId = null,
     Object? text = null,
   }) {
-    return _then(
-      _$SttMessageImpl(
-        type:
-            null == type
-                ? _value.type
-                : type // ignore: cast_nullable_to_non_nullable
-                    as MessageType,
-        sessionId:
-            null == sessionId
-                ? _value.sessionId
-                : sessionId // ignore: cast_nullable_to_non_nullable
-                    as String,
-        text:
-            null == text
-                ? _value.text
-                : text // ignore: cast_nullable_to_non_nullable
-                    as String,
-      ),
-    );
+    return _then(_$SttMessageImpl(
+      type: null == type
+          ? _value.type
+          : type // ignore: cast_nullable_to_non_nullable
+              as MessageType,
+      sessionId: null == sessionId
+          ? _value.sessionId
+          : sessionId // ignore: cast_nullable_to_non_nullable
+              as String,
+      text: null == text
+          ? _value.text
+          : text // ignore: cast_nullable_to_non_nullable
+              as String,
+    ));
   }
 }
 
 /// @nodoc
 @JsonSerializable()
 class _$SttMessageImpl implements _SttMessage {
-  const _$SttMessageImpl({
-    this.type = MessageType.stt,
-    @JsonKey(name: 'session_id') required this.sessionId,
-    required this.text,
-  });
+  const _$SttMessageImpl(
+      {this.type = MessageType.stt,
+      @JsonKey(name: 'session_id') required this.sessionId,
+      required this.text});
 
   factory _$SttMessageImpl.fromJson(Map<String, dynamic> json) =>
       _$$SttMessageImplFromJson(json);
@@ -2819,16 +2611,17 @@ class _$SttMessageImpl implements _SttMessage {
 
   @override
   Map<String, dynamic> toJson() {
-    return _$$SttMessageImplToJson(this);
+    return _$$SttMessageImplToJson(
+      this,
+    );
   }
 }
 
 abstract class _SttMessage implements SttMessage {
-  const factory _SttMessage({
-    final MessageType type,
-    @JsonKey(name: 'session_id') required final String sessionId,
-    required final String text,
-  }) = _$SttMessageImpl;
+  const factory _SttMessage(
+      {final MessageType type,
+      @JsonKey(name: 'session_id') required final String sessionId,
+      required final String text}) = _$SttMessageImpl;
 
   factory _SttMessage.fromJson(Map<String, dynamic> json) =
       _$SttMessageImpl.fromJson;
@@ -2893,18 +2686,16 @@ mixin _$TtsMessage {
 /// @nodoc
 abstract class $TtsMessageCopyWith<$Res> {
   factory $TtsMessageCopyWith(
-    TtsMessage value,
-    $Res Function(TtsMessage) then,
-  ) = _$TtsMessageCopyWithImpl<$Res, TtsMessage>;
+          TtsMessage value, $Res Function(TtsMessage) then) =
+      _$TtsMessageCopyWithImpl<$Res, TtsMessage>;
   @useResult
-  $Res call({
-    MessageType type,
-    @JsonKey(name: 'session_id') String sessionId,
-    @JsonKey(name: 'audio_codec') String? audioCodec,
-    int? index,
-    String? state,
-    String? text,
-  });
+  $Res call(
+      {MessageType type,
+      @JsonKey(name: 'session_id') String sessionId,
+      @JsonKey(name: 'audio_codec') String? audioCodec,
+      int? index,
+      String? state,
+      String? text});
 }
 
 /// @nodoc
@@ -2929,41 +2720,32 @@ class _$TtsMessageCopyWithImpl<$Res, $Val extends TtsMessage>
     Object? state = freezed,
     Object? text = freezed,
   }) {
-    return _then(
-      _value.copyWith(
-            type:
-                null == type
-                    ? _value.type
-                    : type // ignore: cast_nullable_to_non_nullable
-                        as MessageType,
-            sessionId:
-                null == sessionId
-                    ? _value.sessionId
-                    : sessionId // ignore: cast_nullable_to_non_nullable
-                        as String,
-            audioCodec:
-                freezed == audioCodec
-                    ? _value.audioCodec
-                    : audioCodec // ignore: cast_nullable_to_non_nullable
-                        as String?,
-            index:
-                freezed == index
-                    ? _value.index
-                    : index // ignore: cast_nullable_to_non_nullable
-                        as int?,
-            state:
-                freezed == state
-                    ? _value.state
-                    : state // ignore: cast_nullable_to_non_nullable
-                        as String?,
-            text:
-                freezed == text
-                    ? _value.text
-                    : text // ignore: cast_nullable_to_non_nullable
-                        as String?,
-          )
-          as $Val,
-    );
+    return _then(_value.copyWith(
+      type: null == type
+          ? _value.type
+          : type // ignore: cast_nullable_to_non_nullable
+              as MessageType,
+      sessionId: null == sessionId
+          ? _value.sessionId
+          : sessionId // ignore: cast_nullable_to_non_nullable
+              as String,
+      audioCodec: freezed == audioCodec
+          ? _value.audioCodec
+          : audioCodec // ignore: cast_nullable_to_non_nullable
+              as String?,
+      index: freezed == index
+          ? _value.index
+          : index // ignore: cast_nullable_to_non_nullable
+              as int?,
+      state: freezed == state
+          ? _value.state
+          : state // ignore: cast_nullable_to_non_nullable
+              as String?,
+      text: freezed == text
+          ? _value.text
+          : text // ignore: cast_nullable_to_non_nullable
+              as String?,
+    ) as $Val);
   }
 }
 
@@ -2971,19 +2753,17 @@ class _$TtsMessageCopyWithImpl<$Res, $Val extends TtsMessage>
 abstract class _$$TtsMessageImplCopyWith<$Res>
     implements $TtsMessageCopyWith<$Res> {
   factory _$$TtsMessageImplCopyWith(
-    _$TtsMessageImpl value,
-    $Res Function(_$TtsMessageImpl) then,
-  ) = __$$TtsMessageImplCopyWithImpl<$Res>;
+          _$TtsMessageImpl value, $Res Function(_$TtsMessageImpl) then) =
+      __$$TtsMessageImplCopyWithImpl<$Res>;
   @override
   @useResult
-  $Res call({
-    MessageType type,
-    @JsonKey(name: 'session_id') String sessionId,
-    @JsonKey(name: 'audio_codec') String? audioCodec,
-    int? index,
-    String? state,
-    String? text,
-  });
+  $Res call(
+      {MessageType type,
+      @JsonKey(name: 'session_id') String sessionId,
+      @JsonKey(name: 'audio_codec') String? audioCodec,
+      int? index,
+      String? state,
+      String? text});
 }
 
 /// @nodoc
@@ -2991,9 +2771,8 @@ class __$$TtsMessageImplCopyWithImpl<$Res>
     extends _$TtsMessageCopyWithImpl<$Res, _$TtsMessageImpl>
     implements _$$TtsMessageImplCopyWith<$Res> {
   __$$TtsMessageImplCopyWithImpl(
-    _$TtsMessageImpl _value,
-    $Res Function(_$TtsMessageImpl) _then,
-  ) : super(_value, _then);
+      _$TtsMessageImpl _value, $Res Function(_$TtsMessageImpl) _then)
+      : super(_value, _then);
 
   /// Create a copy of TtsMessage
   /// with the given fields replaced by the non-null parameter values.
@@ -3007,54 +2786,45 @@ class __$$TtsMessageImplCopyWithImpl<$Res>
     Object? state = freezed,
     Object? text = freezed,
   }) {
-    return _then(
-      _$TtsMessageImpl(
-        type:
-            null == type
-                ? _value.type
-                : type // ignore: cast_nullable_to_non_nullable
-                    as MessageType,
-        sessionId:
-            null == sessionId
-                ? _value.sessionId
-                : sessionId // ignore: cast_nullable_to_non_nullable
-                    as String,
-        audioCodec:
-            freezed == audioCodec
-                ? _value.audioCodec
-                : audioCodec // ignore: cast_nullable_to_non_nullable
-                    as String?,
-        index:
-            freezed == index
-                ? _value.index
-                : index // ignore: cast_nullable_to_non_nullable
-                    as int?,
-        state:
-            freezed == state
-                ? _value.state
-                : state // ignore: cast_nullable_to_non_nullable
-                    as String?,
-        text:
-            freezed == text
-                ? _value.text
-                : text // ignore: cast_nullable_to_non_nullable
-                    as String?,
-      ),
-    );
+    return _then(_$TtsMessageImpl(
+      type: null == type
+          ? _value.type
+          : type // ignore: cast_nullable_to_non_nullable
+              as MessageType,
+      sessionId: null == sessionId
+          ? _value.sessionId
+          : sessionId // ignore: cast_nullable_to_non_nullable
+              as String,
+      audioCodec: freezed == audioCodec
+          ? _value.audioCodec
+          : audioCodec // ignore: cast_nullable_to_non_nullable
+              as String?,
+      index: freezed == index
+          ? _value.index
+          : index // ignore: cast_nullable_to_non_nullable
+              as int?,
+      state: freezed == state
+          ? _value.state
+          : state // ignore: cast_nullable_to_non_nullable
+              as String?,
+      text: freezed == text
+          ? _value.text
+          : text // ignore: cast_nullable_to_non_nullable
+              as String?,
+    ));
   }
 }
 
 /// @nodoc
 @JsonSerializable()
 class _$TtsMessageImpl implements _TtsMessage {
-  const _$TtsMessageImpl({
-    this.type = MessageType.tts,
-    @JsonKey(name: 'session_id') required this.sessionId,
-    @JsonKey(name: 'audio_codec') this.audioCodec,
-    this.index,
-    this.state,
-    this.text,
-  });
+  const _$TtsMessageImpl(
+      {this.type = MessageType.tts,
+      @JsonKey(name: 'session_id') required this.sessionId,
+      @JsonKey(name: 'audio_codec') this.audioCodec,
+      this.index,
+      this.state,
+      this.text});
 
   factory _$TtsMessageImpl.fromJson(Map<String, dynamic> json) =>
       _$$TtsMessageImplFromJson(json);
@@ -3121,19 +2891,20 @@ class _$TtsMessageImpl implements _TtsMessage {
 
   @override
   Map<String, dynamic> toJson() {
-    return _$$TtsMessageImplToJson(this);
+    return _$$TtsMessageImplToJson(
+      this,
+    );
   }
 }
 
 abstract class _TtsMessage implements TtsMessage {
-  const factory _TtsMessage({
-    final MessageType type,
-    @JsonKey(name: 'session_id') required final String sessionId,
-    @JsonKey(name: 'audio_codec') final String? audioCodec,
-    final int? index,
-    final String? state,
-    final String? text,
-  }) = _$TtsMessageImpl;
+  const factory _TtsMessage(
+      {final MessageType type,
+      @JsonKey(name: 'session_id') required final String sessionId,
+      @JsonKey(name: 'audio_codec') final String? audioCodec,
+      final int? index,
+      final String? state,
+      final String? text}) = _$TtsMessageImpl;
 
   factory _TtsMessage.fromJson(Map<String, dynamic> json) =
       _$TtsMessageImpl.fromJson;
@@ -3204,16 +2975,14 @@ mixin _$LlmMessage {
 /// @nodoc
 abstract class $LlmMessageCopyWith<$Res> {
   factory $LlmMessageCopyWith(
-    LlmMessage value,
-    $Res Function(LlmMessage) then,
-  ) = _$LlmMessageCopyWithImpl<$Res, LlmMessage>;
+          LlmMessage value, $Res Function(LlmMessage) then) =
+      _$LlmMessageCopyWithImpl<$Res, LlmMessage>;
   @useResult
-  $Res call({
-    MessageType type,
-    @JsonKey(name: 'session_id') String sessionId,
-    String? emotion,
-    String text,
-  });
+  $Res call(
+      {MessageType type,
+      @JsonKey(name: 'session_id') String sessionId,
+      String? emotion,
+      String text});
 }
 
 /// @nodoc
@@ -3236,31 +3005,24 @@ class _$LlmMessageCopyWithImpl<$Res, $Val extends LlmMessage>
     Object? emotion = freezed,
     Object? text = null,
   }) {
-    return _then(
-      _value.copyWith(
-            type:
-                null == type
-                    ? _value.type
-                    : type // ignore: cast_nullable_to_non_nullable
-                        as MessageType,
-            sessionId:
-                null == sessionId
-                    ? _value.sessionId
-                    : sessionId // ignore: cast_nullable_to_non_nullable
-                        as String,
-            emotion:
-                freezed == emotion
-                    ? _value.emotion
-                    : emotion // ignore: cast_nullable_to_non_nullable
-                        as String?,
-            text:
-                null == text
-                    ? _value.text
-                    : text // ignore: cast_nullable_to_non_nullable
-                        as String,
-          )
-          as $Val,
-    );
+    return _then(_value.copyWith(
+      type: null == type
+          ? _value.type
+          : type // ignore: cast_nullable_to_non_nullable
+              as MessageType,
+      sessionId: null == sessionId
+          ? _value.sessionId
+          : sessionId // ignore: cast_nullable_to_non_nullable
+              as String,
+      emotion: freezed == emotion
+          ? _value.emotion
+          : emotion // ignore: cast_nullable_to_non_nullable
+              as String?,
+      text: null == text
+          ? _value.text
+          : text // ignore: cast_nullable_to_non_nullable
+              as String,
+    ) as $Val);
   }
 }
 
@@ -3268,17 +3030,15 @@ class _$LlmMessageCopyWithImpl<$Res, $Val extends LlmMessage>
 abstract class _$$LlmMessageImplCopyWith<$Res>
     implements $LlmMessageCopyWith<$Res> {
   factory _$$LlmMessageImplCopyWith(
-    _$LlmMessageImpl value,
-    $Res Function(_$LlmMessageImpl) then,
-  ) = __$$LlmMessageImplCopyWithImpl<$Res>;
+          _$LlmMessageImpl value, $Res Function(_$LlmMessageImpl) then) =
+      __$$LlmMessageImplCopyWithImpl<$Res>;
   @override
   @useResult
-  $Res call({
-    MessageType type,
-    @JsonKey(name: 'session_id') String sessionId,
-    String? emotion,
-    String text,
-  });
+  $Res call(
+      {MessageType type,
+      @JsonKey(name: 'session_id') String sessionId,
+      String? emotion,
+      String text});
 }
 
 /// @nodoc
@@ -3286,9 +3046,8 @@ class __$$LlmMessageImplCopyWithImpl<$Res>
     extends _$LlmMessageCopyWithImpl<$Res, _$LlmMessageImpl>
     implements _$$LlmMessageImplCopyWith<$Res> {
   __$$LlmMessageImplCopyWithImpl(
-    _$LlmMessageImpl _value,
-    $Res Function(_$LlmMessageImpl) _then,
-  ) : super(_value, _then);
+      _$LlmMessageImpl _value, $Res Function(_$LlmMessageImpl) _then)
+      : super(_value, _then);
 
   /// Create a copy of LlmMessage
   /// with the given fields replaced by the non-null parameter values.
@@ -3300,42 +3059,35 @@ class __$$LlmMessageImplCopyWithImpl<$Res>
     Object? emotion = freezed,
     Object? text = null,
   }) {
-    return _then(
-      _$LlmMessageImpl(
-        type:
-            null == type
-                ? _value.type
-                : type // ignore: cast_nullable_to_non_nullable
-                    as MessageType,
-        sessionId:
-            null == sessionId
-                ? _value.sessionId
-                : sessionId // ignore: cast_nullable_to_non_nullable
-                    as String,
-        emotion:
-            freezed == emotion
-                ? _value.emotion
-                : emotion // ignore: cast_nullable_to_non_nullable
-                    as String?,
-        text:
-            null == text
-                ? _value.text
-                : text // ignore: cast_nullable_to_non_nullable
-                    as String,
-      ),
-    );
+    return _then(_$LlmMessageImpl(
+      type: null == type
+          ? _value.type
+          : type // ignore: cast_nullable_to_non_nullable
+              as MessageType,
+      sessionId: null == sessionId
+          ? _value.sessionId
+          : sessionId // ignore: cast_nullable_to_non_nullable
+              as String,
+      emotion: freezed == emotion
+          ? _value.emotion
+          : emotion // ignore: cast_nullable_to_non_nullable
+              as String?,
+      text: null == text
+          ? _value.text
+          : text // ignore: cast_nullable_to_non_nullable
+              as String,
+    ));
   }
 }
 
 /// @nodoc
 @JsonSerializable()
 class _$LlmMessageImpl implements _LlmMessage {
-  const _$LlmMessageImpl({
-    this.type = MessageType.llm,
-    @JsonKey(name: 'session_id') required this.sessionId,
-    this.emotion,
-    required this.text,
-  });
+  const _$LlmMessageImpl(
+      {this.type = MessageType.llm,
+      @JsonKey(name: 'session_id') required this.sessionId,
+      this.emotion,
+      required this.text});
 
   factory _$LlmMessageImpl.fromJson(Map<String, dynamic> json) =>
       _$$LlmMessageImplFromJson(json);
@@ -3389,17 +3141,18 @@ class _$LlmMessageImpl implements _LlmMessage {
 
   @override
   Map<String, dynamic> toJson() {
-    return _$$LlmMessageImplToJson(this);
+    return _$$LlmMessageImplToJson(
+      this,
+    );
   }
 }
 
 abstract class _LlmMessage implements LlmMessage {
-  const factory _LlmMessage({
-    final MessageType type,
-    @JsonKey(name: 'session_id') required final String sessionId,
-    final String? emotion,
-    required final String text,
-  }) = _$LlmMessageImpl;
+  const factory _LlmMessage(
+      {final MessageType type,
+      @JsonKey(name: 'session_id') required final String sessionId,
+      final String? emotion,
+      required final String text}) = _$LlmMessageImpl;
 
   factory _LlmMessage.fromJson(Map<String, dynamic> json) =
       _$LlmMessageImpl.fromJson;

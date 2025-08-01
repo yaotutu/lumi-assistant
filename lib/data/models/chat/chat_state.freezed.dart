@@ -12,8 +12,7 @@ part of 'chat_state.dart';
 T _$identity<T>(T value) => value;
 
 final _privateConstructorUsedError = UnsupportedError(
-  'It seems like you constructed your class using `MyClass._()`. This constructor is only meant to be used by freezed and you are not supposed to need it nor use it.\nPlease check the documentation here for more information: https://github.com/rrousselGit/freezed#adding-getters-and-methods-to-our-models',
-);
+    'It seems like you constructed your class using `MyClass._()`. This constructor is only meant to be used by freezed and you are not supposed to need it nor use it.\nPlease check the documentation here for more information: https://github.com/rrousselGit/freezed#adding-getters-and-methods-to-our-models');
 
 /// @nodoc
 mixin _$ChatState {
@@ -66,17 +65,16 @@ abstract class $ChatStateCopyWith<$Res> {
   factory $ChatStateCopyWith(ChatState value, $Res Function(ChatState) then) =
       _$ChatStateCopyWithImpl<$Res, ChatState>;
   @useResult
-  $Res call({
-    List<ChatUIMessage> messages,
-    bool isSending,
-    bool isReceiving,
-    String? error,
-    String? sessionId,
-    DateTime? lastActivityTime,
-    bool canSendMessage,
-    int unreadCount,
-    Map<String, dynamic> sessionMetadata,
-  });
+  $Res call(
+      {List<ChatUIMessage> messages,
+      bool isSending,
+      bool isReceiving,
+      String? error,
+      String? sessionId,
+      DateTime? lastActivityTime,
+      bool canSendMessage,
+      int unreadCount,
+      Map<String, dynamic> sessionMetadata});
 }
 
 /// @nodoc
@@ -104,56 +102,44 @@ class _$ChatStateCopyWithImpl<$Res, $Val extends ChatState>
     Object? unreadCount = null,
     Object? sessionMetadata = null,
   }) {
-    return _then(
-      _value.copyWith(
-            messages:
-                null == messages
-                    ? _value.messages
-                    : messages // ignore: cast_nullable_to_non_nullable
-                        as List<ChatUIMessage>,
-            isSending:
-                null == isSending
-                    ? _value.isSending
-                    : isSending // ignore: cast_nullable_to_non_nullable
-                        as bool,
-            isReceiving:
-                null == isReceiving
-                    ? _value.isReceiving
-                    : isReceiving // ignore: cast_nullable_to_non_nullable
-                        as bool,
-            error:
-                freezed == error
-                    ? _value.error
-                    : error // ignore: cast_nullable_to_non_nullable
-                        as String?,
-            sessionId:
-                freezed == sessionId
-                    ? _value.sessionId
-                    : sessionId // ignore: cast_nullable_to_non_nullable
-                        as String?,
-            lastActivityTime:
-                freezed == lastActivityTime
-                    ? _value.lastActivityTime
-                    : lastActivityTime // ignore: cast_nullable_to_non_nullable
-                        as DateTime?,
-            canSendMessage:
-                null == canSendMessage
-                    ? _value.canSendMessage
-                    : canSendMessage // ignore: cast_nullable_to_non_nullable
-                        as bool,
-            unreadCount:
-                null == unreadCount
-                    ? _value.unreadCount
-                    : unreadCount // ignore: cast_nullable_to_non_nullable
-                        as int,
-            sessionMetadata:
-                null == sessionMetadata
-                    ? _value.sessionMetadata
-                    : sessionMetadata // ignore: cast_nullable_to_non_nullable
-                        as Map<String, dynamic>,
-          )
-          as $Val,
-    );
+    return _then(_value.copyWith(
+      messages: null == messages
+          ? _value.messages
+          : messages // ignore: cast_nullable_to_non_nullable
+              as List<ChatUIMessage>,
+      isSending: null == isSending
+          ? _value.isSending
+          : isSending // ignore: cast_nullable_to_non_nullable
+              as bool,
+      isReceiving: null == isReceiving
+          ? _value.isReceiving
+          : isReceiving // ignore: cast_nullable_to_non_nullable
+              as bool,
+      error: freezed == error
+          ? _value.error
+          : error // ignore: cast_nullable_to_non_nullable
+              as String?,
+      sessionId: freezed == sessionId
+          ? _value.sessionId
+          : sessionId // ignore: cast_nullable_to_non_nullable
+              as String?,
+      lastActivityTime: freezed == lastActivityTime
+          ? _value.lastActivityTime
+          : lastActivityTime // ignore: cast_nullable_to_non_nullable
+              as DateTime?,
+      canSendMessage: null == canSendMessage
+          ? _value.canSendMessage
+          : canSendMessage // ignore: cast_nullable_to_non_nullable
+              as bool,
+      unreadCount: null == unreadCount
+          ? _value.unreadCount
+          : unreadCount // ignore: cast_nullable_to_non_nullable
+              as int,
+      sessionMetadata: null == sessionMetadata
+          ? _value.sessionMetadata
+          : sessionMetadata // ignore: cast_nullable_to_non_nullable
+              as Map<String, dynamic>,
+    ) as $Val);
   }
 }
 
@@ -161,22 +147,20 @@ class _$ChatStateCopyWithImpl<$Res, $Val extends ChatState>
 abstract class _$$ChatStateImplCopyWith<$Res>
     implements $ChatStateCopyWith<$Res> {
   factory _$$ChatStateImplCopyWith(
-    _$ChatStateImpl value,
-    $Res Function(_$ChatStateImpl) then,
-  ) = __$$ChatStateImplCopyWithImpl<$Res>;
+          _$ChatStateImpl value, $Res Function(_$ChatStateImpl) then) =
+      __$$ChatStateImplCopyWithImpl<$Res>;
   @override
   @useResult
-  $Res call({
-    List<ChatUIMessage> messages,
-    bool isSending,
-    bool isReceiving,
-    String? error,
-    String? sessionId,
-    DateTime? lastActivityTime,
-    bool canSendMessage,
-    int unreadCount,
-    Map<String, dynamic> sessionMetadata,
-  });
+  $Res call(
+      {List<ChatUIMessage> messages,
+      bool isSending,
+      bool isReceiving,
+      String? error,
+      String? sessionId,
+      DateTime? lastActivityTime,
+      bool canSendMessage,
+      int unreadCount,
+      Map<String, dynamic> sessionMetadata});
 }
 
 /// @nodoc
@@ -184,9 +168,8 @@ class __$$ChatStateImplCopyWithImpl<$Res>
     extends _$ChatStateCopyWithImpl<$Res, _$ChatStateImpl>
     implements _$$ChatStateImplCopyWith<$Res> {
   __$$ChatStateImplCopyWithImpl(
-    _$ChatStateImpl _value,
-    $Res Function(_$ChatStateImpl) _then,
-  ) : super(_value, _then);
+      _$ChatStateImpl _value, $Res Function(_$ChatStateImpl) _then)
+      : super(_value, _then);
 
   /// Create a copy of ChatState
   /// with the given fields replaced by the non-null parameter values.
@@ -203,73 +186,62 @@ class __$$ChatStateImplCopyWithImpl<$Res>
     Object? unreadCount = null,
     Object? sessionMetadata = null,
   }) {
-    return _then(
-      _$ChatStateImpl(
-        messages:
-            null == messages
-                ? _value._messages
-                : messages // ignore: cast_nullable_to_non_nullable
-                    as List<ChatUIMessage>,
-        isSending:
-            null == isSending
-                ? _value.isSending
-                : isSending // ignore: cast_nullable_to_non_nullable
-                    as bool,
-        isReceiving:
-            null == isReceiving
-                ? _value.isReceiving
-                : isReceiving // ignore: cast_nullable_to_non_nullable
-                    as bool,
-        error:
-            freezed == error
-                ? _value.error
-                : error // ignore: cast_nullable_to_non_nullable
-                    as String?,
-        sessionId:
-            freezed == sessionId
-                ? _value.sessionId
-                : sessionId // ignore: cast_nullable_to_non_nullable
-                    as String?,
-        lastActivityTime:
-            freezed == lastActivityTime
-                ? _value.lastActivityTime
-                : lastActivityTime // ignore: cast_nullable_to_non_nullable
-                    as DateTime?,
-        canSendMessage:
-            null == canSendMessage
-                ? _value.canSendMessage
-                : canSendMessage // ignore: cast_nullable_to_non_nullable
-                    as bool,
-        unreadCount:
-            null == unreadCount
-                ? _value.unreadCount
-                : unreadCount // ignore: cast_nullable_to_non_nullable
-                    as int,
-        sessionMetadata:
-            null == sessionMetadata
-                ? _value._sessionMetadata
-                : sessionMetadata // ignore: cast_nullable_to_non_nullable
-                    as Map<String, dynamic>,
-      ),
-    );
+    return _then(_$ChatStateImpl(
+      messages: null == messages
+          ? _value._messages
+          : messages // ignore: cast_nullable_to_non_nullable
+              as List<ChatUIMessage>,
+      isSending: null == isSending
+          ? _value.isSending
+          : isSending // ignore: cast_nullable_to_non_nullable
+              as bool,
+      isReceiving: null == isReceiving
+          ? _value.isReceiving
+          : isReceiving // ignore: cast_nullable_to_non_nullable
+              as bool,
+      error: freezed == error
+          ? _value.error
+          : error // ignore: cast_nullable_to_non_nullable
+              as String?,
+      sessionId: freezed == sessionId
+          ? _value.sessionId
+          : sessionId // ignore: cast_nullable_to_non_nullable
+              as String?,
+      lastActivityTime: freezed == lastActivityTime
+          ? _value.lastActivityTime
+          : lastActivityTime // ignore: cast_nullable_to_non_nullable
+              as DateTime?,
+      canSendMessage: null == canSendMessage
+          ? _value.canSendMessage
+          : canSendMessage // ignore: cast_nullable_to_non_nullable
+              as bool,
+      unreadCount: null == unreadCount
+          ? _value.unreadCount
+          : unreadCount // ignore: cast_nullable_to_non_nullable
+              as int,
+      sessionMetadata: null == sessionMetadata
+          ? _value._sessionMetadata
+          : sessionMetadata // ignore: cast_nullable_to_non_nullable
+              as Map<String, dynamic>,
+    ));
   }
 }
 
 /// @nodoc
 
 class _$ChatStateImpl implements _ChatState {
-  const _$ChatStateImpl({
-    final List<ChatUIMessage> messages = const [],
-    this.isSending = false,
-    this.isReceiving = false,
-    this.error,
-    this.sessionId,
-    this.lastActivityTime,
-    this.canSendMessage = true,
-    this.unreadCount = 0,
-    final Map<String, dynamic> sessionMetadata = const {},
-  }) : _messages = messages,
-       _sessionMetadata = sessionMetadata;
+  const _$ChatStateImpl(
+      {final List<ChatUIMessage> messages = const [],
+      this.isSending = false,
+      this.isReceiving = false,
+      this.error,
+      this.sessionId,
+      this.lastActivityTime,
+      this.canSendMessage = true,
+      this.unreadCount = 0,
+      final Map<String, dynamic> sessionMetadata = const {}})
+      : _messages = messages,
+        _sessionMetadata = sessionMetadata;
 
   /// 聊天消息列表
   /// 按时间顺序排列，最新消息在最后
@@ -362,25 +334,22 @@ class _$ChatStateImpl implements _ChatState {
                 other.canSendMessage == canSendMessage) &&
             (identical(other.unreadCount, unreadCount) ||
                 other.unreadCount == unreadCount) &&
-            const DeepCollectionEquality().equals(
-              other._sessionMetadata,
-              _sessionMetadata,
-            ));
+            const DeepCollectionEquality()
+                .equals(other._sessionMetadata, _sessionMetadata));
   }
 
   @override
   int get hashCode => Object.hash(
-    runtimeType,
-    const DeepCollectionEquality().hash(_messages),
-    isSending,
-    isReceiving,
-    error,
-    sessionId,
-    lastActivityTime,
-    canSendMessage,
-    unreadCount,
-    const DeepCollectionEquality().hash(_sessionMetadata),
-  );
+      runtimeType,
+      const DeepCollectionEquality().hash(_messages),
+      isSending,
+      isReceiving,
+      error,
+      sessionId,
+      lastActivityTime,
+      canSendMessage,
+      unreadCount,
+      const DeepCollectionEquality().hash(_sessionMetadata));
 
   /// Create a copy of ChatState
   /// with the given fields replaced by the non-null parameter values.
@@ -392,17 +361,16 @@ class _$ChatStateImpl implements _ChatState {
 }
 
 abstract class _ChatState implements ChatState {
-  const factory _ChatState({
-    final List<ChatUIMessage> messages,
-    final bool isSending,
-    final bool isReceiving,
-    final String? error,
-    final String? sessionId,
-    final DateTime? lastActivityTime,
-    final bool canSendMessage,
-    final int unreadCount,
-    final Map<String, dynamic> sessionMetadata,
-  }) = _$ChatStateImpl;
+  const factory _ChatState(
+      {final List<ChatUIMessage> messages,
+      final bool isSending,
+      final bool isReceiving,
+      final String? error,
+      final String? sessionId,
+      final DateTime? lastActivityTime,
+      final bool canSendMessage,
+      final int unreadCount,
+      final Map<String, dynamic> sessionMetadata}) = _$ChatStateImpl;
 
   /// 聊天消息列表
   /// 按时间顺序排列，最新消息在最后

@@ -11,8 +11,7 @@ _$ChatUIMessageImpl _$$ChatUIMessageImplFromJson(Map<String, dynamic> json) =>
       id: json['id'] as String,
       content: json['content'] as String,
       sender: $enumDecode(_$ChatSenderEnumMap, json['sender']),
-      status:
-          $enumDecodeNullable(_$ChatMessageStatusEnumMap, json['status']) ??
+      status: $enumDecodeNullable(_$ChatMessageStatusEnumMap, json['status']) ??
           ChatMessageStatus.sent,
       timestamp: DateTime.parse(json['timestamp'] as String),
       isTemporary: json['isTemporary'] as bool? ?? false,

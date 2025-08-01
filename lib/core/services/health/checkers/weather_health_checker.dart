@@ -3,6 +3,8 @@ import '../../../utils/app_logger.dart';
 import '../../../../domain/entities/weather.dart';
 import '../../../../domain/repositories/weather_repository.dart';
 import '../../../../presentation/providers/weather_provider.dart';
+import '../../../../data/repositories/qweather_repository.dart';
+import '../../../../data/models/weather_warning.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 
 /// 天气服务健康检查器
@@ -84,6 +86,29 @@ class WeatherHealthChecker implements IServiceHealthChecker {
       try {
         final weather = await repository.getCurrentWeather(config.defaultLocation);
         
+        // 检查预警信息（仅和风天气支持）
+        Map<String, String> warningInfo = {};
+        if (repository is QWeatherRepository) {
+          try {
+            final warnings = await repository.getWeatherWarnings(config.defaultLocation);
+            if (warnings.isNotEmpty) {
+              // 找出最高级别的预警
+              final highestWarning = warnings.reduce((a, b) {
+                final aLevel = WarningSeverity.fromString(a.severity).level;
+                final bLevel = WarningSeverity.fromString(b.severity).level;
+                return aLevel >= bLevel ? a : b;
+              });
+              
+              warningInfo['预警信息'] = '${warnings.length}条预警';
+              warningInfo['最高级别'] = '${WarningSeverity.fromString(highestWarning.severity).chinese}预警';
+              warningInfo['预警标题'] = highestWarning.title;
+            }
+          } catch (e) {
+            AppLogger.getLogger('Health').warning('⚠️ 获取天气预警失败: $e');
+            // 预警获取失败不影响主健康状态
+          }
+        }
+        
         return ServiceHealthResult(
           serviceName: serviceName,
           description: description,
@@ -95,6 +120,7 @@ class WeatherHealthChecker implements IServiceHealthChecker {
             '温度': '${weather.temperature}°C',
             '天气': weather.description,
             '数据时间': weather.observationTime.toString(),
+            ...warningInfo,
           },
         );
       } catch (e) {

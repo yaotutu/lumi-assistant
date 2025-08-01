@@ -12,8 +12,7 @@ part of 'websocket_state.dart';
 T _$identity<T>(T value) => value;
 
 final _privateConstructorUsedError = UnsupportedError(
-  'It seems like you constructed your class using `MyClass._()`. This constructor is only meant to be used by freezed and you are not supposed to need it nor use it.\nPlease check the documentation here for more information: https://github.com/rrousselGit/freezed#adding-getters-and-methods-to-our-models',
-);
+    'It seems like you constructed your class using `MyClass._()`. This constructor is only meant to be used by freezed and you are not supposed to need it nor use it.\nPlease check the documentation here for more information: https://github.com/rrousselGit/freezed#adding-getters-and-methods-to-our-models');
 
 /// @nodoc
 mixin _$WebSocketState {
@@ -95,29 +94,27 @@ mixin _$WebSocketState {
 /// @nodoc
 abstract class $WebSocketStateCopyWith<$Res> {
   factory $WebSocketStateCopyWith(
-    WebSocketState value,
-    $Res Function(WebSocketState) then,
-  ) = _$WebSocketStateCopyWithImpl<$Res, WebSocketState>;
+          WebSocketState value, $Res Function(WebSocketState) then) =
+      _$WebSocketStateCopyWithImpl<$Res, WebSocketState>;
   @useResult
-  $Res call({
-    WebSocketConnectionState connectionState,
-    String? errorMessage,
-    String? errorCode,
-    DateTime? lastConnectedAt,
-    DateTime? disconnectedAt,
-    int reconnectAttempts,
-    int maxReconnectAttempts,
-    DateTime? connectingStartedAt,
-    int? connectionDuration,
-    int messagesSent,
-    int messagesReceived,
-    DateTime? lastHeartbeatAt,
-    int heartbeatInterval,
-    int qualityScore,
-    int averageLatency,
-    String? connectionTag,
-    Map<String, dynamic> metadata,
-  });
+  $Res call(
+      {WebSocketConnectionState connectionState,
+      String? errorMessage,
+      String? errorCode,
+      DateTime? lastConnectedAt,
+      DateTime? disconnectedAt,
+      int reconnectAttempts,
+      int maxReconnectAttempts,
+      DateTime? connectingStartedAt,
+      int? connectionDuration,
+      int messagesSent,
+      int messagesReceived,
+      DateTime? lastHeartbeatAt,
+      int heartbeatInterval,
+      int qualityScore,
+      int averageLatency,
+      String? connectionTag,
+      Map<String, dynamic> metadata});
 }
 
 /// @nodoc
@@ -153,127 +150,105 @@ class _$WebSocketStateCopyWithImpl<$Res, $Val extends WebSocketState>
     Object? connectionTag = freezed,
     Object? metadata = null,
   }) {
-    return _then(
-      _value.copyWith(
-            connectionState:
-                null == connectionState
-                    ? _value.connectionState
-                    : connectionState // ignore: cast_nullable_to_non_nullable
-                        as WebSocketConnectionState,
-            errorMessage:
-                freezed == errorMessage
-                    ? _value.errorMessage
-                    : errorMessage // ignore: cast_nullable_to_non_nullable
-                        as String?,
-            errorCode:
-                freezed == errorCode
-                    ? _value.errorCode
-                    : errorCode // ignore: cast_nullable_to_non_nullable
-                        as String?,
-            lastConnectedAt:
-                freezed == lastConnectedAt
-                    ? _value.lastConnectedAt
-                    : lastConnectedAt // ignore: cast_nullable_to_non_nullable
-                        as DateTime?,
-            disconnectedAt:
-                freezed == disconnectedAt
-                    ? _value.disconnectedAt
-                    : disconnectedAt // ignore: cast_nullable_to_non_nullable
-                        as DateTime?,
-            reconnectAttempts:
-                null == reconnectAttempts
-                    ? _value.reconnectAttempts
-                    : reconnectAttempts // ignore: cast_nullable_to_non_nullable
-                        as int,
-            maxReconnectAttempts:
-                null == maxReconnectAttempts
-                    ? _value.maxReconnectAttempts
-                    : maxReconnectAttempts // ignore: cast_nullable_to_non_nullable
-                        as int,
-            connectingStartedAt:
-                freezed == connectingStartedAt
-                    ? _value.connectingStartedAt
-                    : connectingStartedAt // ignore: cast_nullable_to_non_nullable
-                        as DateTime?,
-            connectionDuration:
-                freezed == connectionDuration
-                    ? _value.connectionDuration
-                    : connectionDuration // ignore: cast_nullable_to_non_nullable
-                        as int?,
-            messagesSent:
-                null == messagesSent
-                    ? _value.messagesSent
-                    : messagesSent // ignore: cast_nullable_to_non_nullable
-                        as int,
-            messagesReceived:
-                null == messagesReceived
-                    ? _value.messagesReceived
-                    : messagesReceived // ignore: cast_nullable_to_non_nullable
-                        as int,
-            lastHeartbeatAt:
-                freezed == lastHeartbeatAt
-                    ? _value.lastHeartbeatAt
-                    : lastHeartbeatAt // ignore: cast_nullable_to_non_nullable
-                        as DateTime?,
-            heartbeatInterval:
-                null == heartbeatInterval
-                    ? _value.heartbeatInterval
-                    : heartbeatInterval // ignore: cast_nullable_to_non_nullable
-                        as int,
-            qualityScore:
-                null == qualityScore
-                    ? _value.qualityScore
-                    : qualityScore // ignore: cast_nullable_to_non_nullable
-                        as int,
-            averageLatency:
-                null == averageLatency
-                    ? _value.averageLatency
-                    : averageLatency // ignore: cast_nullable_to_non_nullable
-                        as int,
-            connectionTag:
-                freezed == connectionTag
-                    ? _value.connectionTag
-                    : connectionTag // ignore: cast_nullable_to_non_nullable
-                        as String?,
-            metadata:
-                null == metadata
-                    ? _value.metadata
-                    : metadata // ignore: cast_nullable_to_non_nullable
-                        as Map<String, dynamic>,
-          )
-          as $Val,
-    );
+    return _then(_value.copyWith(
+      connectionState: null == connectionState
+          ? _value.connectionState
+          : connectionState // ignore: cast_nullable_to_non_nullable
+              as WebSocketConnectionState,
+      errorMessage: freezed == errorMessage
+          ? _value.errorMessage
+          : errorMessage // ignore: cast_nullable_to_non_nullable
+              as String?,
+      errorCode: freezed == errorCode
+          ? _value.errorCode
+          : errorCode // ignore: cast_nullable_to_non_nullable
+              as String?,
+      lastConnectedAt: freezed == lastConnectedAt
+          ? _value.lastConnectedAt
+          : lastConnectedAt // ignore: cast_nullable_to_non_nullable
+              as DateTime?,
+      disconnectedAt: freezed == disconnectedAt
+          ? _value.disconnectedAt
+          : disconnectedAt // ignore: cast_nullable_to_non_nullable
+              as DateTime?,
+      reconnectAttempts: null == reconnectAttempts
+          ? _value.reconnectAttempts
+          : reconnectAttempts // ignore: cast_nullable_to_non_nullable
+              as int,
+      maxReconnectAttempts: null == maxReconnectAttempts
+          ? _value.maxReconnectAttempts
+          : maxReconnectAttempts // ignore: cast_nullable_to_non_nullable
+              as int,
+      connectingStartedAt: freezed == connectingStartedAt
+          ? _value.connectingStartedAt
+          : connectingStartedAt // ignore: cast_nullable_to_non_nullable
+              as DateTime?,
+      connectionDuration: freezed == connectionDuration
+          ? _value.connectionDuration
+          : connectionDuration // ignore: cast_nullable_to_non_nullable
+              as int?,
+      messagesSent: null == messagesSent
+          ? _value.messagesSent
+          : messagesSent // ignore: cast_nullable_to_non_nullable
+              as int,
+      messagesReceived: null == messagesReceived
+          ? _value.messagesReceived
+          : messagesReceived // ignore: cast_nullable_to_non_nullable
+              as int,
+      lastHeartbeatAt: freezed == lastHeartbeatAt
+          ? _value.lastHeartbeatAt
+          : lastHeartbeatAt // ignore: cast_nullable_to_non_nullable
+              as DateTime?,
+      heartbeatInterval: null == heartbeatInterval
+          ? _value.heartbeatInterval
+          : heartbeatInterval // ignore: cast_nullable_to_non_nullable
+              as int,
+      qualityScore: null == qualityScore
+          ? _value.qualityScore
+          : qualityScore // ignore: cast_nullable_to_non_nullable
+              as int,
+      averageLatency: null == averageLatency
+          ? _value.averageLatency
+          : averageLatency // ignore: cast_nullable_to_non_nullable
+              as int,
+      connectionTag: freezed == connectionTag
+          ? _value.connectionTag
+          : connectionTag // ignore: cast_nullable_to_non_nullable
+              as String?,
+      metadata: null == metadata
+          ? _value.metadata
+          : metadata // ignore: cast_nullable_to_non_nullable
+              as Map<String, dynamic>,
+    ) as $Val);
   }
 }
 
 /// @nodoc
 abstract class _$$WebSocketStateImplCopyWith<$Res>
     implements $WebSocketStateCopyWith<$Res> {
-  factory _$$WebSocketStateImplCopyWith(
-    _$WebSocketStateImpl value,
-    $Res Function(_$WebSocketStateImpl) then,
-  ) = __$$WebSocketStateImplCopyWithImpl<$Res>;
+  factory _$$WebSocketStateImplCopyWith(_$WebSocketStateImpl value,
+          $Res Function(_$WebSocketStateImpl) then) =
+      __$$WebSocketStateImplCopyWithImpl<$Res>;
   @override
   @useResult
-  $Res call({
-    WebSocketConnectionState connectionState,
-    String? errorMessage,
-    String? errorCode,
-    DateTime? lastConnectedAt,
-    DateTime? disconnectedAt,
-    int reconnectAttempts,
-    int maxReconnectAttempts,
-    DateTime? connectingStartedAt,
-    int? connectionDuration,
-    int messagesSent,
-    int messagesReceived,
-    DateTime? lastHeartbeatAt,
-    int heartbeatInterval,
-    int qualityScore,
-    int averageLatency,
-    String? connectionTag,
-    Map<String, dynamic> metadata,
-  });
+  $Res call(
+      {WebSocketConnectionState connectionState,
+      String? errorMessage,
+      String? errorCode,
+      DateTime? lastConnectedAt,
+      DateTime? disconnectedAt,
+      int reconnectAttempts,
+      int maxReconnectAttempts,
+      DateTime? connectingStartedAt,
+      int? connectionDuration,
+      int messagesSent,
+      int messagesReceived,
+      DateTime? lastHeartbeatAt,
+      int heartbeatInterval,
+      int qualityScore,
+      int averageLatency,
+      String? connectionTag,
+      Map<String, dynamic> metadata});
 }
 
 /// @nodoc
@@ -281,9 +256,8 @@ class __$$WebSocketStateImplCopyWithImpl<$Res>
     extends _$WebSocketStateCopyWithImpl<$Res, _$WebSocketStateImpl>
     implements _$$WebSocketStateImplCopyWith<$Res> {
   __$$WebSocketStateImplCopyWithImpl(
-    _$WebSocketStateImpl _value,
-    $Res Function(_$WebSocketStateImpl) _then,
-  ) : super(_value, _then);
+      _$WebSocketStateImpl _value, $Res Function(_$WebSocketStateImpl) _then)
+      : super(_value, _then);
 
   /// Create a copy of WebSocketState
   /// with the given fields replaced by the non-null parameter values.
@@ -308,120 +282,101 @@ class __$$WebSocketStateImplCopyWithImpl<$Res>
     Object? connectionTag = freezed,
     Object? metadata = null,
   }) {
-    return _then(
-      _$WebSocketStateImpl(
-        connectionState:
-            null == connectionState
-                ? _value.connectionState
-                : connectionState // ignore: cast_nullable_to_non_nullable
-                    as WebSocketConnectionState,
-        errorMessage:
-            freezed == errorMessage
-                ? _value.errorMessage
-                : errorMessage // ignore: cast_nullable_to_non_nullable
-                    as String?,
-        errorCode:
-            freezed == errorCode
-                ? _value.errorCode
-                : errorCode // ignore: cast_nullable_to_non_nullable
-                    as String?,
-        lastConnectedAt:
-            freezed == lastConnectedAt
-                ? _value.lastConnectedAt
-                : lastConnectedAt // ignore: cast_nullable_to_non_nullable
-                    as DateTime?,
-        disconnectedAt:
-            freezed == disconnectedAt
-                ? _value.disconnectedAt
-                : disconnectedAt // ignore: cast_nullable_to_non_nullable
-                    as DateTime?,
-        reconnectAttempts:
-            null == reconnectAttempts
-                ? _value.reconnectAttempts
-                : reconnectAttempts // ignore: cast_nullable_to_non_nullable
-                    as int,
-        maxReconnectAttempts:
-            null == maxReconnectAttempts
-                ? _value.maxReconnectAttempts
-                : maxReconnectAttempts // ignore: cast_nullable_to_non_nullable
-                    as int,
-        connectingStartedAt:
-            freezed == connectingStartedAt
-                ? _value.connectingStartedAt
-                : connectingStartedAt // ignore: cast_nullable_to_non_nullable
-                    as DateTime?,
-        connectionDuration:
-            freezed == connectionDuration
-                ? _value.connectionDuration
-                : connectionDuration // ignore: cast_nullable_to_non_nullable
-                    as int?,
-        messagesSent:
-            null == messagesSent
-                ? _value.messagesSent
-                : messagesSent // ignore: cast_nullable_to_non_nullable
-                    as int,
-        messagesReceived:
-            null == messagesReceived
-                ? _value.messagesReceived
-                : messagesReceived // ignore: cast_nullable_to_non_nullable
-                    as int,
-        lastHeartbeatAt:
-            freezed == lastHeartbeatAt
-                ? _value.lastHeartbeatAt
-                : lastHeartbeatAt // ignore: cast_nullable_to_non_nullable
-                    as DateTime?,
-        heartbeatInterval:
-            null == heartbeatInterval
-                ? _value.heartbeatInterval
-                : heartbeatInterval // ignore: cast_nullable_to_non_nullable
-                    as int,
-        qualityScore:
-            null == qualityScore
-                ? _value.qualityScore
-                : qualityScore // ignore: cast_nullable_to_non_nullable
-                    as int,
-        averageLatency:
-            null == averageLatency
-                ? _value.averageLatency
-                : averageLatency // ignore: cast_nullable_to_non_nullable
-                    as int,
-        connectionTag:
-            freezed == connectionTag
-                ? _value.connectionTag
-                : connectionTag // ignore: cast_nullable_to_non_nullable
-                    as String?,
-        metadata:
-            null == metadata
-                ? _value._metadata
-                : metadata // ignore: cast_nullable_to_non_nullable
-                    as Map<String, dynamic>,
-      ),
-    );
+    return _then(_$WebSocketStateImpl(
+      connectionState: null == connectionState
+          ? _value.connectionState
+          : connectionState // ignore: cast_nullable_to_non_nullable
+              as WebSocketConnectionState,
+      errorMessage: freezed == errorMessage
+          ? _value.errorMessage
+          : errorMessage // ignore: cast_nullable_to_non_nullable
+              as String?,
+      errorCode: freezed == errorCode
+          ? _value.errorCode
+          : errorCode // ignore: cast_nullable_to_non_nullable
+              as String?,
+      lastConnectedAt: freezed == lastConnectedAt
+          ? _value.lastConnectedAt
+          : lastConnectedAt // ignore: cast_nullable_to_non_nullable
+              as DateTime?,
+      disconnectedAt: freezed == disconnectedAt
+          ? _value.disconnectedAt
+          : disconnectedAt // ignore: cast_nullable_to_non_nullable
+              as DateTime?,
+      reconnectAttempts: null == reconnectAttempts
+          ? _value.reconnectAttempts
+          : reconnectAttempts // ignore: cast_nullable_to_non_nullable
+              as int,
+      maxReconnectAttempts: null == maxReconnectAttempts
+          ? _value.maxReconnectAttempts
+          : maxReconnectAttempts // ignore: cast_nullable_to_non_nullable
+              as int,
+      connectingStartedAt: freezed == connectingStartedAt
+          ? _value.connectingStartedAt
+          : connectingStartedAt // ignore: cast_nullable_to_non_nullable
+              as DateTime?,
+      connectionDuration: freezed == connectionDuration
+          ? _value.connectionDuration
+          : connectionDuration // ignore: cast_nullable_to_non_nullable
+              as int?,
+      messagesSent: null == messagesSent
+          ? _value.messagesSent
+          : messagesSent // ignore: cast_nullable_to_non_nullable
+              as int,
+      messagesReceived: null == messagesReceived
+          ? _value.messagesReceived
+          : messagesReceived // ignore: cast_nullable_to_non_nullable
+              as int,
+      lastHeartbeatAt: freezed == lastHeartbeatAt
+          ? _value.lastHeartbeatAt
+          : lastHeartbeatAt // ignore: cast_nullable_to_non_nullable
+              as DateTime?,
+      heartbeatInterval: null == heartbeatInterval
+          ? _value.heartbeatInterval
+          : heartbeatInterval // ignore: cast_nullable_to_non_nullable
+              as int,
+      qualityScore: null == qualityScore
+          ? _value.qualityScore
+          : qualityScore // ignore: cast_nullable_to_non_nullable
+              as int,
+      averageLatency: null == averageLatency
+          ? _value.averageLatency
+          : averageLatency // ignore: cast_nullable_to_non_nullable
+              as int,
+      connectionTag: freezed == connectionTag
+          ? _value.connectionTag
+          : connectionTag // ignore: cast_nullable_to_non_nullable
+              as String?,
+      metadata: null == metadata
+          ? _value._metadata
+          : metadata // ignore: cast_nullable_to_non_nullable
+              as Map<String, dynamic>,
+    ));
   }
 }
 
 /// @nodoc
 
 class _$WebSocketStateImpl implements _WebSocketState {
-  const _$WebSocketStateImpl({
-    required this.connectionState,
-    this.errorMessage,
-    this.errorCode,
-    this.lastConnectedAt,
-    this.disconnectedAt,
-    this.reconnectAttempts = 0,
-    this.maxReconnectAttempts = 5,
-    this.connectingStartedAt,
-    this.connectionDuration,
-    this.messagesSent = 0,
-    this.messagesReceived = 0,
-    this.lastHeartbeatAt,
-    this.heartbeatInterval = 30000,
-    this.qualityScore = 0,
-    this.averageLatency = 0,
-    this.connectionTag,
-    final Map<String, dynamic> metadata = const {},
-  }) : _metadata = metadata;
+  const _$WebSocketStateImpl(
+      {required this.connectionState,
+      this.errorMessage,
+      this.errorCode,
+      this.lastConnectedAt,
+      this.disconnectedAt,
+      this.reconnectAttempts = 0,
+      this.maxReconnectAttempts = 5,
+      this.connectingStartedAt,
+      this.connectionDuration,
+      this.messagesSent = 0,
+      this.messagesReceived = 0,
+      this.lastHeartbeatAt,
+      this.heartbeatInterval = 30000,
+      this.qualityScore = 0,
+      this.averageLatency = 0,
+      this.connectionTag,
+      final Map<String, dynamic> metadata = const {}})
+      : _metadata = metadata;
 
   /// 连接状态
   @override
@@ -570,25 +525,24 @@ class _$WebSocketStateImpl implements _WebSocketState {
 
   @override
   int get hashCode => Object.hash(
-    runtimeType,
-    connectionState,
-    errorMessage,
-    errorCode,
-    lastConnectedAt,
-    disconnectedAt,
-    reconnectAttempts,
-    maxReconnectAttempts,
-    connectingStartedAt,
-    connectionDuration,
-    messagesSent,
-    messagesReceived,
-    lastHeartbeatAt,
-    heartbeatInterval,
-    qualityScore,
-    averageLatency,
-    connectionTag,
-    const DeepCollectionEquality().hash(_metadata),
-  );
+      runtimeType,
+      connectionState,
+      errorMessage,
+      errorCode,
+      lastConnectedAt,
+      disconnectedAt,
+      reconnectAttempts,
+      maxReconnectAttempts,
+      connectingStartedAt,
+      connectionDuration,
+      messagesSent,
+      messagesReceived,
+      lastHeartbeatAt,
+      heartbeatInterval,
+      qualityScore,
+      averageLatency,
+      connectionTag,
+      const DeepCollectionEquality().hash(_metadata));
 
   /// Create a copy of WebSocketState
   /// with the given fields replaced by the non-null parameter values.
@@ -597,31 +551,28 @@ class _$WebSocketStateImpl implements _WebSocketState {
   @pragma('vm:prefer-inline')
   _$$WebSocketStateImplCopyWith<_$WebSocketStateImpl> get copyWith =>
       __$$WebSocketStateImplCopyWithImpl<_$WebSocketStateImpl>(
-        this,
-        _$identity,
-      );
+          this, _$identity);
 }
 
 abstract class _WebSocketState implements WebSocketState {
-  const factory _WebSocketState({
-    required final WebSocketConnectionState connectionState,
-    final String? errorMessage,
-    final String? errorCode,
-    final DateTime? lastConnectedAt,
-    final DateTime? disconnectedAt,
-    final int reconnectAttempts,
-    final int maxReconnectAttempts,
-    final DateTime? connectingStartedAt,
-    final int? connectionDuration,
-    final int messagesSent,
-    final int messagesReceived,
-    final DateTime? lastHeartbeatAt,
-    final int heartbeatInterval,
-    final int qualityScore,
-    final int averageLatency,
-    final String? connectionTag,
-    final Map<String, dynamic> metadata,
-  }) = _$WebSocketStateImpl;
+  const factory _WebSocketState(
+      {required final WebSocketConnectionState connectionState,
+      final String? errorMessage,
+      final String? errorCode,
+      final DateTime? lastConnectedAt,
+      final DateTime? disconnectedAt,
+      final int reconnectAttempts,
+      final int maxReconnectAttempts,
+      final DateTime? connectingStartedAt,
+      final int? connectionDuration,
+      final int messagesSent,
+      final int messagesReceived,
+      final DateTime? lastHeartbeatAt,
+      final int heartbeatInterval,
+      final int qualityScore,
+      final int averageLatency,
+      final String? connectionTag,
+      final Map<String, dynamic> metadata}) = _$WebSocketStateImpl;
 
   /// 连接状态
   @override

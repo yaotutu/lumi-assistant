@@ -12,8 +12,7 @@ part of 'connection_state.dart';
 T _$identity<T>(T value) => value;
 
 final _privateConstructorUsedError = UnsupportedError(
-  'It seems like you constructed your class using `MyClass._()`. This constructor is only meant to be used by freezed and you are not supposed to need it nor use it.\nPlease check the documentation here for more information: https://github.com/rrousselGit/freezed#adding-getters-and-methods-to-our-models',
-);
+    'It seems like you constructed your class using `MyClass._()`. This constructor is only meant to be used by freezed and you are not supposed to need it nor use it.\nPlease check the documentation here for more information: https://github.com/rrousselGit/freezed#adding-getters-and-methods-to-our-models');
 
 /// @nodoc
 mixin _$ConnectionManagerState {
@@ -42,26 +41,22 @@ mixin _$ConnectionManagerState {
 
 /// @nodoc
 abstract class $ConnectionManagerStateCopyWith<$Res> {
-  factory $ConnectionManagerStateCopyWith(
-    ConnectionManagerState value,
-    $Res Function(ConnectionManagerState) then,
-  ) = _$ConnectionManagerStateCopyWithImpl<$Res, ConnectionManagerState>;
+  factory $ConnectionManagerStateCopyWith(ConnectionManagerState value,
+          $Res Function(ConnectionManagerState) then) =
+      _$ConnectionManagerStateCopyWithImpl<$Res, ConnectionManagerState>;
   @useResult
-  $Res call({
-    WebSocketState webSocketState,
-    NetworkState networkState,
-    HandshakeResult handshakeResult,
-    bool isInitialized,
-  });
+  $Res call(
+      {WebSocketState webSocketState,
+      NetworkState networkState,
+      HandshakeResult handshakeResult,
+      bool isInitialized});
 
   $WebSocketStateCopyWith<$Res> get webSocketState;
 }
 
 /// @nodoc
-class _$ConnectionManagerStateCopyWithImpl<
-  $Res,
-  $Val extends ConnectionManagerState
->
+class _$ConnectionManagerStateCopyWithImpl<$Res,
+        $Val extends ConnectionManagerState>
     implements $ConnectionManagerStateCopyWith<$Res> {
   _$ConnectionManagerStateCopyWithImpl(this._value, this._then);
 
@@ -80,31 +75,24 @@ class _$ConnectionManagerStateCopyWithImpl<
     Object? handshakeResult = null,
     Object? isInitialized = null,
   }) {
-    return _then(
-      _value.copyWith(
-            webSocketState:
-                null == webSocketState
-                    ? _value.webSocketState
-                    : webSocketState // ignore: cast_nullable_to_non_nullable
-                        as WebSocketState,
-            networkState:
-                null == networkState
-                    ? _value.networkState
-                    : networkState // ignore: cast_nullable_to_non_nullable
-                        as NetworkState,
-            handshakeResult:
-                null == handshakeResult
-                    ? _value.handshakeResult
-                    : handshakeResult // ignore: cast_nullable_to_non_nullable
-                        as HandshakeResult,
-            isInitialized:
-                null == isInitialized
-                    ? _value.isInitialized
-                    : isInitialized // ignore: cast_nullable_to_non_nullable
-                        as bool,
-          )
-          as $Val,
-    );
+    return _then(_value.copyWith(
+      webSocketState: null == webSocketState
+          ? _value.webSocketState
+          : webSocketState // ignore: cast_nullable_to_non_nullable
+              as WebSocketState,
+      networkState: null == networkState
+          ? _value.networkState
+          : networkState // ignore: cast_nullable_to_non_nullable
+              as NetworkState,
+      handshakeResult: null == handshakeResult
+          ? _value.handshakeResult
+          : handshakeResult // ignore: cast_nullable_to_non_nullable
+              as HandshakeResult,
+      isInitialized: null == isInitialized
+          ? _value.isInitialized
+          : isInitialized // ignore: cast_nullable_to_non_nullable
+              as bool,
+    ) as $Val);
   }
 
   /// Create a copy of ConnectionManagerState
@@ -122,17 +110,16 @@ class _$ConnectionManagerStateCopyWithImpl<
 abstract class _$$ConnectionManagerStateImplCopyWith<$Res>
     implements $ConnectionManagerStateCopyWith<$Res> {
   factory _$$ConnectionManagerStateImplCopyWith(
-    _$ConnectionManagerStateImpl value,
-    $Res Function(_$ConnectionManagerStateImpl) then,
-  ) = __$$ConnectionManagerStateImplCopyWithImpl<$Res>;
+          _$ConnectionManagerStateImpl value,
+          $Res Function(_$ConnectionManagerStateImpl) then) =
+      __$$ConnectionManagerStateImplCopyWithImpl<$Res>;
   @override
   @useResult
-  $Res call({
-    WebSocketState webSocketState,
-    NetworkState networkState,
-    HandshakeResult handshakeResult,
-    bool isInitialized,
-  });
+  $Res call(
+      {WebSocketState webSocketState,
+      NetworkState networkState,
+      HandshakeResult handshakeResult,
+      bool isInitialized});
 
   @override
   $WebSocketStateCopyWith<$Res> get webSocketState;
@@ -140,13 +127,13 @@ abstract class _$$ConnectionManagerStateImplCopyWith<$Res>
 
 /// @nodoc
 class __$$ConnectionManagerStateImplCopyWithImpl<$Res>
-    extends
-        _$ConnectionManagerStateCopyWithImpl<$Res, _$ConnectionManagerStateImpl>
+    extends _$ConnectionManagerStateCopyWithImpl<$Res,
+        _$ConnectionManagerStateImpl>
     implements _$$ConnectionManagerStateImplCopyWith<$Res> {
   __$$ConnectionManagerStateImplCopyWithImpl(
-    _$ConnectionManagerStateImpl _value,
-    $Res Function(_$ConnectionManagerStateImpl) _then,
-  ) : super(_value, _then);
+      _$ConnectionManagerStateImpl _value,
+      $Res Function(_$ConnectionManagerStateImpl) _then)
+      : super(_value, _then);
 
   /// Create a copy of ConnectionManagerState
   /// with the given fields replaced by the non-null parameter values.
@@ -158,42 +145,35 @@ class __$$ConnectionManagerStateImplCopyWithImpl<$Res>
     Object? handshakeResult = null,
     Object? isInitialized = null,
   }) {
-    return _then(
-      _$ConnectionManagerStateImpl(
-        webSocketState:
-            null == webSocketState
-                ? _value.webSocketState
-                : webSocketState // ignore: cast_nullable_to_non_nullable
-                    as WebSocketState,
-        networkState:
-            null == networkState
-                ? _value.networkState
-                : networkState // ignore: cast_nullable_to_non_nullable
-                    as NetworkState,
-        handshakeResult:
-            null == handshakeResult
-                ? _value.handshakeResult
-                : handshakeResult // ignore: cast_nullable_to_non_nullable
-                    as HandshakeResult,
-        isInitialized:
-            null == isInitialized
-                ? _value.isInitialized
-                : isInitialized // ignore: cast_nullable_to_non_nullable
-                    as bool,
-      ),
-    );
+    return _then(_$ConnectionManagerStateImpl(
+      webSocketState: null == webSocketState
+          ? _value.webSocketState
+          : webSocketState // ignore: cast_nullable_to_non_nullable
+              as WebSocketState,
+      networkState: null == networkState
+          ? _value.networkState
+          : networkState // ignore: cast_nullable_to_non_nullable
+              as NetworkState,
+      handshakeResult: null == handshakeResult
+          ? _value.handshakeResult
+          : handshakeResult // ignore: cast_nullable_to_non_nullable
+              as HandshakeResult,
+      isInitialized: null == isInitialized
+          ? _value.isInitialized
+          : isInitialized // ignore: cast_nullable_to_non_nullable
+              as bool,
+    ));
   }
 }
 
 /// @nodoc
 
 class _$ConnectionManagerStateImpl implements _ConnectionManagerState {
-  const _$ConnectionManagerStateImpl({
-    required this.webSocketState,
-    required this.networkState,
-    required this.handshakeResult,
-    this.isInitialized = false,
-  });
+  const _$ConnectionManagerStateImpl(
+      {required this.webSocketState,
+      required this.networkState,
+      required this.handshakeResult,
+      this.isInitialized = false});
 
   /// WebSocket连接状态
   /// 包含连接状态、错误信息、重连次数等
@@ -237,13 +217,8 @@ class _$ConnectionManagerStateImpl implements _ConnectionManagerState {
   }
 
   @override
-  int get hashCode => Object.hash(
-    runtimeType,
-    webSocketState,
-    networkState,
-    handshakeResult,
-    isInitialized,
-  );
+  int get hashCode => Object.hash(runtimeType, webSocketState, networkState,
+      handshakeResult, isInitialized);
 
   /// Create a copy of ConnectionManagerState
   /// with the given fields replaced by the non-null parameter values.
@@ -251,20 +226,16 @@ class _$ConnectionManagerStateImpl implements _ConnectionManagerState {
   @override
   @pragma('vm:prefer-inline')
   _$$ConnectionManagerStateImplCopyWith<_$ConnectionManagerStateImpl>
-  get copyWith =>
-      __$$ConnectionManagerStateImplCopyWithImpl<_$ConnectionManagerStateImpl>(
-        this,
-        _$identity,
-      );
+      get copyWith => __$$ConnectionManagerStateImplCopyWithImpl<
+          _$ConnectionManagerStateImpl>(this, _$identity);
 }
 
 abstract class _ConnectionManagerState implements ConnectionManagerState {
-  const factory _ConnectionManagerState({
-    required final WebSocketState webSocketState,
-    required final NetworkState networkState,
-    required final HandshakeResult handshakeResult,
-    final bool isInitialized,
-  }) = _$ConnectionManagerStateImpl;
+  const factory _ConnectionManagerState(
+      {required final WebSocketState webSocketState,
+      required final NetworkState networkState,
+      required final HandshakeResult handshakeResult,
+      final bool isInitialized}) = _$ConnectionManagerStateImpl;
 
   /// WebSocket连接状态
   /// 包含连接状态、错误信息、重连次数等
@@ -291,5 +262,5 @@ abstract class _ConnectionManagerState implements ConnectionManagerState {
   @override
   @JsonKey(includeFromJson: false, includeToJson: false)
   _$$ConnectionManagerStateImplCopyWith<_$ConnectionManagerStateImpl>
-  get copyWith => throw _privateConstructorUsedError;
+      get copyWith => throw _privateConstructorUsedError;
 }

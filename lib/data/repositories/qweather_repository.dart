@@ -4,6 +4,7 @@ import 'package:http/http.dart' as http;
 import '../../domain/entities/weather.dart';
 import '../../domain/repositories/weather_repository.dart';
 import '../../core/utils/app_logger.dart';
+import '../models/weather_warning.dart';
 
 /// 和风天气仓库实现
 /// 
@@ -147,6 +148,66 @@ class QWeatherRepository implements WeatherRepository {
         return '服务器错误';
       default:
         return '未知错误';
+    }
+  }
+  
+  /// 获取天气预警信息
+  /// 
+  /// 参数：
+  /// - [location] 位置（城市ID或经纬度坐标）
+  /// 
+  /// 返回：天气预警列表，无预警时返回空列表
+  Future<List<WeatherWarning>> getWeatherWarnings(String location) async {
+    try {
+      // 构建请求URL
+      final url = Uri.parse('$_baseUrl/$_apiVersion/warning/now').replace(
+        queryParameters: {
+          'location': location,
+          'key': apiKey,
+          'lang': 'zh', // 中文
+        },
+      );
+      
+      AppLogger.getLogger('Weather').info('⚠️ 请求天气预警API: $url');
+      
+      // 发送请求
+      final response = await _httpClient.get(url);
+      
+      // 检查响应状态
+      if (response.statusCode != 200) {
+        AppLogger.getLogger('Weather').warning('❌ 天气预警API响应错误: ${response.statusCode}');
+        throw WeatherException(
+          '获取天气预警失败',
+          code: response.statusCode.toString(),
+        );
+      }
+      
+      // 解析响应
+      final data = json.decode(response.body);
+      
+      // 检查API返回的状态码
+      final code = data['code']?.toString();
+      if (code != '200') {
+        AppLogger.getLogger('Weather').warning('❌ 天气预警API业务错误: $code');
+        throw WeatherException(
+          _getErrorMessage(code),
+          code: code,
+        );
+      }
+      
+      // 解析预警数据
+      final warningResponse = WeatherWarningResponse.fromJson(data);
+      
+      AppLogger.getLogger('Weather').info('✅ 获取到 ${warningResponse.warning.length} 条预警信息');
+      
+      return warningResponse.warning;
+    } catch (e) {
+      AppLogger.getLogger('Weather').severe('❌ 获取天气预警失败: $e');
+      if (e is WeatherException) rethrow;
+      throw WeatherException(
+        '获取天气预警失败',
+        originalError: e,
+      );
     }
   }
   

@@ -12,8 +12,7 @@ part of 'chat_ui_model.dart';
 T _$identity<T>(T value) => value;
 
 final _privateConstructorUsedError = UnsupportedError(
-  'It seems like you constructed your class using `MyClass._()`. This constructor is only meant to be used by freezed and you are not supposed to need it nor use it.\nPlease check the documentation here for more information: https://github.com/rrousselGit/freezed#adding-getters-and-methods-to-our-models',
-);
+    'It seems like you constructed your class using `MyClass._()`. This constructor is only meant to be used by freezed and you are not supposed to need it nor use it.\nPlease check the documentation here for more information: https://github.com/rrousselGit/freezed#adding-getters-and-methods-to-our-models');
 
 ChatUIMessage _$ChatUIMessageFromJson(Map<String, dynamic> json) {
   return _ChatUIMessage.fromJson(json);
@@ -64,22 +63,20 @@ mixin _$ChatUIMessage {
 /// @nodoc
 abstract class $ChatUIMessageCopyWith<$Res> {
   factory $ChatUIMessageCopyWith(
-    ChatUIMessage value,
-    $Res Function(ChatUIMessage) then,
-  ) = _$ChatUIMessageCopyWithImpl<$Res, ChatUIMessage>;
+          ChatUIMessage value, $Res Function(ChatUIMessage) then) =
+      _$ChatUIMessageCopyWithImpl<$Res, ChatUIMessage>;
   @useResult
-  $Res call({
-    String id,
-    String content,
-    ChatSender sender,
-    ChatMessageStatus status,
-    DateTime timestamp,
-    bool isTemporary,
-    bool isError,
-    String? errorMessage,
-    String? originalMessageId,
-    Map<String, dynamic>? metadata,
-  });
+  $Res call(
+      {String id,
+      String content,
+      ChatSender sender,
+      ChatMessageStatus status,
+      DateTime timestamp,
+      bool isTemporary,
+      bool isError,
+      String? errorMessage,
+      String? originalMessageId,
+      Map<String, dynamic>? metadata});
 }
 
 /// @nodoc
@@ -108,61 +105,48 @@ class _$ChatUIMessageCopyWithImpl<$Res, $Val extends ChatUIMessage>
     Object? originalMessageId = freezed,
     Object? metadata = freezed,
   }) {
-    return _then(
-      _value.copyWith(
-            id:
-                null == id
-                    ? _value.id
-                    : id // ignore: cast_nullable_to_non_nullable
-                        as String,
-            content:
-                null == content
-                    ? _value.content
-                    : content // ignore: cast_nullable_to_non_nullable
-                        as String,
-            sender:
-                null == sender
-                    ? _value.sender
-                    : sender // ignore: cast_nullable_to_non_nullable
-                        as ChatSender,
-            status:
-                null == status
-                    ? _value.status
-                    : status // ignore: cast_nullable_to_non_nullable
-                        as ChatMessageStatus,
-            timestamp:
-                null == timestamp
-                    ? _value.timestamp
-                    : timestamp // ignore: cast_nullable_to_non_nullable
-                        as DateTime,
-            isTemporary:
-                null == isTemporary
-                    ? _value.isTemporary
-                    : isTemporary // ignore: cast_nullable_to_non_nullable
-                        as bool,
-            isError:
-                null == isError
-                    ? _value.isError
-                    : isError // ignore: cast_nullable_to_non_nullable
-                        as bool,
-            errorMessage:
-                freezed == errorMessage
-                    ? _value.errorMessage
-                    : errorMessage // ignore: cast_nullable_to_non_nullable
-                        as String?,
-            originalMessageId:
-                freezed == originalMessageId
-                    ? _value.originalMessageId
-                    : originalMessageId // ignore: cast_nullable_to_non_nullable
-                        as String?,
-            metadata:
-                freezed == metadata
-                    ? _value.metadata
-                    : metadata // ignore: cast_nullable_to_non_nullable
-                        as Map<String, dynamic>?,
-          )
-          as $Val,
-    );
+    return _then(_value.copyWith(
+      id: null == id
+          ? _value.id
+          : id // ignore: cast_nullable_to_non_nullable
+              as String,
+      content: null == content
+          ? _value.content
+          : content // ignore: cast_nullable_to_non_nullable
+              as String,
+      sender: null == sender
+          ? _value.sender
+          : sender // ignore: cast_nullable_to_non_nullable
+              as ChatSender,
+      status: null == status
+          ? _value.status
+          : status // ignore: cast_nullable_to_non_nullable
+              as ChatMessageStatus,
+      timestamp: null == timestamp
+          ? _value.timestamp
+          : timestamp // ignore: cast_nullable_to_non_nullable
+              as DateTime,
+      isTemporary: null == isTemporary
+          ? _value.isTemporary
+          : isTemporary // ignore: cast_nullable_to_non_nullable
+              as bool,
+      isError: null == isError
+          ? _value.isError
+          : isError // ignore: cast_nullable_to_non_nullable
+              as bool,
+      errorMessage: freezed == errorMessage
+          ? _value.errorMessage
+          : errorMessage // ignore: cast_nullable_to_non_nullable
+              as String?,
+      originalMessageId: freezed == originalMessageId
+          ? _value.originalMessageId
+          : originalMessageId // ignore: cast_nullable_to_non_nullable
+              as String?,
+      metadata: freezed == metadata
+          ? _value.metadata
+          : metadata // ignore: cast_nullable_to_non_nullable
+              as Map<String, dynamic>?,
+    ) as $Val);
   }
 }
 
@@ -170,23 +154,21 @@ class _$ChatUIMessageCopyWithImpl<$Res, $Val extends ChatUIMessage>
 abstract class _$$ChatUIMessageImplCopyWith<$Res>
     implements $ChatUIMessageCopyWith<$Res> {
   factory _$$ChatUIMessageImplCopyWith(
-    _$ChatUIMessageImpl value,
-    $Res Function(_$ChatUIMessageImpl) then,
-  ) = __$$ChatUIMessageImplCopyWithImpl<$Res>;
+          _$ChatUIMessageImpl value, $Res Function(_$ChatUIMessageImpl) then) =
+      __$$ChatUIMessageImplCopyWithImpl<$Res>;
   @override
   @useResult
-  $Res call({
-    String id,
-    String content,
-    ChatSender sender,
-    ChatMessageStatus status,
-    DateTime timestamp,
-    bool isTemporary,
-    bool isError,
-    String? errorMessage,
-    String? originalMessageId,
-    Map<String, dynamic>? metadata,
-  });
+  $Res call(
+      {String id,
+      String content,
+      ChatSender sender,
+      ChatMessageStatus status,
+      DateTime timestamp,
+      bool isTemporary,
+      bool isError,
+      String? errorMessage,
+      String? originalMessageId,
+      Map<String, dynamic>? metadata});
 }
 
 /// @nodoc
@@ -194,9 +176,8 @@ class __$$ChatUIMessageImplCopyWithImpl<$Res>
     extends _$ChatUIMessageCopyWithImpl<$Res, _$ChatUIMessageImpl>
     implements _$$ChatUIMessageImplCopyWith<$Res> {
   __$$ChatUIMessageImplCopyWithImpl(
-    _$ChatUIMessageImpl _value,
-    $Res Function(_$ChatUIMessageImpl) _then,
-  ) : super(_value, _then);
+      _$ChatUIMessageImpl _value, $Res Function(_$ChatUIMessageImpl) _then)
+      : super(_value, _then);
 
   /// Create a copy of ChatUIMessage
   /// with the given fields replaced by the non-null parameter values.
@@ -214,78 +195,66 @@ class __$$ChatUIMessageImplCopyWithImpl<$Res>
     Object? originalMessageId = freezed,
     Object? metadata = freezed,
   }) {
-    return _then(
-      _$ChatUIMessageImpl(
-        id:
-            null == id
-                ? _value.id
-                : id // ignore: cast_nullable_to_non_nullable
-                    as String,
-        content:
-            null == content
-                ? _value.content
-                : content // ignore: cast_nullable_to_non_nullable
-                    as String,
-        sender:
-            null == sender
-                ? _value.sender
-                : sender // ignore: cast_nullable_to_non_nullable
-                    as ChatSender,
-        status:
-            null == status
-                ? _value.status
-                : status // ignore: cast_nullable_to_non_nullable
-                    as ChatMessageStatus,
-        timestamp:
-            null == timestamp
-                ? _value.timestamp
-                : timestamp // ignore: cast_nullable_to_non_nullable
-                    as DateTime,
-        isTemporary:
-            null == isTemporary
-                ? _value.isTemporary
-                : isTemporary // ignore: cast_nullable_to_non_nullable
-                    as bool,
-        isError:
-            null == isError
-                ? _value.isError
-                : isError // ignore: cast_nullable_to_non_nullable
-                    as bool,
-        errorMessage:
-            freezed == errorMessage
-                ? _value.errorMessage
-                : errorMessage // ignore: cast_nullable_to_non_nullable
-                    as String?,
-        originalMessageId:
-            freezed == originalMessageId
-                ? _value.originalMessageId
-                : originalMessageId // ignore: cast_nullable_to_non_nullable
-                    as String?,
-        metadata:
-            freezed == metadata
-                ? _value._metadata
-                : metadata // ignore: cast_nullable_to_non_nullable
-                    as Map<String, dynamic>?,
-      ),
-    );
+    return _then(_$ChatUIMessageImpl(
+      id: null == id
+          ? _value.id
+          : id // ignore: cast_nullable_to_non_nullable
+              as String,
+      content: null == content
+          ? _value.content
+          : content // ignore: cast_nullable_to_non_nullable
+              as String,
+      sender: null == sender
+          ? _value.sender
+          : sender // ignore: cast_nullable_to_non_nullable
+              as ChatSender,
+      status: null == status
+          ? _value.status
+          : status // ignore: cast_nullable_to_non_nullable
+              as ChatMessageStatus,
+      timestamp: null == timestamp
+          ? _value.timestamp
+          : timestamp // ignore: cast_nullable_to_non_nullable
+              as DateTime,
+      isTemporary: null == isTemporary
+          ? _value.isTemporary
+          : isTemporary // ignore: cast_nullable_to_non_nullable
+              as bool,
+      isError: null == isError
+          ? _value.isError
+          : isError // ignore: cast_nullable_to_non_nullable
+              as bool,
+      errorMessage: freezed == errorMessage
+          ? _value.errorMessage
+          : errorMessage // ignore: cast_nullable_to_non_nullable
+              as String?,
+      originalMessageId: freezed == originalMessageId
+          ? _value.originalMessageId
+          : originalMessageId // ignore: cast_nullable_to_non_nullable
+              as String?,
+      metadata: freezed == metadata
+          ? _value._metadata
+          : metadata // ignore: cast_nullable_to_non_nullable
+              as Map<String, dynamic>?,
+    ));
   }
 }
 
 /// @nodoc
 @JsonSerializable()
 class _$ChatUIMessageImpl implements _ChatUIMessage {
-  const _$ChatUIMessageImpl({
-    required this.id,
-    required this.content,
-    required this.sender,
-    this.status = ChatMessageStatus.sent,
-    required this.timestamp,
-    this.isTemporary = false,
-    this.isError = false,
-    this.errorMessage,
-    this.originalMessageId,
-    final Map<String, dynamic>? metadata,
-  }) : _metadata = metadata;
+  const _$ChatUIMessageImpl(
+      {required this.id,
+      required this.content,
+      required this.sender,
+      this.status = ChatMessageStatus.sent,
+      required this.timestamp,
+      this.isTemporary = false,
+      this.isError = false,
+      this.errorMessage,
+      this.originalMessageId,
+      final Map<String, dynamic>? metadata})
+      : _metadata = metadata;
 
   factory _$ChatUIMessageImpl.fromJson(Map<String, dynamic> json) =>
       _$$ChatUIMessageImplFromJson(json);
@@ -371,18 +340,17 @@ class _$ChatUIMessageImpl implements _ChatUIMessage {
   @JsonKey(includeFromJson: false, includeToJson: false)
   @override
   int get hashCode => Object.hash(
-    runtimeType,
-    id,
-    content,
-    sender,
-    status,
-    timestamp,
-    isTemporary,
-    isError,
-    errorMessage,
-    originalMessageId,
-    const DeepCollectionEquality().hash(_metadata),
-  );
+      runtimeType,
+      id,
+      content,
+      sender,
+      status,
+      timestamp,
+      isTemporary,
+      isError,
+      errorMessage,
+      originalMessageId,
+      const DeepCollectionEquality().hash(_metadata));
 
   /// Create a copy of ChatUIMessage
   /// with the given fields replaced by the non-null parameter values.
@@ -394,23 +362,24 @@ class _$ChatUIMessageImpl implements _ChatUIMessage {
 
   @override
   Map<String, dynamic> toJson() {
-    return _$$ChatUIMessageImplToJson(this);
+    return _$$ChatUIMessageImplToJson(
+      this,
+    );
   }
 }
 
 abstract class _ChatUIMessage implements ChatUIMessage {
-  const factory _ChatUIMessage({
-    required final String id,
-    required final String content,
-    required final ChatSender sender,
-    final ChatMessageStatus status,
-    required final DateTime timestamp,
-    final bool isTemporary,
-    final bool isError,
-    final String? errorMessage,
-    final String? originalMessageId,
-    final Map<String, dynamic>? metadata,
-  }) = _$ChatUIMessageImpl;
+  const factory _ChatUIMessage(
+      {required final String id,
+      required final String content,
+      required final ChatSender sender,
+      final ChatMessageStatus status,
+      required final DateTime timestamp,
+      final bool isTemporary,
+      final bool isError,
+      final String? errorMessage,
+      final String? originalMessageId,
+      final Map<String, dynamic>? metadata}) = _$ChatUIMessageImpl;
 
   factory _ChatUIMessage.fromJson(Map<String, dynamic> json) =
       _$ChatUIMessageImpl.fromJson;

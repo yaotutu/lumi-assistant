@@ -6,6 +6,8 @@ import '../actions/actions_widget.dart';
 import '../floating_chat/floating_chat_widget.dart';
 import '../../../../widgets/mcp/mcp_call_status_widget.dart';
 import '../../../../widgets/notification/notification_bubble.dart';
+import '../../../../widgets/weather/weather_warning_widget.dart';
+import '../../../../providers/weather_provider.dart';
 
 /// 主页布局管理器
 /// 
@@ -55,6 +57,9 @@ class HomeLayoutManager extends ConsumerWidget {
         // 第三层：操作区域（可选，位置可配置）
         if (showActions) _buildActionsLayer(),
         
+        // 天气预警层（在操作区域之上，浮动聊天之下）
+        _buildWeatherWarningLayer(ref),
+        
         // 第四层：浮动聊天区域（最顶层）
         _buildFloatingChatLayer(),
         
@@ -100,6 +105,31 @@ class HomeLayoutManager extends ConsumerWidget {
         // MCP调用状态显示
         const McpCallStatusWidget(),
       ],
+    );
+  }
+  
+  /// 构建天气预警层
+  Widget _buildWeatherWarningLayer(WidgetRef ref) {
+    // 监听天气预警数据
+    final warningsAsync = ref.watch(weatherWarningsProvider);
+    
+    return warningsAsync.when(
+      data: (warnings) {
+        // 如果没有预警，不显示任何内容
+        if (warnings.isEmpty) {
+          return const SizedBox.shrink();
+        }
+        
+        // 显示预警组件，定位在顶部状态栏下方
+        return Positioned(
+          top: 80, // 在状态栏下方
+          left: 0,
+          right: 0,
+          child: WeatherWarningWidget(warnings: warnings),
+        );
+      },
+      loading: () => const SizedBox.shrink(),
+      error: (error, stack) => const SizedBox.shrink(),
     );
   }
   

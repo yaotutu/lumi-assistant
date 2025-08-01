@@ -11,8 +11,7 @@ _$MessageModelImpl _$$MessageModelImplFromJson(Map<String, dynamic> json) =>
       id: json['id'] as String,
       type: $enumDecode(_$MessageTypeEnumMap, json['type']),
       content: json['content'] as String?,
-      status:
-          $enumDecodeNullable(_$MessageStatusEnumMap, json['status']) ??
+      status: $enumDecodeNullable(_$MessageStatusEnumMap, json['status']) ??
           MessageStatus.pending,
       timestamp: (json['timestamp'] as num).toInt(),
       deviceId: json['device_id'] as String?,
@@ -56,20 +55,20 @@ const _$MessageStatusEnumMap = {
   MessageStatus.failed: 'failed',
 };
 
-_$HelloMessageImpl _$$HelloMessageImplFromJson(
-  Map<String, dynamic> json,
-) => _$HelloMessageImpl(
-  id: json['id'] as String,
-  type:
-      $enumDecodeNullable(_$MessageTypeEnumMap, json['type']) ??
-      MessageType.hello,
-  version: json['version'] as String,
-  deviceId: json['device_id'] as String,
-  deviceInfo: DeviceInfo.fromJson(json['device_info'] as Map<String, dynamic>),
-  capabilities:
-      (json['capabilities'] as List<dynamic>).map((e) => e as String).toList(),
-  timestamp: (json['timestamp'] as num).toInt(),
-);
+_$HelloMessageImpl _$$HelloMessageImplFromJson(Map<String, dynamic> json) =>
+    _$HelloMessageImpl(
+      id: json['id'] as String,
+      type: $enumDecodeNullable(_$MessageTypeEnumMap, json['type']) ??
+          MessageType.hello,
+      version: json['version'] as String,
+      deviceId: json['device_id'] as String,
+      deviceInfo:
+          DeviceInfo.fromJson(json['device_info'] as Map<String, dynamic>),
+      capabilities: (json['capabilities'] as List<dynamic>)
+          .map((e) => e as String)
+          .toList(),
+      timestamp: (json['timestamp'] as num).toInt(),
+    );
 
 Map<String, dynamic> _$$HelloMessageImplToJson(_$HelloMessageImpl instance) =>
     <String, dynamic>{
@@ -109,8 +108,7 @@ Map<String, dynamic> _$$DeviceInfoImplToJson(_$DeviceInfoImpl instance) =>
 _$ChatMessageImpl _$$ChatMessageImplFromJson(Map<String, dynamic> json) =>
     _$ChatMessageImpl(
       id: json['id'] as String,
-      type:
-          $enumDecodeNullable(_$MessageTypeEnumMap, json['type']) ??
+      type: $enumDecodeNullable(_$MessageTypeEnumMap, json['type']) ??
           MessageType.chat,
       content: json['content'] as String,
       sessionId: json['session_id'] as String,
@@ -131,38 +129,36 @@ Map<String, dynamic> _$$ChatMessageImplToJson(_$ChatMessageImpl instance) =>
     };
 
 _$ResponseMessageImpl _$$ResponseMessageImplFromJson(
-  Map<String, dynamic> json,
-) => _$ResponseMessageImpl(
-  id: json['id'] as String,
-  type:
-      $enumDecodeNullable(_$MessageTypeEnumMap, json['type']) ??
-      MessageType.response,
-  content: json['content'] as String,
-  requestId: json['request_id'] as String,
-  sessionId: json['session_id'] as String,
-  timestamp: (json['timestamp'] as num).toInt(),
-  completed: json['completed'] as bool? ?? true,
-  metadata: json['metadata'] as Map<String, dynamic>?,
-);
+        Map<String, dynamic> json) =>
+    _$ResponseMessageImpl(
+      id: json['id'] as String,
+      type: $enumDecodeNullable(_$MessageTypeEnumMap, json['type']) ??
+          MessageType.response,
+      content: json['content'] as String,
+      requestId: json['request_id'] as String,
+      sessionId: json['session_id'] as String,
+      timestamp: (json['timestamp'] as num).toInt(),
+      completed: json['completed'] as bool? ?? true,
+      metadata: json['metadata'] as Map<String, dynamic>?,
+    );
 
 Map<String, dynamic> _$$ResponseMessageImplToJson(
-  _$ResponseMessageImpl instance,
-) => <String, dynamic>{
-  'id': instance.id,
-  'type': _$MessageTypeEnumMap[instance.type]!,
-  'content': instance.content,
-  'request_id': instance.requestId,
-  'session_id': instance.sessionId,
-  'timestamp': instance.timestamp,
-  'completed': instance.completed,
-  'metadata': instance.metadata,
-};
+        _$ResponseMessageImpl instance) =>
+    <String, dynamic>{
+      'id': instance.id,
+      'type': _$MessageTypeEnumMap[instance.type]!,
+      'content': instance.content,
+      'request_id': instance.requestId,
+      'session_id': instance.sessionId,
+      'timestamp': instance.timestamp,
+      'completed': instance.completed,
+      'metadata': instance.metadata,
+    };
 
 _$ErrorMessageImpl _$$ErrorMessageImplFromJson(Map<String, dynamic> json) =>
     _$ErrorMessageImpl(
       id: json['id'] as String,
-      type:
-          $enumDecodeNullable(_$MessageTypeEnumMap, json['type']) ??
+      type: $enumDecodeNullable(_$MessageTypeEnumMap, json['type']) ??
           MessageType.error,
       errorMessage: json['error_message'] as String,
       errorCode: json['error_code'] as String,
@@ -184,8 +180,7 @@ Map<String, dynamic> _$$ErrorMessageImplToJson(_$ErrorMessageImpl instance) =>
 
 _$ListenMessageImpl _$$ListenMessageImplFromJson(Map<String, dynamic> json) =>
     _$ListenMessageImpl(
-      type:
-          $enumDecodeNullable(_$MessageTypeEnumMap, json['type']) ??
+      type: $enumDecodeNullable(_$MessageTypeEnumMap, json['type']) ??
           MessageType.listen,
       mode: json['mode'] as String? ?? 'manual',
       state: json['state'] as String? ?? 'detect',
@@ -202,8 +197,7 @@ Map<String, dynamic> _$$ListenMessageImplToJson(_$ListenMessageImpl instance) =>
 
 _$SttMessageImpl _$$SttMessageImplFromJson(Map<String, dynamic> json) =>
     _$SttMessageImpl(
-      type:
-          $enumDecodeNullable(_$MessageTypeEnumMap, json['type']) ??
+      type: $enumDecodeNullable(_$MessageTypeEnumMap, json['type']) ??
           MessageType.stt,
       sessionId: json['session_id'] as String,
       text: json['text'] as String,
@@ -218,8 +212,7 @@ Map<String, dynamic> _$$SttMessageImplToJson(_$SttMessageImpl instance) =>
 
 _$TtsMessageImpl _$$TtsMessageImplFromJson(Map<String, dynamic> json) =>
     _$TtsMessageImpl(
-      type:
-          $enumDecodeNullable(_$MessageTypeEnumMap, json['type']) ??
+      type: $enumDecodeNullable(_$MessageTypeEnumMap, json['type']) ??
           MessageType.tts,
       sessionId: json['session_id'] as String,
       audioCodec: json['audio_codec'] as String?,
@@ -240,8 +233,7 @@ Map<String, dynamic> _$$TtsMessageImplToJson(_$TtsMessageImpl instance) =>
 
 _$LlmMessageImpl _$$LlmMessageImplFromJson(Map<String, dynamic> json) =>
     _$LlmMessageImpl(
-      type:
-          $enumDecodeNullable(_$MessageTypeEnumMap, json['type']) ??
+      type: $enumDecodeNullable(_$MessageTypeEnumMap, json['type']) ??
           MessageType.llm,
       sessionId: json['session_id'] as String,
       emotion: json['emotion'] as String?,

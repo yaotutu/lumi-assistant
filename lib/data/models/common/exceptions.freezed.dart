@@ -12,8 +12,7 @@ part of 'exceptions.dart';
 T _$identity<T>(T value) => value;
 
 final _privateConstructorUsedError = UnsupportedError(
-  'It seems like you constructed your class using `MyClass._()`. This constructor is only meant to be used by freezed and you are not supposed to need it nor use it.\nPlease check the documentation here for more information: https://github.com/rrousselGit/freezed#adding-getters-and-methods-to-our-models',
-);
+    'It seems like you constructed your class using `MyClass._()`. This constructor is only meant to be used by freezed and you are not supposed to need it nor use it.\nPlease check the documentation here for more information: https://github.com/rrousselGit/freezed#adding-getters-and-methods-to-our-models');
 
 /// @nodoc
 mixin _$AppException {
@@ -27,221 +26,102 @@ mixin _$AppException {
   Map<String, dynamic>? get details => throw _privateConstructorUsedError;
   @optionalTypeArgs
   TResult when<TResult extends Object?>({
+    required TResult Function(String message, String? code, int? statusCode,
+            String? url, Map<String, dynamic>? details)
+        network,
     required TResult Function(
-      String message,
-      String? code,
-      int? statusCode,
-      String? url,
-      Map<String, dynamic>? details,
-    )
-    network,
-    required TResult Function(
-      String message,
-      String? code,
-      String? connectionState,
-      int reconnectAttempts,
-      Map<String, dynamic>? details,
-    )
-    webSocket,
-    required TResult Function(
-      String message,
-      String? code,
-      int? statusCode,
-      String? serverErrorType,
-      Map<String, dynamic>? details,
-    )
-    server,
-    required TResult Function(
-      String message,
-      String? code,
-      String? storageType,
-      String? operationType,
-      Map<String, dynamic>? details,
-    )
-    cache,
-    required TResult Function(
-      String message,
-      String? code,
-      String? authType,
-      bool requiresReauth,
-      Map<String, dynamic>? details,
-    )
-    auth,
-    required TResult Function(
-      String message,
-      String? code,
-      String? field,
-      String? rule,
-      Map<String, dynamic>? details,
-    )
-    validation,
-    required TResult Function(
-      String message,
-      String? code,
-      String? businessType,
-      Map<String, dynamic>? details,
-    )
-    business,
-    required TResult Function(
-      String message,
-      String? code,
-      String? component,
-      Map<String, dynamic>? details,
-    )
-    system,
-    required TResult Function(
-      String message,
-      String? code,
-      Object? originalException,
-      Map<String, dynamic>? details,
-    )
-    unknown,
-  }) => throw _privateConstructorUsedError;
+            String message,
+            String? code,
+            String? connectionState,
+            int reconnectAttempts,
+            Map<String, dynamic>? details)
+        webSocket,
+    required TResult Function(String message, String? code, int? statusCode,
+            String? serverErrorType, Map<String, dynamic>? details)
+        server,
+    required TResult Function(String message, String? code, String? storageType,
+            String? operationType, Map<String, dynamic>? details)
+        cache,
+    required TResult Function(String message, String? code, String? authType,
+            bool requiresReauth, Map<String, dynamic>? details)
+        auth,
+    required TResult Function(String message, String? code, String? field,
+            String? rule, Map<String, dynamic>? details)
+        validation,
+    required TResult Function(String message, String? code,
+            String? businessType, Map<String, dynamic>? details)
+        business,
+    required TResult Function(String message, String? code, String? component,
+            Map<String, dynamic>? details)
+        system,
+    required TResult Function(String message, String? code,
+            Object? originalException, Map<String, dynamic>? details)
+        unknown,
+  }) =>
+      throw _privateConstructorUsedError;
   @optionalTypeArgs
   TResult? whenOrNull<TResult extends Object?>({
-    TResult? Function(
-      String message,
-      String? code,
-      int? statusCode,
-      String? url,
-      Map<String, dynamic>? details,
-    )?
-    network,
-    TResult? Function(
-      String message,
-      String? code,
-      String? connectionState,
-      int reconnectAttempts,
-      Map<String, dynamic>? details,
-    )?
-    webSocket,
-    TResult? Function(
-      String message,
-      String? code,
-      int? statusCode,
-      String? serverErrorType,
-      Map<String, dynamic>? details,
-    )?
-    server,
-    TResult? Function(
-      String message,
-      String? code,
-      String? storageType,
-      String? operationType,
-      Map<String, dynamic>? details,
-    )?
-    cache,
-    TResult? Function(
-      String message,
-      String? code,
-      String? authType,
-      bool requiresReauth,
-      Map<String, dynamic>? details,
-    )?
-    auth,
-    TResult? Function(
-      String message,
-      String? code,
-      String? field,
-      String? rule,
-      Map<String, dynamic>? details,
-    )?
-    validation,
-    TResult? Function(
-      String message,
-      String? code,
-      String? businessType,
-      Map<String, dynamic>? details,
-    )?
-    business,
-    TResult? Function(
-      String message,
-      String? code,
-      String? component,
-      Map<String, dynamic>? details,
-    )?
-    system,
-    TResult? Function(
-      String message,
-      String? code,
-      Object? originalException,
-      Map<String, dynamic>? details,
-    )?
-    unknown,
-  }) => throw _privateConstructorUsedError;
+    TResult? Function(String message, String? code, int? statusCode,
+            String? url, Map<String, dynamic>? details)?
+        network,
+    TResult? Function(String message, String? code, String? connectionState,
+            int reconnectAttempts, Map<String, dynamic>? details)?
+        webSocket,
+    TResult? Function(String message, String? code, int? statusCode,
+            String? serverErrorType, Map<String, dynamic>? details)?
+        server,
+    TResult? Function(String message, String? code, String? storageType,
+            String? operationType, Map<String, dynamic>? details)?
+        cache,
+    TResult? Function(String message, String? code, String? authType,
+            bool requiresReauth, Map<String, dynamic>? details)?
+        auth,
+    TResult? Function(String message, String? code, String? field, String? rule,
+            Map<String, dynamic>? details)?
+        validation,
+    TResult? Function(String message, String? code, String? businessType,
+            Map<String, dynamic>? details)?
+        business,
+    TResult? Function(String message, String? code, String? component,
+            Map<String, dynamic>? details)?
+        system,
+    TResult? Function(String message, String? code, Object? originalException,
+            Map<String, dynamic>? details)?
+        unknown,
+  }) =>
+      throw _privateConstructorUsedError;
   @optionalTypeArgs
   TResult maybeWhen<TResult extends Object?>({
-    TResult Function(
-      String message,
-      String? code,
-      int? statusCode,
-      String? url,
-      Map<String, dynamic>? details,
-    )?
-    network,
-    TResult Function(
-      String message,
-      String? code,
-      String? connectionState,
-      int reconnectAttempts,
-      Map<String, dynamic>? details,
-    )?
-    webSocket,
-    TResult Function(
-      String message,
-      String? code,
-      int? statusCode,
-      String? serverErrorType,
-      Map<String, dynamic>? details,
-    )?
-    server,
-    TResult Function(
-      String message,
-      String? code,
-      String? storageType,
-      String? operationType,
-      Map<String, dynamic>? details,
-    )?
-    cache,
-    TResult Function(
-      String message,
-      String? code,
-      String? authType,
-      bool requiresReauth,
-      Map<String, dynamic>? details,
-    )?
-    auth,
-    TResult Function(
-      String message,
-      String? code,
-      String? field,
-      String? rule,
-      Map<String, dynamic>? details,
-    )?
-    validation,
-    TResult Function(
-      String message,
-      String? code,
-      String? businessType,
-      Map<String, dynamic>? details,
-    )?
-    business,
-    TResult Function(
-      String message,
-      String? code,
-      String? component,
-      Map<String, dynamic>? details,
-    )?
-    system,
-    TResult Function(
-      String message,
-      String? code,
-      Object? originalException,
-      Map<String, dynamic>? details,
-    )?
-    unknown,
+    TResult Function(String message, String? code, int? statusCode, String? url,
+            Map<String, dynamic>? details)?
+        network,
+    TResult Function(String message, String? code, String? connectionState,
+            int reconnectAttempts, Map<String, dynamic>? details)?
+        webSocket,
+    TResult Function(String message, String? code, int? statusCode,
+            String? serverErrorType, Map<String, dynamic>? details)?
+        server,
+    TResult Function(String message, String? code, String? storageType,
+            String? operationType, Map<String, dynamic>? details)?
+        cache,
+    TResult Function(String message, String? code, String? authType,
+            bool requiresReauth, Map<String, dynamic>? details)?
+        auth,
+    TResult Function(String message, String? code, String? field, String? rule,
+            Map<String, dynamic>? details)?
+        validation,
+    TResult Function(String message, String? code, String? businessType,
+            Map<String, dynamic>? details)?
+        business,
+    TResult Function(String message, String? code, String? component,
+            Map<String, dynamic>? details)?
+        system,
+    TResult Function(String message, String? code, Object? originalException,
+            Map<String, dynamic>? details)?
+        unknown,
     required TResult orElse(),
-  }) => throw _privateConstructorUsedError;
+  }) =>
+      throw _privateConstructorUsedError;
   @optionalTypeArgs
   TResult map<TResult extends Object?>({
     required TResult Function(NetworkException value) network,
@@ -253,7 +133,8 @@ mixin _$AppException {
     required TResult Function(BusinessException value) business,
     required TResult Function(SystemException value) system,
     required TResult Function(UnknownException value) unknown,
-  }) => throw _privateConstructorUsedError;
+  }) =>
+      throw _privateConstructorUsedError;
   @optionalTypeArgs
   TResult? mapOrNull<TResult extends Object?>({
     TResult? Function(NetworkException value)? network,
@@ -265,7 +146,8 @@ mixin _$AppException {
     TResult? Function(BusinessException value)? business,
     TResult? Function(SystemException value)? system,
     TResult? Function(UnknownException value)? unknown,
-  }) => throw _privateConstructorUsedError;
+  }) =>
+      throw _privateConstructorUsedError;
   @optionalTypeArgs
   TResult maybeMap<TResult extends Object?>({
     TResult Function(NetworkException value)? network,
@@ -278,7 +160,8 @@ mixin _$AppException {
     TResult Function(SystemException value)? system,
     TResult Function(UnknownException value)? unknown,
     required TResult orElse(),
-  }) => throw _privateConstructorUsedError;
+  }) =>
+      throw _privateConstructorUsedError;
 
   /// Create a copy of AppException
   /// with the given fields replaced by the non-null parameter values.
@@ -290,9 +173,8 @@ mixin _$AppException {
 /// @nodoc
 abstract class $AppExceptionCopyWith<$Res> {
   factory $AppExceptionCopyWith(
-    AppException value,
-    $Res Function(AppException) then,
-  ) = _$AppExceptionCopyWithImpl<$Res, AppException>;
+          AppException value, $Res Function(AppException) then) =
+      _$AppExceptionCopyWithImpl<$Res, AppException>;
   @useResult
   $Res call({String message, String? code, Map<String, dynamic>? details});
 }
@@ -316,55 +198,46 @@ class _$AppExceptionCopyWithImpl<$Res, $Val extends AppException>
     Object? code = freezed,
     Object? details = freezed,
   }) {
-    return _then(
-      _value.copyWith(
-            message:
-                null == message
-                    ? _value.message
-                    : message // ignore: cast_nullable_to_non_nullable
-                        as String,
-            code:
-                freezed == code
-                    ? _value.code
-                    : code // ignore: cast_nullable_to_non_nullable
-                        as String?,
-            details:
-                freezed == details
-                    ? _value.details
-                    : details // ignore: cast_nullable_to_non_nullable
-                        as Map<String, dynamic>?,
-          )
-          as $Val,
-    );
+    return _then(_value.copyWith(
+      message: null == message
+          ? _value.message
+          : message // ignore: cast_nullable_to_non_nullable
+              as String,
+      code: freezed == code
+          ? _value.code
+          : code // ignore: cast_nullable_to_non_nullable
+              as String?,
+      details: freezed == details
+          ? _value.details
+          : details // ignore: cast_nullable_to_non_nullable
+              as Map<String, dynamic>?,
+    ) as $Val);
   }
 }
 
 /// @nodoc
 abstract class _$$NetworkExceptionImplCopyWith<$Res>
     implements $AppExceptionCopyWith<$Res> {
-  factory _$$NetworkExceptionImplCopyWith(
-    _$NetworkExceptionImpl value,
-    $Res Function(_$NetworkExceptionImpl) then,
-  ) = __$$NetworkExceptionImplCopyWithImpl<$Res>;
+  factory _$$NetworkExceptionImplCopyWith(_$NetworkExceptionImpl value,
+          $Res Function(_$NetworkExceptionImpl) then) =
+      __$$NetworkExceptionImplCopyWithImpl<$Res>;
   @override
   @useResult
-  $Res call({
-    String message,
-    String? code,
-    int? statusCode,
-    String? url,
-    Map<String, dynamic>? details,
-  });
+  $Res call(
+      {String message,
+      String? code,
+      int? statusCode,
+      String? url,
+      Map<String, dynamic>? details});
 }
 
 /// @nodoc
 class __$$NetworkExceptionImplCopyWithImpl<$Res>
     extends _$AppExceptionCopyWithImpl<$Res, _$NetworkExceptionImpl>
     implements _$$NetworkExceptionImplCopyWith<$Res> {
-  __$$NetworkExceptionImplCopyWithImpl(
-    _$NetworkExceptionImpl _value,
-    $Res Function(_$NetworkExceptionImpl) _then,
-  ) : super(_value, _then);
+  __$$NetworkExceptionImplCopyWithImpl(_$NetworkExceptionImpl _value,
+      $Res Function(_$NetworkExceptionImpl) _then)
+      : super(_value, _then);
 
   /// Create a copy of AppException
   /// with the given fields replaced by the non-null parameter values.
@@ -377,48 +250,41 @@ class __$$NetworkExceptionImplCopyWithImpl<$Res>
     Object? url = freezed,
     Object? details = freezed,
   }) {
-    return _then(
-      _$NetworkExceptionImpl(
-        message:
-            null == message
-                ? _value.message
-                : message // ignore: cast_nullable_to_non_nullable
-                    as String,
-        code:
-            freezed == code
-                ? _value.code
-                : code // ignore: cast_nullable_to_non_nullable
-                    as String?,
-        statusCode:
-            freezed == statusCode
-                ? _value.statusCode
-                : statusCode // ignore: cast_nullable_to_non_nullable
-                    as int?,
-        url:
-            freezed == url
-                ? _value.url
-                : url // ignore: cast_nullable_to_non_nullable
-                    as String?,
-        details:
-            freezed == details
-                ? _value._details
-                : details // ignore: cast_nullable_to_non_nullable
-                    as Map<String, dynamic>?,
-      ),
-    );
+    return _then(_$NetworkExceptionImpl(
+      message: null == message
+          ? _value.message
+          : message // ignore: cast_nullable_to_non_nullable
+              as String,
+      code: freezed == code
+          ? _value.code
+          : code // ignore: cast_nullable_to_non_nullable
+              as String?,
+      statusCode: freezed == statusCode
+          ? _value.statusCode
+          : statusCode // ignore: cast_nullable_to_non_nullable
+              as int?,
+      url: freezed == url
+          ? _value.url
+          : url // ignore: cast_nullable_to_non_nullable
+              as String?,
+      details: freezed == details
+          ? _value._details
+          : details // ignore: cast_nullable_to_non_nullable
+              as Map<String, dynamic>?,
+    ));
   }
 }
 
 /// @nodoc
 
 class _$NetworkExceptionImpl implements NetworkException {
-  const _$NetworkExceptionImpl({
-    required this.message,
-    this.code,
-    this.statusCode,
-    this.url,
-    final Map<String, dynamic>? details,
-  }) : _details = details;
+  const _$NetworkExceptionImpl(
+      {required this.message,
+      this.code,
+      this.statusCode,
+      this.url,
+      final Map<String, dynamic>? details})
+      : _details = details;
 
   /// 错误消息
   @override
@@ -468,14 +334,8 @@ class _$NetworkExceptionImpl implements NetworkException {
   }
 
   @override
-  int get hashCode => Object.hash(
-    runtimeType,
-    message,
-    code,
-    statusCode,
-    url,
-    const DeepCollectionEquality().hash(_details),
-  );
+  int get hashCode => Object.hash(runtimeType, message, code, statusCode, url,
+      const DeepCollectionEquality().hash(_details));
 
   /// Create a copy of AppException
   /// with the given fields replaced by the non-null parameter values.
@@ -484,82 +344,42 @@ class _$NetworkExceptionImpl implements NetworkException {
   @pragma('vm:prefer-inline')
   _$$NetworkExceptionImplCopyWith<_$NetworkExceptionImpl> get copyWith =>
       __$$NetworkExceptionImplCopyWithImpl<_$NetworkExceptionImpl>(
-        this,
-        _$identity,
-      );
+          this, _$identity);
 
   @override
   @optionalTypeArgs
   TResult when<TResult extends Object?>({
+    required TResult Function(String message, String? code, int? statusCode,
+            String? url, Map<String, dynamic>? details)
+        network,
     required TResult Function(
-      String message,
-      String? code,
-      int? statusCode,
-      String? url,
-      Map<String, dynamic>? details,
-    )
-    network,
-    required TResult Function(
-      String message,
-      String? code,
-      String? connectionState,
-      int reconnectAttempts,
-      Map<String, dynamic>? details,
-    )
-    webSocket,
-    required TResult Function(
-      String message,
-      String? code,
-      int? statusCode,
-      String? serverErrorType,
-      Map<String, dynamic>? details,
-    )
-    server,
-    required TResult Function(
-      String message,
-      String? code,
-      String? storageType,
-      String? operationType,
-      Map<String, dynamic>? details,
-    )
-    cache,
-    required TResult Function(
-      String message,
-      String? code,
-      String? authType,
-      bool requiresReauth,
-      Map<String, dynamic>? details,
-    )
-    auth,
-    required TResult Function(
-      String message,
-      String? code,
-      String? field,
-      String? rule,
-      Map<String, dynamic>? details,
-    )
-    validation,
-    required TResult Function(
-      String message,
-      String? code,
-      String? businessType,
-      Map<String, dynamic>? details,
-    )
-    business,
-    required TResult Function(
-      String message,
-      String? code,
-      String? component,
-      Map<String, dynamic>? details,
-    )
-    system,
-    required TResult Function(
-      String message,
-      String? code,
-      Object? originalException,
-      Map<String, dynamic>? details,
-    )
-    unknown,
+            String message,
+            String? code,
+            String? connectionState,
+            int reconnectAttempts,
+            Map<String, dynamic>? details)
+        webSocket,
+    required TResult Function(String message, String? code, int? statusCode,
+            String? serverErrorType, Map<String, dynamic>? details)
+        server,
+    required TResult Function(String message, String? code, String? storageType,
+            String? operationType, Map<String, dynamic>? details)
+        cache,
+    required TResult Function(String message, String? code, String? authType,
+            bool requiresReauth, Map<String, dynamic>? details)
+        auth,
+    required TResult Function(String message, String? code, String? field,
+            String? rule, Map<String, dynamic>? details)
+        validation,
+    required TResult Function(String message, String? code,
+            String? businessType, Map<String, dynamic>? details)
+        business,
+    required TResult Function(String message, String? code, String? component,
+            Map<String, dynamic>? details)
+        system,
+    required TResult Function(String message, String? code,
+            Object? originalException, Map<String, dynamic>? details)
+        unknown,
   }) {
     return network(message, code, statusCode, url, details);
   }
@@ -567,75 +387,33 @@ class _$NetworkExceptionImpl implements NetworkException {
   @override
   @optionalTypeArgs
   TResult? whenOrNull<TResult extends Object?>({
-    TResult? Function(
-      String message,
-      String? code,
-      int? statusCode,
-      String? url,
-      Map<String, dynamic>? details,
-    )?
-    network,
-    TResult? Function(
-      String message,
-      String? code,
-      String? connectionState,
-      int reconnectAttempts,
-      Map<String, dynamic>? details,
-    )?
-    webSocket,
-    TResult? Function(
-      String message,
-      String? code,
-      int? statusCode,
-      String? serverErrorType,
-      Map<String, dynamic>? details,
-    )?
-    server,
-    TResult? Function(
-      String message,
-      String? code,
-      String? storageType,
-      String? operationType,
-      Map<String, dynamic>? details,
-    )?
-    cache,
-    TResult? Function(
-      String message,
-      String? code,
-      String? authType,
-      bool requiresReauth,
-      Map<String, dynamic>? details,
-    )?
-    auth,
-    TResult? Function(
-      String message,
-      String? code,
-      String? field,
-      String? rule,
-      Map<String, dynamic>? details,
-    )?
-    validation,
-    TResult? Function(
-      String message,
-      String? code,
-      String? businessType,
-      Map<String, dynamic>? details,
-    )?
-    business,
-    TResult? Function(
-      String message,
-      String? code,
-      String? component,
-      Map<String, dynamic>? details,
-    )?
-    system,
-    TResult? Function(
-      String message,
-      String? code,
-      Object? originalException,
-      Map<String, dynamic>? details,
-    )?
-    unknown,
+    TResult? Function(String message, String? code, int? statusCode,
+            String? url, Map<String, dynamic>? details)?
+        network,
+    TResult? Function(String message, String? code, String? connectionState,
+            int reconnectAttempts, Map<String, dynamic>? details)?
+        webSocket,
+    TResult? Function(String message, String? code, int? statusCode,
+            String? serverErrorType, Map<String, dynamic>? details)?
+        server,
+    TResult? Function(String message, String? code, String? storageType,
+            String? operationType, Map<String, dynamic>? details)?
+        cache,
+    TResult? Function(String message, String? code, String? authType,
+            bool requiresReauth, Map<String, dynamic>? details)?
+        auth,
+    TResult? Function(String message, String? code, String? field, String? rule,
+            Map<String, dynamic>? details)?
+        validation,
+    TResult? Function(String message, String? code, String? businessType,
+            Map<String, dynamic>? details)?
+        business,
+    TResult? Function(String message, String? code, String? component,
+            Map<String, dynamic>? details)?
+        system,
+    TResult? Function(String message, String? code, Object? originalException,
+            Map<String, dynamic>? details)?
+        unknown,
   }) {
     return network?.call(message, code, statusCode, url, details);
   }
@@ -643,75 +421,33 @@ class _$NetworkExceptionImpl implements NetworkException {
   @override
   @optionalTypeArgs
   TResult maybeWhen<TResult extends Object?>({
-    TResult Function(
-      String message,
-      String? code,
-      int? statusCode,
-      String? url,
-      Map<String, dynamic>? details,
-    )?
-    network,
-    TResult Function(
-      String message,
-      String? code,
-      String? connectionState,
-      int reconnectAttempts,
-      Map<String, dynamic>? details,
-    )?
-    webSocket,
-    TResult Function(
-      String message,
-      String? code,
-      int? statusCode,
-      String? serverErrorType,
-      Map<String, dynamic>? details,
-    )?
-    server,
-    TResult Function(
-      String message,
-      String? code,
-      String? storageType,
-      String? operationType,
-      Map<String, dynamic>? details,
-    )?
-    cache,
-    TResult Function(
-      String message,
-      String? code,
-      String? authType,
-      bool requiresReauth,
-      Map<String, dynamic>? details,
-    )?
-    auth,
-    TResult Function(
-      String message,
-      String? code,
-      String? field,
-      String? rule,
-      Map<String, dynamic>? details,
-    )?
-    validation,
-    TResult Function(
-      String message,
-      String? code,
-      String? businessType,
-      Map<String, dynamic>? details,
-    )?
-    business,
-    TResult Function(
-      String message,
-      String? code,
-      String? component,
-      Map<String, dynamic>? details,
-    )?
-    system,
-    TResult Function(
-      String message,
-      String? code,
-      Object? originalException,
-      Map<String, dynamic>? details,
-    )?
-    unknown,
+    TResult Function(String message, String? code, int? statusCode, String? url,
+            Map<String, dynamic>? details)?
+        network,
+    TResult Function(String message, String? code, String? connectionState,
+            int reconnectAttempts, Map<String, dynamic>? details)?
+        webSocket,
+    TResult Function(String message, String? code, int? statusCode,
+            String? serverErrorType, Map<String, dynamic>? details)?
+        server,
+    TResult Function(String message, String? code, String? storageType,
+            String? operationType, Map<String, dynamic>? details)?
+        cache,
+    TResult Function(String message, String? code, String? authType,
+            bool requiresReauth, Map<String, dynamic>? details)?
+        auth,
+    TResult Function(String message, String? code, String? field, String? rule,
+            Map<String, dynamic>? details)?
+        validation,
+    TResult Function(String message, String? code, String? businessType,
+            Map<String, dynamic>? details)?
+        business,
+    TResult Function(String message, String? code, String? component,
+            Map<String, dynamic>? details)?
+        system,
+    TResult Function(String message, String? code, Object? originalException,
+            Map<String, dynamic>? details)?
+        unknown,
     required TResult orElse(),
   }) {
     if (network != null) {
@@ -774,13 +510,12 @@ class _$NetworkExceptionImpl implements NetworkException {
 }
 
 abstract class NetworkException implements AppException {
-  const factory NetworkException({
-    required final String message,
-    final String? code,
-    final int? statusCode,
-    final String? url,
-    final Map<String, dynamic>? details,
-  }) = _$NetworkExceptionImpl;
+  const factory NetworkException(
+      {required final String message,
+      final String? code,
+      final int? statusCode,
+      final String? url,
+      final Map<String, dynamic>? details}) = _$NetworkExceptionImpl;
 
   /// 错误消息
   @override
@@ -811,29 +546,26 @@ abstract class NetworkException implements AppException {
 /// @nodoc
 abstract class _$$WebSocketExceptionImplCopyWith<$Res>
     implements $AppExceptionCopyWith<$Res> {
-  factory _$$WebSocketExceptionImplCopyWith(
-    _$WebSocketExceptionImpl value,
-    $Res Function(_$WebSocketExceptionImpl) then,
-  ) = __$$WebSocketExceptionImplCopyWithImpl<$Res>;
+  factory _$$WebSocketExceptionImplCopyWith(_$WebSocketExceptionImpl value,
+          $Res Function(_$WebSocketExceptionImpl) then) =
+      __$$WebSocketExceptionImplCopyWithImpl<$Res>;
   @override
   @useResult
-  $Res call({
-    String message,
-    String? code,
-    String? connectionState,
-    int reconnectAttempts,
-    Map<String, dynamic>? details,
-  });
+  $Res call(
+      {String message,
+      String? code,
+      String? connectionState,
+      int reconnectAttempts,
+      Map<String, dynamic>? details});
 }
 
 /// @nodoc
 class __$$WebSocketExceptionImplCopyWithImpl<$Res>
     extends _$AppExceptionCopyWithImpl<$Res, _$WebSocketExceptionImpl>
     implements _$$WebSocketExceptionImplCopyWith<$Res> {
-  __$$WebSocketExceptionImplCopyWithImpl(
-    _$WebSocketExceptionImpl _value,
-    $Res Function(_$WebSocketExceptionImpl) _then,
-  ) : super(_value, _then);
+  __$$WebSocketExceptionImplCopyWithImpl(_$WebSocketExceptionImpl _value,
+      $Res Function(_$WebSocketExceptionImpl) _then)
+      : super(_value, _then);
 
   /// Create a copy of AppException
   /// with the given fields replaced by the non-null parameter values.
@@ -846,48 +578,41 @@ class __$$WebSocketExceptionImplCopyWithImpl<$Res>
     Object? reconnectAttempts = null,
     Object? details = freezed,
   }) {
-    return _then(
-      _$WebSocketExceptionImpl(
-        message:
-            null == message
-                ? _value.message
-                : message // ignore: cast_nullable_to_non_nullable
-                    as String,
-        code:
-            freezed == code
-                ? _value.code
-                : code // ignore: cast_nullable_to_non_nullable
-                    as String?,
-        connectionState:
-            freezed == connectionState
-                ? _value.connectionState
-                : connectionState // ignore: cast_nullable_to_non_nullable
-                    as String?,
-        reconnectAttempts:
-            null == reconnectAttempts
-                ? _value.reconnectAttempts
-                : reconnectAttempts // ignore: cast_nullable_to_non_nullable
-                    as int,
-        details:
-            freezed == details
-                ? _value._details
-                : details // ignore: cast_nullable_to_non_nullable
-                    as Map<String, dynamic>?,
-      ),
-    );
+    return _then(_$WebSocketExceptionImpl(
+      message: null == message
+          ? _value.message
+          : message // ignore: cast_nullable_to_non_nullable
+              as String,
+      code: freezed == code
+          ? _value.code
+          : code // ignore: cast_nullable_to_non_nullable
+              as String?,
+      connectionState: freezed == connectionState
+          ? _value.connectionState
+          : connectionState // ignore: cast_nullable_to_non_nullable
+              as String?,
+      reconnectAttempts: null == reconnectAttempts
+          ? _value.reconnectAttempts
+          : reconnectAttempts // ignore: cast_nullable_to_non_nullable
+              as int,
+      details: freezed == details
+          ? _value._details
+          : details // ignore: cast_nullable_to_non_nullable
+              as Map<String, dynamic>?,
+    ));
   }
 }
 
 /// @nodoc
 
 class _$WebSocketExceptionImpl implements WebSocketException {
-  const _$WebSocketExceptionImpl({
-    required this.message,
-    this.code,
-    this.connectionState,
-    this.reconnectAttempts = 0,
-    final Map<String, dynamic>? details,
-  }) : _details = details;
+  const _$WebSocketExceptionImpl(
+      {required this.message,
+      this.code,
+      this.connectionState,
+      this.reconnectAttempts = 0,
+      final Map<String, dynamic>? details})
+      : _details = details;
 
   /// 错误消息
   @override
@@ -939,14 +664,8 @@ class _$WebSocketExceptionImpl implements WebSocketException {
   }
 
   @override
-  int get hashCode => Object.hash(
-    runtimeType,
-    message,
-    code,
-    connectionState,
-    reconnectAttempts,
-    const DeepCollectionEquality().hash(_details),
-  );
+  int get hashCode => Object.hash(runtimeType, message, code, connectionState,
+      reconnectAttempts, const DeepCollectionEquality().hash(_details));
 
   /// Create a copy of AppException
   /// with the given fields replaced by the non-null parameter values.
@@ -955,256 +674,117 @@ class _$WebSocketExceptionImpl implements WebSocketException {
   @pragma('vm:prefer-inline')
   _$$WebSocketExceptionImplCopyWith<_$WebSocketExceptionImpl> get copyWith =>
       __$$WebSocketExceptionImplCopyWithImpl<_$WebSocketExceptionImpl>(
-        this,
-        _$identity,
-      );
+          this, _$identity);
 
   @override
   @optionalTypeArgs
   TResult when<TResult extends Object?>({
+    required TResult Function(String message, String? code, int? statusCode,
+            String? url, Map<String, dynamic>? details)
+        network,
     required TResult Function(
-      String message,
-      String? code,
-      int? statusCode,
-      String? url,
-      Map<String, dynamic>? details,
-    )
-    network,
-    required TResult Function(
-      String message,
-      String? code,
-      String? connectionState,
-      int reconnectAttempts,
-      Map<String, dynamic>? details,
-    )
-    webSocket,
-    required TResult Function(
-      String message,
-      String? code,
-      int? statusCode,
-      String? serverErrorType,
-      Map<String, dynamic>? details,
-    )
-    server,
-    required TResult Function(
-      String message,
-      String? code,
-      String? storageType,
-      String? operationType,
-      Map<String, dynamic>? details,
-    )
-    cache,
-    required TResult Function(
-      String message,
-      String? code,
-      String? authType,
-      bool requiresReauth,
-      Map<String, dynamic>? details,
-    )
-    auth,
-    required TResult Function(
-      String message,
-      String? code,
-      String? field,
-      String? rule,
-      Map<String, dynamic>? details,
-    )
-    validation,
-    required TResult Function(
-      String message,
-      String? code,
-      String? businessType,
-      Map<String, dynamic>? details,
-    )
-    business,
-    required TResult Function(
-      String message,
-      String? code,
-      String? component,
-      Map<String, dynamic>? details,
-    )
-    system,
-    required TResult Function(
-      String message,
-      String? code,
-      Object? originalException,
-      Map<String, dynamic>? details,
-    )
-    unknown,
+            String message,
+            String? code,
+            String? connectionState,
+            int reconnectAttempts,
+            Map<String, dynamic>? details)
+        webSocket,
+    required TResult Function(String message, String? code, int? statusCode,
+            String? serverErrorType, Map<String, dynamic>? details)
+        server,
+    required TResult Function(String message, String? code, String? storageType,
+            String? operationType, Map<String, dynamic>? details)
+        cache,
+    required TResult Function(String message, String? code, String? authType,
+            bool requiresReauth, Map<String, dynamic>? details)
+        auth,
+    required TResult Function(String message, String? code, String? field,
+            String? rule, Map<String, dynamic>? details)
+        validation,
+    required TResult Function(String message, String? code,
+            String? businessType, Map<String, dynamic>? details)
+        business,
+    required TResult Function(String message, String? code, String? component,
+            Map<String, dynamic>? details)
+        system,
+    required TResult Function(String message, String? code,
+            Object? originalException, Map<String, dynamic>? details)
+        unknown,
   }) {
     return webSocket(
-      message,
-      code,
-      connectionState,
-      reconnectAttempts,
-      details,
-    );
+        message, code, connectionState, reconnectAttempts, details);
   }
 
   @override
   @optionalTypeArgs
   TResult? whenOrNull<TResult extends Object?>({
-    TResult? Function(
-      String message,
-      String? code,
-      int? statusCode,
-      String? url,
-      Map<String, dynamic>? details,
-    )?
-    network,
-    TResult? Function(
-      String message,
-      String? code,
-      String? connectionState,
-      int reconnectAttempts,
-      Map<String, dynamic>? details,
-    )?
-    webSocket,
-    TResult? Function(
-      String message,
-      String? code,
-      int? statusCode,
-      String? serverErrorType,
-      Map<String, dynamic>? details,
-    )?
-    server,
-    TResult? Function(
-      String message,
-      String? code,
-      String? storageType,
-      String? operationType,
-      Map<String, dynamic>? details,
-    )?
-    cache,
-    TResult? Function(
-      String message,
-      String? code,
-      String? authType,
-      bool requiresReauth,
-      Map<String, dynamic>? details,
-    )?
-    auth,
-    TResult? Function(
-      String message,
-      String? code,
-      String? field,
-      String? rule,
-      Map<String, dynamic>? details,
-    )?
-    validation,
-    TResult? Function(
-      String message,
-      String? code,
-      String? businessType,
-      Map<String, dynamic>? details,
-    )?
-    business,
-    TResult? Function(
-      String message,
-      String? code,
-      String? component,
-      Map<String, dynamic>? details,
-    )?
-    system,
-    TResult? Function(
-      String message,
-      String? code,
-      Object? originalException,
-      Map<String, dynamic>? details,
-    )?
-    unknown,
+    TResult? Function(String message, String? code, int? statusCode,
+            String? url, Map<String, dynamic>? details)?
+        network,
+    TResult? Function(String message, String? code, String? connectionState,
+            int reconnectAttempts, Map<String, dynamic>? details)?
+        webSocket,
+    TResult? Function(String message, String? code, int? statusCode,
+            String? serverErrorType, Map<String, dynamic>? details)?
+        server,
+    TResult? Function(String message, String? code, String? storageType,
+            String? operationType, Map<String, dynamic>? details)?
+        cache,
+    TResult? Function(String message, String? code, String? authType,
+            bool requiresReauth, Map<String, dynamic>? details)?
+        auth,
+    TResult? Function(String message, String? code, String? field, String? rule,
+            Map<String, dynamic>? details)?
+        validation,
+    TResult? Function(String message, String? code, String? businessType,
+            Map<String, dynamic>? details)?
+        business,
+    TResult? Function(String message, String? code, String? component,
+            Map<String, dynamic>? details)?
+        system,
+    TResult? Function(String message, String? code, Object? originalException,
+            Map<String, dynamic>? details)?
+        unknown,
   }) {
     return webSocket?.call(
-      message,
-      code,
-      connectionState,
-      reconnectAttempts,
-      details,
-    );
+        message, code, connectionState, reconnectAttempts, details);
   }
 
   @override
   @optionalTypeArgs
   TResult maybeWhen<TResult extends Object?>({
-    TResult Function(
-      String message,
-      String? code,
-      int? statusCode,
-      String? url,
-      Map<String, dynamic>? details,
-    )?
-    network,
-    TResult Function(
-      String message,
-      String? code,
-      String? connectionState,
-      int reconnectAttempts,
-      Map<String, dynamic>? details,
-    )?
-    webSocket,
-    TResult Function(
-      String message,
-      String? code,
-      int? statusCode,
-      String? serverErrorType,
-      Map<String, dynamic>? details,
-    )?
-    server,
-    TResult Function(
-      String message,
-      String? code,
-      String? storageType,
-      String? operationType,
-      Map<String, dynamic>? details,
-    )?
-    cache,
-    TResult Function(
-      String message,
-      String? code,
-      String? authType,
-      bool requiresReauth,
-      Map<String, dynamic>? details,
-    )?
-    auth,
-    TResult Function(
-      String message,
-      String? code,
-      String? field,
-      String? rule,
-      Map<String, dynamic>? details,
-    )?
-    validation,
-    TResult Function(
-      String message,
-      String? code,
-      String? businessType,
-      Map<String, dynamic>? details,
-    )?
-    business,
-    TResult Function(
-      String message,
-      String? code,
-      String? component,
-      Map<String, dynamic>? details,
-    )?
-    system,
-    TResult Function(
-      String message,
-      String? code,
-      Object? originalException,
-      Map<String, dynamic>? details,
-    )?
-    unknown,
+    TResult Function(String message, String? code, int? statusCode, String? url,
+            Map<String, dynamic>? details)?
+        network,
+    TResult Function(String message, String? code, String? connectionState,
+            int reconnectAttempts, Map<String, dynamic>? details)?
+        webSocket,
+    TResult Function(String message, String? code, int? statusCode,
+            String? serverErrorType, Map<String, dynamic>? details)?
+        server,
+    TResult Function(String message, String? code, String? storageType,
+            String? operationType, Map<String, dynamic>? details)?
+        cache,
+    TResult Function(String message, String? code, String? authType,
+            bool requiresReauth, Map<String, dynamic>? details)?
+        auth,
+    TResult Function(String message, String? code, String? field, String? rule,
+            Map<String, dynamic>? details)?
+        validation,
+    TResult Function(String message, String? code, String? businessType,
+            Map<String, dynamic>? details)?
+        business,
+    TResult Function(String message, String? code, String? component,
+            Map<String, dynamic>? details)?
+        system,
+    TResult Function(String message, String? code, Object? originalException,
+            Map<String, dynamic>? details)?
+        unknown,
     required TResult orElse(),
   }) {
     if (webSocket != null) {
       return webSocket(
-        message,
-        code,
-        connectionState,
-        reconnectAttempts,
-        details,
-      );
+          message, code, connectionState, reconnectAttempts, details);
     }
     return orElse();
   }
@@ -1263,13 +843,12 @@ class _$WebSocketExceptionImpl implements WebSocketException {
 }
 
 abstract class WebSocketException implements AppException {
-  const factory WebSocketException({
-    required final String message,
-    final String? code,
-    final String? connectionState,
-    final int reconnectAttempts,
-    final Map<String, dynamic>? details,
-  }) = _$WebSocketExceptionImpl;
+  const factory WebSocketException(
+      {required final String message,
+      final String? code,
+      final String? connectionState,
+      final int reconnectAttempts,
+      final Map<String, dynamic>? details}) = _$WebSocketExceptionImpl;
 
   /// 错误消息
   @override
@@ -1300,19 +879,17 @@ abstract class WebSocketException implements AppException {
 /// @nodoc
 abstract class _$$ServerExceptionImplCopyWith<$Res>
     implements $AppExceptionCopyWith<$Res> {
-  factory _$$ServerExceptionImplCopyWith(
-    _$ServerExceptionImpl value,
-    $Res Function(_$ServerExceptionImpl) then,
-  ) = __$$ServerExceptionImplCopyWithImpl<$Res>;
+  factory _$$ServerExceptionImplCopyWith(_$ServerExceptionImpl value,
+          $Res Function(_$ServerExceptionImpl) then) =
+      __$$ServerExceptionImplCopyWithImpl<$Res>;
   @override
   @useResult
-  $Res call({
-    String message,
-    String? code,
-    int? statusCode,
-    String? serverErrorType,
-    Map<String, dynamic>? details,
-  });
+  $Res call(
+      {String message,
+      String? code,
+      int? statusCode,
+      String? serverErrorType,
+      Map<String, dynamic>? details});
 }
 
 /// @nodoc
@@ -1320,9 +897,8 @@ class __$$ServerExceptionImplCopyWithImpl<$Res>
     extends _$AppExceptionCopyWithImpl<$Res, _$ServerExceptionImpl>
     implements _$$ServerExceptionImplCopyWith<$Res> {
   __$$ServerExceptionImplCopyWithImpl(
-    _$ServerExceptionImpl _value,
-    $Res Function(_$ServerExceptionImpl) _then,
-  ) : super(_value, _then);
+      _$ServerExceptionImpl _value, $Res Function(_$ServerExceptionImpl) _then)
+      : super(_value, _then);
 
   /// Create a copy of AppException
   /// with the given fields replaced by the non-null parameter values.
@@ -1335,48 +911,41 @@ class __$$ServerExceptionImplCopyWithImpl<$Res>
     Object? serverErrorType = freezed,
     Object? details = freezed,
   }) {
-    return _then(
-      _$ServerExceptionImpl(
-        message:
-            null == message
-                ? _value.message
-                : message // ignore: cast_nullable_to_non_nullable
-                    as String,
-        code:
-            freezed == code
-                ? _value.code
-                : code // ignore: cast_nullable_to_non_nullable
-                    as String?,
-        statusCode:
-            freezed == statusCode
-                ? _value.statusCode
-                : statusCode // ignore: cast_nullable_to_non_nullable
-                    as int?,
-        serverErrorType:
-            freezed == serverErrorType
-                ? _value.serverErrorType
-                : serverErrorType // ignore: cast_nullable_to_non_nullable
-                    as String?,
-        details:
-            freezed == details
-                ? _value._details
-                : details // ignore: cast_nullable_to_non_nullable
-                    as Map<String, dynamic>?,
-      ),
-    );
+    return _then(_$ServerExceptionImpl(
+      message: null == message
+          ? _value.message
+          : message // ignore: cast_nullable_to_non_nullable
+              as String,
+      code: freezed == code
+          ? _value.code
+          : code // ignore: cast_nullable_to_non_nullable
+              as String?,
+      statusCode: freezed == statusCode
+          ? _value.statusCode
+          : statusCode // ignore: cast_nullable_to_non_nullable
+              as int?,
+      serverErrorType: freezed == serverErrorType
+          ? _value.serverErrorType
+          : serverErrorType // ignore: cast_nullable_to_non_nullable
+              as String?,
+      details: freezed == details
+          ? _value._details
+          : details // ignore: cast_nullable_to_non_nullable
+              as Map<String, dynamic>?,
+    ));
   }
 }
 
 /// @nodoc
 
 class _$ServerExceptionImpl implements ServerException {
-  const _$ServerExceptionImpl({
-    required this.message,
-    this.code,
-    this.statusCode,
-    this.serverErrorType,
-    final Map<String, dynamic>? details,
-  }) : _details = details;
+  const _$ServerExceptionImpl(
+      {required this.message,
+      this.code,
+      this.statusCode,
+      this.serverErrorType,
+      final Map<String, dynamic>? details})
+      : _details = details;
 
   /// 错误消息
   @override
@@ -1427,14 +996,8 @@ class _$ServerExceptionImpl implements ServerException {
   }
 
   @override
-  int get hashCode => Object.hash(
-    runtimeType,
-    message,
-    code,
-    statusCode,
-    serverErrorType,
-    const DeepCollectionEquality().hash(_details),
-  );
+  int get hashCode => Object.hash(runtimeType, message, code, statusCode,
+      serverErrorType, const DeepCollectionEquality().hash(_details));
 
   /// Create a copy of AppException
   /// with the given fields replaced by the non-null parameter values.
@@ -1443,82 +1006,42 @@ class _$ServerExceptionImpl implements ServerException {
   @pragma('vm:prefer-inline')
   _$$ServerExceptionImplCopyWith<_$ServerExceptionImpl> get copyWith =>
       __$$ServerExceptionImplCopyWithImpl<_$ServerExceptionImpl>(
-        this,
-        _$identity,
-      );
+          this, _$identity);
 
   @override
   @optionalTypeArgs
   TResult when<TResult extends Object?>({
+    required TResult Function(String message, String? code, int? statusCode,
+            String? url, Map<String, dynamic>? details)
+        network,
     required TResult Function(
-      String message,
-      String? code,
-      int? statusCode,
-      String? url,
-      Map<String, dynamic>? details,
-    )
-    network,
-    required TResult Function(
-      String message,
-      String? code,
-      String? connectionState,
-      int reconnectAttempts,
-      Map<String, dynamic>? details,
-    )
-    webSocket,
-    required TResult Function(
-      String message,
-      String? code,
-      int? statusCode,
-      String? serverErrorType,
-      Map<String, dynamic>? details,
-    )
-    server,
-    required TResult Function(
-      String message,
-      String? code,
-      String? storageType,
-      String? operationType,
-      Map<String, dynamic>? details,
-    )
-    cache,
-    required TResult Function(
-      String message,
-      String? code,
-      String? authType,
-      bool requiresReauth,
-      Map<String, dynamic>? details,
-    )
-    auth,
-    required TResult Function(
-      String message,
-      String? code,
-      String? field,
-      String? rule,
-      Map<String, dynamic>? details,
-    )
-    validation,
-    required TResult Function(
-      String message,
-      String? code,
-      String? businessType,
-      Map<String, dynamic>? details,
-    )
-    business,
-    required TResult Function(
-      String message,
-      String? code,
-      String? component,
-      Map<String, dynamic>? details,
-    )
-    system,
-    required TResult Function(
-      String message,
-      String? code,
-      Object? originalException,
-      Map<String, dynamic>? details,
-    )
-    unknown,
+            String message,
+            String? code,
+            String? connectionState,
+            int reconnectAttempts,
+            Map<String, dynamic>? details)
+        webSocket,
+    required TResult Function(String message, String? code, int? statusCode,
+            String? serverErrorType, Map<String, dynamic>? details)
+        server,
+    required TResult Function(String message, String? code, String? storageType,
+            String? operationType, Map<String, dynamic>? details)
+        cache,
+    required TResult Function(String message, String? code, String? authType,
+            bool requiresReauth, Map<String, dynamic>? details)
+        auth,
+    required TResult Function(String message, String? code, String? field,
+            String? rule, Map<String, dynamic>? details)
+        validation,
+    required TResult Function(String message, String? code,
+            String? businessType, Map<String, dynamic>? details)
+        business,
+    required TResult Function(String message, String? code, String? component,
+            Map<String, dynamic>? details)
+        system,
+    required TResult Function(String message, String? code,
+            Object? originalException, Map<String, dynamic>? details)
+        unknown,
   }) {
     return server(message, code, statusCode, serverErrorType, details);
   }
@@ -1526,75 +1049,33 @@ class _$ServerExceptionImpl implements ServerException {
   @override
   @optionalTypeArgs
   TResult? whenOrNull<TResult extends Object?>({
-    TResult? Function(
-      String message,
-      String? code,
-      int? statusCode,
-      String? url,
-      Map<String, dynamic>? details,
-    )?
-    network,
-    TResult? Function(
-      String message,
-      String? code,
-      String? connectionState,
-      int reconnectAttempts,
-      Map<String, dynamic>? details,
-    )?
-    webSocket,
-    TResult? Function(
-      String message,
-      String? code,
-      int? statusCode,
-      String? serverErrorType,
-      Map<String, dynamic>? details,
-    )?
-    server,
-    TResult? Function(
-      String message,
-      String? code,
-      String? storageType,
-      String? operationType,
-      Map<String, dynamic>? details,
-    )?
-    cache,
-    TResult? Function(
-      String message,
-      String? code,
-      String? authType,
-      bool requiresReauth,
-      Map<String, dynamic>? details,
-    )?
-    auth,
-    TResult? Function(
-      String message,
-      String? code,
-      String? field,
-      String? rule,
-      Map<String, dynamic>? details,
-    )?
-    validation,
-    TResult? Function(
-      String message,
-      String? code,
-      String? businessType,
-      Map<String, dynamic>? details,
-    )?
-    business,
-    TResult? Function(
-      String message,
-      String? code,
-      String? component,
-      Map<String, dynamic>? details,
-    )?
-    system,
-    TResult? Function(
-      String message,
-      String? code,
-      Object? originalException,
-      Map<String, dynamic>? details,
-    )?
-    unknown,
+    TResult? Function(String message, String? code, int? statusCode,
+            String? url, Map<String, dynamic>? details)?
+        network,
+    TResult? Function(String message, String? code, String? connectionState,
+            int reconnectAttempts, Map<String, dynamic>? details)?
+        webSocket,
+    TResult? Function(String message, String? code, int? statusCode,
+            String? serverErrorType, Map<String, dynamic>? details)?
+        server,
+    TResult? Function(String message, String? code, String? storageType,
+            String? operationType, Map<String, dynamic>? details)?
+        cache,
+    TResult? Function(String message, String? code, String? authType,
+            bool requiresReauth, Map<String, dynamic>? details)?
+        auth,
+    TResult? Function(String message, String? code, String? field, String? rule,
+            Map<String, dynamic>? details)?
+        validation,
+    TResult? Function(String message, String? code, String? businessType,
+            Map<String, dynamic>? details)?
+        business,
+    TResult? Function(String message, String? code, String? component,
+            Map<String, dynamic>? details)?
+        system,
+    TResult? Function(String message, String? code, Object? originalException,
+            Map<String, dynamic>? details)?
+        unknown,
   }) {
     return server?.call(message, code, statusCode, serverErrorType, details);
   }
@@ -1602,75 +1083,33 @@ class _$ServerExceptionImpl implements ServerException {
   @override
   @optionalTypeArgs
   TResult maybeWhen<TResult extends Object?>({
-    TResult Function(
-      String message,
-      String? code,
-      int? statusCode,
-      String? url,
-      Map<String, dynamic>? details,
-    )?
-    network,
-    TResult Function(
-      String message,
-      String? code,
-      String? connectionState,
-      int reconnectAttempts,
-      Map<String, dynamic>? details,
-    )?
-    webSocket,
-    TResult Function(
-      String message,
-      String? code,
-      int? statusCode,
-      String? serverErrorType,
-      Map<String, dynamic>? details,
-    )?
-    server,
-    TResult Function(
-      String message,
-      String? code,
-      String? storageType,
-      String? operationType,
-      Map<String, dynamic>? details,
-    )?
-    cache,
-    TResult Function(
-      String message,
-      String? code,
-      String? authType,
-      bool requiresReauth,
-      Map<String, dynamic>? details,
-    )?
-    auth,
-    TResult Function(
-      String message,
-      String? code,
-      String? field,
-      String? rule,
-      Map<String, dynamic>? details,
-    )?
-    validation,
-    TResult Function(
-      String message,
-      String? code,
-      String? businessType,
-      Map<String, dynamic>? details,
-    )?
-    business,
-    TResult Function(
-      String message,
-      String? code,
-      String? component,
-      Map<String, dynamic>? details,
-    )?
-    system,
-    TResult Function(
-      String message,
-      String? code,
-      Object? originalException,
-      Map<String, dynamic>? details,
-    )?
-    unknown,
+    TResult Function(String message, String? code, int? statusCode, String? url,
+            Map<String, dynamic>? details)?
+        network,
+    TResult Function(String message, String? code, String? connectionState,
+            int reconnectAttempts, Map<String, dynamic>? details)?
+        webSocket,
+    TResult Function(String message, String? code, int? statusCode,
+            String? serverErrorType, Map<String, dynamic>? details)?
+        server,
+    TResult Function(String message, String? code, String? storageType,
+            String? operationType, Map<String, dynamic>? details)?
+        cache,
+    TResult Function(String message, String? code, String? authType,
+            bool requiresReauth, Map<String, dynamic>? details)?
+        auth,
+    TResult Function(String message, String? code, String? field, String? rule,
+            Map<String, dynamic>? details)?
+        validation,
+    TResult Function(String message, String? code, String? businessType,
+            Map<String, dynamic>? details)?
+        business,
+    TResult Function(String message, String? code, String? component,
+            Map<String, dynamic>? details)?
+        system,
+    TResult Function(String message, String? code, Object? originalException,
+            Map<String, dynamic>? details)?
+        unknown,
     required TResult orElse(),
   }) {
     if (server != null) {
@@ -1733,13 +1172,12 @@ class _$ServerExceptionImpl implements ServerException {
 }
 
 abstract class ServerException implements AppException {
-  const factory ServerException({
-    required final String message,
-    final String? code,
-    final int? statusCode,
-    final String? serverErrorType,
-    final Map<String, dynamic>? details,
-  }) = _$ServerExceptionImpl;
+  const factory ServerException(
+      {required final String message,
+      final String? code,
+      final int? statusCode,
+      final String? serverErrorType,
+      final Map<String, dynamic>? details}) = _$ServerExceptionImpl;
 
   /// 错误消息
   @override
@@ -1770,19 +1208,17 @@ abstract class ServerException implements AppException {
 /// @nodoc
 abstract class _$$CacheExceptionImplCopyWith<$Res>
     implements $AppExceptionCopyWith<$Res> {
-  factory _$$CacheExceptionImplCopyWith(
-    _$CacheExceptionImpl value,
-    $Res Function(_$CacheExceptionImpl) then,
-  ) = __$$CacheExceptionImplCopyWithImpl<$Res>;
+  factory _$$CacheExceptionImplCopyWith(_$CacheExceptionImpl value,
+          $Res Function(_$CacheExceptionImpl) then) =
+      __$$CacheExceptionImplCopyWithImpl<$Res>;
   @override
   @useResult
-  $Res call({
-    String message,
-    String? code,
-    String? storageType,
-    String? operationType,
-    Map<String, dynamic>? details,
-  });
+  $Res call(
+      {String message,
+      String? code,
+      String? storageType,
+      String? operationType,
+      Map<String, dynamic>? details});
 }
 
 /// @nodoc
@@ -1790,9 +1226,8 @@ class __$$CacheExceptionImplCopyWithImpl<$Res>
     extends _$AppExceptionCopyWithImpl<$Res, _$CacheExceptionImpl>
     implements _$$CacheExceptionImplCopyWith<$Res> {
   __$$CacheExceptionImplCopyWithImpl(
-    _$CacheExceptionImpl _value,
-    $Res Function(_$CacheExceptionImpl) _then,
-  ) : super(_value, _then);
+      _$CacheExceptionImpl _value, $Res Function(_$CacheExceptionImpl) _then)
+      : super(_value, _then);
 
   /// Create a copy of AppException
   /// with the given fields replaced by the non-null parameter values.
@@ -1805,48 +1240,41 @@ class __$$CacheExceptionImplCopyWithImpl<$Res>
     Object? operationType = freezed,
     Object? details = freezed,
   }) {
-    return _then(
-      _$CacheExceptionImpl(
-        message:
-            null == message
-                ? _value.message
-                : message // ignore: cast_nullable_to_non_nullable
-                    as String,
-        code:
-            freezed == code
-                ? _value.code
-                : code // ignore: cast_nullable_to_non_nullable
-                    as String?,
-        storageType:
-            freezed == storageType
-                ? _value.storageType
-                : storageType // ignore: cast_nullable_to_non_nullable
-                    as String?,
-        operationType:
-            freezed == operationType
-                ? _value.operationType
-                : operationType // ignore: cast_nullable_to_non_nullable
-                    as String?,
-        details:
-            freezed == details
-                ? _value._details
-                : details // ignore: cast_nullable_to_non_nullable
-                    as Map<String, dynamic>?,
-      ),
-    );
+    return _then(_$CacheExceptionImpl(
+      message: null == message
+          ? _value.message
+          : message // ignore: cast_nullable_to_non_nullable
+              as String,
+      code: freezed == code
+          ? _value.code
+          : code // ignore: cast_nullable_to_non_nullable
+              as String?,
+      storageType: freezed == storageType
+          ? _value.storageType
+          : storageType // ignore: cast_nullable_to_non_nullable
+              as String?,
+      operationType: freezed == operationType
+          ? _value.operationType
+          : operationType // ignore: cast_nullable_to_non_nullable
+              as String?,
+      details: freezed == details
+          ? _value._details
+          : details // ignore: cast_nullable_to_non_nullable
+              as Map<String, dynamic>?,
+    ));
   }
 }
 
 /// @nodoc
 
 class _$CacheExceptionImpl implements CacheException {
-  const _$CacheExceptionImpl({
-    required this.message,
-    this.code,
-    this.storageType,
-    this.operationType,
-    final Map<String, dynamic>? details,
-  }) : _details = details;
+  const _$CacheExceptionImpl(
+      {required this.message,
+      this.code,
+      this.storageType,
+      this.operationType,
+      final Map<String, dynamic>? details})
+      : _details = details;
 
   /// 错误消息
   @override
@@ -1897,14 +1325,8 @@ class _$CacheExceptionImpl implements CacheException {
   }
 
   @override
-  int get hashCode => Object.hash(
-    runtimeType,
-    message,
-    code,
-    storageType,
-    operationType,
-    const DeepCollectionEquality().hash(_details),
-  );
+  int get hashCode => Object.hash(runtimeType, message, code, storageType,
+      operationType, const DeepCollectionEquality().hash(_details));
 
   /// Create a copy of AppException
   /// with the given fields replaced by the non-null parameter values.
@@ -1913,82 +1335,42 @@ class _$CacheExceptionImpl implements CacheException {
   @pragma('vm:prefer-inline')
   _$$CacheExceptionImplCopyWith<_$CacheExceptionImpl> get copyWith =>
       __$$CacheExceptionImplCopyWithImpl<_$CacheExceptionImpl>(
-        this,
-        _$identity,
-      );
+          this, _$identity);
 
   @override
   @optionalTypeArgs
   TResult when<TResult extends Object?>({
+    required TResult Function(String message, String? code, int? statusCode,
+            String? url, Map<String, dynamic>? details)
+        network,
     required TResult Function(
-      String message,
-      String? code,
-      int? statusCode,
-      String? url,
-      Map<String, dynamic>? details,
-    )
-    network,
-    required TResult Function(
-      String message,
-      String? code,
-      String? connectionState,
-      int reconnectAttempts,
-      Map<String, dynamic>? details,
-    )
-    webSocket,
-    required TResult Function(
-      String message,
-      String? code,
-      int? statusCode,
-      String? serverErrorType,
-      Map<String, dynamic>? details,
-    )
-    server,
-    required TResult Function(
-      String message,
-      String? code,
-      String? storageType,
-      String? operationType,
-      Map<String, dynamic>? details,
-    )
-    cache,
-    required TResult Function(
-      String message,
-      String? code,
-      String? authType,
-      bool requiresReauth,
-      Map<String, dynamic>? details,
-    )
-    auth,
-    required TResult Function(
-      String message,
-      String? code,
-      String? field,
-      String? rule,
-      Map<String, dynamic>? details,
-    )
-    validation,
-    required TResult Function(
-      String message,
-      String? code,
-      String? businessType,
-      Map<String, dynamic>? details,
-    )
-    business,
-    required TResult Function(
-      String message,
-      String? code,
-      String? component,
-      Map<String, dynamic>? details,
-    )
-    system,
-    required TResult Function(
-      String message,
-      String? code,
-      Object? originalException,
-      Map<String, dynamic>? details,
-    )
-    unknown,
+            String message,
+            String? code,
+            String? connectionState,
+            int reconnectAttempts,
+            Map<String, dynamic>? details)
+        webSocket,
+    required TResult Function(String message, String? code, int? statusCode,
+            String? serverErrorType, Map<String, dynamic>? details)
+        server,
+    required TResult Function(String message, String? code, String? storageType,
+            String? operationType, Map<String, dynamic>? details)
+        cache,
+    required TResult Function(String message, String? code, String? authType,
+            bool requiresReauth, Map<String, dynamic>? details)
+        auth,
+    required TResult Function(String message, String? code, String? field,
+            String? rule, Map<String, dynamic>? details)
+        validation,
+    required TResult Function(String message, String? code,
+            String? businessType, Map<String, dynamic>? details)
+        business,
+    required TResult Function(String message, String? code, String? component,
+            Map<String, dynamic>? details)
+        system,
+    required TResult Function(String message, String? code,
+            Object? originalException, Map<String, dynamic>? details)
+        unknown,
   }) {
     return cache(message, code, storageType, operationType, details);
   }
@@ -1996,75 +1378,33 @@ class _$CacheExceptionImpl implements CacheException {
   @override
   @optionalTypeArgs
   TResult? whenOrNull<TResult extends Object?>({
-    TResult? Function(
-      String message,
-      String? code,
-      int? statusCode,
-      String? url,
-      Map<String, dynamic>? details,
-    )?
-    network,
-    TResult? Function(
-      String message,
-      String? code,
-      String? connectionState,
-      int reconnectAttempts,
-      Map<String, dynamic>? details,
-    )?
-    webSocket,
-    TResult? Function(
-      String message,
-      String? code,
-      int? statusCode,
-      String? serverErrorType,
-      Map<String, dynamic>? details,
-    )?
-    server,
-    TResult? Function(
-      String message,
-      String? code,
-      String? storageType,
-      String? operationType,
-      Map<String, dynamic>? details,
-    )?
-    cache,
-    TResult? Function(
-      String message,
-      String? code,
-      String? authType,
-      bool requiresReauth,
-      Map<String, dynamic>? details,
-    )?
-    auth,
-    TResult? Function(
-      String message,
-      String? code,
-      String? field,
-      String? rule,
-      Map<String, dynamic>? details,
-    )?
-    validation,
-    TResult? Function(
-      String message,
-      String? code,
-      String? businessType,
-      Map<String, dynamic>? details,
-    )?
-    business,
-    TResult? Function(
-      String message,
-      String? code,
-      String? component,
-      Map<String, dynamic>? details,
-    )?
-    system,
-    TResult? Function(
-      String message,
-      String? code,
-      Object? originalException,
-      Map<String, dynamic>? details,
-    )?
-    unknown,
+    TResult? Function(String message, String? code, int? statusCode,
+            String? url, Map<String, dynamic>? details)?
+        network,
+    TResult? Function(String message, String? code, String? connectionState,
+            int reconnectAttempts, Map<String, dynamic>? details)?
+        webSocket,
+    TResult? Function(String message, String? code, int? statusCode,
+            String? serverErrorType, Map<String, dynamic>? details)?
+        server,
+    TResult? Function(String message, String? code, String? storageType,
+            String? operationType, Map<String, dynamic>? details)?
+        cache,
+    TResult? Function(String message, String? code, String? authType,
+            bool requiresReauth, Map<String, dynamic>? details)?
+        auth,
+    TResult? Function(String message, String? code, String? field, String? rule,
+            Map<String, dynamic>? details)?
+        validation,
+    TResult? Function(String message, String? code, String? businessType,
+            Map<String, dynamic>? details)?
+        business,
+    TResult? Function(String message, String? code, String? component,
+            Map<String, dynamic>? details)?
+        system,
+    TResult? Function(String message, String? code, Object? originalException,
+            Map<String, dynamic>? details)?
+        unknown,
   }) {
     return cache?.call(message, code, storageType, operationType, details);
   }
@@ -2072,75 +1412,33 @@ class _$CacheExceptionImpl implements CacheException {
   @override
   @optionalTypeArgs
   TResult maybeWhen<TResult extends Object?>({
-    TResult Function(
-      String message,
-      String? code,
-      int? statusCode,
-      String? url,
-      Map<String, dynamic>? details,
-    )?
-    network,
-    TResult Function(
-      String message,
-      String? code,
-      String? connectionState,
-      int reconnectAttempts,
-      Map<String, dynamic>? details,
-    )?
-    webSocket,
-    TResult Function(
-      String message,
-      String? code,
-      int? statusCode,
-      String? serverErrorType,
-      Map<String, dynamic>? details,
-    )?
-    server,
-    TResult Function(
-      String message,
-      String? code,
-      String? storageType,
-      String? operationType,
-      Map<String, dynamic>? details,
-    )?
-    cache,
-    TResult Function(
-      String message,
-      String? code,
-      String? authType,
-      bool requiresReauth,
-      Map<String, dynamic>? details,
-    )?
-    auth,
-    TResult Function(
-      String message,
-      String? code,
-      String? field,
-      String? rule,
-      Map<String, dynamic>? details,
-    )?
-    validation,
-    TResult Function(
-      String message,
-      String? code,
-      String? businessType,
-      Map<String, dynamic>? details,
-    )?
-    business,
-    TResult Function(
-      String message,
-      String? code,
-      String? component,
-      Map<String, dynamic>? details,
-    )?
-    system,
-    TResult Function(
-      String message,
-      String? code,
-      Object? originalException,
-      Map<String, dynamic>? details,
-    )?
-    unknown,
+    TResult Function(String message, String? code, int? statusCode, String? url,
+            Map<String, dynamic>? details)?
+        network,
+    TResult Function(String message, String? code, String? connectionState,
+            int reconnectAttempts, Map<String, dynamic>? details)?
+        webSocket,
+    TResult Function(String message, String? code, int? statusCode,
+            String? serverErrorType, Map<String, dynamic>? details)?
+        server,
+    TResult Function(String message, String? code, String? storageType,
+            String? operationType, Map<String, dynamic>? details)?
+        cache,
+    TResult Function(String message, String? code, String? authType,
+            bool requiresReauth, Map<String, dynamic>? details)?
+        auth,
+    TResult Function(String message, String? code, String? field, String? rule,
+            Map<String, dynamic>? details)?
+        validation,
+    TResult Function(String message, String? code, String? businessType,
+            Map<String, dynamic>? details)?
+        business,
+    TResult Function(String message, String? code, String? component,
+            Map<String, dynamic>? details)?
+        system,
+    TResult Function(String message, String? code, Object? originalException,
+            Map<String, dynamic>? details)?
+        unknown,
     required TResult orElse(),
   }) {
     if (cache != null) {
@@ -2203,13 +1501,12 @@ class _$CacheExceptionImpl implements CacheException {
 }
 
 abstract class CacheException implements AppException {
-  const factory CacheException({
-    required final String message,
-    final String? code,
-    final String? storageType,
-    final String? operationType,
-    final Map<String, dynamic>? details,
-  }) = _$CacheExceptionImpl;
+  const factory CacheException(
+      {required final String message,
+      final String? code,
+      final String? storageType,
+      final String? operationType,
+      final Map<String, dynamic>? details}) = _$CacheExceptionImpl;
 
   /// 错误消息
   @override
@@ -2241,18 +1538,16 @@ abstract class CacheException implements AppException {
 abstract class _$$AuthExceptionImplCopyWith<$Res>
     implements $AppExceptionCopyWith<$Res> {
   factory _$$AuthExceptionImplCopyWith(
-    _$AuthExceptionImpl value,
-    $Res Function(_$AuthExceptionImpl) then,
-  ) = __$$AuthExceptionImplCopyWithImpl<$Res>;
+          _$AuthExceptionImpl value, $Res Function(_$AuthExceptionImpl) then) =
+      __$$AuthExceptionImplCopyWithImpl<$Res>;
   @override
   @useResult
-  $Res call({
-    String message,
-    String? code,
-    String? authType,
-    bool requiresReauth,
-    Map<String, dynamic>? details,
-  });
+  $Res call(
+      {String message,
+      String? code,
+      String? authType,
+      bool requiresReauth,
+      Map<String, dynamic>? details});
 }
 
 /// @nodoc
@@ -2260,9 +1555,8 @@ class __$$AuthExceptionImplCopyWithImpl<$Res>
     extends _$AppExceptionCopyWithImpl<$Res, _$AuthExceptionImpl>
     implements _$$AuthExceptionImplCopyWith<$Res> {
   __$$AuthExceptionImplCopyWithImpl(
-    _$AuthExceptionImpl _value,
-    $Res Function(_$AuthExceptionImpl) _then,
-  ) : super(_value, _then);
+      _$AuthExceptionImpl _value, $Res Function(_$AuthExceptionImpl) _then)
+      : super(_value, _then);
 
   /// Create a copy of AppException
   /// with the given fields replaced by the non-null parameter values.
@@ -2275,48 +1569,41 @@ class __$$AuthExceptionImplCopyWithImpl<$Res>
     Object? requiresReauth = null,
     Object? details = freezed,
   }) {
-    return _then(
-      _$AuthExceptionImpl(
-        message:
-            null == message
-                ? _value.message
-                : message // ignore: cast_nullable_to_non_nullable
-                    as String,
-        code:
-            freezed == code
-                ? _value.code
-                : code // ignore: cast_nullable_to_non_nullable
-                    as String?,
-        authType:
-            freezed == authType
-                ? _value.authType
-                : authType // ignore: cast_nullable_to_non_nullable
-                    as String?,
-        requiresReauth:
-            null == requiresReauth
-                ? _value.requiresReauth
-                : requiresReauth // ignore: cast_nullable_to_non_nullable
-                    as bool,
-        details:
-            freezed == details
-                ? _value._details
-                : details // ignore: cast_nullable_to_non_nullable
-                    as Map<String, dynamic>?,
-      ),
-    );
+    return _then(_$AuthExceptionImpl(
+      message: null == message
+          ? _value.message
+          : message // ignore: cast_nullable_to_non_nullable
+              as String,
+      code: freezed == code
+          ? _value.code
+          : code // ignore: cast_nullable_to_non_nullable
+              as String?,
+      authType: freezed == authType
+          ? _value.authType
+          : authType // ignore: cast_nullable_to_non_nullable
+              as String?,
+      requiresReauth: null == requiresReauth
+          ? _value.requiresReauth
+          : requiresReauth // ignore: cast_nullable_to_non_nullable
+              as bool,
+      details: freezed == details
+          ? _value._details
+          : details // ignore: cast_nullable_to_non_nullable
+              as Map<String, dynamic>?,
+    ));
   }
 }
 
 /// @nodoc
 
 class _$AuthExceptionImpl implements AuthException {
-  const _$AuthExceptionImpl({
-    required this.message,
-    this.code,
-    this.authType,
-    this.requiresReauth = false,
-    final Map<String, dynamic>? details,
-  }) : _details = details;
+  const _$AuthExceptionImpl(
+      {required this.message,
+      this.code,
+      this.authType,
+      this.requiresReauth = false,
+      final Map<String, dynamic>? details})
+      : _details = details;
 
   /// 错误消息
   @override
@@ -2368,14 +1655,8 @@ class _$AuthExceptionImpl implements AuthException {
   }
 
   @override
-  int get hashCode => Object.hash(
-    runtimeType,
-    message,
-    code,
-    authType,
-    requiresReauth,
-    const DeepCollectionEquality().hash(_details),
-  );
+  int get hashCode => Object.hash(runtimeType, message, code, authType,
+      requiresReauth, const DeepCollectionEquality().hash(_details));
 
   /// Create a copy of AppException
   /// with the given fields replaced by the non-null parameter values.
@@ -2388,75 +1669,37 @@ class _$AuthExceptionImpl implements AuthException {
   @override
   @optionalTypeArgs
   TResult when<TResult extends Object?>({
+    required TResult Function(String message, String? code, int? statusCode,
+            String? url, Map<String, dynamic>? details)
+        network,
     required TResult Function(
-      String message,
-      String? code,
-      int? statusCode,
-      String? url,
-      Map<String, dynamic>? details,
-    )
-    network,
-    required TResult Function(
-      String message,
-      String? code,
-      String? connectionState,
-      int reconnectAttempts,
-      Map<String, dynamic>? details,
-    )
-    webSocket,
-    required TResult Function(
-      String message,
-      String? code,
-      int? statusCode,
-      String? serverErrorType,
-      Map<String, dynamic>? details,
-    )
-    server,
-    required TResult Function(
-      String message,
-      String? code,
-      String? storageType,
-      String? operationType,
-      Map<String, dynamic>? details,
-    )
-    cache,
-    required TResult Function(
-      String message,
-      String? code,
-      String? authType,
-      bool requiresReauth,
-      Map<String, dynamic>? details,
-    )
-    auth,
-    required TResult Function(
-      String message,
-      String? code,
-      String? field,
-      String? rule,
-      Map<String, dynamic>? details,
-    )
-    validation,
-    required TResult Function(
-      String message,
-      String? code,
-      String? businessType,
-      Map<String, dynamic>? details,
-    )
-    business,
-    required TResult Function(
-      String message,
-      String? code,
-      String? component,
-      Map<String, dynamic>? details,
-    )
-    system,
-    required TResult Function(
-      String message,
-      String? code,
-      Object? originalException,
-      Map<String, dynamic>? details,
-    )
-    unknown,
+            String message,
+            String? code,
+            String? connectionState,
+            int reconnectAttempts,
+            Map<String, dynamic>? details)
+        webSocket,
+    required TResult Function(String message, String? code, int? statusCode,
+            String? serverErrorType, Map<String, dynamic>? details)
+        server,
+    required TResult Function(String message, String? code, String? storageType,
+            String? operationType, Map<String, dynamic>? details)
+        cache,
+    required TResult Function(String message, String? code, String? authType,
+            bool requiresReauth, Map<String, dynamic>? details)
+        auth,
+    required TResult Function(String message, String? code, String? field,
+            String? rule, Map<String, dynamic>? details)
+        validation,
+    required TResult Function(String message, String? code,
+            String? businessType, Map<String, dynamic>? details)
+        business,
+    required TResult Function(String message, String? code, String? component,
+            Map<String, dynamic>? details)
+        system,
+    required TResult Function(String message, String? code,
+            Object? originalException, Map<String, dynamic>? details)
+        unknown,
   }) {
     return auth(message, code, authType, requiresReauth, details);
   }
@@ -2464,75 +1707,33 @@ class _$AuthExceptionImpl implements AuthException {
   @override
   @optionalTypeArgs
   TResult? whenOrNull<TResult extends Object?>({
-    TResult? Function(
-      String message,
-      String? code,
-      int? statusCode,
-      String? url,
-      Map<String, dynamic>? details,
-    )?
-    network,
-    TResult? Function(
-      String message,
-      String? code,
-      String? connectionState,
-      int reconnectAttempts,
-      Map<String, dynamic>? details,
-    )?
-    webSocket,
-    TResult? Function(
-      String message,
-      String? code,
-      int? statusCode,
-      String? serverErrorType,
-      Map<String, dynamic>? details,
-    )?
-    server,
-    TResult? Function(
-      String message,
-      String? code,
-      String? storageType,
-      String? operationType,
-      Map<String, dynamic>? details,
-    )?
-    cache,
-    TResult? Function(
-      String message,
-      String? code,
-      String? authType,
-      bool requiresReauth,
-      Map<String, dynamic>? details,
-    )?
-    auth,
-    TResult? Function(
-      String message,
-      String? code,
-      String? field,
-      String? rule,
-      Map<String, dynamic>? details,
-    )?
-    validation,
-    TResult? Function(
-      String message,
-      String? code,
-      String? businessType,
-      Map<String, dynamic>? details,
-    )?
-    business,
-    TResult? Function(
-      String message,
-      String? code,
-      String? component,
-      Map<String, dynamic>? details,
-    )?
-    system,
-    TResult? Function(
-      String message,
-      String? code,
-      Object? originalException,
-      Map<String, dynamic>? details,
-    )?
-    unknown,
+    TResult? Function(String message, String? code, int? statusCode,
+            String? url, Map<String, dynamic>? details)?
+        network,
+    TResult? Function(String message, String? code, String? connectionState,
+            int reconnectAttempts, Map<String, dynamic>? details)?
+        webSocket,
+    TResult? Function(String message, String? code, int? statusCode,
+            String? serverErrorType, Map<String, dynamic>? details)?
+        server,
+    TResult? Function(String message, String? code, String? storageType,
+            String? operationType, Map<String, dynamic>? details)?
+        cache,
+    TResult? Function(String message, String? code, String? authType,
+            bool requiresReauth, Map<String, dynamic>? details)?
+        auth,
+    TResult? Function(String message, String? code, String? field, String? rule,
+            Map<String, dynamic>? details)?
+        validation,
+    TResult? Function(String message, String? code, String? businessType,
+            Map<String, dynamic>? details)?
+        business,
+    TResult? Function(String message, String? code, String? component,
+            Map<String, dynamic>? details)?
+        system,
+    TResult? Function(String message, String? code, Object? originalException,
+            Map<String, dynamic>? details)?
+        unknown,
   }) {
     return auth?.call(message, code, authType, requiresReauth, details);
   }
@@ -2540,75 +1741,33 @@ class _$AuthExceptionImpl implements AuthException {
   @override
   @optionalTypeArgs
   TResult maybeWhen<TResult extends Object?>({
-    TResult Function(
-      String message,
-      String? code,
-      int? statusCode,
-      String? url,
-      Map<String, dynamic>? details,
-    )?
-    network,
-    TResult Function(
-      String message,
-      String? code,
-      String? connectionState,
-      int reconnectAttempts,
-      Map<String, dynamic>? details,
-    )?
-    webSocket,
-    TResult Function(
-      String message,
-      String? code,
-      int? statusCode,
-      String? serverErrorType,
-      Map<String, dynamic>? details,
-    )?
-    server,
-    TResult Function(
-      String message,
-      String? code,
-      String? storageType,
-      String? operationType,
-      Map<String, dynamic>? details,
-    )?
-    cache,
-    TResult Function(
-      String message,
-      String? code,
-      String? authType,
-      bool requiresReauth,
-      Map<String, dynamic>? details,
-    )?
-    auth,
-    TResult Function(
-      String message,
-      String? code,
-      String? field,
-      String? rule,
-      Map<String, dynamic>? details,
-    )?
-    validation,
-    TResult Function(
-      String message,
-      String? code,
-      String? businessType,
-      Map<String, dynamic>? details,
-    )?
-    business,
-    TResult Function(
-      String message,
-      String? code,
-      String? component,
-      Map<String, dynamic>? details,
-    )?
-    system,
-    TResult Function(
-      String message,
-      String? code,
-      Object? originalException,
-      Map<String, dynamic>? details,
-    )?
-    unknown,
+    TResult Function(String message, String? code, int? statusCode, String? url,
+            Map<String, dynamic>? details)?
+        network,
+    TResult Function(String message, String? code, String? connectionState,
+            int reconnectAttempts, Map<String, dynamic>? details)?
+        webSocket,
+    TResult Function(String message, String? code, int? statusCode,
+            String? serverErrorType, Map<String, dynamic>? details)?
+        server,
+    TResult Function(String message, String? code, String? storageType,
+            String? operationType, Map<String, dynamic>? details)?
+        cache,
+    TResult Function(String message, String? code, String? authType,
+            bool requiresReauth, Map<String, dynamic>? details)?
+        auth,
+    TResult Function(String message, String? code, String? field, String? rule,
+            Map<String, dynamic>? details)?
+        validation,
+    TResult Function(String message, String? code, String? businessType,
+            Map<String, dynamic>? details)?
+        business,
+    TResult Function(String message, String? code, String? component,
+            Map<String, dynamic>? details)?
+        system,
+    TResult Function(String message, String? code, Object? originalException,
+            Map<String, dynamic>? details)?
+        unknown,
     required TResult orElse(),
   }) {
     if (auth != null) {
@@ -2671,13 +1830,12 @@ class _$AuthExceptionImpl implements AuthException {
 }
 
 abstract class AuthException implements AppException {
-  const factory AuthException({
-    required final String message,
-    final String? code,
-    final String? authType,
-    final bool requiresReauth,
-    final Map<String, dynamic>? details,
-  }) = _$AuthExceptionImpl;
+  const factory AuthException(
+      {required final String message,
+      final String? code,
+      final String? authType,
+      final bool requiresReauth,
+      final Map<String, dynamic>? details}) = _$AuthExceptionImpl;
 
   /// 错误消息
   @override
@@ -2708,29 +1866,26 @@ abstract class AuthException implements AppException {
 /// @nodoc
 abstract class _$$ValidationExceptionImplCopyWith<$Res>
     implements $AppExceptionCopyWith<$Res> {
-  factory _$$ValidationExceptionImplCopyWith(
-    _$ValidationExceptionImpl value,
-    $Res Function(_$ValidationExceptionImpl) then,
-  ) = __$$ValidationExceptionImplCopyWithImpl<$Res>;
+  factory _$$ValidationExceptionImplCopyWith(_$ValidationExceptionImpl value,
+          $Res Function(_$ValidationExceptionImpl) then) =
+      __$$ValidationExceptionImplCopyWithImpl<$Res>;
   @override
   @useResult
-  $Res call({
-    String message,
-    String? code,
-    String? field,
-    String? rule,
-    Map<String, dynamic>? details,
-  });
+  $Res call(
+      {String message,
+      String? code,
+      String? field,
+      String? rule,
+      Map<String, dynamic>? details});
 }
 
 /// @nodoc
 class __$$ValidationExceptionImplCopyWithImpl<$Res>
     extends _$AppExceptionCopyWithImpl<$Res, _$ValidationExceptionImpl>
     implements _$$ValidationExceptionImplCopyWith<$Res> {
-  __$$ValidationExceptionImplCopyWithImpl(
-    _$ValidationExceptionImpl _value,
-    $Res Function(_$ValidationExceptionImpl) _then,
-  ) : super(_value, _then);
+  __$$ValidationExceptionImplCopyWithImpl(_$ValidationExceptionImpl _value,
+      $Res Function(_$ValidationExceptionImpl) _then)
+      : super(_value, _then);
 
   /// Create a copy of AppException
   /// with the given fields replaced by the non-null parameter values.
@@ -2743,48 +1898,41 @@ class __$$ValidationExceptionImplCopyWithImpl<$Res>
     Object? rule = freezed,
     Object? details = freezed,
   }) {
-    return _then(
-      _$ValidationExceptionImpl(
-        message:
-            null == message
-                ? _value.message
-                : message // ignore: cast_nullable_to_non_nullable
-                    as String,
-        code:
-            freezed == code
-                ? _value.code
-                : code // ignore: cast_nullable_to_non_nullable
-                    as String?,
-        field:
-            freezed == field
-                ? _value.field
-                : field // ignore: cast_nullable_to_non_nullable
-                    as String?,
-        rule:
-            freezed == rule
-                ? _value.rule
-                : rule // ignore: cast_nullable_to_non_nullable
-                    as String?,
-        details:
-            freezed == details
-                ? _value._details
-                : details // ignore: cast_nullable_to_non_nullable
-                    as Map<String, dynamic>?,
-      ),
-    );
+    return _then(_$ValidationExceptionImpl(
+      message: null == message
+          ? _value.message
+          : message // ignore: cast_nullable_to_non_nullable
+              as String,
+      code: freezed == code
+          ? _value.code
+          : code // ignore: cast_nullable_to_non_nullable
+              as String?,
+      field: freezed == field
+          ? _value.field
+          : field // ignore: cast_nullable_to_non_nullable
+              as String?,
+      rule: freezed == rule
+          ? _value.rule
+          : rule // ignore: cast_nullable_to_non_nullable
+              as String?,
+      details: freezed == details
+          ? _value._details
+          : details // ignore: cast_nullable_to_non_nullable
+              as Map<String, dynamic>?,
+    ));
   }
 }
 
 /// @nodoc
 
 class _$ValidationExceptionImpl implements ValidationException {
-  const _$ValidationExceptionImpl({
-    required this.message,
-    this.code,
-    this.field,
-    this.rule,
-    final Map<String, dynamic>? details,
-  }) : _details = details;
+  const _$ValidationExceptionImpl(
+      {required this.message,
+      this.code,
+      this.field,
+      this.rule,
+      final Map<String, dynamic>? details})
+      : _details = details;
 
   /// 错误消息
   @override
@@ -2833,14 +1981,8 @@ class _$ValidationExceptionImpl implements ValidationException {
   }
 
   @override
-  int get hashCode => Object.hash(
-    runtimeType,
-    message,
-    code,
-    field,
-    rule,
-    const DeepCollectionEquality().hash(_details),
-  );
+  int get hashCode => Object.hash(runtimeType, message, code, field, rule,
+      const DeepCollectionEquality().hash(_details));
 
   /// Create a copy of AppException
   /// with the given fields replaced by the non-null parameter values.
@@ -2849,82 +1991,42 @@ class _$ValidationExceptionImpl implements ValidationException {
   @pragma('vm:prefer-inline')
   _$$ValidationExceptionImplCopyWith<_$ValidationExceptionImpl> get copyWith =>
       __$$ValidationExceptionImplCopyWithImpl<_$ValidationExceptionImpl>(
-        this,
-        _$identity,
-      );
+          this, _$identity);
 
   @override
   @optionalTypeArgs
   TResult when<TResult extends Object?>({
+    required TResult Function(String message, String? code, int? statusCode,
+            String? url, Map<String, dynamic>? details)
+        network,
     required TResult Function(
-      String message,
-      String? code,
-      int? statusCode,
-      String? url,
-      Map<String, dynamic>? details,
-    )
-    network,
-    required TResult Function(
-      String message,
-      String? code,
-      String? connectionState,
-      int reconnectAttempts,
-      Map<String, dynamic>? details,
-    )
-    webSocket,
-    required TResult Function(
-      String message,
-      String? code,
-      int? statusCode,
-      String? serverErrorType,
-      Map<String, dynamic>? details,
-    )
-    server,
-    required TResult Function(
-      String message,
-      String? code,
-      String? storageType,
-      String? operationType,
-      Map<String, dynamic>? details,
-    )
-    cache,
-    required TResult Function(
-      String message,
-      String? code,
-      String? authType,
-      bool requiresReauth,
-      Map<String, dynamic>? details,
-    )
-    auth,
-    required TResult Function(
-      String message,
-      String? code,
-      String? field,
-      String? rule,
-      Map<String, dynamic>? details,
-    )
-    validation,
-    required TResult Function(
-      String message,
-      String? code,
-      String? businessType,
-      Map<String, dynamic>? details,
-    )
-    business,
-    required TResult Function(
-      String message,
-      String? code,
-      String? component,
-      Map<String, dynamic>? details,
-    )
-    system,
-    required TResult Function(
-      String message,
-      String? code,
-      Object? originalException,
-      Map<String, dynamic>? details,
-    )
-    unknown,
+            String message,
+            String? code,
+            String? connectionState,
+            int reconnectAttempts,
+            Map<String, dynamic>? details)
+        webSocket,
+    required TResult Function(String message, String? code, int? statusCode,
+            String? serverErrorType, Map<String, dynamic>? details)
+        server,
+    required TResult Function(String message, String? code, String? storageType,
+            String? operationType, Map<String, dynamic>? details)
+        cache,
+    required TResult Function(String message, String? code, String? authType,
+            bool requiresReauth, Map<String, dynamic>? details)
+        auth,
+    required TResult Function(String message, String? code, String? field,
+            String? rule, Map<String, dynamic>? details)
+        validation,
+    required TResult Function(String message, String? code,
+            String? businessType, Map<String, dynamic>? details)
+        business,
+    required TResult Function(String message, String? code, String? component,
+            Map<String, dynamic>? details)
+        system,
+    required TResult Function(String message, String? code,
+            Object? originalException, Map<String, dynamic>? details)
+        unknown,
   }) {
     return validation(message, code, field, rule, details);
   }
@@ -2932,75 +2034,33 @@ class _$ValidationExceptionImpl implements ValidationException {
   @override
   @optionalTypeArgs
   TResult? whenOrNull<TResult extends Object?>({
-    TResult? Function(
-      String message,
-      String? code,
-      int? statusCode,
-      String? url,
-      Map<String, dynamic>? details,
-    )?
-    network,
-    TResult? Function(
-      String message,
-      String? code,
-      String? connectionState,
-      int reconnectAttempts,
-      Map<String, dynamic>? details,
-    )?
-    webSocket,
-    TResult? Function(
-      String message,
-      String? code,
-      int? statusCode,
-      String? serverErrorType,
-      Map<String, dynamic>? details,
-    )?
-    server,
-    TResult? Function(
-      String message,
-      String? code,
-      String? storageType,
-      String? operationType,
-      Map<String, dynamic>? details,
-    )?
-    cache,
-    TResult? Function(
-      String message,
-      String? code,
-      String? authType,
-      bool requiresReauth,
-      Map<String, dynamic>? details,
-    )?
-    auth,
-    TResult? Function(
-      String message,
-      String? code,
-      String? field,
-      String? rule,
-      Map<String, dynamic>? details,
-    )?
-    validation,
-    TResult? Function(
-      String message,
-      String? code,
-      String? businessType,
-      Map<String, dynamic>? details,
-    )?
-    business,
-    TResult? Function(
-      String message,
-      String? code,
-      String? component,
-      Map<String, dynamic>? details,
-    )?
-    system,
-    TResult? Function(
-      String message,
-      String? code,
-      Object? originalException,
-      Map<String, dynamic>? details,
-    )?
-    unknown,
+    TResult? Function(String message, String? code, int? statusCode,
+            String? url, Map<String, dynamic>? details)?
+        network,
+    TResult? Function(String message, String? code, String? connectionState,
+            int reconnectAttempts, Map<String, dynamic>? details)?
+        webSocket,
+    TResult? Function(String message, String? code, int? statusCode,
+            String? serverErrorType, Map<String, dynamic>? details)?
+        server,
+    TResult? Function(String message, String? code, String? storageType,
+            String? operationType, Map<String, dynamic>? details)?
+        cache,
+    TResult? Function(String message, String? code, String? authType,
+            bool requiresReauth, Map<String, dynamic>? details)?
+        auth,
+    TResult? Function(String message, String? code, String? field, String? rule,
+            Map<String, dynamic>? details)?
+        validation,
+    TResult? Function(String message, String? code, String? businessType,
+            Map<String, dynamic>? details)?
+        business,
+    TResult? Function(String message, String? code, String? component,
+            Map<String, dynamic>? details)?
+        system,
+    TResult? Function(String message, String? code, Object? originalException,
+            Map<String, dynamic>? details)?
+        unknown,
   }) {
     return validation?.call(message, code, field, rule, details);
   }
@@ -3008,75 +2068,33 @@ class _$ValidationExceptionImpl implements ValidationException {
   @override
   @optionalTypeArgs
   TResult maybeWhen<TResult extends Object?>({
-    TResult Function(
-      String message,
-      String? code,
-      int? statusCode,
-      String? url,
-      Map<String, dynamic>? details,
-    )?
-    network,
-    TResult Function(
-      String message,
-      String? code,
-      String? connectionState,
-      int reconnectAttempts,
-      Map<String, dynamic>? details,
-    )?
-    webSocket,
-    TResult Function(
-      String message,
-      String? code,
-      int? statusCode,
-      String? serverErrorType,
-      Map<String, dynamic>? details,
-    )?
-    server,
-    TResult Function(
-      String message,
-      String? code,
-      String? storageType,
-      String? operationType,
-      Map<String, dynamic>? details,
-    )?
-    cache,
-    TResult Function(
-      String message,
-      String? code,
-      String? authType,
-      bool requiresReauth,
-      Map<String, dynamic>? details,
-    )?
-    auth,
-    TResult Function(
-      String message,
-      String? code,
-      String? field,
-      String? rule,
-      Map<String, dynamic>? details,
-    )?
-    validation,
-    TResult Function(
-      String message,
-      String? code,
-      String? businessType,
-      Map<String, dynamic>? details,
-    )?
-    business,
-    TResult Function(
-      String message,
-      String? code,
-      String? component,
-      Map<String, dynamic>? details,
-    )?
-    system,
-    TResult Function(
-      String message,
-      String? code,
-      Object? originalException,
-      Map<String, dynamic>? details,
-    )?
-    unknown,
+    TResult Function(String message, String? code, int? statusCode, String? url,
+            Map<String, dynamic>? details)?
+        network,
+    TResult Function(String message, String? code, String? connectionState,
+            int reconnectAttempts, Map<String, dynamic>? details)?
+        webSocket,
+    TResult Function(String message, String? code, int? statusCode,
+            String? serverErrorType, Map<String, dynamic>? details)?
+        server,
+    TResult Function(String message, String? code, String? storageType,
+            String? operationType, Map<String, dynamic>? details)?
+        cache,
+    TResult Function(String message, String? code, String? authType,
+            bool requiresReauth, Map<String, dynamic>? details)?
+        auth,
+    TResult Function(String message, String? code, String? field, String? rule,
+            Map<String, dynamic>? details)?
+        validation,
+    TResult Function(String message, String? code, String? businessType,
+            Map<String, dynamic>? details)?
+        business,
+    TResult Function(String message, String? code, String? component,
+            Map<String, dynamic>? details)?
+        system,
+    TResult Function(String message, String? code, Object? originalException,
+            Map<String, dynamic>? details)?
+        unknown,
     required TResult orElse(),
   }) {
     if (validation != null) {
@@ -3139,13 +2157,12 @@ class _$ValidationExceptionImpl implements ValidationException {
 }
 
 abstract class ValidationException implements AppException {
-  const factory ValidationException({
-    required final String message,
-    final String? code,
-    final String? field,
-    final String? rule,
-    final Map<String, dynamic>? details,
-  }) = _$ValidationExceptionImpl;
+  const factory ValidationException(
+      {required final String message,
+      final String? code,
+      final String? field,
+      final String? rule,
+      final Map<String, dynamic>? details}) = _$ValidationExceptionImpl;
 
   /// 错误消息
   @override
@@ -3176,28 +2193,25 @@ abstract class ValidationException implements AppException {
 /// @nodoc
 abstract class _$$BusinessExceptionImplCopyWith<$Res>
     implements $AppExceptionCopyWith<$Res> {
-  factory _$$BusinessExceptionImplCopyWith(
-    _$BusinessExceptionImpl value,
-    $Res Function(_$BusinessExceptionImpl) then,
-  ) = __$$BusinessExceptionImplCopyWithImpl<$Res>;
+  factory _$$BusinessExceptionImplCopyWith(_$BusinessExceptionImpl value,
+          $Res Function(_$BusinessExceptionImpl) then) =
+      __$$BusinessExceptionImplCopyWithImpl<$Res>;
   @override
   @useResult
-  $Res call({
-    String message,
-    String? code,
-    String? businessType,
-    Map<String, dynamic>? details,
-  });
+  $Res call(
+      {String message,
+      String? code,
+      String? businessType,
+      Map<String, dynamic>? details});
 }
 
 /// @nodoc
 class __$$BusinessExceptionImplCopyWithImpl<$Res>
     extends _$AppExceptionCopyWithImpl<$Res, _$BusinessExceptionImpl>
     implements _$$BusinessExceptionImplCopyWith<$Res> {
-  __$$BusinessExceptionImplCopyWithImpl(
-    _$BusinessExceptionImpl _value,
-    $Res Function(_$BusinessExceptionImpl) _then,
-  ) : super(_value, _then);
+  __$$BusinessExceptionImplCopyWithImpl(_$BusinessExceptionImpl _value,
+      $Res Function(_$BusinessExceptionImpl) _then)
+      : super(_value, _then);
 
   /// Create a copy of AppException
   /// with the given fields replaced by the non-null parameter values.
@@ -3209,42 +2223,36 @@ class __$$BusinessExceptionImplCopyWithImpl<$Res>
     Object? businessType = freezed,
     Object? details = freezed,
   }) {
-    return _then(
-      _$BusinessExceptionImpl(
-        message:
-            null == message
-                ? _value.message
-                : message // ignore: cast_nullable_to_non_nullable
-                    as String,
-        code:
-            freezed == code
-                ? _value.code
-                : code // ignore: cast_nullable_to_non_nullable
-                    as String?,
-        businessType:
-            freezed == businessType
-                ? _value.businessType
-                : businessType // ignore: cast_nullable_to_non_nullable
-                    as String?,
-        details:
-            freezed == details
-                ? _value._details
-                : details // ignore: cast_nullable_to_non_nullable
-                    as Map<String, dynamic>?,
-      ),
-    );
+    return _then(_$BusinessExceptionImpl(
+      message: null == message
+          ? _value.message
+          : message // ignore: cast_nullable_to_non_nullable
+              as String,
+      code: freezed == code
+          ? _value.code
+          : code // ignore: cast_nullable_to_non_nullable
+              as String?,
+      businessType: freezed == businessType
+          ? _value.businessType
+          : businessType // ignore: cast_nullable_to_non_nullable
+              as String?,
+      details: freezed == details
+          ? _value._details
+          : details // ignore: cast_nullable_to_non_nullable
+              as Map<String, dynamic>?,
+    ));
   }
 }
 
 /// @nodoc
 
 class _$BusinessExceptionImpl implements BusinessException {
-  const _$BusinessExceptionImpl({
-    required this.message,
-    this.code,
-    this.businessType,
-    final Map<String, dynamic>? details,
-  }) : _details = details;
+  const _$BusinessExceptionImpl(
+      {required this.message,
+      this.code,
+      this.businessType,
+      final Map<String, dynamic>? details})
+      : _details = details;
 
   /// 错误消息
   @override
@@ -3289,13 +2297,8 @@ class _$BusinessExceptionImpl implements BusinessException {
   }
 
   @override
-  int get hashCode => Object.hash(
-    runtimeType,
-    message,
-    code,
-    businessType,
-    const DeepCollectionEquality().hash(_details),
-  );
+  int get hashCode => Object.hash(runtimeType, message, code, businessType,
+      const DeepCollectionEquality().hash(_details));
 
   /// Create a copy of AppException
   /// with the given fields replaced by the non-null parameter values.
@@ -3304,82 +2307,42 @@ class _$BusinessExceptionImpl implements BusinessException {
   @pragma('vm:prefer-inline')
   _$$BusinessExceptionImplCopyWith<_$BusinessExceptionImpl> get copyWith =>
       __$$BusinessExceptionImplCopyWithImpl<_$BusinessExceptionImpl>(
-        this,
-        _$identity,
-      );
+          this, _$identity);
 
   @override
   @optionalTypeArgs
   TResult when<TResult extends Object?>({
+    required TResult Function(String message, String? code, int? statusCode,
+            String? url, Map<String, dynamic>? details)
+        network,
     required TResult Function(
-      String message,
-      String? code,
-      int? statusCode,
-      String? url,
-      Map<String, dynamic>? details,
-    )
-    network,
-    required TResult Function(
-      String message,
-      String? code,
-      String? connectionState,
-      int reconnectAttempts,
-      Map<String, dynamic>? details,
-    )
-    webSocket,
-    required TResult Function(
-      String message,
-      String? code,
-      int? statusCode,
-      String? serverErrorType,
-      Map<String, dynamic>? details,
-    )
-    server,
-    required TResult Function(
-      String message,
-      String? code,
-      String? storageType,
-      String? operationType,
-      Map<String, dynamic>? details,
-    )
-    cache,
-    required TResult Function(
-      String message,
-      String? code,
-      String? authType,
-      bool requiresReauth,
-      Map<String, dynamic>? details,
-    )
-    auth,
-    required TResult Function(
-      String message,
-      String? code,
-      String? field,
-      String? rule,
-      Map<String, dynamic>? details,
-    )
-    validation,
-    required TResult Function(
-      String message,
-      String? code,
-      String? businessType,
-      Map<String, dynamic>? details,
-    )
-    business,
-    required TResult Function(
-      String message,
-      String? code,
-      String? component,
-      Map<String, dynamic>? details,
-    )
-    system,
-    required TResult Function(
-      String message,
-      String? code,
-      Object? originalException,
-      Map<String, dynamic>? details,
-    )
-    unknown,
+            String message,
+            String? code,
+            String? connectionState,
+            int reconnectAttempts,
+            Map<String, dynamic>? details)
+        webSocket,
+    required TResult Function(String message, String? code, int? statusCode,
+            String? serverErrorType, Map<String, dynamic>? details)
+        server,
+    required TResult Function(String message, String? code, String? storageType,
+            String? operationType, Map<String, dynamic>? details)
+        cache,
+    required TResult Function(String message, String? code, String? authType,
+            bool requiresReauth, Map<String, dynamic>? details)
+        auth,
+    required TResult Function(String message, String? code, String? field,
+            String? rule, Map<String, dynamic>? details)
+        validation,
+    required TResult Function(String message, String? code,
+            String? businessType, Map<String, dynamic>? details)
+        business,
+    required TResult Function(String message, String? code, String? component,
+            Map<String, dynamic>? details)
+        system,
+    required TResult Function(String message, String? code,
+            Object? originalException, Map<String, dynamic>? details)
+        unknown,
   }) {
     return business(message, code, businessType, details);
   }
@@ -3387,75 +2350,33 @@ class _$BusinessExceptionImpl implements BusinessException {
   @override
   @optionalTypeArgs
   TResult? whenOrNull<TResult extends Object?>({
-    TResult? Function(
-      String message,
-      String? code,
-      int? statusCode,
-      String? url,
-      Map<String, dynamic>? details,
-    )?
-    network,
-    TResult? Function(
-      String message,
-      String? code,
-      String? connectionState,
-      int reconnectAttempts,
-      Map<String, dynamic>? details,
-    )?
-    webSocket,
-    TResult? Function(
-      String message,
-      String? code,
-      int? statusCode,
-      String? serverErrorType,
-      Map<String, dynamic>? details,
-    )?
-    server,
-    TResult? Function(
-      String message,
-      String? code,
-      String? storageType,
-      String? operationType,
-      Map<String, dynamic>? details,
-    )?
-    cache,
-    TResult? Function(
-      String message,
-      String? code,
-      String? authType,
-      bool requiresReauth,
-      Map<String, dynamic>? details,
-    )?
-    auth,
-    TResult? Function(
-      String message,
-      String? code,
-      String? field,
-      String? rule,
-      Map<String, dynamic>? details,
-    )?
-    validation,
-    TResult? Function(
-      String message,
-      String? code,
-      String? businessType,
-      Map<String, dynamic>? details,
-    )?
-    business,
-    TResult? Function(
-      String message,
-      String? code,
-      String? component,
-      Map<String, dynamic>? details,
-    )?
-    system,
-    TResult? Function(
-      String message,
-      String? code,
-      Object? originalException,
-      Map<String, dynamic>? details,
-    )?
-    unknown,
+    TResult? Function(String message, String? code, int? statusCode,
+            String? url, Map<String, dynamic>? details)?
+        network,
+    TResult? Function(String message, String? code, String? connectionState,
+            int reconnectAttempts, Map<String, dynamic>? details)?
+        webSocket,
+    TResult? Function(String message, String? code, int? statusCode,
+            String? serverErrorType, Map<String, dynamic>? details)?
+        server,
+    TResult? Function(String message, String? code, String? storageType,
+            String? operationType, Map<String, dynamic>? details)?
+        cache,
+    TResult? Function(String message, String? code, String? authType,
+            bool requiresReauth, Map<String, dynamic>? details)?
+        auth,
+    TResult? Function(String message, String? code, String? field, String? rule,
+            Map<String, dynamic>? details)?
+        validation,
+    TResult? Function(String message, String? code, String? businessType,
+            Map<String, dynamic>? details)?
+        business,
+    TResult? Function(String message, String? code, String? component,
+            Map<String, dynamic>? details)?
+        system,
+    TResult? Function(String message, String? code, Object? originalException,
+            Map<String, dynamic>? details)?
+        unknown,
   }) {
     return business?.call(message, code, businessType, details);
   }
@@ -3463,75 +2384,33 @@ class _$BusinessExceptionImpl implements BusinessException {
   @override
   @optionalTypeArgs
   TResult maybeWhen<TResult extends Object?>({
-    TResult Function(
-      String message,
-      String? code,
-      int? statusCode,
-      String? url,
-      Map<String, dynamic>? details,
-    )?
-    network,
-    TResult Function(
-      String message,
-      String? code,
-      String? connectionState,
-      int reconnectAttempts,
-      Map<String, dynamic>? details,
-    )?
-    webSocket,
-    TResult Function(
-      String message,
-      String? code,
-      int? statusCode,
-      String? serverErrorType,
-      Map<String, dynamic>? details,
-    )?
-    server,
-    TResult Function(
-      String message,
-      String? code,
-      String? storageType,
-      String? operationType,
-      Map<String, dynamic>? details,
-    )?
-    cache,
-    TResult Function(
-      String message,
-      String? code,
-      String? authType,
-      bool requiresReauth,
-      Map<String, dynamic>? details,
-    )?
-    auth,
-    TResult Function(
-      String message,
-      String? code,
-      String? field,
-      String? rule,
-      Map<String, dynamic>? details,
-    )?
-    validation,
-    TResult Function(
-      String message,
-      String? code,
-      String? businessType,
-      Map<String, dynamic>? details,
-    )?
-    business,
-    TResult Function(
-      String message,
-      String? code,
-      String? component,
-      Map<String, dynamic>? details,
-    )?
-    system,
-    TResult Function(
-      String message,
-      String? code,
-      Object? originalException,
-      Map<String, dynamic>? details,
-    )?
-    unknown,
+    TResult Function(String message, String? code, int? statusCode, String? url,
+            Map<String, dynamic>? details)?
+        network,
+    TResult Function(String message, String? code, String? connectionState,
+            int reconnectAttempts, Map<String, dynamic>? details)?
+        webSocket,
+    TResult Function(String message, String? code, int? statusCode,
+            String? serverErrorType, Map<String, dynamic>? details)?
+        server,
+    TResult Function(String message, String? code, String? storageType,
+            String? operationType, Map<String, dynamic>? details)?
+        cache,
+    TResult Function(String message, String? code, String? authType,
+            bool requiresReauth, Map<String, dynamic>? details)?
+        auth,
+    TResult Function(String message, String? code, String? field, String? rule,
+            Map<String, dynamic>? details)?
+        validation,
+    TResult Function(String message, String? code, String? businessType,
+            Map<String, dynamic>? details)?
+        business,
+    TResult Function(String message, String? code, String? component,
+            Map<String, dynamic>? details)?
+        system,
+    TResult Function(String message, String? code, Object? originalException,
+            Map<String, dynamic>? details)?
+        unknown,
     required TResult orElse(),
   }) {
     if (business != null) {
@@ -3594,12 +2473,11 @@ class _$BusinessExceptionImpl implements BusinessException {
 }
 
 abstract class BusinessException implements AppException {
-  const factory BusinessException({
-    required final String message,
-    final String? code,
-    final String? businessType,
-    final Map<String, dynamic>? details,
-  }) = _$BusinessExceptionImpl;
+  const factory BusinessException(
+      {required final String message,
+      final String? code,
+      final String? businessType,
+      final Map<String, dynamic>? details}) = _$BusinessExceptionImpl;
 
   /// 错误消息
   @override
@@ -3627,18 +2505,16 @@ abstract class BusinessException implements AppException {
 /// @nodoc
 abstract class _$$SystemExceptionImplCopyWith<$Res>
     implements $AppExceptionCopyWith<$Res> {
-  factory _$$SystemExceptionImplCopyWith(
-    _$SystemExceptionImpl value,
-    $Res Function(_$SystemExceptionImpl) then,
-  ) = __$$SystemExceptionImplCopyWithImpl<$Res>;
+  factory _$$SystemExceptionImplCopyWith(_$SystemExceptionImpl value,
+          $Res Function(_$SystemExceptionImpl) then) =
+      __$$SystemExceptionImplCopyWithImpl<$Res>;
   @override
   @useResult
-  $Res call({
-    String message,
-    String? code,
-    String? component,
-    Map<String, dynamic>? details,
-  });
+  $Res call(
+      {String message,
+      String? code,
+      String? component,
+      Map<String, dynamic>? details});
 }
 
 /// @nodoc
@@ -3646,9 +2522,8 @@ class __$$SystemExceptionImplCopyWithImpl<$Res>
     extends _$AppExceptionCopyWithImpl<$Res, _$SystemExceptionImpl>
     implements _$$SystemExceptionImplCopyWith<$Res> {
   __$$SystemExceptionImplCopyWithImpl(
-    _$SystemExceptionImpl _value,
-    $Res Function(_$SystemExceptionImpl) _then,
-  ) : super(_value, _then);
+      _$SystemExceptionImpl _value, $Res Function(_$SystemExceptionImpl) _then)
+      : super(_value, _then);
 
   /// Create a copy of AppException
   /// with the given fields replaced by the non-null parameter values.
@@ -3660,42 +2535,36 @@ class __$$SystemExceptionImplCopyWithImpl<$Res>
     Object? component = freezed,
     Object? details = freezed,
   }) {
-    return _then(
-      _$SystemExceptionImpl(
-        message:
-            null == message
-                ? _value.message
-                : message // ignore: cast_nullable_to_non_nullable
-                    as String,
-        code:
-            freezed == code
-                ? _value.code
-                : code // ignore: cast_nullable_to_non_nullable
-                    as String?,
-        component:
-            freezed == component
-                ? _value.component
-                : component // ignore: cast_nullable_to_non_nullable
-                    as String?,
-        details:
-            freezed == details
-                ? _value._details
-                : details // ignore: cast_nullable_to_non_nullable
-                    as Map<String, dynamic>?,
-      ),
-    );
+    return _then(_$SystemExceptionImpl(
+      message: null == message
+          ? _value.message
+          : message // ignore: cast_nullable_to_non_nullable
+              as String,
+      code: freezed == code
+          ? _value.code
+          : code // ignore: cast_nullable_to_non_nullable
+              as String?,
+      component: freezed == component
+          ? _value.component
+          : component // ignore: cast_nullable_to_non_nullable
+              as String?,
+      details: freezed == details
+          ? _value._details
+          : details // ignore: cast_nullable_to_non_nullable
+              as Map<String, dynamic>?,
+    ));
   }
 }
 
 /// @nodoc
 
 class _$SystemExceptionImpl implements SystemException {
-  const _$SystemExceptionImpl({
-    required this.message,
-    this.code,
-    this.component,
-    final Map<String, dynamic>? details,
-  }) : _details = details;
+  const _$SystemExceptionImpl(
+      {required this.message,
+      this.code,
+      this.component,
+      final Map<String, dynamic>? details})
+      : _details = details;
 
   /// 错误消息
   @override
@@ -3740,13 +2609,8 @@ class _$SystemExceptionImpl implements SystemException {
   }
 
   @override
-  int get hashCode => Object.hash(
-    runtimeType,
-    message,
-    code,
-    component,
-    const DeepCollectionEquality().hash(_details),
-  );
+  int get hashCode => Object.hash(runtimeType, message, code, component,
+      const DeepCollectionEquality().hash(_details));
 
   /// Create a copy of AppException
   /// with the given fields replaced by the non-null parameter values.
@@ -3755,82 +2619,42 @@ class _$SystemExceptionImpl implements SystemException {
   @pragma('vm:prefer-inline')
   _$$SystemExceptionImplCopyWith<_$SystemExceptionImpl> get copyWith =>
       __$$SystemExceptionImplCopyWithImpl<_$SystemExceptionImpl>(
-        this,
-        _$identity,
-      );
+          this, _$identity);
 
   @override
   @optionalTypeArgs
   TResult when<TResult extends Object?>({
+    required TResult Function(String message, String? code, int? statusCode,
+            String? url, Map<String, dynamic>? details)
+        network,
     required TResult Function(
-      String message,
-      String? code,
-      int? statusCode,
-      String? url,
-      Map<String, dynamic>? details,
-    )
-    network,
-    required TResult Function(
-      String message,
-      String? code,
-      String? connectionState,
-      int reconnectAttempts,
-      Map<String, dynamic>? details,
-    )
-    webSocket,
-    required TResult Function(
-      String message,
-      String? code,
-      int? statusCode,
-      String? serverErrorType,
-      Map<String, dynamic>? details,
-    )
-    server,
-    required TResult Function(
-      String message,
-      String? code,
-      String? storageType,
-      String? operationType,
-      Map<String, dynamic>? details,
-    )
-    cache,
-    required TResult Function(
-      String message,
-      String? code,
-      String? authType,
-      bool requiresReauth,
-      Map<String, dynamic>? details,
-    )
-    auth,
-    required TResult Function(
-      String message,
-      String? code,
-      String? field,
-      String? rule,
-      Map<String, dynamic>? details,
-    )
-    validation,
-    required TResult Function(
-      String message,
-      String? code,
-      String? businessType,
-      Map<String, dynamic>? details,
-    )
-    business,
-    required TResult Function(
-      String message,
-      String? code,
-      String? component,
-      Map<String, dynamic>? details,
-    )
-    system,
-    required TResult Function(
-      String message,
-      String? code,
-      Object? originalException,
-      Map<String, dynamic>? details,
-    )
-    unknown,
+            String message,
+            String? code,
+            String? connectionState,
+            int reconnectAttempts,
+            Map<String, dynamic>? details)
+        webSocket,
+    required TResult Function(String message, String? code, int? statusCode,
+            String? serverErrorType, Map<String, dynamic>? details)
+        server,
+    required TResult Function(String message, String? code, String? storageType,
+            String? operationType, Map<String, dynamic>? details)
+        cache,
+    required TResult Function(String message, String? code, String? authType,
+            bool requiresReauth, Map<String, dynamic>? details)
+        auth,
+    required TResult Function(String message, String? code, String? field,
+            String? rule, Map<String, dynamic>? details)
+        validation,
+    required TResult Function(String message, String? code,
+            String? businessType, Map<String, dynamic>? details)
+        business,
+    required TResult Function(String message, String? code, String? component,
+            Map<String, dynamic>? details)
+        system,
+    required TResult Function(String message, String? code,
+            Object? originalException, Map<String, dynamic>? details)
+        unknown,
   }) {
     return system(message, code, component, details);
   }
@@ -3838,75 +2662,33 @@ class _$SystemExceptionImpl implements SystemException {
   @override
   @optionalTypeArgs
   TResult? whenOrNull<TResult extends Object?>({
-    TResult? Function(
-      String message,
-      String? code,
-      int? statusCode,
-      String? url,
-      Map<String, dynamic>? details,
-    )?
-    network,
-    TResult? Function(
-      String message,
-      String? code,
-      String? connectionState,
-      int reconnectAttempts,
-      Map<String, dynamic>? details,
-    )?
-    webSocket,
-    TResult? Function(
-      String message,
-      String? code,
-      int? statusCode,
-      String? serverErrorType,
-      Map<String, dynamic>? details,
-    )?
-    server,
-    TResult? Function(
-      String message,
-      String? code,
-      String? storageType,
-      String? operationType,
-      Map<String, dynamic>? details,
-    )?
-    cache,
-    TResult? Function(
-      String message,
-      String? code,
-      String? authType,
-      bool requiresReauth,
-      Map<String, dynamic>? details,
-    )?
-    auth,
-    TResult? Function(
-      String message,
-      String? code,
-      String? field,
-      String? rule,
-      Map<String, dynamic>? details,
-    )?
-    validation,
-    TResult? Function(
-      String message,
-      String? code,
-      String? businessType,
-      Map<String, dynamic>? details,
-    )?
-    business,
-    TResult? Function(
-      String message,
-      String? code,
-      String? component,
-      Map<String, dynamic>? details,
-    )?
-    system,
-    TResult? Function(
-      String message,
-      String? code,
-      Object? originalException,
-      Map<String, dynamic>? details,
-    )?
-    unknown,
+    TResult? Function(String message, String? code, int? statusCode,
+            String? url, Map<String, dynamic>? details)?
+        network,
+    TResult? Function(String message, String? code, String? connectionState,
+            int reconnectAttempts, Map<String, dynamic>? details)?
+        webSocket,
+    TResult? Function(String message, String? code, int? statusCode,
+            String? serverErrorType, Map<String, dynamic>? details)?
+        server,
+    TResult? Function(String message, String? code, String? storageType,
+            String? operationType, Map<String, dynamic>? details)?
+        cache,
+    TResult? Function(String message, String? code, String? authType,
+            bool requiresReauth, Map<String, dynamic>? details)?
+        auth,
+    TResult? Function(String message, String? code, String? field, String? rule,
+            Map<String, dynamic>? details)?
+        validation,
+    TResult? Function(String message, String? code, String? businessType,
+            Map<String, dynamic>? details)?
+        business,
+    TResult? Function(String message, String? code, String? component,
+            Map<String, dynamic>? details)?
+        system,
+    TResult? Function(String message, String? code, Object? originalException,
+            Map<String, dynamic>? details)?
+        unknown,
   }) {
     return system?.call(message, code, component, details);
   }
@@ -3914,75 +2696,33 @@ class _$SystemExceptionImpl implements SystemException {
   @override
   @optionalTypeArgs
   TResult maybeWhen<TResult extends Object?>({
-    TResult Function(
-      String message,
-      String? code,
-      int? statusCode,
-      String? url,
-      Map<String, dynamic>? details,
-    )?
-    network,
-    TResult Function(
-      String message,
-      String? code,
-      String? connectionState,
-      int reconnectAttempts,
-      Map<String, dynamic>? details,
-    )?
-    webSocket,
-    TResult Function(
-      String message,
-      String? code,
-      int? statusCode,
-      String? serverErrorType,
-      Map<String, dynamic>? details,
-    )?
-    server,
-    TResult Function(
-      String message,
-      String? code,
-      String? storageType,
-      String? operationType,
-      Map<String, dynamic>? details,
-    )?
-    cache,
-    TResult Function(
-      String message,
-      String? code,
-      String? authType,
-      bool requiresReauth,
-      Map<String, dynamic>? details,
-    )?
-    auth,
-    TResult Function(
-      String message,
-      String? code,
-      String? field,
-      String? rule,
-      Map<String, dynamic>? details,
-    )?
-    validation,
-    TResult Function(
-      String message,
-      String? code,
-      String? businessType,
-      Map<String, dynamic>? details,
-    )?
-    business,
-    TResult Function(
-      String message,
-      String? code,
-      String? component,
-      Map<String, dynamic>? details,
-    )?
-    system,
-    TResult Function(
-      String message,
-      String? code,
-      Object? originalException,
-      Map<String, dynamic>? details,
-    )?
-    unknown,
+    TResult Function(String message, String? code, int? statusCode, String? url,
+            Map<String, dynamic>? details)?
+        network,
+    TResult Function(String message, String? code, String? connectionState,
+            int reconnectAttempts, Map<String, dynamic>? details)?
+        webSocket,
+    TResult Function(String message, String? code, int? statusCode,
+            String? serverErrorType, Map<String, dynamic>? details)?
+        server,
+    TResult Function(String message, String? code, String? storageType,
+            String? operationType, Map<String, dynamic>? details)?
+        cache,
+    TResult Function(String message, String? code, String? authType,
+            bool requiresReauth, Map<String, dynamic>? details)?
+        auth,
+    TResult Function(String message, String? code, String? field, String? rule,
+            Map<String, dynamic>? details)?
+        validation,
+    TResult Function(String message, String? code, String? businessType,
+            Map<String, dynamic>? details)?
+        business,
+    TResult Function(String message, String? code, String? component,
+            Map<String, dynamic>? details)?
+        system,
+    TResult Function(String message, String? code, Object? originalException,
+            Map<String, dynamic>? details)?
+        unknown,
     required TResult orElse(),
   }) {
     if (system != null) {
@@ -4045,12 +2785,11 @@ class _$SystemExceptionImpl implements SystemException {
 }
 
 abstract class SystemException implements AppException {
-  const factory SystemException({
-    required final String message,
-    final String? code,
-    final String? component,
-    final Map<String, dynamic>? details,
-  }) = _$SystemExceptionImpl;
+  const factory SystemException(
+      {required final String message,
+      final String? code,
+      final String? component,
+      final Map<String, dynamic>? details}) = _$SystemExceptionImpl;
 
   /// 错误消息
   @override
@@ -4078,28 +2817,25 @@ abstract class SystemException implements AppException {
 /// @nodoc
 abstract class _$$UnknownExceptionImplCopyWith<$Res>
     implements $AppExceptionCopyWith<$Res> {
-  factory _$$UnknownExceptionImplCopyWith(
-    _$UnknownExceptionImpl value,
-    $Res Function(_$UnknownExceptionImpl) then,
-  ) = __$$UnknownExceptionImplCopyWithImpl<$Res>;
+  factory _$$UnknownExceptionImplCopyWith(_$UnknownExceptionImpl value,
+          $Res Function(_$UnknownExceptionImpl) then) =
+      __$$UnknownExceptionImplCopyWithImpl<$Res>;
   @override
   @useResult
-  $Res call({
-    String message,
-    String? code,
-    Object? originalException,
-    Map<String, dynamic>? details,
-  });
+  $Res call(
+      {String message,
+      String? code,
+      Object? originalException,
+      Map<String, dynamic>? details});
 }
 
 /// @nodoc
 class __$$UnknownExceptionImplCopyWithImpl<$Res>
     extends _$AppExceptionCopyWithImpl<$Res, _$UnknownExceptionImpl>
     implements _$$UnknownExceptionImplCopyWith<$Res> {
-  __$$UnknownExceptionImplCopyWithImpl(
-    _$UnknownExceptionImpl _value,
-    $Res Function(_$UnknownExceptionImpl) _then,
-  ) : super(_value, _then);
+  __$$UnknownExceptionImplCopyWithImpl(_$UnknownExceptionImpl _value,
+      $Res Function(_$UnknownExceptionImpl) _then)
+      : super(_value, _then);
 
   /// Create a copy of AppException
   /// with the given fields replaced by the non-null parameter values.
@@ -4111,41 +2847,35 @@ class __$$UnknownExceptionImplCopyWithImpl<$Res>
     Object? originalException = freezed,
     Object? details = freezed,
   }) {
-    return _then(
-      _$UnknownExceptionImpl(
-        message:
-            null == message
-                ? _value.message
-                : message // ignore: cast_nullable_to_non_nullable
-                    as String,
-        code:
-            freezed == code
-                ? _value.code
-                : code // ignore: cast_nullable_to_non_nullable
-                    as String?,
-        originalException:
-            freezed == originalException
-                ? _value.originalException
-                : originalException,
-        details:
-            freezed == details
-                ? _value._details
-                : details // ignore: cast_nullable_to_non_nullable
-                    as Map<String, dynamic>?,
-      ),
-    );
+    return _then(_$UnknownExceptionImpl(
+      message: null == message
+          ? _value.message
+          : message // ignore: cast_nullable_to_non_nullable
+              as String,
+      code: freezed == code
+          ? _value.code
+          : code // ignore: cast_nullable_to_non_nullable
+              as String?,
+      originalException: freezed == originalException
+          ? _value.originalException
+          : originalException,
+      details: freezed == details
+          ? _value._details
+          : details // ignore: cast_nullable_to_non_nullable
+              as Map<String, dynamic>?,
+    ));
   }
 }
 
 /// @nodoc
 
 class _$UnknownExceptionImpl implements UnknownException {
-  const _$UnknownExceptionImpl({
-    required this.message,
-    this.code,
-    this.originalException,
-    final Map<String, dynamic>? details,
-  }) : _details = details;
+  const _$UnknownExceptionImpl(
+      {required this.message,
+      this.code,
+      this.originalException,
+      final Map<String, dynamic>? details})
+      : _details = details;
 
   /// 错误消息
   @override
@@ -4184,21 +2914,18 @@ class _$UnknownExceptionImpl implements UnknownException {
             other is _$UnknownExceptionImpl &&
             (identical(other.message, message) || other.message == message) &&
             (identical(other.code, code) || other.code == code) &&
-            const DeepCollectionEquality().equals(
-              other.originalException,
-              originalException,
-            ) &&
+            const DeepCollectionEquality()
+                .equals(other.originalException, originalException) &&
             const DeepCollectionEquality().equals(other._details, _details));
   }
 
   @override
   int get hashCode => Object.hash(
-    runtimeType,
-    message,
-    code,
-    const DeepCollectionEquality().hash(originalException),
-    const DeepCollectionEquality().hash(_details),
-  );
+      runtimeType,
+      message,
+      code,
+      const DeepCollectionEquality().hash(originalException),
+      const DeepCollectionEquality().hash(_details));
 
   /// Create a copy of AppException
   /// with the given fields replaced by the non-null parameter values.
@@ -4207,82 +2934,42 @@ class _$UnknownExceptionImpl implements UnknownException {
   @pragma('vm:prefer-inline')
   _$$UnknownExceptionImplCopyWith<_$UnknownExceptionImpl> get copyWith =>
       __$$UnknownExceptionImplCopyWithImpl<_$UnknownExceptionImpl>(
-        this,
-        _$identity,
-      );
+          this, _$identity);
 
   @override
   @optionalTypeArgs
   TResult when<TResult extends Object?>({
+    required TResult Function(String message, String? code, int? statusCode,
+            String? url, Map<String, dynamic>? details)
+        network,
     required TResult Function(
-      String message,
-      String? code,
-      int? statusCode,
-      String? url,
-      Map<String, dynamic>? details,
-    )
-    network,
-    required TResult Function(
-      String message,
-      String? code,
-      String? connectionState,
-      int reconnectAttempts,
-      Map<String, dynamic>? details,
-    )
-    webSocket,
-    required TResult Function(
-      String message,
-      String? code,
-      int? statusCode,
-      String? serverErrorType,
-      Map<String, dynamic>? details,
-    )
-    server,
-    required TResult Function(
-      String message,
-      String? code,
-      String? storageType,
-      String? operationType,
-      Map<String, dynamic>? details,
-    )
-    cache,
-    required TResult Function(
-      String message,
-      String? code,
-      String? authType,
-      bool requiresReauth,
-      Map<String, dynamic>? details,
-    )
-    auth,
-    required TResult Function(
-      String message,
-      String? code,
-      String? field,
-      String? rule,
-      Map<String, dynamic>? details,
-    )
-    validation,
-    required TResult Function(
-      String message,
-      String? code,
-      String? businessType,
-      Map<String, dynamic>? details,
-    )
-    business,
-    required TResult Function(
-      String message,
-      String? code,
-      String? component,
-      Map<String, dynamic>? details,
-    )
-    system,
-    required TResult Function(
-      String message,
-      String? code,
-      Object? originalException,
-      Map<String, dynamic>? details,
-    )
-    unknown,
+            String message,
+            String? code,
+            String? connectionState,
+            int reconnectAttempts,
+            Map<String, dynamic>? details)
+        webSocket,
+    required TResult Function(String message, String? code, int? statusCode,
+            String? serverErrorType, Map<String, dynamic>? details)
+        server,
+    required TResult Function(String message, String? code, String? storageType,
+            String? operationType, Map<String, dynamic>? details)
+        cache,
+    required TResult Function(String message, String? code, String? authType,
+            bool requiresReauth, Map<String, dynamic>? details)
+        auth,
+    required TResult Function(String message, String? code, String? field,
+            String? rule, Map<String, dynamic>? details)
+        validation,
+    required TResult Function(String message, String? code,
+            String? businessType, Map<String, dynamic>? details)
+        business,
+    required TResult Function(String message, String? code, String? component,
+            Map<String, dynamic>? details)
+        system,
+    required TResult Function(String message, String? code,
+            Object? originalException, Map<String, dynamic>? details)
+        unknown,
   }) {
     return unknown(message, code, originalException, details);
   }
@@ -4290,75 +2977,33 @@ class _$UnknownExceptionImpl implements UnknownException {
   @override
   @optionalTypeArgs
   TResult? whenOrNull<TResult extends Object?>({
-    TResult? Function(
-      String message,
-      String? code,
-      int? statusCode,
-      String? url,
-      Map<String, dynamic>? details,
-    )?
-    network,
-    TResult? Function(
-      String message,
-      String? code,
-      String? connectionState,
-      int reconnectAttempts,
-      Map<String, dynamic>? details,
-    )?
-    webSocket,
-    TResult? Function(
-      String message,
-      String? code,
-      int? statusCode,
-      String? serverErrorType,
-      Map<String, dynamic>? details,
-    )?
-    server,
-    TResult? Function(
-      String message,
-      String? code,
-      String? storageType,
-      String? operationType,
-      Map<String, dynamic>? details,
-    )?
-    cache,
-    TResult? Function(
-      String message,
-      String? code,
-      String? authType,
-      bool requiresReauth,
-      Map<String, dynamic>? details,
-    )?
-    auth,
-    TResult? Function(
-      String message,
-      String? code,
-      String? field,
-      String? rule,
-      Map<String, dynamic>? details,
-    )?
-    validation,
-    TResult? Function(
-      String message,
-      String? code,
-      String? businessType,
-      Map<String, dynamic>? details,
-    )?
-    business,
-    TResult? Function(
-      String message,
-      String? code,
-      String? component,
-      Map<String, dynamic>? details,
-    )?
-    system,
-    TResult? Function(
-      String message,
-      String? code,
-      Object? originalException,
-      Map<String, dynamic>? details,
-    )?
-    unknown,
+    TResult? Function(String message, String? code, int? statusCode,
+            String? url, Map<String, dynamic>? details)?
+        network,
+    TResult? Function(String message, String? code, String? connectionState,
+            int reconnectAttempts, Map<String, dynamic>? details)?
+        webSocket,
+    TResult? Function(String message, String? code, int? statusCode,
+            String? serverErrorType, Map<String, dynamic>? details)?
+        server,
+    TResult? Function(String message, String? code, String? storageType,
+            String? operationType, Map<String, dynamic>? details)?
+        cache,
+    TResult? Function(String message, String? code, String? authType,
+            bool requiresReauth, Map<String, dynamic>? details)?
+        auth,
+    TResult? Function(String message, String? code, String? field, String? rule,
+            Map<String, dynamic>? details)?
+        validation,
+    TResult? Function(String message, String? code, String? businessType,
+            Map<String, dynamic>? details)?
+        business,
+    TResult? Function(String message, String? code, String? component,
+            Map<String, dynamic>? details)?
+        system,
+    TResult? Function(String message, String? code, Object? originalException,
+            Map<String, dynamic>? details)?
+        unknown,
   }) {
     return unknown?.call(message, code, originalException, details);
   }
@@ -4366,75 +3011,33 @@ class _$UnknownExceptionImpl implements UnknownException {
   @override
   @optionalTypeArgs
   TResult maybeWhen<TResult extends Object?>({
-    TResult Function(
-      String message,
-      String? code,
-      int? statusCode,
-      String? url,
-      Map<String, dynamic>? details,
-    )?
-    network,
-    TResult Function(
-      String message,
-      String? code,
-      String? connectionState,
-      int reconnectAttempts,
-      Map<String, dynamic>? details,
-    )?
-    webSocket,
-    TResult Function(
-      String message,
-      String? code,
-      int? statusCode,
-      String? serverErrorType,
-      Map<String, dynamic>? details,
-    )?
-    server,
-    TResult Function(
-      String message,
-      String? code,
-      String? storageType,
-      String? operationType,
-      Map<String, dynamic>? details,
-    )?
-    cache,
-    TResult Function(
-      String message,
-      String? code,
-      String? authType,
-      bool requiresReauth,
-      Map<String, dynamic>? details,
-    )?
-    auth,
-    TResult Function(
-      String message,
-      String? code,
-      String? field,
-      String? rule,
-      Map<String, dynamic>? details,
-    )?
-    validation,
-    TResult Function(
-      String message,
-      String? code,
-      String? businessType,
-      Map<String, dynamic>? details,
-    )?
-    business,
-    TResult Function(
-      String message,
-      String? code,
-      String? component,
-      Map<String, dynamic>? details,
-    )?
-    system,
-    TResult Function(
-      String message,
-      String? code,
-      Object? originalException,
-      Map<String, dynamic>? details,
-    )?
-    unknown,
+    TResult Function(String message, String? code, int? statusCode, String? url,
+            Map<String, dynamic>? details)?
+        network,
+    TResult Function(String message, String? code, String? connectionState,
+            int reconnectAttempts, Map<String, dynamic>? details)?
+        webSocket,
+    TResult Function(String message, String? code, int? statusCode,
+            String? serverErrorType, Map<String, dynamic>? details)?
+        server,
+    TResult Function(String message, String? code, String? storageType,
+            String? operationType, Map<String, dynamic>? details)?
+        cache,
+    TResult Function(String message, String? code, String? authType,
+            bool requiresReauth, Map<String, dynamic>? details)?
+        auth,
+    TResult Function(String message, String? code, String? field, String? rule,
+            Map<String, dynamic>? details)?
+        validation,
+    TResult Function(String message, String? code, String? businessType,
+            Map<String, dynamic>? details)?
+        business,
+    TResult Function(String message, String? code, String? component,
+            Map<String, dynamic>? details)?
+        system,
+    TResult Function(String message, String? code, Object? originalException,
+            Map<String, dynamic>? details)?
+        unknown,
     required TResult orElse(),
   }) {
     if (unknown != null) {
@@ -4497,12 +3100,11 @@ class _$UnknownExceptionImpl implements UnknownException {
 }
 
 abstract class UnknownException implements AppException {
-  const factory UnknownException({
-    required final String message,
-    final String? code,
-    final Object? originalException,
-    final Map<String, dynamic>? details,
-  }) = _$UnknownExceptionImpl;
+  const factory UnknownException(
+      {required final String message,
+      final String? code,
+      final Object? originalException,
+      final Map<String, dynamic>? details}) = _$UnknownExceptionImpl;
 
   /// 错误消息
   @override
