@@ -446,8 +446,58 @@ flutter analyze
 - **Error reporting**: Use health check system for tool availability
 
 ### UI/UX consistency:
-- **Four-layer architecture**: Respect background, status, actions, floating chat layers
-- **Notification positioning**: Use Overlay for proper z-index management
+
+#### 四层UI架构设计
+
+项目采用清晰的**四层堆叠架构**，每层职责明确，从下到上依次为：
+
+1. **背景层（Background Layer）** - 最底层
+   - 纯视觉展示，使用 `AbsorbPointer` 确保完全不可交互
+   - 由 `SimpleWallpaperManager` 管理
+   - 支持静态壁纸、动态背景、相册轮播等
+   - 示例：`_buildBackgroundLayer()` 使用 `AbsorbPointer` 包裹
+
+2. **状态栏层（Status Bar Layer）** - 第二层
+   - 始终固定在屏幕顶部
+   - 显示时间、日期、设置入口等核心信息
+   - 组件：`StatusBarWidget`
+   - 可交互但不影响下层背景
+
+3. **操作层（Actions Layer）** - 第三层（可选）
+   - 提供各种功能操作的交互区域
+   - 位置可配置：`ActionsPosition.center/top/bottom`
+   - 支持扩展操作和基础操作模式
+   - 组件：`ActionsWidget`
+
+4. **浮动层（Floating Layer）** - 最顶层
+   - 包含浮动聊天窗口（`FloatingChatWidget`）
+   - 通知气泡（`NotificationBubble`）
+   - MCP调用状态（`McpCallStatusWidget`）
+   - 使用 `Overlay` 和 `Positioned` 精确控制位置
+
+#### UI实现要点
+
+- **层级隔离**: 使用 `Stack` 管理层级，确保渲染顺序
+- **交互控制**: 背景层必须使用 `AbsorbPointer` 或 `IgnorePointer`
+- **位置管理**: 浮动元素使用 `Positioned` 精确定位
+- **响应式设计**: 根据屏幕尺寸调整布局参数
+- **Overlay使用**: 对话框、通知详情等使用 `Overlay` 确保最高层级
+
+#### 布局配置示例
+
+```dart
+// 使用 HomeLayoutBuilder 配置布局
+HomeLayoutBuilder()
+  .enableActions(position: ActionsPosition.center)
+  .enableDebug()  // 开发时显示调试信息
+  .build();
+
+// 预设布局
+HomeLayoutManagerExtensions.createDefault()     // 最简布局
+HomeLayoutManagerExtensions.createPhotoAlbum()  // 相册模式
+HomeLayoutManagerExtensions.createDebug()       // 调试模式
+```
+
 - **Material Design 3**: Follow current design system
 - **Responsive design**: Support different screen sizes and orientations
 
