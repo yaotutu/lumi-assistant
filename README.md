@@ -103,9 +103,13 @@
 *Web配置和Gotify通知等高级功能设置*
 
 ### 🌐 Web配置界面
-<img src="screenshots/web_config_page.png" width="600" alt="Web配置页面">
+<img src="screenshots/web_config_fixed.png" width="600" alt="Web配置页面">
 
 *通过浏览器扫码或访问地址，轻松配置所有应用设置*
+
+<img src="screenshots/web_config_scrolled.png" width="600" alt="Web配置页面使用说明">
+
+*支持滚动查看完整使用说明，适配各种屏幕尺寸*
 
 ---
 

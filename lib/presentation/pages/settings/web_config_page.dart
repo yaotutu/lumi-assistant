@@ -73,9 +73,11 @@ class _WebConfigPageState extends State<WebConfigPage> {
   Widget _buildContent() {
     final url = _service.serverUrl ?? '';
     
-    return Column(
-      mainAxisAlignment: MainAxisAlignment.center,
-      children: [
+    return SingleChildScrollView(
+      padding: const EdgeInsets.all(16),
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
         const Icon(
           Icons.computer,
           size: 64,
@@ -117,9 +119,9 @@ class _WebConfigPageState extends State<WebConfigPage> {
             ],
           ),
         ),
-        const SizedBox(height: 32),
+        const SizedBox(height: 24),
         Container(
-          padding: const EdgeInsets.all(16),
+          padding: const EdgeInsets.all(12),
           decoration: BoxDecoration(
             color: Colors.white,
             borderRadius: BorderRadius.circular(12),
@@ -131,11 +133,17 @@ class _WebConfigPageState extends State<WebConfigPage> {
               ),
             ],
           ),
-          child: QrImageView(
-            data: url,
-            version: QrVersions.auto,
-            size: 200,
-            backgroundColor: Colors.white,
+          child: ConstrainedBox(
+            constraints: const BoxConstraints(
+              maxWidth: 180,
+              maxHeight: 180,
+            ),
+            child: QrImageView(
+              data: url,
+              version: QrVersions.auto,
+              size: 180,
+              backgroundColor: Colors.white,
+            ),
           ),
         ),
         const SizedBox(height: 24),
@@ -146,9 +154,9 @@ class _WebConfigPageState extends State<WebConfigPage> {
             color: Colors.grey,
           ),
         ),
-        const SizedBox(height: 48),
+        const SizedBox(height: 24),
         const Card(
-          margin: EdgeInsets.symmetric(horizontal: 32),
+          margin: EdgeInsets.symmetric(horizontal: 16),
           child: Padding(
             padding: EdgeInsets.all(16),
             child: Column(
@@ -182,7 +190,9 @@ class _WebConfigPageState extends State<WebConfigPage> {
             ),
           ),
         ),
-      ],
+        const SizedBox(height: 24), // 底部额外间距，避免被导航栏遮挡
+        ],
+      ),
     );
   }
 
