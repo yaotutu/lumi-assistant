@@ -63,3 +63,6 @@ lumi_pcm_player/
 replacements.txt
 clean_git_history.sh
 SECURITY_NOTICE.md
+
+# FVM Version Cache
+.fvm/

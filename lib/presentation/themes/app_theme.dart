@@ -22,40 +22,40 @@ class AppTheme {
   /// 主色调
   static const Color primaryColor = Color(0xFF2196F3);
   static const Color primaryVariant = Color(0xFF1976D2);
-  
+
   /// 辅助色
   static const Color secondaryColor = Color(0xFF03DAC6);
   static const Color secondaryVariant = Color(0xFF018786);
-  
+
   /// 背景色
   static const Color backgroundColor = Color(0xFFF5F5F5);
   static const Color surfaceColor = Color(0xFFFFFFFF);
-  
+
   /// 文字色
   static const Color textColorPrimary = Color(0xFF212121);
   static const Color textColorSecondary = Color(0xFF757575);
-  
+
   /// 错误色
   static const Color errorColor = Color(0xFFB00020);
-  
+
   /// 成功色
   static const Color successColor = Color(0xFF4CAF50);
-  
+
   /// 警告色
   static const Color warningColor = Color(0xFFFF9800);
-  
+
   /// 获取亮色主题 - 性能优化版本（关闭动画和Material效果）
   static ThemeData getLightTheme() {
     return ThemeData(
       useMaterial3: false, // 主题配置通过动态配置管理
       brightness: Brightness.light,
-      
+
       // 色彩方案
       colorScheme: ColorScheme.fromSeed(
         seedColor: primaryColor,
         brightness: Brightness.light,
       ),
-      
+
       // 性能优化：关闭所有动画
       pageTransitionsTheme: PageTransitionsTheme(
         builders: {
@@ -63,12 +63,12 @@ class AppTheme {
           TargetPlatform.iOS: const _NoAnimationPageTransitionsBuilder(),
         },
       ),
-      
+
       // 关闭Material波纹效果
       splashFactory: NoSplash.splashFactory,
       highlightColor: Colors.transparent,
       splashColor: Colors.transparent,
-      
+
       // AppBar主题 - 去除阴影
       appBarTheme: const AppBarTheme(
         elevation: 0,
@@ -77,9 +77,9 @@ class AppTheme {
         backgroundColor: Colors.transparent,
         foregroundColor: textColorPrimary,
       ),
-      
+
       // 卡片主题 - 去除阴影
-      cardTheme: CardTheme(
+      cardTheme: CardThemeData(
         elevation: 0, // 关闭阴影
         shadowColor: Colors.transparent,
         shape: RoundedRectangleBorder(
@@ -87,7 +87,7 @@ class AppTheme {
           side: BorderSide(color: Colors.grey.shade300, width: 1),
         ),
       ),
-      
+
       // 输入框主题 - 简化
       inputDecorationTheme: InputDecorationTheme(
         border: OutlineInputBorder(
@@ -96,7 +96,7 @@ class AppTheme {
         filled: true,
         fillColor: surfaceColor,
       ),
-      
+
       // 按钮主题 - 去除阴影
       elevatedButtonTheme: ElevatedButtonThemeData(
         style: ElevatedButton.styleFrom(
@@ -108,7 +108,7 @@ class AppTheme {
           ),
         ),
       ),
-      
+
       // 浮动按钮主题 - 去除阴影
       floatingActionButtonTheme: const FloatingActionButtonThemeData(
         elevation: 0, // 关闭阴影
@@ -118,13 +118,13 @@ class AppTheme {
         disabledElevation: 0,
         shape: CircleBorder(),
       ),
-      
+
       // 关闭对话框动画
-      dialogTheme: const DialogTheme(
+      dialogTheme: const DialogThemeData(
         elevation: 0,
         shadowColor: Colors.transparent,
       ),
-      
+
       // 关闭底部表单动画
       bottomSheetTheme: const BottomSheetThemeData(
         elevation: 0,
@@ -132,19 +132,19 @@ class AppTheme {
       ),
     );
   }
-  
+
   /// 获取暗色主题 - 性能优化版本（关闭动画和Material效果）
   static ThemeData getDarkTheme() {
     return ThemeData(
       useMaterial3: false, // 主题配置通过动态配置管理
       brightness: Brightness.dark,
-      
+
       // 色彩方案
       colorScheme: ColorScheme.fromSeed(
         seedColor: primaryColor,
         brightness: Brightness.dark,
       ),
-      
+
       // 性能优化：关闭所有动画
       pageTransitionsTheme: PageTransitionsTheme(
         builders: {
@@ -152,12 +152,12 @@ class AppTheme {
           TargetPlatform.iOS: const _NoAnimationPageTransitionsBuilder(),
         },
       ),
-      
+
       // 关闭Material波纹效果
       splashFactory: NoSplash.splashFactory,
       highlightColor: Colors.transparent,
       splashColor: Colors.transparent,
-      
+
       // AppBar主题 - 去除阴影
       appBarTheme: const AppBarTheme(
         elevation: 0,
@@ -165,9 +165,9 @@ class AppTheme {
         centerTitle: true,
         backgroundColor: Colors.transparent,
       ),
-      
+
       // 卡片主题 - 去除阴影
-      cardTheme: CardTheme(
+      cardTheme: CardThemeData(
         elevation: 0, // 关闭阴影
         shadowColor: Colors.transparent,
         shape: RoundedRectangleBorder(
@@ -175,7 +175,7 @@ class AppTheme {
           side: BorderSide(color: Colors.grey.shade700, width: 1),
         ),
       ),
-      
+
       // 输入框主题 - 简化
       inputDecorationTheme: InputDecorationTheme(
         border: OutlineInputBorder(
@@ -183,7 +183,7 @@ class AppTheme {
         ),
         filled: true,
       ),
-      
+
       // 按钮主题 - 去除阴影
       elevatedButtonTheme: ElevatedButtonThemeData(
         style: ElevatedButton.styleFrom(
@@ -195,7 +195,7 @@ class AppTheme {
           ),
         ),
       ),
-      
+
       // 浮动按钮主题 - 去除阴影
       floatingActionButtonTheme: const FloatingActionButtonThemeData(
         elevation: 0, // 关闭阴影
@@ -205,13 +205,13 @@ class AppTheme {
         disabledElevation: 0,
         shape: CircleBorder(),
       ),
-      
+
       // 关闭对话框动画
-      dialogTheme: const DialogTheme(
+      dialogTheme: const DialogThemeData(
         elevation: 0,
         shadowColor: Colors.transparent,
       ),
-      
+
       // 关闭底部表单动画
       bottomSheetTheme: const BottomSheetThemeData(
         elevation: 0,
