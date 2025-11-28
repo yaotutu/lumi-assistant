@@ -69,14 +69,36 @@ BUILD_TIME=$(date -u +'%Y-%m-%d %H:%M:%S UTC')
 # 生成标签名
 TAG_NAME="v${VERSION}"
 
-# 检查Flutter和Dart版本
-get_flutter_info() {
-    if command -v flutter &> /dev/null; then
-        FLUTTER_VERSION=$(flutter --version | grep "Flutter" | awk '{print $2}')
-        DART_VERSION=$(flutter --version | grep "Dart" | awk '{print $4}')
+# 检查Android构建环境
+get_android_info() {
+    # 读取项目信息
+    if [ -f "${REPO_ROOT}/app/build.gradle" ]; then
+        VERSION_NAME_FROM_GRADLE=$(grep -o 'versionName "[^"]*"' "${REPO_ROOT}/app/build.gradle" | grep -o '"[^"]*"' | tr -d '"' || echo "Unknown")
+        VERSION_CODE_FROM_GRADLE=$(grep -o 'versionCode [0-9]*' "${REPO_ROOT}/app/build.gradle" | grep -o '[0-9]*' || echo "Unknown")
     else
-        FLUTTER_VERSION="Unknown"
-        DART_VERSION="Unknown"
+        VERSION_NAME_FROM_GRADLE="Unknown"
+        VERSION_CODE_FROM_GRADLE="Unknown"
+    fi
+
+    # 获取Gradle版本
+    if command -v ./gradlew &> /dev/null; then
+        GRADLE_VERSION=$(./gradlew --version | grep "Gradle" | head -n1 | awk '{print $2}' || echo "Unknown")
+    else
+        GRADLE_VERSION="Unknown"
+    fi
+
+    # 获取Kotlin版本
+    if [ -f "${REPO_ROOT}/gradle.properties" ]; then
+        KOTLIN_VERSION=$(grep "kotlin.version" "${REPO_ROOT}/gradle.properties" | cut -d'=' -f2 | tr -d ' ' || echo "Unknown")
+    else
+        KOTLIN_VERSION="Unknown"
+    fi
+
+    # 获取AGP版本
+    if [ -f "${REPO_ROOT}/gradle/libs.versions.toml" ]; then
+        AGP_VERSION=$(grep "agp" "${REPO_ROOT}/gradle/libs.versions.toml" -A1 | grep "version" | cut -d'=' -f2 | tr -d ' "')
+    else
+        AGP_VERSION="Unknown"
     fi
 }
 
@@ -111,8 +133,11 @@ generate_release_notes() {
         -e "s|{{RELEASES_URL}}|${RELEASES_URL}|g" \
         -e "s|{{DOCS_URL}}|${DOCS_URL}|g" \
         -e "s|{{CONTRIBUTING_URL}}|${CONTRIBUTING_URL}|g" \
-        -e "s|{{FLUTTER_VERSION}}|${FLUTTER_VERSION}|g" \
-        -e "s|{{DART_VERSION}}|${DART_VERSION}|g" \
+        -e "s|{{GRADLE_VERSION}}|${GRADLE_VERSION}|g" \
+        -e "s|{{KOTLIN_VERSION}}|${KOTLIN_VERSION}|g" \
+        -e "s|{{AGP_VERSION}}|${AGP_VERSION}|g" \
+        -e "s|{{VERSION_NAME_FROM_GRADLE}}|${VERSION_NAME_FROM_GRADLE}|g" \
+        -e "s|{{VERSION_CODE_FROM_GRADLE}}|${VERSION_CODE_FROM_GRADLE}|g" \
         -e "s|{{TAG_NAME}}|${TAG_NAME}|g" \
         "${output_file}"
     
@@ -202,8 +227,9 @@ show_summary() {
     echo "提交哈希:         ${COMMIT_SHA}"
     echo "提交信息:         ${COMMIT_MESSAGE}"
     echo "分支:             ${BRANCH}"
-    echo "Flutter版本:      ${FLUTTER_VERSION}"
-    echo "Dart版本:         ${DART_VERSION}"
+    echo "Gradle版本:       ${GRADLE_VERSION}"
+    echo "Kotlin版本:       ${KOTLIN_VERSION}"
+    echo "AGP版本:          ${AGP_VERSION}"
     echo "仓库URL:          ${REPO_URL}"
     echo "================================================"
 }
@@ -211,13 +237,13 @@ show_summary() {
 # 主函数
 main() {
     log_info "开始生成Release信息..."
-    
-    get_flutter_info
+
+    get_android_info
     generate_release_notes
     generate_release_summary
     output_to_github
     show_summary
-    
+
     log_success "Release信息生成完成！"
 }
 

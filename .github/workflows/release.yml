@@ -10,7 +10,7 @@ on:
   workflow_dispatch:  # 允许手动触发
     inputs:
       version:
-        description: '发布版本号 (如: 1.0.0)'
+        description: '发布版本号 (如: 0.1.0)'
         required: true
         type: string
       environment:
@@ -52,6 +52,19 @@ jobs:
             echo "VERSION_NAME=${{ github.event.inputs.version }}" >> $GITHUB_ENV
           fi
 
+      - name: 生成 Release Notes
+        run: |
+          chmod +x .github/scripts/release-generator.sh
+          VERSION="${{ env.VERSION_NAME }}" \
+          BUILD_NUMBER="${{ env.VERSION_CODE }}" \
+          COMMIT_SHA="${{ github.sha }}" \
+          COMMIT_MESSAGE="$(git log -1 --pretty=format:'%s')" \
+          COMMIT_AUTHOR="$(git log -1 --pretty=format:'%an')" \
+          COMMIT_DATE="$(git log -1 --pretty=format:'%ci')" \
+          BRANCH="${{ github.ref_name }}" \
+          GITHUB_REPOSITORY="${{ github.repository }}" \
+          .github/scripts/release-generator.sh
+
       - name: 解码签名密钥
         run: |
           echo "${{ secrets.RELEASE_KEYSTORE_BASE64 }}" | base64 -d > release-key.jks
@@ -86,69 +99,6 @@ jobs:
           sha256sum *.apk > checksums.txt
           cat checksums.txt
 
-      - name: 生成 Release Notes
-        id: release_notes
-        run: |
-          # 判断发布类型标签
-          if [[ "${{ github.ref_name }}" == "dev" ]]; then
-            RELEASE_TAG="🧪 测试版 (Beta)"
-            RELEASE_WARNING="⚠️ **这是测试版本，可能不稳定，仅供测试使用！**"
-          elif [[ "${{ github.ref_name }}" == "release" ]]; then
-            RELEASE_TAG="✅ 正式版 (Production)"
-            RELEASE_WARNING=""
-          else
-            RELEASE_TAG="📦 预览版"
-            RELEASE_WARNING="⚠️ **这是非正式版本，请谨慎使用！**"
-          fi
-
-          cat > release-notes.md << 'EOF'
-          ## 📱 Lumi Assistant ${{ env.VERSION_NAME }}
-
-          ### 🏷️ 版本类型
-          ${RELEASE_TAG}
-
-          ${RELEASE_WARNING}
-
-          ### 📦 下载 APK
-
-          根据你的设备选择对应架构下载（不确定就选 Universal）：
-
-          | 文件 | 架构 | 适用设备 | 大小 |
-          |------|------|---------|------|
-          | `lumi-assistant-${{ env.VERSION_NAME }}-universal.apk` | 通用版 | **所有 ARM 设备（推荐）** | ~较大 |
-          | `lumi-assistant-${{ env.VERSION_NAME }}-arm64-v8a.apk` | 64位 | 2019年后的现代手机 | ~较小 |
-          | `lumi-assistant-${{ env.VERSION_NAME }}-armeabi-v7a.apk` | 32位 | 老旧设备 | ~较小 |
-
-          > 💡 **选择建议**:
-          > - 不确定？下载 **universal** 版本（兼容所有设备）
-          > - 想要更小体积？根据设备架构选择对应版本
-
-          ### 🔖 版本信息
-          - **Version Name**: ${{ env.VERSION_NAME }}
-          - **Version Code**: ${{ env.VERSION_CODE }}
-          - **Build Date**: $(date +"%Y-%m-%d %H:%M:%S")
-          - **Commit**: ${{ github.sha }}
-          - **支持架构**: ARM64-v8a, ARMv7
-
-          ### 📝 更新内容
-          $(git log --pretty=format:"- %s" $(git describe --tags --abbrev=0 HEAD^)..HEAD 2>/dev/null || echo "- 初始版本发布")
-
-          ### 🔐 安全校验
-          下载后可验证 SHA256 校验和:
-          ```
-          $(cat release-output/checksums.txt)
-          ```
-
-          ### ⚙️ 系统要求
-          - **最低版本**: Android 7.0 (API 24)
-          - **推荐版本**: Android 12+ (支持 Material You 动态配色)
-          - **支持架构**: ARM 设备（不支持 x86 模拟器）
-
-          ---
-          **构建环境**: GitHub Actions
-          **构建时间**: $(date -u +"%Y-%m-%d %H:%M:%S UTC")
-          EOF
-
       - name: 判断发布类型
         id: release_type
         run: |
@@ -175,7 +125,7 @@ jobs:
         with:
           tag_name: ${{ steps.release_type.outputs.TAG_NAME }}
           name: ${{ steps.release_type.outputs.RELEASE_NAME }}
-          body_path: release-notes.md
+          body_path: release_notes.md
           files: |
             release-output/lumi-assistant-${{ env.VERSION_NAME }}-universal.apk
             release-output/lumi-assistant-${{ env.VERSION_NAME }}-arm64-v8a.apk

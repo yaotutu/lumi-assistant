@@ -17,8 +17,8 @@ COMMIT_SHORT_SHA=$(echo "$COMMIT_SHA" | cut -c1-7)
 # 获取当前分支
 CURRENT_BRANCH="${GITHUB_REF#refs/heads/}"
 
-# 基础版本号（可以从 Git Tag 读取，或使用默认值）
-BASE_VERSION="1.0.0"
+# 基础版本号（可以从 build.gradle 读取，或使用默认值）
+BASE_VERSION="0.1.0"
 
 # 版本号生成规则
 if [[ "$GITHUB_REF" == refs/tags/* ]]; then
