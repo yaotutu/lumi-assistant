@@ -31,7 +31,8 @@ android {
     signingConfigs {
         create("release") {
             // 从环境变量读取签名配置（用于 CI/CD）
-            storeFile = System.getenv("RELEASE_KEYSTORE_PATH")?.let { file(it) }
+            val keystorePath = System.getenv("RELEASE_KEYSTORE_PATH")
+            storeFile = if (!keystorePath.isNullOrEmpty()) file(keystorePath) else null
             storePassword = System.getenv("RELEASE_KEYSTORE_PASSWORD")
             keyAlias = System.getenv("RELEASE_KEY_ALIAS")
             keyPassword = System.getenv("RELEASE_KEY_PASSWORD")

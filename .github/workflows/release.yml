@@ -47,36 +47,28 @@ jobs:
 
           echo "📱 Building: ${VERSION_NAME} (${VERSION_CODE})"
 
-      - name: Setup signing
+      - name: Setup signing for release builds
         if: env.IS_PRERELEASE == 'false'
         run: |
           echo "${{ secrets.RELEASE_KEYSTORE_BASE64 }}" | base64 -d > release-key.jks
 
-      - name: Setup signing config for debug
+      - name: Build Release APK (Debug)
         if: env.IS_PRERELEASE == 'true'
-        run: |
-          echo "RELEASE_KEYSTORE_PATH=" >> $GITHUB_ENV
-          echo "RELEASE_KEYSTORE_PASSWORD=android" >> $GITHUB_ENV
-          echo "RELEASE_KEY_ALIAS=androiddebugkey" >> $GITHUB_ENV
-          echo "RELEASE_KEY_PASSWORD=android" >> $GITHUB_ENV
-
-      - name: Setup signing config for release
-        if: env.IS_PRERELEASE == 'false'
-        run: |
-          echo "RELEASE_KEYSTORE_PATH=${{ github.workspace }}/release-key.jks" >> $GITHUB_ENV
-          echo "RELEASE_KEYSTORE_PASSWORD=${{ secrets.RELEASE_KEYSTORE_PASSWORD }}" >> $GITHUB_ENV
-          echo "RELEASE_KEY_ALIAS=${{ secrets.RELEASE_KEY_ALIAS }}" >> $GITHUB_ENV
-          echo "RELEASE_KEY_PASSWORD=${{ secrets.RELEASE_KEY_PASSWORD }}" >> $GITHUB_ENV
-
-      - name: Build Release APK
         run: ./gradlew assembleRelease
         env:
           VERSION_CODE: ${{ env.VERSION_CODE }}
           VERSION_NAME: ${{ env.VERSION_NAME }}
-          RELEASE_KEYSTORE_PATH: ${{ env.RELEASE_KEYSTORE_PATH }}
-          RELEASE_KEYSTORE_PASSWORD: ${{ env.RELEASE_KEYSTORE_PASSWORD }}
-          RELEASE_KEY_ALIAS: ${{ env.RELEASE_KEY_ALIAS }}
-          RELEASE_KEY_PASSWORD: ${{ env.RELEASE_KEY_PASSWORD }}
+
+      - name: Build Release APK (Signed)
+        if: env.IS_PRERELEASE == 'false'
+        run: ./gradlew assembleRelease
+        env:
+          VERSION_CODE: ${{ env.VERSION_CODE }}
+          VERSION_NAME: ${{ env.VERSION_NAME }}
+          RELEASE_KEYSTORE_PATH: ${{ github.workspace }}/release-key.jks
+          RELEASE_KEYSTORE_PASSWORD: ${{ secrets.RELEASE_KEYSTORE_PASSWORD }}
+          RELEASE_KEY_ALIAS: ${{ secrets.RELEASE_KEY_ALIAS }}
+          RELEASE_KEY_PASSWORD: ${{ secrets.RELEASE_KEY_PASSWORD }}
 
       - name: Prepare artifacts
         run: |
