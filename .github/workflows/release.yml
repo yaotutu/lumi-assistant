@@ -5,6 +5,11 @@ on:
     branches: [dev, release]
   workflow_dispatch:
 
+# 添加必要的权限
+permissions:
+  contents: write
+  actions: read
+
 jobs:
   build:
     name: Build Android App
