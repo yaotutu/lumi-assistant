@@ -57,9 +57,9 @@ jobs:
         run: |
           echo "${{ secrets.RELEASE_KEYSTORE_BASE64 }}" | base64 -d > release-key.jks
 
-      - name: Build Release APK (Debug)
+      - name: Build Debug APK (for dev branch)
         if: env.IS_PRERELEASE == 'true'
-        run: ./gradlew assembleRelease
+        run: ./gradlew assembleDebug
         env:
           VERSION_CODE: ${{ env.VERSION_CODE }}
           VERSION_NAME: ${{ env.VERSION_NAME }}
@@ -88,12 +88,19 @@ jobs:
             echo "=== 使用 debug 目录 ==="
             ls -la app/build/outputs/apk/debug/
 
-            cp app/build/outputs/apk/debug/app-arm64-v8a-debug.apk \
-               artifacts/lumi-assistant-${{ env.VERSION_NAME }}-arm64-v8a.apk
-            cp app/build/outputs/apk/debug/app-armeabi-v7a-debug.apk \
-               artifacts/lumi-assistant-${{ env.VERSION_NAME }}-armeabi-v7a.apk
-            cp app/build/outputs/apk/debug/app-universal-debug.apk \
-               artifacts/lumi-assistant-${{ env.VERSION_NAME }}-universal.apk
+            # 处理 debug APK（已签名，可用于测试）
+            if [ -f "app/build/outputs/apk/debug/app-arm64-v8a-debug.apk" ]; then
+              cp app/build/outputs/apk/debug/app-arm64-v8a-debug.apk \
+                 artifacts/lumi-assistant-${{ env.VERSION_NAME }}-arm64-v8a.apk
+            fi
+            if [ -f "app/build/outputs/apk/debug/app-armeabi-v7a-debug.apk" ]; then
+              cp app/build/outputs/apk/debug/app-armeabi-v7a-debug.apk \
+                 artifacts/lumi-assistant-${{ env.VERSION_NAME }}-armeabi-v7a.apk
+            fi
+            if [ -f "app/build/outputs/apk/debug/app-universal-debug.apk" ]; then
+              cp app/build/outputs/apk/debug/app-universal-debug.apk \
+                 artifacts/lumi-assistant-${{ env.VERSION_NAME }}-universal.apk
+            fi
           fi
 
           # 尝试 release 目录（如果存在）
