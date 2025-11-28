@@ -1,0 +1,202 @@
+name: Release Build
+
+on:
+  push:
+    branches:
+      - dev       # 触发条件: 推送到 dev 分支（发布测试版）
+      - release   # 触发条件: 推送到 release 分支（发布正式版）
+    tags:
+      - 'v*'     # 也支持 tag 触发
+  workflow_dispatch:  # 允许手动触发
+    inputs:
+      version:
+        description: '发布版本号 (如: 1.0.0)'
+        required: true
+        type: string
+      environment:
+        description: '环境类型'
+        required: true
+        type: choice
+        options:
+          - beta
+          - production
+
+jobs:
+  release:
+    name: Create Release
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout 代码
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: 设置 JDK 17
+        uses: actions/setup-java@v4
+        with:
+          java-version: '17'
+          distribution: 'temurin'
+          cache: 'gradle'
+
+      - name: 授予 Gradle 执行权限
+        run: chmod +x gradlew
+
+      - name: 生成版本号
+        run: |
+          chmod +x .github/scripts/version-generator.sh
+          .github/scripts/version-generator.sh
+
+          # 如果是手动触发，使用输入的版本号
+          if [ -n "${{ github.event.inputs.version }}" ]; then
+            echo "VERSION_NAME=${{ github.event.inputs.version }}" >> $GITHUB_ENV
+          fi
+
+      - name: 解码签名密钥
+        run: |
+          echo "${{ secrets.RELEASE_KEYSTORE_BASE64 }}" | base64 -d > release-key.jks
+
+      - name: 构建 Release APK
+        run: ./gradlew assembleRelease --stacktrace
+        env:
+          VERSION_CODE: ${{ env.VERSION_CODE }}
+          VERSION_NAME: ${{ env.VERSION_NAME }}
+          RELEASE_KEYSTORE_PATH: ${{ github.workspace }}/release-key.jks
+          RELEASE_KEYSTORE_PASSWORD: ${{ secrets.RELEASE_KEYSTORE_PASSWORD }}
+          RELEASE_KEY_ALIAS: ${{ secrets.RELEASE_KEY_ALIAS }}
+          RELEASE_KEY_PASSWORD: ${{ secrets.RELEASE_KEY_PASSWORD }}
+
+      - name: 重命名 APK 文件
+        run: |
+          mkdir -p release-output
+
+          # 复制并重命名各架构 APK
+          cp app/build/outputs/apk/release/app-arm64-v8a-release.apk \
+             release-output/lumi-assistant-${{ env.VERSION_NAME }}-arm64-v8a.apk
+
+          cp app/build/outputs/apk/release/app-armeabi-v7a-release.apk \
+             release-output/lumi-assistant-${{ env.VERSION_NAME }}-armeabi-v7a.apk
+
+          cp app/build/outputs/apk/release/app-universal-release.apk \
+             release-output/lumi-assistant-${{ env.VERSION_NAME }}-universal.apk
+
+      - name: 生成 APK 校验和
+        run: |
+          cd release-output
+          sha256sum *.apk > checksums.txt
+          cat checksums.txt
+
+      - name: 生成 Release Notes
+        id: release_notes
+        run: |
+          # 判断发布类型标签
+          if [[ "${{ github.ref_name }}" == "dev" ]]; then
+            RELEASE_TAG="🧪 测试版 (Beta)"
+            RELEASE_WARNING="⚠️ **这是测试版本，可能不稳定，仅供测试使用！**"
+          elif [[ "${{ github.ref_name }}" == "release" ]]; then
+            RELEASE_TAG="✅ 正式版 (Production)"
+            RELEASE_WARNING=""
+          else
+            RELEASE_TAG="📦 预览版"
+            RELEASE_WARNING="⚠️ **这是非正式版本，请谨慎使用！**"
+          fi
+
+          cat > release-notes.md << 'EOF'
+          ## 📱 Lumi Assistant ${{ env.VERSION_NAME }}
+
+          ### 🏷️ 版本类型
+          ${RELEASE_TAG}
+
+          ${RELEASE_WARNING}
+
+          ### 📦 下载 APK
+
+          根据你的设备选择对应架构下载（不确定就选 Universal）：
+
+          | 文件 | 架构 | 适用设备 | 大小 |
+          |------|------|---------|------|
+          | `lumi-assistant-${{ env.VERSION_NAME }}-universal.apk` | 通用版 | **所有 ARM 设备（推荐）** | ~较大 |
+          | `lumi-assistant-${{ env.VERSION_NAME }}-arm64-v8a.apk` | 64位 | 2019年后的现代手机 | ~较小 |
+          | `lumi-assistant-${{ env.VERSION_NAME }}-armeabi-v7a.apk` | 32位 | 老旧设备 | ~较小 |
+
+          > 💡 **选择建议**:
+          > - 不确定？下载 **universal** 版本（兼容所有设备）
+          > - 想要更小体积？根据设备架构选择对应版本
+
+          ### 🔖 版本信息
+          - **Version Name**: ${{ env.VERSION_NAME }}
+          - **Version Code**: ${{ env.VERSION_CODE }}
+          - **Build Date**: $(date +"%Y-%m-%d %H:%M:%S")
+          - **Commit**: ${{ github.sha }}
+          - **支持架构**: ARM64-v8a, ARMv7
+
+          ### 📝 更新内容
+          $(git log --pretty=format:"- %s" $(git describe --tags --abbrev=0 HEAD^)..HEAD 2>/dev/null || echo "- 初始版本发布")
+
+          ### 🔐 安全校验
+          下载后可验证 SHA256 校验和:
+          ```
+          $(cat release-output/checksums.txt)
+          ```
+
+          ### ⚙️ 系统要求
+          - **最低版本**: Android 7.0 (API 24)
+          - **推荐版本**: Android 12+ (支持 Material You 动态配色)
+          - **支持架构**: ARM 设备（不支持 x86 模拟器）
+
+          ---
+          **构建环境**: GitHub Actions
+          **构建时间**: $(date -u +"%Y-%m-%d %H:%M:%S UTC")
+          EOF
+
+      - name: 判断发布类型
+        id: release_type
+        run: |
+          if [[ "${{ github.ref_name }}" == "dev" ]]; then
+            echo "IS_PRERELEASE=true" >> $GITHUB_OUTPUT
+            echo "RELEASE_NAME=Lumi Assistant ${{ env.VERSION_NAME }} (Beta)" >> $GITHUB_OUTPUT
+            echo "TAG_NAME=beta-${{ env.VERSION_NAME }}" >> $GITHUB_OUTPUT
+          elif [[ "${{ github.ref_name }}" == "release" ]]; then
+            echo "IS_PRERELEASE=false" >> $GITHUB_OUTPUT
+            echo "RELEASE_NAME=Lumi Assistant ${{ env.VERSION_NAME }}" >> $GITHUB_OUTPUT
+            echo "TAG_NAME=v${{ env.VERSION_NAME }}" >> $GITHUB_OUTPUT
+          elif [[ "${{ github.ref }}" == refs/tags/* ]]; then
+            echo "IS_PRERELEASE=false" >> $GITHUB_OUTPUT
+            echo "RELEASE_NAME=Lumi Assistant ${{ env.VERSION_NAME }}" >> $GITHUB_OUTPUT
+            echo "TAG_NAME=${{ github.ref_name }}" >> $GITHUB_OUTPUT
+          else
+            echo "IS_PRERELEASE=true" >> $GITHUB_OUTPUT
+            echo "RELEASE_NAME=Lumi Assistant ${{ env.VERSION_NAME }} (Test)" >> $GITHUB_OUTPUT
+            echo "TAG_NAME=test-${{ env.VERSION_NAME }}" >> $GITHUB_OUTPUT
+          fi
+
+      - name: 创建 GitHub Release
+        uses: softprops/action-gh-release@v1
+        with:
+          tag_name: ${{ steps.release_type.outputs.TAG_NAME }}
+          name: ${{ steps.release_type.outputs.RELEASE_NAME }}
+          body_path: release-notes.md
+          files: |
+            release-output/lumi-assistant-${{ env.VERSION_NAME }}-universal.apk
+            release-output/lumi-assistant-${{ env.VERSION_NAME }}-arm64-v8a.apk
+            release-output/lumi-assistant-${{ env.VERSION_NAME }}-armeabi-v7a.apk
+            release-output/checksums.txt
+          draft: false
+          prerelease: ${{ steps.release_type.outputs.IS_PRERELEASE }}
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: 清理签名文件
+        if: always()
+        run: rm -f release-key.jks
+
+      - name: 发布总结
+        run: |
+          echo "### 🚀 发布完成 ✅" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "**版本信息:**" >> $GITHUB_STEP_SUMMARY
+          echo "- Version: \`${{ env.VERSION_NAME }}\`" >> $GITHUB_STEP_SUMMARY
+          echo "- Version Code: \`${{ env.VERSION_CODE }}\`" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "**Release 链接:**" >> $GITHUB_STEP_SUMMARY
+          echo "- 🔗 [${{ github.ref_name }}](${{ github.server_url }}/${{ github.repository }}/releases/tag/${{ github.ref_name }})" >> $GITHUB_STEP_SUMMARY

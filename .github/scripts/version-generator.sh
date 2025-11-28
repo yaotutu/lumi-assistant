@@ -1,170 +1,70 @@
 #!/bin/bash
+# 版本号自动生成脚本
+# 用于 GitHub Actions 自动生成语义化版本号
 
-# 版本号生成脚本
-# 用于GitHub Actions自动生成带pre前缀的版本号
+set -e
 
-set -e  # 遇到错误立即退出
+# 获取构建号（GitHub Actions run number）
+BUILD_NUMBER=${GITHUB_RUN_NUMBER:-1}
 
-# 颜色定义
-RED='\033[0;31m'
-GREEN='\033[0;32m'
-BLUE='\033[0;34m'
-YELLOW='\033[1;33m'
-NC='\033[0m' # No Color
+# 获取当前日期
+BUILD_DATE=$(date +"%Y%m%d")
 
-# 日志函数
-log_info() {
-    echo -e "${BLUE}[INFO]${NC} $1"
-}
+# 获取 Git 提交信息
+COMMIT_SHA=${GITHUB_SHA:-$(git rev-parse --short HEAD)}
+COMMIT_SHORT_SHA=$(echo "$COMMIT_SHA" | cut -c1-7)
 
-log_success() {
-    echo -e "${GREEN}[SUCCESS]${NC} $1"
-}
+# 获取当前分支
+CURRENT_BRANCH="${GITHUB_REF#refs/heads/}"
 
-log_warning() {
-    echo -e "${YELLOW}[WARNING]${NC} $1"
-}
+# 基础版本号（可以从 Git Tag 读取，或使用默认值）
+BASE_VERSION="1.0.0"
 
-log_error() {
-    echo -e "${RED}[ERROR]${NC} $1"
-}
+# 版本号生成规则
+if [[ "$GITHUB_REF" == refs/tags/* ]]; then
+    # Tag 触发：使用 Tag 作为版本号
+    VERSION_NAME="${GITHUB_REF#refs/tags/}"
+    VERSION_NAME="${VERSION_NAME#v}"  # 移除 'v' 前缀
+    VERSION_NAME="${VERSION_NAME#beta-}"  # 移除 'beta-' 前缀
 
-# 检查是否在Git仓库中
-check_git_repo() {
-    if ! git rev-parse --git-dir > /dev/null 2>&1; then
-        log_error "当前目录不是Git仓库"
-        exit 1
-    fi
-}
+elif [[ "$CURRENT_BRANCH" == "release" ]]; then
+    # release 分支：生成正式版本号
+    VERSION_NAME="${BASE_VERSION}"
+    echo "🎯 正式版本"
 
-# 获取Git信息
-get_git_info() {
-    # 获取提交计数（用作版本递增）
-    COMMIT_COUNT=$(git rev-list --count HEAD)
-    
-    # 获取当前分支
-    CURRENT_BRANCH=$(git rev-parse --abbrev-ref HEAD)
-    
-    # 获取最新提交的短哈希
-    COMMIT_SHA=$(git rev-parse --short HEAD)
-    
-    # 获取最新提交信息
-    COMMIT_MSG=$(git log -1 --pretty=format:'%s')
-    
-    log_info "Git信息："
-    log_info "  分支: ${CURRENT_BRANCH}"
-    log_info "  提交数: ${COMMIT_COUNT}"
-    log_info "  提交哈希: ${COMMIT_SHA}"
-    log_info "  提交信息: ${COMMIT_MSG}"
-}
+elif [[ "$CURRENT_BRANCH" == "dev" ]]; then
+    # dev 分支：生成测试版本号
+    VERSION_NAME="${BASE_VERSION}-beta.${BUILD_NUMBER}"
+    echo "🧪 测试版本"
 
-# 生成版本号
-generate_version() {
-    # 基础版本（主要版本.次要版本）
-    local BASE_VERSION="0.1"
-    
-    # 补丁版本号使用提交计数
-    local PATCH_VERSION=${COMMIT_COUNT}
-    
-    # 生成完整版本号
-    if [ "${CURRENT_BRANCH}" = "main" ]; then
-        # main分支：正式版本，无pre后缀
-        VERSION="${BASE_VERSION}.${PATCH_VERSION}"
-        PRERELEASE=false
-    elif [ "${CURRENT_BRANCH}" = "dev" ]; then
-        # dev分支：开发版本，使用pre后缀
-        VERSION="${BASE_VERSION}.${PATCH_VERSION}-pre"
-        PRERELEASE=true
-    else
-        # 其他分支：使用分支名和提交哈希
-        BRANCH_NAME=$(echo ${CURRENT_BRANCH} | sed 's/[^a-zA-Z0-9]/-/g' | tr '[:upper:]' '[:lower:]')
-        VERSION="${BASE_VERSION}.${PATCH_VERSION}-${BRANCH_NAME}.${COMMIT_SHA}"
-        PRERELEASE=true
-    fi
-    
-    log_success "生成版本号: ${VERSION}"
-}
+elif [[ "$CURRENT_BRANCH" == "main" || "$CURRENT_BRANCH" == "master" ]]; then
+    # main 分支：生成开发版本号
+    VERSION_NAME="${BASE_VERSION}-dev.${BUILD_NUMBER}"
+    echo "🔧 开发版本"
 
-# 生成构建号
-generate_build_number() {
-    # 使用更短的构建号格式，避免超过Android限制（2100000000）
-    # 格式：提交计数 * 1000 + 小时分钟（4位数字）
-    local HOUR_MIN=$(date +'%H%M')
-    
-    # 移除前导零避免八进制解释问题
-    HOUR_MIN=$((10#${HOUR_MIN}))
-    
-    BUILD_NUMBER=$((COMMIT_COUNT * 1000 + HOUR_MIN))
-    
-    # 确保不超过Android最大值
-    if [ ${BUILD_NUMBER} -gt 2100000000 ]; then
-        # 如果超过限制，使用更简单的格式：提交计数 + 日期后2位
-        local DAY_HOUR=$(date +'%d%H')
-        DAY_HOUR=$((10#${DAY_HOUR}))
-        BUILD_NUMBER=$((COMMIT_COUNT * 100 + DAY_HOUR % 100))
-    fi
-    
-    # 最终安全检查，确保不超过Android限制
-    if [ ${BUILD_NUMBER} -gt 2100000000 ]; then
-        BUILD_NUMBER=${COMMIT_COUNT}
-    fi
-    
-    log_success "生成构建号: ${BUILD_NUMBER}"
-}
-
-# 生成完整的版本字符串（用于pubspec.yaml）
-generate_full_version() {
-    FULL_VERSION="${VERSION}+${BUILD_NUMBER}"
-    log_success "完整版本字符串: ${FULL_VERSION}"
-}
-
-# 输出到GitHub Actions环境
-output_to_github() {
-    if [ -n "${GITHUB_OUTPUT}" ]; then
-        echo "version=${VERSION}" >> ${GITHUB_OUTPUT}
-        echo "build-number=${BUILD_NUMBER}" >> ${GITHUB_OUTPUT}
-        echo "full-version=${FULL_VERSION}" >> ${GITHUB_OUTPUT}
-        echo "prerelease=${PRERELEASE}" >> ${GITHUB_OUTPUT}
-        echo "commit-sha=${COMMIT_SHA}" >> ${GITHUB_OUTPUT}
-        echo "commit-count=${COMMIT_COUNT}" >> ${GITHUB_OUTPUT}
-        echo "branch=${CURRENT_BRANCH}" >> ${GITHUB_OUTPUT}
-        
-        log_success "版本信息已输出到GitHub Actions环境"
-    fi
-}
-
-# 显示版本摘要
-show_summary() {
-    echo ""
-    echo "================================================"
-    echo "              版本信息摘要"
-    echo "================================================"
-    echo "版本号:           ${VERSION}"
-    echo "构建号:           ${BUILD_NUMBER}"
-    echo "完整版本:         ${FULL_VERSION}"
-    echo "预发布版本:       ${PRERELEASE}"
-    echo "当前分支:         ${CURRENT_BRANCH}"
-    echo "提交计数:         ${COMMIT_COUNT}"
-    echo "提交哈希:         ${COMMIT_SHA}"
-    echo "================================================"
-}
-
-# 主函数
-main() {
-    log_info "开始生成版本信息..."
-    
-    check_git_repo
-    get_git_info
-    generate_version
-    generate_build_number
-    generate_full_version
-    output_to_github
-    show_summary
-    
-    log_success "版本信息生成完成！"
-}
-
-# 如果直接运行此脚本
-if [ "${BASH_SOURCE[0]}" = "${0}" ]; then
-    main "$@"
+else
+    # 其他分支：生成预发布版本号（带分支名）
+    # 清理分支名（移除特殊字符，替换 / 为 -）
+    CLEAN_BRANCH=$(echo "$CURRENT_BRANCH" | sed 's/[^a-zA-Z0-9\-]/-/g')
+    VERSION_NAME="${BASE_VERSION}-${CLEAN_BRANCH}.${BUILD_NUMBER}"
+    echo "📦 特性分支版本"
 fi
+
+# Version Code = 日期(8位) + 构建号后3位
+# 例如: 20250125001 (2025年1月25日的第1次构建)
+VERSION_CODE="${BUILD_DATE}$(printf "%03d" $((BUILD_NUMBER % 1000)))"
+
+# 输出到 GitHub Actions 环境变量
+echo "VERSION_NAME=$VERSION_NAME" >> $GITHUB_ENV
+echo "VERSION_CODE=$VERSION_CODE" >> $GITHUB_ENV
+echo "COMMIT_SHORT_SHA=$COMMIT_SHORT_SHA" >> $GITHUB_ENV
+
+# 输出日志
+echo "========================================"
+echo "版本信息生成完成:"
+echo "  BRANCH: $CURRENT_BRANCH"
+echo "  VERSION_NAME: $VERSION_NAME"
+echo "  VERSION_CODE: $VERSION_CODE"
+echo "  COMMIT_SHA: $COMMIT_SHORT_SHA"
+echo "  BUILD_NUMBER: $BUILD_NUMBER"
+echo "========================================"
