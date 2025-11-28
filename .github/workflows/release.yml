@@ -1,94 +1,59 @@
-name: Release Build
+name: Build & Release
 
 on:
   push:
-    branches:
-      - dev       # 触发条件: 推送到 dev 分支（发布测试版）
-      - release   # 触发条件: 推送到 release 分支（发布正式版）
-    tags:
-      - 'v*'     # 也支持 tag 触发
-  workflow_dispatch:  # 允许手动触发
-    inputs:
-      version:
-        description: '发布版本号 (如: 0.1.0)'
-        required: true
-        type: string
-      environment:
-        description: '环境类型'
-        required: true
-        type: choice
-        options:
-          - beta
-          - production
+    branches: [dev, release]
+  workflow_dispatch:
 
 jobs:
-  release:
-    name: Create Release
+  build:
+    name: Build Android App
     runs-on: ubuntu-latest
 
     steps:
-      - name: Checkout 代码
+      - name: Checkout
         uses: actions/checkout@v4
-        with:
-          fetch-depth: 0
 
-      - name: 设置 JDK 17
+      - name: Setup Java
         uses: actions/setup-java@v4
         with:
+          distribution: temurin
           java-version: '17'
-          distribution: 'temurin'
-          cache: 'gradle'
+          cache: gradle
 
-      - name: 授予 Gradle 执行权限
+      - name: Grant permissions
         run: chmod +x gradlew
 
-      - name: 生成版本号
+      - name: Generate version
         run: |
-          chmod +x .github/scripts/version-generator.sh
-          .github/scripts/version-generator.sh
+          # 基础版本
+          BASE_VERSION="0.1.0"
 
-          # 如果是手动触发，使用输入的版本号
-          if [ -n "${{ github.event.inputs.version }}" ]; then
-            echo "VERSION_NAME=${{ github.event.inputs.version }}" >> $GITHUB_ENV
+          # 根据分支生成版本号
+          if [[ "${{ github.ref_name }}" == "release" ]]; then
+            VERSION_NAME="${BASE_VERSION}"
+            IS_PRERELEASE=false
+          else
+            VERSION_NAME="${BASE_VERSION}-beta.${{ github.run_number }}"
+            IS_PRERELEASE=true
           fi
 
-      - name: 生成 Release Notes
-        run: |
-          chmod +x .github/scripts/release-generator.sh
-          VERSION="${{ env.VERSION_NAME }}" \
-          BUILD_NUMBER="${{ env.VERSION_CODE }}" \
-          COMMIT_SHA="${{ github.sha }}" \
-          COMMIT_MESSAGE="$(git log -1 --pretty=format:'%s')" \
-          COMMIT_AUTHOR="$(git log -1 --pretty=format:'%an')" \
-          COMMIT_DATE="$(git log -1 --pretty=format:'%ci')" \
-          BRANCH="${{ github.ref_name }}" \
-          GITHUB_REPOSITORY="${{ github.repository }}" \
-          .github/scripts/release-generator.sh
+          # 生成版本代码
+          VERSION_CODE="$(date +%Y%m%d)$(printf "%03d" ${{ github.run_number }})"
 
-      - name: 解码签名密钥
+          echo "VERSION_NAME=${VERSION_NAME}" >> $GITHUB_ENV
+          echo "VERSION_CODE=${VERSION_CODE}" >> $GITHUB_ENV
+          echo "IS_PRERELEASE=${IS_PRERELEASE}" >> $GITHUB_ENV
+
+          echo "📱 Building: ${VERSION_NAME} (${VERSION_CODE})"
+
+      - name: Setup signing
+        if: env.IS_PRERELEASE == 'false'
         run: |
           echo "${{ secrets.RELEASE_KEYSTORE_BASE64 }}" | base64 -d > release-key.jks
 
-      # 检查密钥库是否可用，如果不可用则删除以使用调试密钥
-      - name: 检查密钥库
-        run: |
-          if [ -f "release-key.jks" ]; then
-            echo "密钥库文件大小: $(stat -c%s release-key.jks bytes)"
-            echo "尝试验证密钥库..."
-
-            # 尝试列出密钥库内容，如果失败则删除密钥库文件
-            if ! keytool -list -v -keystore release-key.jks -storepass "${{ secrets.RELEASE_KEYSTORE_PASSWORD }}" -noprompt > /dev/null 2>&1; then
-              echo "⚠️ 密钥库验证失败，删除密钥库文件以使用调试签名"
-              rm -f release-key.jks
-            else
-              echo "✅ 密钥库验证成功"
-            fi
-          else
-            echo "❌ 密钥库文件不存在，将使用调试签名"
-          fi
-
-      - name: 构建 Release APK
-        run: ./gradlew assembleRelease --stacktrace
+      - name: Build Release APK
+        run: ./gradlew assembleRelease
         env:
           VERSION_CODE: ${{ env.VERSION_CODE }}
           VERSION_NAME: ${{ env.VERSION_NAME }}
@@ -97,74 +62,57 @@ jobs:
           RELEASE_KEY_ALIAS: ${{ secrets.RELEASE_KEY_ALIAS }}
           RELEASE_KEY_PASSWORD: ${{ secrets.RELEASE_KEY_PASSWORD }}
 
-      - name: 重命名 APK 文件
+      - name: Prepare artifacts
         run: |
-          mkdir -p release-output
+          mkdir -p artifacts
 
-          # 复制并重命名各架构 APK
+          # 复制 APK 文件
           cp app/build/outputs/apk/release/app-arm64-v8a-release.apk \
-             release-output/lumi-assistant-${{ env.VERSION_NAME }}-arm64-v8a.apk
-
+             artifacts/lumi-assistant-${{ env.VERSION_NAME }}-arm64-v8a.apk
           cp app/build/outputs/apk/release/app-armeabi-v7a-release.apk \
-             release-output/lumi-assistant-${{ env.VERSION_NAME }}-armeabi-v7a.apk
-
+             artifacts/lumi-assistant-${{ env.VERSION_NAME }}-armeabi-v7a.apk
           cp app/build/outputs/apk/release/app-universal-release.apk \
-             release-output/lumi-assistant-${{ env.VERSION_NAME }}-universal.apk
+             artifacts/lumi-assistant-${{ env.VERSION_NAME }}-universal.apk
 
-      - name: 生成 APK 校验和
-        run: |
-          cd release-output
+          # 生成校验和
+          cd artifacts
           sha256sum *.apk > checksums.txt
-          cat checksums.txt
 
-      - name: 判断发布类型
-        id: release_type
+      - name: Generate Release Notes
         run: |
-          if [[ "${{ github.ref_name }}" == "dev" ]]; then
-            echo "IS_PRERELEASE=true" >> $GITHUB_OUTPUT
-            echo "RELEASE_NAME=Lumi Assistant ${{ env.VERSION_NAME }} (Beta)" >> $GITHUB_OUTPUT
-            echo "TAG_NAME=beta-${{ env.VERSION_NAME }}" >> $GITHUB_OUTPUT
-          elif [[ "${{ github.ref_name }}" == "release" ]]; then
-            echo "IS_PRERELEASE=false" >> $GITHUB_OUTPUT
-            echo "RELEASE_NAME=Lumi Assistant ${{ env.VERSION_NAME }}" >> $GITHUB_OUTPUT
-            echo "TAG_NAME=v${{ env.VERSION_NAME }}" >> $GITHUB_OUTPUT
-          elif [[ "${{ github.ref }}" == refs/tags/* ]]; then
-            echo "IS_PRERELEASE=false" >> $GITHUB_OUTPUT
-            echo "RELEASE_NAME=Lumi Assistant ${{ env.VERSION_NAME }}" >> $GITHUB_OUTPUT
-            echo "TAG_NAME=${{ github.ref_name }}" >> $GITHUB_OUTPUT
-          else
-            echo "IS_PRERELEASE=true" >> $GITHUB_OUTPUT
-            echo "RELEASE_NAME=Lumi Assistant ${{ env.VERSION_NAME }} (Test)" >> $GITHUB_OUTPUT
-            echo "TAG_NAME=test-${{ env.VERSION_NAME }}" >> $GITHUB_OUTPUT
-          fi
+          cat > release-notes.md << EOF
+          # Lumi Assistant ${{ env.VERSION_NAME }}
 
-      - name: 创建 GitHub Release
+          ## 📱 下载
+
+          选择适合你设备的 APK：
+
+          - **Universal** - 通用版本（推荐）
+          - **ARM64** - 64位设备
+          - **ARMv7** - 32位设备
+
+          **构建信息：**
+          - 版本: ${{ env.VERSION_NAME }}
+          - 构建号: ${{ env.VERSION_CODE }}
+          - 分支: ${{ github.ref_name }}
+          - 提交: ${{ github.sha }}
+
+          ---
+          *自动构建于 $(date +'%Y-%m-%d %H:%M:%S')*
+          EOF
+
+      - name: Create Release
         uses: softprops/action-gh-release@v1
         with:
-          tag_name: ${{ steps.release_type.outputs.TAG_NAME }}
-          name: ${{ steps.release_type.outputs.RELEASE_NAME }}
-          body_path: release_notes.md
-          files: |
-            release-output/lumi-assistant-${{ env.VERSION_NAME }}-universal.apk
-            release-output/lumi-assistant-${{ env.VERSION_NAME }}-arm64-v8a.apk
-            release-output/lumi-assistant-${{ env.VERSION_NAME }}-armeabi-v7a.apk
-            release-output/checksums.txt
+          tag_name: ${{ env.IS_PRERELEASE == 'true' && format('beta-{0}', env.VERSION_NAME) || format('v{0}', env.VERSION_NAME) }}
+          name: Lumi Assistant ${{ env.VERSION_NAME }}
+          body_path: release-notes.md
+          files: artifacts/*
           draft: false
-          prerelease: ${{ steps.release_type.outputs.IS_PRERELEASE }}
+          prerelease: ${{ env.IS_PRERELEASE }}
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
-      - name: 清理签名文件
+      - name: Cleanup
         if: always()
         run: rm -f release-key.jks
-
-      - name: 发布总结
-        run: |
-          echo "### 🚀 发布完成 ✅" >> $GITHUB_STEP_SUMMARY
-          echo "" >> $GITHUB_STEP_SUMMARY
-          echo "**版本信息:**" >> $GITHUB_STEP_SUMMARY
-          echo "- Version: \`${{ env.VERSION_NAME }}\`" >> $GITHUB_STEP_SUMMARY
-          echo "- Version Code: \`${{ env.VERSION_CODE }}\`" >> $GITHUB_STEP_SUMMARY
-          echo "" >> $GITHUB_STEP_SUMMARY
-          echo "**Release 链接:**" >> $GITHUB_STEP_SUMMARY
-          echo "- 🔗 [${{ github.ref_name }}](${{ github.server_url }}/${{ github.repository }}/releases/tag/${{ github.ref_name }})" >> $GITHUB_STEP_SUMMARY
