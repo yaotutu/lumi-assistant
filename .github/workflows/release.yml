@@ -69,6 +69,24 @@ jobs:
         run: |
           echo "${{ secrets.RELEASE_KEYSTORE_BASE64 }}" | base64 -d > release-key.jks
 
+      # 检查密钥库是否可用，如果不可用则删除以使用调试密钥
+      - name: 检查密钥库
+        run: |
+          if [ -f "release-key.jks" ]; then
+            echo "密钥库文件大小: $(stat -c%s release-key.jks bytes)"
+            echo "尝试验证密钥库..."
+
+            # 尝试列出密钥库内容，如果失败则删除密钥库文件
+            if ! keytool -list -v -keystore release-key.jks -storepass "${{ secrets.RELEASE_KEYSTORE_PASSWORD }}" -noprompt > /dev/null 2>&1; then
+              echo "⚠️ 密钥库验证失败，删除密钥库文件以使用调试签名"
+              rm -f release-key.jks
+            else
+              echo "✅ 密钥库验证成功"
+            fi
+          else
+            echo "❌ 密钥库文件不存在，将使用调试签名"
+          fi
+
       - name: 构建 Release APK
         run: ./gradlew assembleRelease --stacktrace
         env:
