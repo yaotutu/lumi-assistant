@@ -1,4 +1,4 @@
-name: Test Multi-Architecture Build
+name: [DISABLED] Test Multi-Architecture Build (Legacy Flutter Workflow)
 
 on:
   workflow_dispatch:

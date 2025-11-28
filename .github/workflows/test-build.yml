@@ -1,4 +1,4 @@
-name: Test Build (快速测试)
+name: [DISABLED] Test Build (Legacy Flutter Workflow)
 
 on:
   workflow_dispatch:
