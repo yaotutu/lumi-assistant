@@ -74,13 +74,35 @@ jobs:
         run: |
           mkdir -p artifacts
 
+          # 查找实际生成的 APK 文件
+          APK_DIR=$(find app/build/outputs/apk -name "*.apk" | head -1 | xargs dirname | sort | uniq | tail -1)
+          echo "APK 目录: ${APK_DIR}"
+          ls -la "${APK_DIR}/"
+
           # 复制 APK 文件
-          cp app/build/outputs/apk/release/app-arm64-v8a-release.apk \
-             artifacts/lumi-assistant-${{ env.VERSION_NAME }}-arm64-v8a.apk
-          cp app/build/outputs/apk/release/app-armeabi-v7a-release.apk \
-             artifacts/lumi-assistant-${{ env.VERSION_NAME }}-armeabi-v7a.apk
-          cp app/build/outputs/apk/release/app-universal-release.apk \
-             artifacts/lumi-assistant-${{ env.VERSION_NAME }}-universal.apk
+          if [ -f "${APK_DIR}/app-arm64-v8a-release.apk" ]; then
+            cp "${APK_DIR}/app-arm64-v8a-release.apk" \
+               artifacts/lumi-assistant-${{ env.VERSION_NAME }}-arm64-v8a.apk
+          elif [ -f "${APK_DIR}/app-arm64-v8a-debug.apk" ]; then
+            cp "${APK_DIR}/app-arm64-v8a-debug.apk" \
+               artifacts/lumi-assistant-${{ env.VERSION_NAME }}-arm64-v8a.apk
+          fi
+
+          if [ -f "${APK_DIR}/app-armeabi-v7a-release.apk" ]; then
+            cp "${APK_DIR}/app-armeabi-v7a-release.apk" \
+               artifacts/lumi-assistant-${{ env.VERSION_NAME }}-armeabi-v7a.apk
+          elif [ -f "${APK_DIR}/app-armeabi-v7a-debug.apk" ]; then
+            cp "${APK_DIR}/app-armeabi-v7a-debug.apk" \
+               artifacts/lumi-assistant-${{ env.VERSION_NAME }}-armeabi-v7a.apk
+          fi
+
+          if [ -f "${APK_DIR}/app-universal-release.apk" ]; then
+            cp "${APK_DIR}/app-universal-release.apk" \
+               artifacts/lumi-assistant-${{ env.VERSION_NAME }}-universal.apk
+          elif [ -f "${APK_DIR}/app-universal-debug.apk" ]; then
+            cp "${APK_DIR}/app-universal-debug.apk" \
+               artifacts/lumi-assistant-${{ env.VERSION_NAME }}-universal.apk
+          fi
 
           # 生成校验和
           cd artifacts
