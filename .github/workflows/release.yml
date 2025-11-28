@@ -74,39 +74,48 @@ jobs:
         run: |
           mkdir -p artifacts
 
-          # 查找实际生成的 APK 文件
-          APK_DIR=$(find app/build/outputs/apk -name "*.apk" | head -1 | xargs dirname | sort | uniq | tail -1)
-          echo "APK 目录: ${APK_DIR}"
-          ls -la "${APK_DIR}/"
+          # 先列出所有可能的 APK 文件
+          echo "=== 查找 APK 文件 ==="
+          find app/build -name "*.apk" -type f -exec echo "Found: {}" \;
 
-          # 复制 APK 文件
-          if [ -f "${APK_DIR}/app-arm64-v8a-release.apk" ]; then
-            cp "${APK_DIR}/app-arm64-v8a-release.apk" \
+          # 尝试 debug 目录
+          if [ -d "app/build/outputs/apk/debug" ]; then
+            echo "=== 使用 debug 目录 ==="
+            ls -la app/build/outputs/apk/debug/
+
+            cp app/build/outputs/apk/debug/app-arm64-v8a-debug.apk \
                artifacts/lumi-assistant-${{ env.VERSION_NAME }}-arm64-v8a.apk
-          elif [ -f "${APK_DIR}/app-arm64-v8a-debug.apk" ]; then
-            cp "${APK_DIR}/app-arm64-v8a-debug.apk" \
-               artifacts/lumi-assistant-${{ env.VERSION_NAME }}-arm64-v8a.apk
-          fi
-
-          if [ -f "${APK_DIR}/app-armeabi-v7a-release.apk" ]; then
-            cp "${APK_DIR}/app-armeabi-v7a-release.apk" \
+            cp app/build/outputs/apk/debug/app-armeabi-v7a-debug.apk \
                artifacts/lumi-assistant-${{ env.VERSION_NAME }}-armeabi-v7a.apk
-          elif [ -f "${APK_DIR}/app-armeabi-v7a-debug.apk" ]; then
-            cp "${APK_DIR}/app-armeabi-v7a-debug.apk" \
-               artifacts/lumi-assistant-${{ env.VERSION_NAME }}-armeabi-v7a.apk
-          fi
-
-          if [ -f "${APK_DIR}/app-universal-release.apk" ]; then
-            cp "${APK_DIR}/app-universal-release.apk" \
-               artifacts/lumi-assistant-${{ env.VERSION_NAME }}-universal.apk
-          elif [ -f "${APK_DIR}/app-universal-debug.apk" ]; then
-            cp "${APK_DIR}/app-universal-debug.apk" \
+            cp app/build/outputs/apk/debug/app-universal-debug.apk \
                artifacts/lumi-assistant-${{ env.VERSION_NAME }}-universal.apk
           fi
+
+          # 尝试 release 目录（如果存在）
+          if [ -d "app/build/outputs/apk/release" ]; then
+            echo "=== 使用 release 目录 ==="
+            ls -la app/build/outputs/apk/release/
+
+            cp app/build/outputs/apk/release/app-arm64-v8a-release.apk \
+               artifacts/lumi-assistant-${{ env.VERSION_NAME }}-arm64-v8a.apk
+            cp app/build/outputs/apk/release/app-armeabi-v7a-release.apk \
+               artifacts/lumi-assistant-${{ env.VERSION_NAME }}-armeabi-v7a.apk
+            cp app/build/outputs/apk/release/app-universal-release.apk \
+               artifacts/lumi-assistant-${{ env.VERSION_NAME }}-universal.apk
+          fi
+
+          # 检查 artifacts 目录
+          echo "=== artifacts 目录内容 ==="
+          ls -la artifacts/
 
           # 生成校验和
           cd artifacts
-          sha256sum *.apk > checksums.txt
+          if [ -n "$(ls *.apk 2>/dev/null)" ]; then
+            sha256sum *.apk > checksums.txt
+          else
+            echo "❌ 没有找到任何 APK 文件"
+            exit 1
+          fi
 
       - name: Generate Release Notes
         run: |
