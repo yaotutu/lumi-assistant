@@ -48,6 +48,9 @@ captures/
 .idea/modules.xml
 # Comment next line if keeping position of elements in Navigation Editor is relevant for you
 .idea/navEditor.xml
+# IDE 编译器和 JDK 配置（个人开发环境相关，不应提交）
+.idea/compiler.xml
+.idea/misc.xml
 
 # Keystore files
 # 签名密钥文件不应提交到版本控制
