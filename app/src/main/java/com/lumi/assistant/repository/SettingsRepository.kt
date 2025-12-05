@@ -4,6 +4,7 @@ import android.content.Context
 import androidx.datastore.core.DataStore
 import androidx.datastore.preferences.core.Preferences
 import androidx.datastore.preferences.core.edit
+import androidx.datastore.preferences.core.booleanPreferencesKey
 import androidx.datastore.preferences.core.intPreferencesKey
 import androidx.datastore.preferences.core.longPreferencesKey
 import androidx.datastore.preferences.core.stringPreferencesKey
@@ -13,6 +14,7 @@ import com.lumi.assistant.config.AppSettings
 import com.lumi.assistant.config.ServerSettings
 import com.lumi.assistant.config.VadSettings
 import com.lumi.assistant.config.WakeupSettings
+import com.lumi.assistant.config.WeatherSettings
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
 
@@ -32,6 +34,9 @@ class SettingsRepository(private val context: Context) {
         private val VAD_VOLUME_THRESHOLD = intPreferencesKey("vad_volume_threshold")
         private val SERVER_WS_URL = stringPreferencesKey("server_ws_url")
         private val WAKEUP_KEYWORD = stringPreferencesKey("wakeup_keyword")
+        private val WEATHER_ENABLED = booleanPreferencesKey("weather_enabled")
+        private val WEATHER_API_KEY = stringPreferencesKey("weather_api_key")
+        private val WEATHER_REFRESH_INTERVAL = intPreferencesKey("weather_refresh_interval")
     }
 
     /**
@@ -53,6 +58,11 @@ class SettingsRepository(private val context: Context) {
             ),
             wakeup = WakeupSettings(
                 keyword = preferences[WAKEUP_KEYWORD] ?: "你好天天"
+            ),
+            weather = WeatherSettings(
+                enabled = preferences[WEATHER_ENABLED] ?: true,
+                apiKey = preferences[WEATHER_API_KEY] ?: "eb6cdd44048d446e9a94b29793caaefc",
+                refreshIntervalMinutes = preferences[WEATHER_REFRESH_INTERVAL] ?: 30
             )
         )
     }
@@ -91,6 +101,33 @@ class SettingsRepository(private val context: Context) {
     suspend fun updateAppMode(mode: AppMode) {
         context.dataStore.edit { preferences ->
             preferences[APP_MODE] = mode.name
+        }
+    }
+
+    /**
+     * 更新天气启用状态
+     */
+    suspend fun updateWeatherEnabled(enabled: Boolean) {
+        context.dataStore.edit { preferences ->
+            preferences[WEATHER_ENABLED] = enabled
+        }
+    }
+
+    /**
+     * 更新天气 API Key
+     */
+    suspend fun updateWeatherApiKey(apiKey: String) {
+        context.dataStore.edit { preferences ->
+            preferences[WEATHER_API_KEY] = apiKey
+        }
+    }
+
+    /**
+     * 更新天气刷新间隔
+     */
+    suspend fun updateWeatherRefreshInterval(intervalMinutes: Int) {
+        context.dataStore.edit { preferences ->
+            preferences[WEATHER_REFRESH_INTERVAL] = intervalMinutes
         }
     }
 }

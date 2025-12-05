@@ -103,6 +103,15 @@ dependencies {
     // Navigation Compose
     implementation(libs.androidx.navigation.compose)
 
+    // Gson for JSON parsing
+    implementation(libs.gson)
+
+    // Coil for image loading (SVG support)
+    implementation(libs.coil.compose)
+    implementation(libs.coil.svg)
+
+    // Note: Using native Android LocationManager instead of Google Play Services Location
+
     // Opus Codec for audio decoding - JNI wrapper (local AAR)
     implementation(files("libs/opus.aar"))
 

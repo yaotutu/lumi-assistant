@@ -33,6 +33,8 @@ fun SettingsScreen(
     onUpdateServerUrl: (String) -> Unit,
     onUpdateWakeupKeyword: (String) -> Unit,
     onUpdateAppMode: (AppMode) -> Unit,
+    onUpdateWeatherEnabled: (Boolean) -> Unit,
+    onUpdateWeatherApiKey: (String) -> Unit,
     modifier: Modifier = Modifier
 ) {
     val context = LocalContext.current
@@ -127,6 +129,73 @@ fun SettingsScreen(
                         modifier = Modifier.fillMaxWidth()
                     ) {
                         Text("保存唤醒词")
+                    }
+                }
+            }
+
+            // 天气设置部分
+            SettingsSection(title = "天气设置") {
+                // 启用开关
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.SpaceBetween,
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    Column(modifier = Modifier.weight(1f)) {
+                        Text(
+                            text = "启用天气功能",
+                            style = MaterialTheme.typography.bodyLarge
+                        )
+                        Text(
+                            text = "在待机界面显示实时天气信息",
+                            style = MaterialTheme.typography.bodySmall,
+                            color = MaterialTheme.colorScheme.onSurfaceVariant
+                        )
+                    }
+
+                    Switch(
+                        checked = settings.weather.enabled,
+                        onCheckedChange = onUpdateWeatherEnabled
+                    )
+                }
+
+                // API Key 输入
+                if (settings.weather.enabled) {
+                    var apiKey by remember(settings.weather.apiKey) {
+                        mutableStateOf(settings.weather.apiKey)
+                    }
+
+                    Spacer(modifier = Modifier.height(8.dp))
+
+                    OutlinedTextField(
+                        value = apiKey,
+                        onValueChange = { apiKey = it },
+                        label = { Text("和风天气 API Key") },
+                        placeholder = { Text("请输入您的 API Key") },
+                        modifier = Modifier.fillMaxWidth(),
+                        singleLine = true,
+                        supportingText = {
+                            Text("在 dev.qweather.com 注册获取免费 API Key")
+                        }
+                    )
+
+                    if (apiKey != settings.weather.apiKey) {
+                        Button(
+                            onClick = { onUpdateWeatherApiKey(apiKey) },
+                            modifier = Modifier.fillMaxWidth()
+                        ) {
+                            Text("保存 API Key")
+                        }
+                    }
+
+                    // 提示信息
+                    if (settings.weather.apiKey.isBlank()) {
+                        Text(
+                            text = "⚠️ 请先配置 API Key 才能使用天气功能",
+                            style = MaterialTheme.typography.bodySmall,
+                            color = MaterialTheme.colorScheme.error,
+                            modifier = Modifier.padding(top = 8.dp)
+                        )
                     }
                 }
             }

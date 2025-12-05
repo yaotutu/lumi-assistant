@@ -4,6 +4,7 @@ import android.content.Context
 import com.lumi.assistant.audio.AudioPlayer
 import com.lumi.assistant.network.WebSocketManager
 import com.lumi.assistant.repository.SettingsRepository
+import com.lumi.assistant.repository.WeatherRepository
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
@@ -46,5 +47,16 @@ object AppModule {
         @ApplicationContext context: Context
     ): SettingsRepository {
         return SettingsRepository(context)
+    }
+
+    /**
+     * 提供 WeatherRepository 单例
+     */
+    @Provides
+    @Singleton
+    fun provideWeatherRepository(
+        @ApplicationContext context: Context
+    ): WeatherRepository {
+        return WeatherRepository(context)
     }
 }

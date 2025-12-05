@@ -9,7 +9,8 @@ data class AppSettings(
     val appMode: AppMode = AppMode.CHAT,
     val vad: VadSettings = VadSettings(),
     val server: ServerSettings = ServerSettings(),
-    val wakeup: WakeupSettings = WakeupSettings()
+    val wakeup: WakeupSettings = WakeupSettings(),
+    val weather: WeatherSettings = WeatherSettings()
 )
 
 /**
@@ -37,4 +38,18 @@ data class ServerSettings(
 data class WakeupSettings(
     /** 唤醒关键词 */
     val keyword: String = "你好天天"
+)
+
+/**
+ * 天气配置
+ */
+data class WeatherSettings(
+    /** 是否启用天气功能 */
+    val enabled: Boolean = true,
+
+    /** 和风天气 API Key */
+    val apiKey: String = "eb6cdd44048d446e9a94b29793caaefc",
+
+    /** 天气数据刷新间隔（分钟） */
+    val refreshIntervalMinutes: Int = 30
 )

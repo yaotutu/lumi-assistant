@@ -81,4 +81,22 @@ class SettingsViewModel @Inject constructor(
             repository.updateAppMode(mode)
         }
     }
+
+    /**
+     * 更新天气启用状态
+     */
+    fun updateWeatherEnabled(enabled: Boolean) {
+        viewModelScope.launch {
+            repository.updateWeatherEnabled(enabled)
+        }
+    }
+
+    /**
+     * 更新天气 API Key
+     */
+    fun updateWeatherApiKey(apiKey: String) {
+        viewModelScope.launch {
+            repository.updateWeatherApiKey(apiKey)
+        }
+    }
 }

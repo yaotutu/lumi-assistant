@@ -108,7 +108,9 @@ fun LumiNavGraph(
                 onUpdateVadVolumeThreshold = settingsViewModel::updateVadVolumeThreshold,
                 onUpdateServerUrl = settingsViewModel::updateServerUrl,
                 onUpdateWakeupKeyword = settingsViewModel::updateWakeupKeyword,
-                onUpdateAppMode = settingsViewModel::updateAppMode
+                onUpdateAppMode = settingsViewModel::updateAppMode,
+                onUpdateWeatherEnabled = settingsViewModel::updateWeatherEnabled,
+                onUpdateWeatherApiKey = settingsViewModel::updateWeatherApiKey
             )
         }
     }

@@ -37,23 +37,31 @@ class MainActivity : ComponentActivity() {
     private val requestMultiplePermissionsLauncher = registerForActivityResult(
         ActivityResultContracts.RequestMultiplePermissions()
     ) { permissions ->
-        allPermissionsGranted = permissions.all { it.value }
+        Log.d(TAG, "Permission request result: $permissions")
+        allPermissionsGranted = permissions.values.all { it }
 
         if (allPermissionsGranted) {
-            Log.i(TAG, "All permissions granted")
+            Log.i(TAG, "All permissions granted successfully")
             Toast.makeText(this, "权限已授予", Toast.LENGTH_SHORT).show()
         } else {
-            val deniedPermissions = permissions.filterValues { !it }.keys
-            Log.w(TAG, "Permissions denied: $deniedPermissions")
-            Toast.makeText(
-                this,
-                "需要录音和电话状态权限才能使用语音唤醒功能",
-                Toast.LENGTH_LONG
-            ).show()
+            val deniedPermissions = permissions.filter { !it.value }.keys
+            val grantedPermissions = permissions.filter { it.value }.keys
+            Log.w(TAG, "Some permissions denied - Denied: $deniedPermissions, Granted: $grantedPermissions")
+
+            // 根据拒绝的权限类型提供不同的提示
+            val message = when {
+                deniedPermissions.any { it.contains("LOCATION") } ->
+                    "需要位置权限才能获取天气信息；录音和电话状态权限用于语音唤醒功能"
+                else ->
+                    "需要录音和电话状态权限才能使用语音唤醒功能"
+            }
+
+            Toast.makeText(this, message, Toast.LENGTH_LONG).show()
         }
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
+        Log.d(TAG, "MainActivity onCreate started")
         super.onCreate(savedInstanceState)
 
         // 保持屏幕常亮
@@ -98,24 +106,34 @@ class MainActivity : ComponentActivity() {
         }
 
         // 请求必要权限
+        Log.d(TAG, "About to request permissions")
         requestPermissions()
+        Log.d(TAG, "MainActivity onCreate completed")
     }
 
     /**
-     * 请求必要权限(录音权限 + 电话状态权限)
+     * 请求必要权限(录音权限 + 电话状态权限 + 位置权限)
      */
     private fun requestPermissions() {
         val requiredPermissions = arrayOf(
             Manifest.permission.RECORD_AUDIO,
-            Manifest.permission.READ_PHONE_STATE
+            Manifest.permission.READ_PHONE_STATE,
+            Manifest.permission.ACCESS_FINE_LOCATION,
+            Manifest.permission.ACCESS_COARSE_LOCATION
         )
+
+        Log.d(TAG, "Checking permissions...")
+        requiredPermissions.forEach { permission ->
+            val granted = ContextCompat.checkSelfPermission(this, permission) == PackageManager.PERMISSION_GRANTED
+            Log.d(TAG, "Permission $permission: ${if (granted) "GRANTED" else "DENIED"}")
+        }
 
         val permissionsToRequest = requiredPermissions.filter {
             ContextCompat.checkSelfPermission(this, it) != PackageManager.PERMISSION_GRANTED
         }
 
         if (permissionsToRequest.isNotEmpty()) {
-            Log.i(TAG, "Requesting permissions: $permissionsToRequest")
+            Log.i(TAG, "Requesting missing permissions: $permissionsToRequest")
             requestMultiplePermissionsLauncher.launch(permissionsToRequest.toTypedArray())
         } else {
             Log.i(TAG, "All permissions already granted")

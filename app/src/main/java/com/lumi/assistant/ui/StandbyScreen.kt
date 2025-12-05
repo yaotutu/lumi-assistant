@@ -28,8 +28,12 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import android.content.res.Configuration
+import androidx.hilt.navigation.compose.hiltViewModel
 import com.lumi.assistant.model.Message
+import com.lumi.assistant.model.WeatherState
+import com.lumi.assistant.ui.components.WeatherDisplay
 import com.lumi.assistant.viewmodel.AssistantState
+import com.lumi.assistant.viewmodel.WeatherViewModel
 import java.text.SimpleDateFormat
 import java.util.*
 import kotlinx.coroutines.delay
@@ -60,6 +64,10 @@ fun StandbyScreen(
     onNavigateToSettings: () -> Unit,
     modifier: Modifier = Modifier
 ) {
+    // 获取 WeatherViewModel
+    val weatherViewModel: WeatherViewModel = hiltViewModel()
+    val weatherState by weatherViewModel.weatherState.collectAsState()
+
     // 当前时间（每秒更新）
     var currentTime by remember { mutableStateOf(getCurrentTime()) }
 
@@ -118,6 +126,7 @@ fun StandbyScreen(
             // 待机模式：显示时间/日期/天气
             IdleModeContent(
                 currentTime = currentTime,
+                weatherState = weatherState,
                 modifier = centerModifier
             )
         } else {
@@ -172,6 +181,7 @@ fun StandbyScreen(
 @Composable
 private fun IdleModeContent(
     currentTime: String,
+    weatherState: WeatherState,
     modifier: Modifier = Modifier
 ) {
     // 获取屏幕方向
@@ -182,11 +192,6 @@ private fun IdleModeContent(
     val calendar = Calendar.getInstance()
     val dateFormat = SimpleDateFormat("MM月dd日 EEEE", Locale.CHINESE)
     val currentDate = dateFormat.format(calendar.time)
-
-    // 假的天气数据
-    val weatherTemp = "24°C"
-    val weatherDesc = "晴转多云"
-    val weatherIcon = "☀️"
 
     if (isLandscape) {
         // 横屏布局：左右分布
@@ -218,30 +223,13 @@ private fun IdleModeContent(
                 )
 
                 // 天气信息
-                Row(
-                    horizontalArrangement = Arrangement.spacedBy(16.dp),
-                    verticalAlignment = Alignment.CenterVertically
-                ) {
-                    Text(
-                        text = weatherIcon,
-                        fontSize = 48.sp
-                    )
-                    Column(
-                        horizontalAlignment = Alignment.Start
-                    ) {
-                        Text(
-                            text = weatherTemp,
-                            fontSize = 32.sp,
-                            fontWeight = FontWeight.Medium,
-                            color = Color.White
-                        )
-                        Text(
-                            text = weatherDesc,
-                            fontSize = 18.sp,
-                            color = Color.White.copy(alpha = 0.7f)
-                        )
-                    }
-                }
+                WeatherDisplay(
+                    weatherState = weatherState,
+                    textColor = Color.White,
+                    iconSize = 48,
+                    temperatureFontSize = 32.sp,
+                    descriptionFontSize = 18.sp
+                )
             }
         }
     } else {
@@ -269,30 +257,13 @@ private fun IdleModeContent(
             )
 
             // 天气信息（增大字体和图标）
-            Row(
-                horizontalArrangement = Arrangement.spacedBy(16.dp),
-                verticalAlignment = Alignment.CenterVertically
-            ) {
-                Text(
-                    text = weatherIcon,
-                    fontSize = 48.sp
-                )
-                Column(
-                    horizontalAlignment = Alignment.Start
-                ) {
-                    Text(
-                        text = weatherTemp,
-                        fontSize = 36.sp,
-                        fontWeight = FontWeight.Medium,
-                        color = Color.White
-                    )
-                    Text(
-                        text = weatherDesc,
-                        fontSize = 20.sp,
-                        color = Color.White.copy(alpha = 0.7f)
-                    )
-                }
-            }
+            WeatherDisplay(
+                weatherState = weatherState,
+                textColor = Color.White,
+                iconSize = 48,
+                temperatureFontSize = 36.sp,
+                descriptionFontSize = 20.sp
+            )
         }
     }
 }
