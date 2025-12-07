@@ -19,6 +19,7 @@ import kotlin.coroutines.suspendCoroutine
  * 和风天气 API 服务
  */
 class QWeatherApi(
+    private val credentialsId: String,
     private val apiKey: String,
     private val httpClient: OkHttpClient = OkHttpClient.Builder()
         .connectTimeout(10, TimeUnit.SECONDS)
@@ -42,6 +43,7 @@ class QWeatherApi(
     suspend fun getCurrentWeather(location: String): Weather {
         val url = "$BASE_URL/weather/now?location=$location&key=$apiKey"
         Log.d(TAG, "Fetching weather for location: $location")
+        Log.d(TAG, "Using credentialsId: $credentialsId")
         Log.d(TAG, "Request URL: $BASE_URL/weather/now?location=$location&key=${apiKey.take(8)}...")
 
         val request = Request.Builder()

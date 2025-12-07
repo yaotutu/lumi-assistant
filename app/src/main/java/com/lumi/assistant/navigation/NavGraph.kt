@@ -110,7 +110,8 @@ fun LumiNavGraph(
                 onUpdateWakeupKeyword = settingsViewModel::updateWakeupKeyword,
                 onUpdateAppMode = settingsViewModel::updateAppMode,
                 onUpdateWeatherEnabled = settingsViewModel::updateWeatherEnabled,
-                onUpdateWeatherApiKey = settingsViewModel::updateWeatherApiKey
+                onUpdateWeatherApiKey = settingsViewModel::updateWeatherApiKey,
+                onUpdateWeatherCredentialsId = settingsViewModel::updateWeatherCredentialsId
             )
         }
     }

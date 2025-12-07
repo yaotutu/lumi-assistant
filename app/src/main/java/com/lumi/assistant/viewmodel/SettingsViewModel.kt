@@ -99,4 +99,13 @@ class SettingsViewModel @Inject constructor(
             repository.updateWeatherApiKey(apiKey)
         }
     }
+
+    /**
+     * 更新天气凭据ID
+     */
+    fun updateWeatherCredentialsId(credentialsId: String) {
+        viewModelScope.launch {
+            repository.updateWeatherCredentialsId(credentialsId)
+        }
+    }
 }

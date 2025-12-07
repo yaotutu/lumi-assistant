@@ -15,6 +15,7 @@ import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
+import java.util.concurrent.atomic.AtomicBoolean
 import javax.inject.Inject
 import javax.inject.Singleton
 import kotlin.coroutines.resume
@@ -43,11 +44,12 @@ class WeatherRepository @Inject constructor(
 
     /**
      * 获取当前位置的天气
+     * @param credentialsId 和风天气凭据ID
      * @param apiKey 和风天气 API Key
      * @param forceRefresh 是否强制刷新（忽略缓存）
      * @return Weather 对象，失败时抛出异常
      */
-    suspend fun getCurrentWeather(apiKey: String, forceRefresh: Boolean = false): Weather {
+    suspend fun getCurrentWeather(credentialsId: String, apiKey: String, forceRefresh: Boolean = false): Weather {
         Log.d(TAG, "getCurrentWeather called with forceRefresh: $forceRefresh")
 
         // 检查缓存
@@ -56,12 +58,17 @@ class WeatherRepository @Inject constructor(
             return cachedWeather!!
         }
 
-        // 检查 API Key
+        // 检查凭据ID和API Key
+        if (credentialsId.isBlank()) {
+            Log.e(TAG, "Credentials ID is blank")
+            throw IllegalArgumentException("凭据ID未配置，请在设置中输入和风天气凭据ID")
+        }
         if (apiKey.isBlank()) {
             Log.e(TAG, "API Key is blank")
             throw IllegalArgumentException("API Key 未配置，请在设置中输入和风天气 API Key")
         }
 
+        Log.d(TAG, "Using credentialsId: $credentialsId")
         Log.d(TAG, "Using API Key: ${apiKey.take(8)}...")
 
         try {
@@ -73,7 +80,7 @@ class WeatherRepository @Inject constructor(
 
             // 调用 API
             Log.d(TAG, "Calling weather API with location: $locationString")
-            val api = QWeatherApi(apiKey)
+            val api = QWeatherApi(credentialsId, apiKey)
             val weather = api.getCurrentWeather(locationString)
 
             // 更新缓存
@@ -172,12 +179,18 @@ class WeatherRepository @Inject constructor(
             return@suspendCoroutine
         }
 
+        // 使用原子布尔值防止重复恢复 continuation
+        val isCompleted = AtomicBoolean(false)
+
         // 创建位置监听器
         val locationListener = object : android.location.LocationListener {
             override fun onLocationChanged(location: Location) {
                 Log.d(TAG, "Location received: lat=${location.latitude}, lng=${location.longitude}, provider=${location.provider}")
-                locationManager.removeUpdates(this)
-                continuation.resume(location)
+                if (isCompleted.compareAndSet(false, true)) {
+                    Log.d(TAG, "Location completion: lat=${location.latitude}, lng=${location.longitude}")
+                    locationManager.removeUpdates(this)
+                    continuation.resume(location)
+                }
             }
 
             @Deprecated("Deprecated in Java")
@@ -191,6 +204,15 @@ class WeatherRepository @Inject constructor(
 
             override fun onProviderDisabled(provider: String) {
                 Log.d(TAG, "Provider disabled: $provider")
+            }
+        }
+
+        // 创建错误完成函数
+        fun completeWithError(message: String) {
+            if (isCompleted.compareAndSet(false, true)) {
+                Log.d(TAG, "Location error: $message")
+                locationManager.removeUpdates(locationListener)
+                continuation.resumeWithException(IllegalStateException(message))
             }
         }
 
@@ -220,23 +242,15 @@ class WeatherRepository @Inject constructor(
             // 设置超时，30秒后如果没有收到位置，抛出异常
             GlobalScope.launch {
                 delay(30000L)
-                locationManager.removeUpdates(locationListener)
-                try {
-                    continuation.resumeWithException(IllegalStateException("位置获取超时，请确保在开阔区域"))
-                } catch (_: CancellationException) {
-                    // Continuation 已经被完成了，忽略异常
-                    Log.d(TAG, "Location continuation already completed, ignoring timeout")
-                }
+                completeWithError("位置获取超时，请确保在开阔区域")
             }
 
         } catch (e: SecurityException) {
             Log.e(TAG, "Security exception when requesting location updates", e)
-            locationManager.removeUpdates(locationListener)
-            continuation.resumeWithException(SecurityException("没有位置权限"))
+            completeWithError("没有位置权限")
         } catch (e: Exception) {
             Log.e(TAG, "Error requesting location updates", e)
-            locationManager.removeUpdates(locationListener)
-            continuation.resumeWithException(IllegalStateException("位置请求失败: ${e.message}"))
+            completeWithError("位置请求失败: ${e.message}")
         }
     }
 

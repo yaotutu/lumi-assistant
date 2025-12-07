@@ -35,6 +35,7 @@ class SettingsRepository(private val context: Context) {
         private val SERVER_WS_URL = stringPreferencesKey("server_ws_url")
         private val WAKEUP_KEYWORD = stringPreferencesKey("wakeup_keyword")
         private val WEATHER_ENABLED = booleanPreferencesKey("weather_enabled")
+        private val WEATHER_CREDENTIALS_ID = stringPreferencesKey("weather_credentials_id")
         private val WEATHER_API_KEY = stringPreferencesKey("weather_api_key")
         private val WEATHER_REFRESH_INTERVAL = intPreferencesKey("weather_refresh_interval")
     }
@@ -61,6 +62,7 @@ class SettingsRepository(private val context: Context) {
             ),
             weather = WeatherSettings(
                 enabled = preferences[WEATHER_ENABLED] ?: true,
+                credentialsId = preferences[WEATHER_CREDENTIALS_ID] ?: "T7PT8KRCB4",
                 apiKey = preferences[WEATHER_API_KEY] ?: "eb6cdd44048d446e9a94b29793caaefc",
                 refreshIntervalMinutes = preferences[WEATHER_REFRESH_INTERVAL] ?: 30
             )
@@ -110,6 +112,15 @@ class SettingsRepository(private val context: Context) {
     suspend fun updateWeatherEnabled(enabled: Boolean) {
         context.dataStore.edit { preferences ->
             preferences[WEATHER_ENABLED] = enabled
+        }
+    }
+
+    /**
+     * 更新天气凭据ID
+     */
+    suspend fun updateWeatherCredentialsId(credentialsId: String) {
+        context.dataStore.edit { preferences ->
+            preferences[WEATHER_CREDENTIALS_ID] = credentialsId
         }
     }
 

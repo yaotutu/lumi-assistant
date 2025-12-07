@@ -47,6 +47,9 @@ data class WeatherSettings(
     /** 是否启用天气功能 */
     val enabled: Boolean = true,
 
+    /** 和风天气凭据ID */
+    val credentialsId: String = "T7PT8KRCB4",
+
     /** 和风天气 API Key */
     val apiKey: String = "eb6cdd44048d446e9a94b29793caaefc",
 

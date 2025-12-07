@@ -35,6 +35,7 @@ fun SettingsScreen(
     onUpdateAppMode: (AppMode) -> Unit,
     onUpdateWeatherEnabled: (Boolean) -> Unit,
     onUpdateWeatherApiKey: (String) -> Unit,
+    onUpdateWeatherCredentialsId: (String) -> Unit,
     modifier: Modifier = Modifier
 ) {
     val context = LocalContext.current
@@ -159,6 +160,34 @@ fun SettingsScreen(
                     )
                 }
 
+                // 凭据ID 输入
+                if (settings.weather.enabled) {
+                    var credentialsId by remember(settings.weather.credentialsId) {
+                        mutableStateOf(settings.weather.credentialsId)
+                    }
+
+                    OutlinedTextField(
+                        value = credentialsId,
+                        onValueChange = { credentialsId = it },
+                        label = { Text("和风天气凭据ID") },
+                        placeholder = { Text("请输入您的凭据ID") },
+                        modifier = Modifier.fillMaxWidth(),
+                        singleLine = true,
+                        supportingText = {
+                            Text("在 dev.qweather.com 获取的公共凭据ID")
+                        }
+                    )
+
+                    if (credentialsId != settings.weather.credentialsId) {
+                        Button(
+                            onClick = { onUpdateWeatherCredentialsId(credentialsId) },
+                            modifier = Modifier.fillMaxWidth()
+                        ) {
+                            Text("保存凭据ID")
+                        }
+                    }
+                }
+
                 // API Key 输入
                 if (settings.weather.enabled) {
                     var apiKey by remember(settings.weather.apiKey) {
@@ -189,9 +218,9 @@ fun SettingsScreen(
                     }
 
                     // 提示信息
-                    if (settings.weather.apiKey.isBlank()) {
+                    if (settings.weather.apiKey.isBlank() || settings.weather.credentialsId.isBlank()) {
                         Text(
-                            text = "⚠️ 请先配置 API Key 才能使用天气功能",
+                            text = "⚠️ 请先配置凭据ID和API Key 才能使用天气功能",
                             style = MaterialTheme.typography.bodySmall,
                             color = MaterialTheme.colorScheme.error,
                             modifier = Modifier.padding(top = 8.dp)

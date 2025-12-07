@@ -39,13 +39,13 @@ class WeatherViewModel @Inject constructor(
         // 监听设置变化
         viewModelScope.launch {
             settingsRepository.settingsFlow.collect { settings ->
-                Log.d(TAG, "Settings changed - Weather enabled: ${settings.weather.enabled}, API Key: ${if (settings.weather.apiKey.isNotBlank()) "present" else "blank"}")
+                Log.d(TAG, "Settings changed - Weather enabled: ${settings.weather.enabled}, Credentials ID: ${if (settings.weather.credentialsId.isNotBlank()) "present" else "blank"}, API Key: ${if (settings.weather.apiKey.isNotBlank()) "present" else "blank"}")
 
                 if (settings.weather.enabled) {
                     // 天气功能已启用，开始自动刷新
                     if (!isAutoRefreshing) {
                         Log.d(TAG, "Starting auto refresh with interval: ${settings.weather.refreshIntervalMinutes} minutes")
-                        startAutoRefresh(settings.weather.apiKey, settings.weather.refreshIntervalMinutes)
+                        startAutoRefresh(settings.weather.credentialsId, settings.weather.apiKey, settings.weather.refreshIntervalMinutes)
                     } else {
                         Log.d(TAG, "Auto refresh already running")
                     }
@@ -61,15 +61,15 @@ class WeatherViewModel @Inject constructor(
     /**
      * 手动刷新天气
      */
-    fun refreshWeather(apiKey: String) {
-        Log.d(TAG, "refreshWeather called with API Key: ${apiKey.take(8)}...")
+    fun refreshWeather(credentialsId: String, apiKey: String) {
+        Log.d(TAG, "refreshWeather called with credentialsId: $credentialsId, API Key: ${apiKey.take(8)}...")
         viewModelScope.launch {
             try {
                 Log.d(TAG, "Starting weather refresh...")
                 _weatherState.value = WeatherState.Loading
 
                 Log.d(TAG, "Calling weather repository getCurrentWeather...")
-                val weather = weatherRepository.getCurrentWeather(apiKey, forceRefresh = true)
+                val weather = weatherRepository.getCurrentWeather(credentialsId, apiKey, forceRefresh = true)
                 _weatherState.value = WeatherState.Success(weather)
                 Log.d(TAG, "Weather refreshed successfully - ${weather.temperature} ${weather.description}")
             } catch (e: SecurityException) {
@@ -80,8 +80,8 @@ class WeatherViewModel @Inject constructor(
                     cachedWeather = cachedWeather
                 )
             } catch (e: IllegalArgumentException) {
-                Log.e(TAG, "Invalid API key during weather refresh", e)
-                _weatherState.value = WeatherState.Error(message = e.message ?: "API Key 无效")
+                Log.e(TAG, "Invalid credentials/API key during weather refresh", e)
+                _weatherState.value = WeatherState.Error(message = e.message ?: "凭据ID或API Key 无效")
             } catch (e: Exception) {
                 Log.e(TAG, "Error during weather refresh", e)
                 val cachedWeather = weatherRepository.getCachedWeather()
@@ -102,7 +102,7 @@ class WeatherViewModel @Inject constructor(
     /**
      * 启动自动刷新
      */
-    private fun startAutoRefresh(apiKey: String, intervalMinutes: Int) {
+    private fun startAutoRefresh(credentialsId: String, apiKey: String, intervalMinutes: Int) {
         if (isAutoRefreshing) return
 
         isAutoRefreshing = true
@@ -111,7 +111,7 @@ class WeatherViewModel @Inject constructor(
         viewModelScope.launch {
             while (isAutoRefreshing) {
                 // 首次立即刷新
-                refreshWeather(apiKey)
+                refreshWeather(credentialsId, apiKey)
 
                 // 等待刷新间隔
                 delay(intervalMinutes * 60 * 1000L)
