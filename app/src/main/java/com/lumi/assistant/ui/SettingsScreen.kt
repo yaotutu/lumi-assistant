@@ -1,10 +1,5 @@
 package com.lumi.assistant.ui
 
-import android.content.Intent
-import android.os.Handler
-import android.os.Looper
-import android.widget.Toast
-import androidx.activity.ComponentActivity
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
@@ -16,8 +11,6 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
-import com.lumi.assistant.MainActivity
-import com.lumi.assistant.config.AppMode
 import com.lumi.assistant.config.AppSettings
 
 /**
@@ -32,14 +25,11 @@ fun SettingsScreen(
     onUpdateVadVolumeThreshold: (Int) -> Unit,
     onUpdateServerUrl: (String) -> Unit,
     onUpdateWakeupKeyword: (String) -> Unit,
-    onUpdateAppMode: (AppMode) -> Unit,
     onUpdateWeatherEnabled: (Boolean) -> Unit,
     onUpdateWeatherApiKey: (String) -> Unit,
     onUpdateWeatherCredentialsId: (String) -> Unit,
     modifier: Modifier = Modifier
 ) {
-    val context = LocalContext.current
-    val activity = context as? ComponentActivity
     Scaffold(
         topBar = {
             TopAppBar(
@@ -227,63 +217,6 @@ fun SettingsScreen(
                         )
                     }
                 }
-            }
-
-            // 应用模式切换
-            SettingsSection(title = "应用模式") {
-                Row(
-                    modifier = Modifier.fillMaxWidth(),
-                    horizontalArrangement = Arrangement.SpaceBetween,
-                    verticalAlignment = Alignment.CenterVertically
-                ) {
-                    Column(modifier = Modifier.weight(1f)) {
-                        Text(
-                            text = if (settings.appMode == AppMode.CHAT) "聊天模式" else "待机模式",
-                            style = MaterialTheme.typography.bodyLarge
-                        )
-                        Text(
-                            text = if (settings.appMode == AppMode.CHAT)
-                                "传统聊天界面，消息列表展示"
-                            else
-                                "待机交互模式，音频文字同步播放",
-                            style = MaterialTheme.typography.bodySmall,
-                            color = MaterialTheme.colorScheme.onSurfaceVariant
-                        )
-                    }
-
-                    Switch(
-                        checked = settings.appMode == AppMode.CAR,
-                        onCheckedChange = { isCarMode ->
-                            val newMode = if (isCarMode) AppMode.CAR else AppMode.CHAT
-
-                            // 保存设置
-                            onUpdateAppMode(newMode)
-
-                            // 提示用户
-                            activity?.let {
-                                Toast.makeText(
-                                    context,
-                                    "模式已切换，应用即将重启",
-                                    Toast.LENGTH_SHORT
-                                ).show()
-
-                                // 延迟500ms自动重启
-                                Handler(Looper.getMainLooper()).postDelayed({
-                                    it.finishAffinity()
-                                    it.startActivity(Intent(it, MainActivity::class.java))
-                                    Runtime.getRuntime().exit(0)
-                                }, 500)
-                            }
-                        }
-                    )
-                }
-
-                Text(
-                    text = "⚠️ 切换模式将自动重启应用",
-                    style = MaterialTheme.typography.bodySmall,
-                    color = MaterialTheme.colorScheme.error,
-                    modifier = Modifier.padding(top = 8.dp)
-                )
             }
         }
     }

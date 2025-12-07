@@ -9,7 +9,6 @@ import androidx.datastore.preferences.core.intPreferencesKey
 import androidx.datastore.preferences.core.longPreferencesKey
 import androidx.datastore.preferences.core.stringPreferencesKey
 import androidx.datastore.preferences.preferencesDataStore
-import com.lumi.assistant.config.AppMode
 import com.lumi.assistant.config.AppSettings
 import com.lumi.assistant.config.ServerSettings
 import com.lumi.assistant.config.VadSettings
@@ -29,7 +28,6 @@ class SettingsRepository(private val context: Context) {
         private val Context.dataStore: DataStore<Preferences> by preferencesDataStore(name = "app_settings")
 
         // PreferencesKeys 定义
-        private val APP_MODE = stringPreferencesKey("app_mode")
         private val VAD_SILENCE_THRESHOLD = longPreferencesKey("vad_silence_threshold")
         private val VAD_VOLUME_THRESHOLD = intPreferencesKey("vad_volume_threshold")
         private val SERVER_WS_URL = stringPreferencesKey("server_ws_url")
@@ -45,11 +43,6 @@ class SettingsRepository(private val context: Context) {
      */
     val settingsFlow: Flow<AppSettings> = context.dataStore.data.map { preferences ->
         AppSettings(
-            appMode = try {
-                AppMode.valueOf(preferences[APP_MODE] ?: AppMode.CHAT.name)
-            } catch (e: IllegalArgumentException) {
-                AppMode.CHAT
-            },
             vad = VadSettings(
                 silenceThreshold = preferences[VAD_SILENCE_THRESHOLD] ?: 2000L,
                 volumeThreshold = preferences[VAD_VOLUME_THRESHOLD] ?: 900
@@ -94,15 +87,6 @@ class SettingsRepository(private val context: Context) {
     suspend fun updateWakeupKeyword(keyword: String) {
         context.dataStore.edit { preferences ->
             preferences[WAKEUP_KEYWORD] = keyword
-        }
-    }
-
-    /**
-     * 更新应用模式
-     */
-    suspend fun updateAppMode(mode: AppMode) {
-        context.dataStore.edit { preferences ->
-            preferences[APP_MODE] = mode.name
         }
     }
 

@@ -2,7 +2,6 @@ package com.lumi.assistant.viewmodel
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.lumi.assistant.config.AppMode
 import com.lumi.assistant.config.AppSettings
 import com.lumi.assistant.repository.SettingsRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -70,15 +69,6 @@ class SettingsViewModel @Inject constructor(
     fun updateWakeupKeyword(keyword: String) {
         viewModelScope.launch {
             repository.updateWakeupKeyword(keyword)
-        }
-    }
-
-    /**
-     * 更新应用模式
-     */
-    fun updateAppMode(mode: AppMode) {
-        viewModelScope.launch {
-            repository.updateAppMode(mode)
         }
     }
 

@@ -5,8 +5,6 @@ package com.lumi.assistant.config
  * 使用 DataStore 持久化存储
  */
 data class AppSettings(
-    /** 应用模式 - 聊天模式或车机模式 */
-    val appMode: AppMode = AppMode.CHAT,
     val vad: VadSettings = VadSettings(),
     val server: ServerSettings = ServerSettings(),
     val wakeup: WakeupSettings = WakeupSettings(),
