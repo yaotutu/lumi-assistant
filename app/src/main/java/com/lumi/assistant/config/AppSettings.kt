@@ -27,7 +27,7 @@ data class VadSettings(
  */
 data class ServerSettings(
     /** WebSocket 服务器地址 */
-    val wsUrl: String = "ws://192.168.100.100:8000/xiaozhi/v1/"
+    val wsUrl: String = "ws://192.168.123.152:8000/xiaozhi/v1/"
 )
 
 /**

@@ -12,6 +12,9 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
 import com.lumi.assistant.config.AppSettings
+import com.lumi.assistant.network.HealthCheckResult
+import java.text.SimpleDateFormat
+import java.util.*
 
 /**
  * 设置页面
@@ -20,6 +23,7 @@ import com.lumi.assistant.config.AppSettings
 @Composable
 fun SettingsScreen(
     settings: AppSettings,
+    healthCheck: HealthCheckResult,
     onNavigateBack: () -> Unit,
     onUpdateVadSilenceThreshold: (Long) -> Unit,
     onUpdateVadVolumeThreshold: (Int) -> Unit,
@@ -28,6 +32,7 @@ fun SettingsScreen(
     onUpdateWeatherEnabled: (Boolean) -> Unit,
     onUpdateWeatherApiKey: (String) -> Unit,
     onUpdateWeatherCredentialsId: (String) -> Unit,
+    onPerformHealthCheck: () -> Unit,
     modifier: Modifier = Modifier
 ) {
     Scaffold(
@@ -53,6 +58,12 @@ fun SettingsScreen(
                 .padding(16.dp),
             verticalArrangement = Arrangement.spacedBy(24.dp)
         ) {
+            // 健康检测部分
+            HealthCheckSection(
+                healthCheck = healthCheck,
+                onPerformHealthCheck = onPerformHealthCheck
+            )
+
             // VAD 配置部分
             SettingsSection(title = "语音活动检测 (VAD)") {
                 // 静音阈值
@@ -275,5 +286,127 @@ private fun SliderSetting(
             valueRange = valueRange,
             steps = steps
         )
+    }
+}
+
+/**
+ * 健康检测部分
+ */
+@Composable
+private fun HealthCheckSection(
+    healthCheck: HealthCheckResult,
+    onPerformHealthCheck: () -> Unit
+) {
+    Card(
+        modifier = Modifier.fillMaxWidth(),
+        colors = CardDefaults.cardColors(
+            containerColor = if (healthCheck.internetConnected && healthCheck.serverReachable) {
+                MaterialTheme.colorScheme.primaryContainer
+            } else {
+                MaterialTheme.colorScheme.errorContainer
+            }
+        )
+    ) {
+        Column(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(16.dp),
+            verticalArrangement = Arrangement.spacedBy(12.dp)
+        ) {
+            // 标题和刷新按钮
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.SpaceBetween,
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                Text(
+                    text = "网络健康检测",
+                    style = MaterialTheme.typography.titleMedium,
+                    color = MaterialTheme.colorScheme.onPrimaryContainer
+                )
+
+                TextButton(onClick = onPerformHealthCheck) {
+                    Text("刷新")
+                }
+            }
+
+            // 互联网连接状态
+            Row(
+                horizontalArrangement = Arrangement.spacedBy(8.dp),
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                Text(
+                    text = if (healthCheck.internetConnected) "✓" else "✗",
+                    style = MaterialTheme.typography.titleLarge,
+                    color = if (healthCheck.internetConnected)
+                        MaterialTheme.colorScheme.primary
+                    else
+                        MaterialTheme.colorScheme.error
+                )
+                Column {
+                    Text(
+                        text = "互联网连接",
+                        style = MaterialTheme.typography.bodyMedium,
+                        color = MaterialTheme.colorScheme.onPrimaryContainer
+                    )
+                    if (healthCheck.internetConnected && healthCheck.internetLatency > 0) {
+                        Text(
+                            text = "延迟: ${healthCheck.internetLatency}ms",
+                            style = MaterialTheme.typography.bodySmall,
+                            color = MaterialTheme.colorScheme.onPrimaryContainer.copy(alpha = 0.7f)
+                        )
+                    }
+                }
+            }
+
+            // 服务器可达性
+            Row(
+                horizontalArrangement = Arrangement.spacedBy(8.dp),
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                Text(
+                    text = if (healthCheck.serverReachable) "✓" else "✗",
+                    style = MaterialTheme.typography.titleLarge,
+                    color = if (healthCheck.serverReachable)
+                        MaterialTheme.colorScheme.primary
+                    else
+                        MaterialTheme.colorScheme.error
+                )
+                Column {
+                    Text(
+                        text = "语音助手服务器",
+                        style = MaterialTheme.typography.bodyMedium,
+                        color = MaterialTheme.colorScheme.onPrimaryContainer
+                    )
+                    if (healthCheck.serverReachable && healthCheck.serverLatency > 0) {
+                        Text(
+                            text = "延迟: ${healthCheck.serverLatency}ms",
+                            style = MaterialTheme.typography.bodySmall,
+                            color = MaterialTheme.colorScheme.onPrimaryContainer.copy(alpha = 0.7f)
+                        )
+                    }
+                }
+            }
+
+            // 错误信息
+            if (healthCheck.errorMessage != null) {
+                Text(
+                    text = "错误: ${healthCheck.errorMessage}",
+                    style = MaterialTheme.typography.bodySmall,
+                    color = MaterialTheme.colorScheme.error
+                )
+            }
+
+            // 最后检测时间
+            if (healthCheck.lastCheckTime > 0) {
+                val timeFormat = SimpleDateFormat("HH:mm:ss", Locale.getDefault())
+                val timeStr = timeFormat.format(Date(healthCheck.lastCheckTime))
+                Text(
+                    text = "最后检测: $timeStr",
+                    style = MaterialTheme.typography.bodySmall,
+                    color = MaterialTheme.colorScheme.onPrimaryContainer.copy(alpha = 0.6f)
+                )
+            }
+        }
     }
 }

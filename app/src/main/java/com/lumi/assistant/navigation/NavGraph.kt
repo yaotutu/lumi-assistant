@@ -8,7 +8,7 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
-import com.lumi.assistant.ui.StandbyScreen
+import com.lumi.assistant.standby.StandbyContainer
 import com.lumi.assistant.ui.SettingsScreen
 import com.lumi.assistant.viewmodel.SettingsViewModel
 import com.lumi.assistant.viewmodel.VoiceAssistantViewModel
@@ -31,21 +31,11 @@ fun LumiNavGraph(
         startDestination = Routes.STANDBY,
         modifier = modifier
     ) {
-        // 主页面（待机模式）
+        // 主页面（待机模式）- 使用新的组件插槽系统
         composable(Routes.STANDBY) {
-            StandbyScreen(
-                emotion = state.emotion,
-                isConnected = state.isConnected,
+            StandbyContainer(
+                state = state,
                 wakeupKeyword = settings.wakeup.keyword,
-                assistantState = state.currentState,
-                isRecording = state.isRecording,
-                waveformBars = state.waveformBars,
-                messages = state.messages,
-                isWakeupListening = state.isWakeupListening,
-                isWakeupTriggered = state.isWakeupTriggered,
-                wakeupStatus = state.wakeupStatus,
-                isSpeaking = state.isSpeaking,
-                recordingSeconds = state.recordingSeconds,
                 onNavigateToSettings = {
                     navController.navigate(Routes.SETTINGS)
                 }
@@ -56,6 +46,7 @@ fun LumiNavGraph(
         composable(Routes.SETTINGS) {
             SettingsScreen(
                 settings = settings,
+                healthCheck = state.healthCheck,
                 onNavigateBack = {
                     navController.popBackStack()
                 },
@@ -65,7 +56,8 @@ fun LumiNavGraph(
                 onUpdateWakeupKeyword = settingsViewModel::updateWakeupKeyword,
                 onUpdateWeatherEnabled = settingsViewModel::updateWeatherEnabled,
                 onUpdateWeatherApiKey = settingsViewModel::updateWeatherApiKey,
-                onUpdateWeatherCredentialsId = settingsViewModel::updateWeatherCredentialsId
+                onUpdateWeatherCredentialsId = settingsViewModel::updateWeatherCredentialsId,
+                onPerformHealthCheck = viewModel::performHealthCheck
             )
         }
     }

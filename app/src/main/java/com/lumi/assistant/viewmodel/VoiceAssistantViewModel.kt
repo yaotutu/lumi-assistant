@@ -12,6 +12,8 @@ import com.lumi.assistant.audio.AudioRecorder
 import com.lumi.assistant.config.AppSettings
 import com.lumi.assistant.model.Message
 import com.lumi.assistant.network.WebSocketManager
+import com.lumi.assistant.network.NetworkHealthChecker
+import com.lumi.assistant.network.HealthCheckResult
 import com.lumi.assistant.repository.SettingsRepository
 import com.lumi.assistant.wakeup.WakeupConfig
 import com.lumi.assistant.wakeup.WakeupListener
@@ -50,7 +52,8 @@ data class VoiceAssistantState(
     val isWakeupTriggered: Boolean = false,
     val wakeupStatus: String = "未初始化",
     val waveformBars: List<Float> = List(12) { 0f },
-    val currentState: AssistantState = AssistantState.IDLE
+    val currentState: AssistantState = AssistantState.IDLE,
+    val healthCheck: HealthCheckResult = HealthCheckResult()  // 健康检测结果
 )
 
 @HiltViewModel
@@ -59,7 +62,8 @@ class VoiceAssistantViewModel @Inject constructor(
     private val settingsRepository: SettingsRepository,
     private val webSocketManager: WebSocketManager,
     private val audioPlayer: AudioPlayer,
-    private val wakeupManager: WakeupManager
+    private val wakeupManager: WakeupManager,
+    private val networkHealthChecker: NetworkHealthChecker  // 注入健康检测器
 ) : ViewModel() {
     private val _state = MutableStateFlow(VoiceAssistantState())
     val state: StateFlow<VoiceAssistantState> = _state.asStateFlow()
@@ -92,6 +96,8 @@ class VoiceAssistantViewModel @Inject constructor(
 
         // 监听配置变化
         viewModelScope.launch {
+            var isFirstLoad = true  // 标记是否首次加载配置
+
             settingsRepository.settingsFlow.collect { settings ->
                 val previousKeyword = currentSettings.wakeup.keyword
                 val previousWsUrl = currentSettings.server.wsUrl
@@ -101,9 +107,20 @@ class VoiceAssistantViewModel @Inject constructor(
                 // 更新 WebSocket URL
                 _state.update { it.copy(wsUrl = settings.server.wsUrl) }
 
+                // 首次加载配置后执行健康检测
+                if (isFirstLoad) {
+                    isFirstLoad = false
+                    Log.i(TAG, "🏥 配置加载完成，执行健康检测...")
+                    performHealthCheck()
+                }
+
                 // 如果服务器地址变化，断开旧连接并重连新地址
                 if (settings.server.wsUrl != previousWsUrl && previousWsUrl.isNotEmpty()) {
                     Log.i(TAG, "🔄 服务器地址已变化: '$previousWsUrl' -> '${settings.server.wsUrl}'")
+
+                    // 重新执行健康检测
+                    performHealthCheck()
+
                     mainHandler.post {
                         // 断开旧连接
                         if (_state.value.isConnected) {
@@ -697,6 +714,28 @@ class VoiceAssistantViewModel @Inject constructor(
         }
         // 重新开始监听唤醒词
         startWakeupListening()
+    }
+
+    /**
+     * 执行网络健康检测
+     * 检测互联网连接和服务器可达性
+     */
+    fun performHealthCheck() {
+        viewModelScope.launch {
+            Log.i(TAG, "🏥 开始执行健康检测...")
+            val result = networkHealthChecker.performHealthCheck(currentSettings.server.wsUrl)
+
+            // 更新状态
+            _state.update { it.copy(healthCheck = result) }
+
+            // 记录结果
+            Log.i(TAG, "🏥 健康检测完成:")
+            Log.i(TAG, "  📡 互联网: ${if (result.internetConnected) "✓ 连接正常 (${result.internetLatency}ms)" else "✗ 连接失败"}")
+            Log.i(TAG, "  🖥️ 服务器: ${if (result.serverReachable) "✓ 可达 (${result.serverLatency}ms)" else "✗ 不可达"}")
+            if (result.errorMessage != null) {
+                Log.w(TAG, "  ⚠️ 错误: ${result.errorMessage}")
+            }
+        }
     }
 
     override fun onCleared() {
